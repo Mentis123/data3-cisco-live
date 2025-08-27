@@ -39,11 +39,11 @@ interface StructuredSolution {
 }
 
 const CATEGORIES = [
-  { key: "SECURE_CONNECTIVITY", name: "Zero Trust & Secure Connectivity", description: "SASE, SD-WAN, Network Segmentation (Catalyst Center, SD-WAN, Secure Client, Duo)" },
-  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud", description: "ACI/Nexus, UCS, HyperFabric infrastructure solutions" },
-  { key: "COLLAB_CX", name: "Collaboration & Contact Centre", description: "Webex, Webex Contact Center, unified communications" },
-  { key: "OBSERVABILITY", name: "Observability & Performance", description: "ThousandEyes, AppDynamics, Full-Stack Observability, resilience/SLOs" },
-  { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "Meraki/Catalyst at branch/industrial edge, automation/telemetry" },
+  { key: "SECURE_CONNECTIVITY", name: "Zero Trust, SASE, SD-WAN, Network Segmentation", description: "(e.g., Catalyst Center, SD-WAN, Secure Client, Duo)" },
+  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud", description: "(e.g., ACI/Nexus, UCS, HyperFabric)" },
+  { key: "COLLAB_CX", name: "Collaboration & Contact Centre", description: "(e.g., Webex, Webex Contact Center)" },
+  { key: "OBSERVABILITY", name: "ThousandEyes, AppDynamics, Full-Stack Observability", description: "resilience/SLOs" },
+  { key: "EDGE_IOT", name: "Meraki/Catalyst at branch/industrial edge", description: "automation/telemetry" },
 ];
 
 export default function Play() {
@@ -133,9 +133,27 @@ export default function Play() {
         title: "Solution Submitted!",
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
-      setTimeout(() => {
-        setLocation("/leaderboard");
+      
+      // If WebSocket blocked, poll /api/leaderboard every 2s for 10s
+      let pollCount = 0;
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        if (pollCount > 5) {
+          clearInterval(pollInterval);
+          setLocation("/leaderboard");
+          return;
+        }
+        try {
+          await apiRequest("GET", `/api/leaderboard?limit=10`);
+        } catch (e) {
+          // Continue polling
+        }
       }, 2000);
+      
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        setLocation("/leaderboard");
+      }, 3000);
     },
     onError: (error) => {
       toast({

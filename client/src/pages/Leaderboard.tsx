@@ -83,10 +83,11 @@ export default function Leaderboard() {
 
             setTotalParticipants(prev => prev + 1);
 
-            // Trigger confetti after animation completes
+            // Trigger confetti after animation completes (3-5 seconds)
+            const animDuration = 3000 + Math.random() * 2000; // Random between 3-5 seconds
             setTimeout(() => {
               createConfetti();
-            }, 4000);
+            }, animDuration);
           });
         }
       } catch (error) {
@@ -166,13 +167,18 @@ export default function Leaderboard() {
   return (
     <div className="portrait-leaderboard min-h-screen bg-gradient-to-b from-background via-background/95 to-muted/20">
       {/* Flash Overlay */}
-      <div id="flashOverlay" className="fixed inset-0 bg-white/70 opacity-0 pointer-events-none z-50"></div>
+      <div id="flashOverlay" className="fixed inset-0 bg-white opacity-0 pointer-events-none z-50"></div>
+      
+      {/* ARIA Live Region for Accessibility */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {entries.length > 0 && `New score posted for ${entries[0].name}`}
+      </div>
 
       {/* Leaderboard Header */}
       <div className="sticky top-0 z-40 glass-panel">
         <div className="p-6 text-center">
-          <h2 className="text-4xl font-bold mb-2">🏆 Live Leaderboard</h2>
-          <p className="text-xl text-muted-foreground">Data#3 | Cisco Solution Sprint — Cisco Live Melbourne</p>
+          <h2 className="text-4xl font-bold mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
+          <p className="text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
           <div className="mt-4 text-lg">
             <span className="text-primary font-bold" data-testid="text-total-participants">
               {totalParticipants}
