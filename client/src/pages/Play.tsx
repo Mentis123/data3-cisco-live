@@ -120,18 +120,24 @@ export default function Play() {
         try {
           const jsonStr = jsonMatch[0];
           const parsed = JSON.parse(jsonStr);
+          console.log("Parsed JSON:", parsed);
           if (parsed.problem_summary && parsed.chosen_category) {
+            console.log("Setting structured solution and moving to preview");
             setStructuredSolution(parsed);
             setStep("preview");
             toast({
               title: "Solution Ready!",
               description: "Review and edit your solution before submitting",
             });
+          } else {
+            console.log("JSON missing required fields:", parsed);
           }
         } catch (e) {
           // Not valid JSON or missing required fields, continue chat
           console.log("JSON parse attempt failed:", e);
         }
+      } else {
+        console.log("No JSON found in response");
       }
     },
     onError: (error) => {
