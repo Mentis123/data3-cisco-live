@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Home() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -65,7 +66,7 @@ export default function Home() {
               </p>
               
               {/* Terms & Conditions */}
-              <div className="bg-muted/20 rounded-xl p-6 mb-6">
+              <div className={`bg-muted/20 rounded-xl p-6 mb-6 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
                 <h4 className="text-lg font-semibold mb-3 flex items-center">
                   <i className="fas fa-shield-alt text-primary mr-2"></i>
                   Terms & Conditions
@@ -81,30 +82,45 @@ export default function Home() {
                 <label className="flex items-start space-x-3 cursor-pointer">
                   <Checkbox 
                     checked={acceptedTerms}
-                    onCheckedChange={(checked) => setAcceptedTerms(!!checked)}
+                    onCheckedChange={(checked) => {
+                      setAcceptedTerms(!!checked);
+                      if (checked) setShowTermsError(false);
+                    }}
+                    className={showTermsError ? 'ring-2 ring-destructive' : ''}
                     data-testid="checkbox-accept-terms"
                   />
-                  <span className="text-sm">
+                  <span className={`text-sm ${showTermsError ? 'text-destructive font-semibold' : ''}`}>
                     I accept the Terms & Conditions and privacy notice, and confirm my details match my Cisco Live registration badge.
                   </span>
                 </label>
+                {showTermsError && (
+                  <p className="text-destructive text-sm mt-2 flex items-center">
+                    <i className="fas fa-exclamation-circle mr-1"></i>
+                    Please accept the Terms & Conditions to proceed
+                  </p>
+                )}
               </div>
 
               {/* Main Action Buttons */}
               <div className="grid md:grid-cols-2 gap-4">
-                <Link href="/play">
-                  <Button 
-                    disabled={!acceptedTerms}
-                    className="w-full h-16 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    data-testid="button-solve-problem"
-                  >
-                    <i className="fas fa-lightbulb mr-3 text-xl"></i>
-                    <div className="text-left">
-                      <div className="font-bold">Solve a Problem</div>
-                      <div className="text-sm opacity-90">Propose your solution</div>
-                    </div>
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => {
+                    if (!acceptedTerms) {
+                      setShowTermsError(true);
+                      setTimeout(() => setShowTermsError(false), 3000);
+                    } else {
+                      window.location.href = "/play";
+                    }
+                  }}
+                  className="w-full h-16 text-lg"
+                  data-testid="button-solve-problem"
+                >
+                  <i className="fas fa-lightbulb mr-3 text-xl"></i>
+                  <div className="text-left">
+                    <div className="font-bold">Solve a Problem</div>
+                    <div className="text-sm opacity-90">Propose your solution</div>
+                  </div>
+                </Button>
                 
                 <Link href="/leaderboard">
                   <Button variant="secondary" className="w-full h-16 text-lg" data-testid="button-view-leaderboard">
