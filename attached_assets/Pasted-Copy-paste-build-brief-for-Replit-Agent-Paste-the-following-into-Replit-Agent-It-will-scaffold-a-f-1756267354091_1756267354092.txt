@@ -1,0 +1,250 @@
+Copy-paste build brief for Replit Agent
+
+Paste the following into Replit Agent. It will scaffold a full-stack app with a portrait leaderboard, an attendee chat to craft a solution, hard-mode scoring, and the exact “How to Play” board (see “Static board” section) adapted for Cisco Live.
+
+TITLE: Data#3 @ Cisco Live — “Cisco Solution Sprint” Activation (Leaderboard + Chat + Scoring)
+
+GOAL
+Build a production-ready web app for Data#3’s booth at Cisco Live (Melbourne). Attendees scan a QR, accept T&Cs, then either:
+1) View a live, portrait leaderboard, or
+2) “Solve a Problem” by proposing a business solution that deliberately uses Cisco tools/technologies. They chat with an assistant (gpt-4o-mini) to refine their idea, submit, and an evaluator (o3) scores it against a 5×10 rubric (hard calibration). The leaderboard flashes and animates their name rising to its final rank over 3–5 seconds before revealing the score.
+
+TECH & STRUCTURE
+- Monorepo with:
+  /server  Node 20 + Express + ws (WebSocket) + better-sqlite3 (or SQLite3) for atomic ranking
+  /web     Vite + React + TypeScript + Tailwind (dark, high contrast)
+  /static  Include an HTML “How to Play” board (provided below) as /static/cisco_live_how_to_play.html
+- Environment: Replit (single port). Serve /web as static SPA; /api/* for JSON.
+- Models (pluggable via env):
+  OPENAI_API_KEY (required)
+  CHAT_MODEL=gpt-4o-mini
+  EVAL_MODEL=o3
+- Security/PII: store only First Name, Last Name, Category, Submission JSON, Scores, created_at. No rego numbers. Rate-limit submits (IP + 60s cooldown). Filter profanity.
+
+ROUTES (Public)
+- GET  /               -> SPA shell (home: T&Cs gate, buttons: “Leaderboard” / “Solve a Problem”)
+- GET  /leaderboard    -> portrait page (1080x1920 CSS) for TV display
+- GET  /how-to-play    -> serves /static/cisco_live_how_to_play.html
+- WS   /ws             -> realtime updates: {type:"score:new", entry:{id,name,category,targetRank,finalScore}}
+
+ROUTES (API)
+- POST /api/accept-tnc              {accepted:boolean} -> 200
+- POST /api/start                   {firstName,lastName} -> {participantId, sessionToken}
+- GET  /api/categories              -> list of 5 categories (see below)
+- POST /api/chat                    {sessionToken, messages:[...]} -> assistant reply (proxy CHAT_MODEL)
+- POST /api/submit                  {sessionToken, category, solutionText, structuredFields?}
+     1) Normalise -> structure JSON per “Submission Schema” (below)
+     2) Call EVAL_MODEL (o3) with rubric; get 5 subscores (0–10) and total (0–50)
+     3) Persist to DB; compute target rank
+     4) Broadcast WS event:
+        - Immediately: flash overlay + insert name at bottom with “Scoring…”
+        - Animate: name rises to target rank over 3–5s (easeInOutCubic)
+        - Reveal: finalScore + category; trigger confetti
+     5) Return {finalScore, subscores, rank, leaderboardUrl}
+
+- GET  /api/leaderboard?limit=100   -> [{name, category, finalScore, created_at}] sorted desc
+- GET  /api/health                  -> {ok:true}
+- (Admin) POST /api/admin/reset?key=… -> wipe DB (keep a simple ADMIN_KEY)
+
+DATABASE (SQLite)
+tables:
+ participants(id TEXT PK, first_name TEXT, last_name TEXT, created_at INT)
+ submissions(id TEXT PK, participant_id TEXT, category TEXT, solution_text TEXT, structured_json TEXT, sub_scores TEXT, total_score INT, created_at INT)
+ indexes on created_at, total_score DESC
+For name display use “FirstName LastInitial.” to reduce PII on big screens.
+
+TERMS & FLOW
+- Gate every action behind a checkbox: “I accept the Terms & Conditions and privacy notice.”
+- Then present two primary actions: [Leaderboard] [Solve a Problem].
+- “Solve a Problem” asks for First Name + Last Name (exact as per Cisco Live rego badge), shows category selector, then opens a short, guided chat (CHAT_MODEL) with max 6 messages total to keep flow snappy.
+
+CATEGORIES (5)
+Use these exact keys and labels:
+- SECURE_CONNECTIVITY  — Zero Trust, SASE, SD-WAN, Network Segmentation (e.g., Catalyst Center, SD-WAN, Secure Client, Duo)
+- HYBRID_DC            — Data Centre & Hybrid Cloud (e.g., ACI/Nexus, UCS, HyperFabric)
+- COLLAB_CX            — Collaboration & Contact Centre (e.g., Webex, Webex Contact Center)
+- OBSERVABILITY        — ThousandEyes, AppDynamics, Full-Stack Observability; resilience/SLOs
+- EDGE_IOT             — Meraki/Catalyst at branch/industrial edge; automation/telemetry
+
+RUBRIC (5×10 — “hard mode”)
+Score each 0–10; typical good entries land 12–20 total; 30 is rare-amazing; 50 is possible but exceptional.
+
+1) Outcome & KPIs (clarity, baselines, measurable targets)
+2) Cisco Architecture Fit (specific named products/features and why)
+3) Feasibility & Security (integration points, identity/zero-trust, constraints/risks)
+4) Business Impact at Scale (time/quality/cost; sites/users; rollout considerations)
+5) Observability & Automation (telemetry, AIOps, runbooks; e.g., AppD/ThousandEyes, automation hooks)
+
+SCORING CALIBRATION (apply before returning):
+- Start from 0. Add points only when evidence is explicit in the submission JSON.
+- Penalise hand-waving (+0) vs. concrete specifics (+2 to +6); reserve 8–10 for submissions with product-level specificity, KPIs with numbers, and coherent rollout + observability.
+- Soft caps: if <3 Cisco products named or no KPI numbers => clamp total to ≤18.
+- Grant 30+ only if all five criteria ≥6 and at least one criterion ≥8.
+- Return JSON: {subscores:{outcome,fit,feasibility,impact,observability}, total}
+
+SUBMISSION SCHEMA (store this JSON alongside raw text)
+{
+  "problem_summary": "...",
+  "chosen_category": "SECURE_CONNECTIVITY|HYBRID_DC|COLLAB_CX|OBSERVABILITY|EDGE_IOT",
+  "cisco_products": ["Webex","ThousandEyes","Catalyst Center", ...],
+  "current_state": {"baseline_kpis":[{"name":"MTTR","value":"8h"}], "constraints":["legacy MPLS","PII"]},
+  "target_state": {"kpis":[{"name":"MTTR","target":"2h"}], "persona":["NetOps","SecOps"]},
+  "integration_points": ["Active Directory/Entra","ServiceNow","API X"],
+  "security_considerations": ["Zero Trust segmentation","MFA via Duo"],
+  "observability_plan": ["ThousandEyes path viz","AppD app health SLOs"],
+  "rollout_plan": ["pilot 3 sites -> phased 20 sites", "training plan"],
+  "risks": ["shadow IT","data residency"] 
+}
+
+UI/UX REQUIREMENTS
+- General
+  - Theme: dark, high contrast, large type. 44px min tap targets. Offline-safe fonts.
+  - Buttons: [Play the Cisco Solution Sprint] / [Show Leaderboard] mirrored on home.
+  - After submit: “Thanks! Watch the Leaderboard now—your ranking will update live.”
+
+- Leaderboard (/leaderboard)
+  - Portrait layout (1080 × 1920). Sticky header “Data#3 | Cisco Solution Sprint — Live Leaderboard”.
+  - BIG FLASH: when WS receives "score:new", overlay a full-screen translucent white (#fff at 70%) for 120ms, twice (flash-flash), then fade.
+  - ENTRY ANIMATION: insert new row at bottom with name (score hidden). Over 3–5 seconds (random in range), interpolate its translateY to the target position. Ease: cubic-bezier(.65,.05,.36,1). Then reveal score with count-up. Trigger confetti burst.
+  - No top-10 filter — show full table. Infinite scroll if >120 rows; maintain smooth 60fps.
+  - Accessibility: ARIA live region announcing “New score posted for {name}”.
+
+- Solve a Problem flow
+  - T&Cs gate (checkbox), then First/Last Name (required), Category select, “Start Chat”.
+  - In chat, prompt the user with 3–5 targeted questions (from system prompt below), then show a one-page preview of the structured submission. “Submit” -> POST /api/submit.
+  - If WS blocked, poll /api/leaderboard?since=timestamp every 2s for 10s after submit.
+
+STATIC BOARD (“How to Play”)
+- Include /static/cisco_live_how_to_play.html by copying our reference file (provided below) verbatim, but change branding text:
+  - Title: “Cisco Solution Sprint — How to Play (Data#3 | Cisco Live)”
+  - Subline: “Data#3 | Cisco Live Melbourne — World of Solutions”
+  - Replace “Copilot Agent” mentions with “Cisco Solution Sprint”
+  - Keep keyboard shortcuts (F/M) and all CSS/JS intact.
+
+FILES TO CREATE
+/server/index.ts
+/server/openai.ts            (thin wrappers for chat/eval models)
+/server/db.ts                (SQLite init + queries)
+/server/ws.ts                (broadcast helpers)
+/web/src/pages/Home.tsx      (T&Cs + entry CTA)
+/web/src/pages/Leaderboard.tsx (portrait UI + animations)
+/web/src/pages/Play.tsx      (name/category + chat + preview)
+/web/src/lib/anim.ts         (flash + rise timeline + confetti)
+/web/tailwind.css + config
+/static/cisco_live_how_to_play.html (see below)
+
+ANIMATION DETAILS
+- Flash: CSS keyframes flashTwice (opacity 0→0.7→0 in 120ms; wait 120ms; repeat).
+- Rise: compute target index on arrival; position each row with transform:translateY; animate with requestAnimationFrame for frame-perfect movement; avoid layout thrash (use will-change: transform).
+
+TESTS / ACCEPTANCE
+- Submitting a sample idea inserts the name instantly at bottom, flashes twice, rises to rank in 3–5s, then reveals score and confetti.
+- Average decent entry should land 12–20/50; only highly specific proposals cross 30.
+- WebSocket fallback works (polling).
+- /how-to-play renders and hotkeys F/M work.
+- Scores and rows persist across reloads.
+
+ENV VARS
+OPENAI_API_KEY=
+ADMIN_KEY=choose-a-strong-string
+CHAT_MODEL=gpt-4o-mini
+EVAL_MODEL=o3
+
+DELIVERABLE
+A runnable Replit project with README including:
+- 1-click “Run” instructions
+- how to rotate ADMIN_KEY
+- privacy note (names only, no badge numbers)
+- link paths: / (home), /leaderboard (TV portrait), /how-to-play (static board).
+
+System prompt for the attendee chat (CHAT_MODEL = gpt-4o-mini)
+
+Use this verbatim as the assistant’s system message to coach submissions into a high-quality, structured proposal.
+
+You are “Cisco Solution Coach” at the Data#3 booth (Cisco Live Melbourne). Your job is to help an attendee craft a crisp, SPECIFIC proposal that uses Cisco tools/technologies to solve a business problem, ready for scoring.
+
+Style: concise; ask up to 5 targeted questions; push for product-level specifics and measurable KPIs. Keep flow quick for a busy expo.
+
+On start: 
+1) Confirm their chosen category from: SECURE_CONNECTIVITY, HYBRID_DC, COLLAB_CX, OBSERVABILITY, EDGE_IOT.
+2) Ask for a short problem summary (1–2 sentences) and current baseline KPIs or pain points with numbers if possible.
+3) Nudge them to name appropriate Cisco products/features and why.
+4) Ask for integration points (e.g., identity, ITSM, data sources) and any security/constraints.
+5) Ask for an observability/automation angle (ThousandEyes/AppDynamics/alerts/runbooks).
+6) Help set 2–3 measurable target KPIs and a short rollout plan (pilot → scale).
+
+Output (final message): a concise, structured JSON exactly matching this schema:
+{
+  "problem_summary": "...",
+  "chosen_category": "…",
+  "cisco_products": ["…"],
+  "current_state": {"baseline_kpis":[{"name":"…","value":"…"}], "constraints":["…"]},
+  "target_state": {"kpis":[{"name":"…","target":"…"}], "persona":["…"]},
+  "integration_points": ["…"],
+  "security_considerations": ["…"],
+  "observability_plan": ["…"],
+  "rollout_plan": ["…"],
+  "risks": ["…"]
+}
+If the user can’t provide a field, insert an empty array [] or reasonable placeholder, but never invent fake facts. Keep total under 300 words.
+
+Scoring prompt for the evaluator (EVAL_MODEL = o3)
+
+Paste this into your server’s evaluator call; it should be the system message for o3, followed by the attendee’s structured JSON as the user message.
+
+You are “Objective Judge” for Data#3’s Cisco Solution Sprint. Score proposals strictly against the rubric (5 criteria × 0–10). Be tough; reward only explicit evidence from the submission JSON. Never infer beyond what’s written.
+
+Rubric (0–10 each):
+1) Outcome & KPIs: clear problem statement + baselines + numeric targets
+2) Cisco Architecture Fit: correct, specific use of Cisco products/features for the category
+3) Feasibility & Security: viable integration points; identity/zero-trust; known constraints/risks acknowledged
+4) Business Impact at Scale: quantified value (time/quality/cost), multi-site/user scaling, rollout realism
+5) Observability & Automation: explicit telemetry/FSO/ThousandEyes/AppD plan; automation/runbooks/alerts
+
+Calibration rules:
+- Start from 0; add points only for explicit evidence.
+- If <3 Cisco products named OR no numeric KPIs => cap total ≤ 18.
+- Award ≥8 on a criterion only when product-level specifics AND numbers (where relevant) are present.
+- Allow ≥30 totals only if all five criteria ≥6 and at least one criterion ≥8.
+- Return ONLY this JSON:
+{
+  "subscores": {
+    "outcome": <0-10>,
+    "fit": <0-10>,
+    "feasibility": <0-10>,
+    "impact": <0-10>,
+    "observability": <0-10>
+  },
+  "total": <0-50>,
+  "notes_short": "One sentence rationale highlighting gaps."
+}
+
+Use your JuiceIT “How-to-Play” board verbatim
+
+You uploaded a great board; we’ll keep the exact CSS/JS and just change the event strings. In your Repl, add it as /static/cisco_live_how_to_play.html and do these replacements:
+
+Heading: Cisco Solution Sprint — How to Play
+
+Subline: Data#3 | Cisco Live Melbourne — World of Solutions
+
+Step wording: swap “Copilot Agent” → “Cisco Solution Sprint”
+
+QR target: set to your app’s / URL (the home gate)
+
+Keep keyboard shortcuts and layout identical
+
+(If helpful, I’ll slot your file straight in and prep a diff on request.)
+For provenance, your uploaded file shows the layout, keyboard shortcuts, scoring tiles, and QR logic we’ll reuse with minimal string edits. 
+
+Operator notes (to bake into the README)
+
+TV URL: open /leaderboard in a 1080×1920 portrait browser (smart TV or rotated monitor).
+
+T&Cs link: include a simple privacy blurb (names only; no badge numbers; scores public on the board).
+
+Reset: POST /api/admin/reset with ADMIN_KEY between show days.
+
+Typical scores: Good = 12–20; Amazing = ~30; Unicorns can hit 40–50 if exceptionally concrete.
+
+Why Cisco focus? The categories map cleanly to Cisco’s portfolio and the World of Solutions floor, ensuring relevance for attendees. 
+Cisco Live

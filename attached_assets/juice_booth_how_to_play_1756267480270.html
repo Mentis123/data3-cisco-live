@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Copilot Agent Challenge — Criteria Board (Classic Icons + Reliable Hotkeys)</title>
+<meta name="description" content="Data#3 JuiceIT | Modern Work — Copilot Agent Challenge reference board." />
+
+<!-- Classic icon set (Font Awesome Solid) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0f1220;--panel:#151a2f;--muted:#a6aec1;--text:#e9ecf6;
+    --accent:#7aa2ff;--accent2:#63e6be;--ring:rgba(122,162,255,.45);
+    --shadow:0 16px 36px rgba(0,0,0,.45);--radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 800px at 5% -10%, #1b2140 0, transparent 60%),
+      radial-gradient(900px 600px at 120% 10%, #162338 0, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  header{
+    position:sticky;top:0;z-index:20;
+    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    padding:16px 18px;
+    background:linear-gradient(180deg, rgba(15,18,32,.95), rgba(15,18,32,.7));
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .brand{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+  .brand svg{width:28px;height:28px;fill:#0b1020}
+  h1{margin:0;font-size:clamp(20px,2.6vw,32px);line-height:1.15}
+  .sub{color:var(--muted);font-size:14px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-self:end}
+  .btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer}
+
+  main{padding:18px}
+  section.block{
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.10);border-radius:var(--radius);
+    padding:16px;box-shadow:var(--shadow);margin-bottom:18px
+  }
+
+  .split{display:grid;grid-template-columns:2.1fr 1fr;gap:16px;align-items:stretch}
+  @media (max-width:1100px){.split{grid-template-columns:1fr}}
+  h2{margin:0 0 10px;font-size:22px}
+
+  /* How-to tiles */
+  .howto{display:flex;flex-direction:column;min-height:100%}
+  .steps{flex:1;display:grid;gap:12px;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(130px,1fr)}
+  @media (max-width:1500px){.steps{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:1100px){.steps{grid-template-columns:repeat(2,1fr)}}
+  .step{
+    display:grid;grid-template-columns:48px 1fr;align-items:center;gap:14px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;padding:16px;overflow:hidden
+  }
+  .num{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#0b1020;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .step h3{margin:0;font-size:clamp(20px,1.6vw,26px)}
+  .step p{margin:6px 0 0;color:var(--muted);font-size:clamp(18px,1.2vw,22px);line-height:1.35}
+
+  /* QR area */
+  .qrwrap{display:flex;flex-direction:column;gap:12px;height:100%}
+  .qr{display:grid;place-items:center;flex:1;min-height:260px;border:1.5px dashed rgba(255,255,255,.18);border-radius:14px;padding:10px}
+  .qr img{width:100%;max-width:360px;height:auto;display:block}
+
+  /* Criteria tiles: classic icon + BIG title + BIG points */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media (max-width:1500px){.tiles{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:1100px){.tiles{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:700px){.tiles{grid-template-columns:1fr}}
+
+  .tile{
+    position:relative;display:flex;flex-direction:column;gap:10px;padding:14px;min-height:140px;
+    border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.1);box-shadow:var(--shadow)
+  }
+  .tileTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .thumb{
+    width:74px;height:74px;flex:0 0 74px;border-radius:12px;background:#0f1220;border:1px solid rgba(255,255,255,.10);
+    display:grid;place-items:center
+  }
+  .icon{
+    font-size:46px;line-height:1;color:var(--accent);
+    filter: drop-shadow(0 2px 0 rgba(10,12,20,.35));
+  }
+  .points{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0b1020;font-weight:900;border-radius:999px;white-space:nowrap;
+    padding:12px 18px;font-size:clamp(18px,1.6vw,24px);letter-spacing:.3px;
+  }
+
+/* 20-point highlight */
+.points--gold{
+  background: linear-gradient(135deg,#ffe082,#ffca28);
+  color:#2a2100;
+  box-shadow:
+    0 0 0 2px rgba(255,223,99,.35) inset,
+    0 8px 22px rgba(255,196,0,.35);
+  filter: drop-shadow(0 0 10px rgba(255,200,0,.28));
+  padding:12px 20px;                 /* a touch larger */
+  font-size:clamp(20px,1.8vw,26px);  /* a touch bigger */
+  letter-spacing:.35px;
+}
+.points--gold i{margin-right:8px}
+
+/* (Optional) very subtle pulse — comment to hide motion*/
+@keyframes goldPulse{
+  0%,100%{ box-shadow:0 0 0 2px rgba(255,223,99,.35) inset, 0 8px 22px rgba(255,196,0,.35) }
+  50%{    box-shadow:0 0 0 2px rgba(255,223,99,.50) inset, 0 14px 30px rgba(255,196,0,.55) }
+}
+.points--gold{ animation: goldPulse 2.8s ease-in-out infinite }
+
+
+  .titleBig{margin:0;font-weight:900;line-height:1.15;font-size:clamp(22px,2.1vw,34px)}
+
+  footer{padding:12px 16px;color:var(--muted);text-align:center}
+  .minimal header,.minimal footer{display:none}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 3c2.5 2.3 4 5 4 8a7 7 0 0 1-8 0c0-3 1.5-5.7 4-8zM5 8c1.8 1.6 3 3.7 3 6a6 6 0 0 1-6 0c0-2.3 1.2-4.4 3-6zm14 0c1.8 1.6 3 3.7 3 6a6 6 0 0 1-6 0c0-2.3 1.2-4.4 3-6zM7 18c1.4-.8 3.2-1.2 5-1.2S15.6 17.2 17 18a7.5 7.5 0 0 1-10 0z"/></svg>
+    </div>
+    <div>
+      <h1>Copilot Agent Challenge — Criteria Board</h1>
+      <div class="sub">Data#3 JuiceIT | Modern Work booth</div>
+    </div>
+    <div class="controls">
+      <button id="minimalBtn" class="btn" title="Hide header/footer">Hide chrome (M)</button>
+      <button id="fsBtn" class="btn" title="Fullscreen">Fullscreen (F)</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="block split">
+      <div class="howto">
+        <h2>How to play</h2>
+        <div class="steps" role="list">
+          <div class="step" role="listitem"><div class="num">1</div><div><h3>Scan the QR</h3><p>Open the Copilot Agent on your phone.</p></div></div>
+          <div class="step" role="listitem"><div class="num">2</div><div><h3>Name a process</h3><p>Pick a workflow in your organisation that needs improvement.</p></div></div>
+          <div class="step" role="listitem"><div class="num">3</div><div><h3>Describe your agent</h3><p>Explain how an agent could help using the criteria.</p></div></div>
+          <div class="step" role="listitem"><div class="num">4</div><div><h3>Get your score</h3><p>See your score out of 100 and any leaderboard position.</p></div></div>
+          <div class="step" role="listitem"><div class="num">5</div><div><h3>Tips to improve</h3><p>Receive guidance to lift your score.</p></div></div>
+          <div class="step" role="listitem"><div class="num">6</div><div><h3>Leaderboard</h3><p>Top 10 on the TV; top 30 on mobile.</p></div></div>
+          <div class="step" role="listitem"><div class="num">7</div><div><h3>Prize</h3><p>First place prize announced in the afternoon.</p></div></div>
+        </div>
+      </div>
+      <div class="qrwrap">
+        <h2>Scan to enter</h2>
+        <div class="qr" id="qrBox">
+          <img id="qrImg" alt="QR code to open the Copilot Agent" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Scoring criteria</h2>
+      <div class="tiles">
+
+        <!-- 1 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-bullseye icon" aria-hidden="true"></i></div>
+            <span class="points points--gold"><i class="fa-solid fa-star" aria-hidden="true"></i>20 pts</span>
+          </div>
+          <h3 class="titleBig">Solution Addresses Business Problem</h3>
+        </article>
+
+        <!-- 2 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-diagram-project icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Business Process &amp; Change Principles</h3>
+        </article>
+
+        <!-- 3 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-robot icon" aria-hidden="true"></i></div>
+            <span class="points points--gold"><i class="fa-solid fa-star" aria-hidden="true"></i>20 pts</span>
+          </div>
+          <h3 class="titleBig">Agentic &amp; Autonomous AI Capabilities</h3>
+        </article>
+
+        <!-- 4 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-gauge-high icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Degree of Improved Speed</h3>
+        </article>
+
+        <!-- 5 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-circle-check icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Degree of Improved Quality</h3>
+        </article>
+
+        <!-- 6 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-arrow-down-short-wide icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Workload Reduction / Human Effort Savings</h3>
+        </article>
+
+        <!-- 7 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-plug-circle-bolt icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Integration with Relevant Systems</h3>
+        </article>
+
+        <!-- 8 -->
+        <article class="tile">
+          <div class="tileTop">
+            <div class="thumb"><i class="fa-solid fa-lightbulb icon" aria-hidden="true"></i></div>
+            <span class="points">10 pts</span>
+          </div>
+          <h3 class="titleBig">Other Innovation or Measurable Benefit</h3>
+        </article>
+
+      </div>
+    </section>
+
+    <footer>Keyboard: <b>F</b> Fullscreen • <b>M</b> Hide chrome</footer>
+  </main>
+
+<script>
+  // ----- QR: SVG (crisp) with fallback text if blocked -----
+  const AGENT_URL = "https://copilotstudio.microsoft.com/environments/Default-d5a8d246-0604-43e5-ad91-a243392be3d0/bots/cr406_agentBusinessProcessGame/canvas?__version__=2&enableFileAttachment=true";
+  (function loadQR(){
+    const img = document.getElementById('qrImg');
+    const encoded = encodeURIComponent(AGENT_URL);
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=20&format=svg&data=${encoded}`;
+    img.onerror = function(){
+      const box = document.getElementById('qrBox');
+      box.innerHTML = `
+        <div style="text-align:center;max-width:520px">
+          <p style="color:#a6aec1;margin:0 0 10px">QR service blocked. Open this link:</p>
+          <a href="${AGENT_URL}" target="_blank" style="word-break:break-all">${AGENT_URL}</a>
+        </div>`;
+    };
+  })();
+
+  // ----- Fullscreen + Minimal chrome: robust, single-toggle per press -----
+  function isFs(){
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+  function requestFs(el){
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || function(){}).call(el);
+  }
+  function exitFs(){
+    (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen || function(){}).call(document);
+  }
+  function toggleFullscreen(){
+    if (isFs()) exitFs(); else requestFs(document.documentElement);
+  }
+
+  document.getElementById('fsBtn')?.addEventListener('click', toggleFullscreen, {passive:false});
+  document.getElementById('minimalBtn')?.addEventListener('click', ()=>document.body.classList.toggle('minimal'), {passive:false});
+
+  // One keydown handler (ignore repeats) so no “hold to keep” behaviour
+  document.addEventListener('keydown', (e)=>{
+    if (e.repeat) return;
+    if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+    const k = (e.key || '').toLowerCase();
+    if (k === 'f'){ e.preventDefault(); toggleFullscreen(); }
+    if (k === 'm'){ e.preventDefault(); document.body.classList.toggle('minimal'); }
+  });
+</script>
+</body>
+</html>
