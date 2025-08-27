@@ -289,20 +289,52 @@ export default function Play() {
   }
 
   if (step === "chat") {
+    const testText = `Our organisation recently shifted a large part of our workforce to hybrid models, with staff moving between corporate offices, home, and customer sites. Current VPN infrastructure struggles to handle the load, leading to inconsistent performance and frustration among end-users.
+
+Pain points: Slow login/authentication times, dropped connections during video calls, and limited visibility into which users/applications consume bandwidth.
+
+KPIs: Mean time to connect (currently averaging 90+ seconds), help desk tickets related to VPN (~30% of all IT tickets), and NPS scores for collaboration tools trending downward.
+
+I think Cisco Secure Client (AnyConnect successor), Duo MFA integration, Umbrella DNS Security, and Webex embedded AI features could help. We need integration with Microsoft 365, Okta for identity federation, and ServiceNow for IT service workflows.
+
+Security concerns: Ensuring conditional access policies apply consistently across remote, on-prem, and cloud users; monitoring shadow IT apps accessed from home devices; and reducing risk of credential theft in chat applications.
+
+For observability, we'd like to use Cisco ThousandEyes for real-time visibility, implement AppDynamics to trace performance, deploy automation workflows in SecureX, and build dashboards that track key KPIs.`;
+
+    const handleCopyTestText = () => {
+      navigator.clipboard.writeText(testText);
+      toast({
+        title: "Copied to clipboard",
+        description: "Test text has been copied for testing purposes",
+      });
+    };
+
     return (
       <div className="min-h-screen bg-background text-foreground py-8">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="glass-panel border-0 overflow-hidden">
             {/* Chat Header */}
             <div className="bg-gradient-to-r from-primary to-secondary p-6 text-primary-foreground">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <i className="fas fa-robot text-lg"></i>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <i className="fas fa-robot text-lg"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Cisco Solution Coach</h3>
+                    <p className="opacity-90">Let's refine your solution together</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold">Cisco Solution Coach</h3>
-                  <p className="opacity-90">Let's refine your solution together</p>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyTestText}
+                  className="text-primary-foreground hover:bg-white/20"
+                  title="Copy test text for testing purposes"
+                  data-testid="button-copy-test"
+                >
+                  <i className="fas fa-copy"></i>
+                </Button>
               </div>
             </div>
 
@@ -503,6 +535,7 @@ export default function Play() {
 
   if (step === "edit" && (editedSolution || structuredSolution)) {
     const solution = editedSolution || structuredSolution;
+    if (!solution) return null;
     const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
     
     return (
@@ -523,7 +556,7 @@ export default function Play() {
                 <Textarea
                   id="problem-summary"
                   value={solution.problem_summary}
-                  onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value})}
+                  onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value} as StructuredSolution)}
                   className="min-h-24"
                   placeholder="Describe the business problem you're solving..."
                   data-testid="textarea-problem-summary"
@@ -542,7 +575,7 @@ export default function Play() {
                   onChange={(e) => setEditedSolution({
                     ...solution, 
                     cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  })}
+                  } as StructuredSolution)}
                   placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
                   data-testid="input-cisco-products"
                 />
@@ -562,7 +595,7 @@ export default function Play() {
                         onChange={(e) => {
                           const newKpis = [...solution.target_state.kpis];
                           newKpis[idx] = {...kpi, name: e.target.value};
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
                         }}
                         placeholder="KPI name"
                         className="flex-1"
@@ -573,7 +606,7 @@ export default function Play() {
                         onChange={(e) => {
                           const newKpis = [...solution.target_state.kpis];
                           newKpis[idx] = {...kpi, target: e.target.value};
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
                         }}
                         placeholder="Target value"
                         className="flex-1"
@@ -584,7 +617,7 @@ export default function Play() {
                         size="sm"
                         onClick={() => {
                           const newKpis = solution.target_state.kpis.filter((_, i) => i !== idx);
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
                         }}
                         data-testid={`button-remove-kpi-${idx}`}
                       >
@@ -597,7 +630,7 @@ export default function Play() {
                     size="sm"
                     onClick={() => {
                       const newKpis = [...(solution.target_state?.kpis || []), {name: "", target: ""}];
-                      setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                      setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
                     }}
                     data-testid="button-add-kpi"
                   >
@@ -619,7 +652,7 @@ export default function Play() {
                   onChange={(e) => setEditedSolution({
                     ...solution, 
                     integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  })}
+                  } as StructuredSolution)}
                   placeholder="e.g., Active Directory, ServiceNow, Splunk"
                   data-testid="input-integration-points"
                 />
@@ -637,7 +670,7 @@ export default function Play() {
                   onChange={(e) => setEditedSolution({
                     ...solution,
                     rollout_plan: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  })}
+                  } as StructuredSolution)}
                   className="min-h-20"
                   placeholder="e.g., Pilot phase with 10 users, Expand to department, Full rollout"
                   data-testid="textarea-rollout-plan"

@@ -1,0 +1,40 @@
+1) Which category are you focusing on?
+SECURE_CONNECTIVITY
+
+2) Can you share a short summary of the problem and any current KPIs or pain points?
+Our organisation recently shifted a large part of our workforce to hybrid models, with staff moving between corporate offices, home, and customer sites. Current VPN infrastructure struggles to handle the load, leading to inconsistent performance and frustration among end-users.
+
+Pain points: Slow login/authentication times, dropped connections during video calls, and limited visibility into which users/applications consume bandwidth.
+
+KPIs: Mean time to connect (currently averaging 90+ seconds), help desk tickets related to VPN (~30% of all IT tickets), and NPS scores for collaboration tools trending downward.
+
+3) What specific Cisco products or features do you think could help with productivity in chat scenarios?
+
+Cisco Secure Client (AnyConnect successor): Unified client for zero-trust access with seamless integration into collaboration platforms like Webex.
+
+Duo MFA integration: Faster, user-friendly authentication flows.
+
+Umbrella DNS Security: Adds another layer of protection without impacting end-user experience.
+
+Webex embedded AI features: Context-aware transcription, chat summarisation, and automated action item capture—reducing meeting fatigue and boosting productivity.
+
+4) Are you thinking about any integration points with existing tools or platforms, and do you have any security concerns?
+Yes, integration with:
+
+Microsoft 365 (Teams, Outlook, SharePoint)
+
+Okta for identity federation
+
+ServiceNow for IT service workflows
+Security concerns: Ensuring conditional access policies apply consistently across remote, on-prem, and cloud users; monitoring shadow IT apps accessed from home devices; and reducing risk of credential theft in chat applications.
+
+5) How would you like to incorporate observability tools or automation into the plan?
+We’d like to:
+
+Use Cisco ThousandEyes to provide real-time visibility into user experience from home broadband through to SaaS apps.
+
+Implement AppDynamics to trace performance of critical collaboration and chat workloads.
+
+Deploy automation workflows in SecureX to reduce MTTR by auto-correlating alerts and triggering predefined remediation steps.
+
+Build dashboards that track key KPIs (connection times, session drops, app responsiveness) to guide proactive tuning.
