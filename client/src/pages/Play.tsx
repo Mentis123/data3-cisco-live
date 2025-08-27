@@ -50,7 +50,7 @@ export default function Play() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const [step, setStep] = useState<"registration" | "chat" | "preview">("registration");
+  const [step, setStep] = useState<"registration" | "chat" | "preview" | "edit">("registration");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -59,6 +59,7 @@ export default function Play() {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageCount, setMessageCount] = useState(0);
   const [structuredSolution, setStructuredSolution] = useState<StructuredSolution | null>(null);
+  const [editedSolution, setEditedSolution] = useState<StructuredSolution | null>(null);
   const [isTyping, setIsTyping] = useState(false);
 
   const startSessionMutation = useMutation({
@@ -124,7 +125,7 @@ export default function Play() {
         sessionToken,
         category: selectedCategory,
         solutionText: messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
-        structuredFields: structuredSolution,
+        structuredFields: editedSolution || structuredSolution,
       });
       return response.json();
     },
@@ -378,44 +379,88 @@ export default function Play() {
   }
 
   if (step === "preview" && structuredSolution) {
+    const solution = editedSolution || structuredSolution;
+    const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
+    
     return (
       <div className="min-h-screen bg-background text-foreground py-8">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="glass-panel border-0">
             <CardHeader>
-              <CardTitle className="text-2xl">Your Solution Preview</CardTitle>
+              <CardTitle className="text-2xl">Review Your Solution</CardTitle>
+              <p className="text-muted-foreground">Review your solution before submitting for scoring</p>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="glass-panel border-0">
-                  <CardContent className="p-4">
-                    <h4 className="font-bold mb-2">Problem Summary</h4>
-                    <p className="text-sm text-muted-foreground">{structuredSolution.problem_summary}</p>
-                  </CardContent>
-                </Card>
+              <div className="space-y-4">
+                {/* Problem Summary */}
+                <div className="glass-panel rounded-lg p-4">
+                  <h4 className="font-bold mb-2 flex items-center">
+                    <i className="fas fa-lightbulb text-primary mr-2"></i>
+                    Problem Summary
+                  </h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{solution.problem_summary}</p>
+                </div>
                 
-                <Card className="glass-panel border-0">
-                  <CardContent className="p-4">
-                    <h4 className="font-bold mb-2">Cisco Products</h4>
-                    <p className="text-sm text-muted-foreground">{structuredSolution.cisco_products.join(", ")}</p>
-                  </CardContent>
-                </Card>
+                {/* Cisco Products */}
+                <div className="glass-panel rounded-lg p-4">
+                  <h4 className="font-bold mb-2 flex items-center">
+                    <i className="fas fa-network-wired text-primary mr-2"></i>
+                    Cisco Products
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {isArrayField(solution.cisco_products).map((product: string, idx: number) => (
+                      <span key={idx} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                        {product}
+                      </span>
+                    ))}
+                  </div>
+                </div>
                 
-                <Card className="glass-panel border-0">
-                  <CardContent className="p-4">
-                    <h4 className="font-bold mb-2">Target KPIs</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {structuredSolution.target_state.kpis.map(kpi => `${kpi.name}: ${kpi.target}`).join(", ")}
-                    </p>
-                  </CardContent>
-                </Card>
+                {/* Target KPIs */}
+                <div className="glass-panel rounded-lg p-4">
+                  <h4 className="font-bold mb-2 flex items-center">
+                    <i className="fas fa-chart-line text-primary mr-2"></i>
+                    Target KPIs
+                  </h4>
+                  <div className="space-y-2">
+                    {solution.target_state?.kpis?.map((kpi, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-muted/20 rounded px-3 py-2">
+                        <span className="text-sm font-medium">{kpi.name}</span>
+                        <span className="text-sm text-primary font-bold">{kpi.target}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 
-                <Card className="glass-panel border-0">
-                  <CardContent className="p-4">
-                    <h4 className="font-bold mb-2">Integration Points</h4>
-                    <p className="text-sm text-muted-foreground">{structuredSolution.integration_points.join(", ")}</p>
-                  </CardContent>
-                </Card>
+                {/* Integration Points */}
+                <div className="glass-panel rounded-lg p-4">
+                  <h4 className="font-bold mb-2 flex items-center">
+                    <i className="fas fa-plug text-primary mr-2"></i>
+                    Integration Points
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {isArrayField(solution.integration_points).map((point: string, idx: number) => (
+                      <span key={idx} className="bg-muted text-muted-foreground px-3 py-1 rounded-lg text-sm">
+                        {point}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rollout Plan */}
+                {solution.rollout_plan && (
+                  <div className="glass-panel rounded-lg p-4">
+                    <h4 className="font-bold mb-2 flex items-center">
+                      <i className="fas fa-tasks text-primary mr-2"></i>
+                      Rollout Plan
+                    </h4>
+                    <ol className="list-decimal list-inside space-y-1">
+                      {isArrayField(solution.rollout_plan).map((step: string, idx: number) => (
+                        <li key={idx} className="text-sm text-muted-foreground">{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
               </div>
 
               <div className="flex space-x-4">
@@ -433,17 +478,193 @@ export default function Play() {
                   ) : (
                     <>
                       <i className="fas fa-check mr-2"></i>
-                      Submit Solution
+                      Submit for Scoring
                     </>
                   )}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setStep("chat")}
-                  data-testid="button-edit-more"
+                  onClick={() => {
+                    setEditedSolution(solution);
+                    setStep("edit");
+                  }}
+                  data-testid="button-edit-solution"
                 >
                   <i className="fas fa-edit mr-2"></i>
-                  Edit More
+                  Edit Solution
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "edit" && (editedSolution || structuredSolution)) {
+    const solution = editedSolution || structuredSolution;
+    const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
+    
+    return (
+      <div className="min-h-screen bg-background text-foreground py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <Card className="glass-panel border-0">
+            <CardHeader>
+              <CardTitle className="text-2xl">Edit Your Solution</CardTitle>
+              <p className="text-muted-foreground">Fine-tune your solution details</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Problem Summary */}
+              <div>
+                <Label htmlFor="problem-summary" className="text-lg font-semibold flex items-center mb-2">
+                  <i className="fas fa-lightbulb text-primary mr-2"></i>
+                  Problem Summary
+                </Label>
+                <Textarea
+                  id="problem-summary"
+                  value={solution.problem_summary}
+                  onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value})}
+                  className="min-h-24"
+                  placeholder="Describe the business problem you're solving..."
+                  data-testid="textarea-problem-summary"
+                />
+              </div>
+
+              {/* Cisco Products */}
+              <div>
+                <Label htmlFor="cisco-products" className="text-lg font-semibold flex items-center mb-2">
+                  <i className="fas fa-network-wired text-primary mr-2"></i>
+                  Cisco Products (comma-separated)
+                </Label>
+                <Input
+                  id="cisco-products"
+                  value={isArrayField(solution.cisco_products).join(", ")}
+                  onChange={(e) => setEditedSolution({
+                    ...solution, 
+                    cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
+                  })}
+                  placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
+                  data-testid="input-cisco-products"
+                />
+              </div>
+
+              {/* Target KPIs */}
+              <div>
+                <Label className="text-lg font-semibold flex items-center mb-2">
+                  <i className="fas fa-chart-line text-primary mr-2"></i>
+                  Target KPIs
+                </Label>
+                <div className="space-y-2">
+                  {solution.target_state?.kpis?.map((kpi, idx) => (
+                    <div key={idx} className="flex space-x-2">
+                      <Input
+                        value={kpi.name}
+                        onChange={(e) => {
+                          const newKpis = [...solution.target_state.kpis];
+                          newKpis[idx] = {...kpi, name: e.target.value};
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                        }}
+                        placeholder="KPI name"
+                        className="flex-1"
+                        data-testid={`input-kpi-name-${idx}`}
+                      />
+                      <Input
+                        value={kpi.target}
+                        onChange={(e) => {
+                          const newKpis = [...solution.target_state.kpis];
+                          newKpis[idx] = {...kpi, target: e.target.value};
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                        }}
+                        placeholder="Target value"
+                        className="flex-1"
+                        data-testid={`input-kpi-target-${idx}`}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const newKpis = solution.target_state.kpis.filter((_, i) => i !== idx);
+                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                        }}
+                        data-testid={`button-remove-kpi-${idx}`}
+                      >
+                        <i className="fas fa-times text-destructive"></i>
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newKpis = [...(solution.target_state?.kpis || []), {name: "", target: ""}];
+                      setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}});
+                    }}
+                    data-testid="button-add-kpi"
+                  >
+                    <i className="fas fa-plus mr-2"></i>
+                    Add KPI
+                  </Button>
+                </div>
+              </div>
+
+              {/* Integration Points */}
+              <div>
+                <Label htmlFor="integration-points" className="text-lg font-semibold flex items-center mb-2">
+                  <i className="fas fa-plug text-primary mr-2"></i>
+                  Integration Points (comma-separated)
+                </Label>
+                <Input
+                  id="integration-points"
+                  value={isArrayField(solution.integration_points).join(", ")}
+                  onChange={(e) => setEditedSolution({
+                    ...solution, 
+                    integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
+                  })}
+                  placeholder="e.g., Active Directory, ServiceNow, Splunk"
+                  data-testid="input-integration-points"
+                />
+              </div>
+
+              {/* Rollout Plan */}
+              <div>
+                <Label htmlFor="rollout-plan" className="text-lg font-semibold flex items-center mb-2">
+                  <i className="fas fa-tasks text-primary mr-2"></i>
+                  Rollout Plan (comma-separated steps)
+                </Label>
+                <Textarea
+                  id="rollout-plan"
+                  value={isArrayField(solution.rollout_plan).join(", ")}
+                  onChange={(e) => setEditedSolution({
+                    ...solution,
+                    rollout_plan: e.target.value.split(",").map(p => p.trim()).filter(p => p)
+                  })}
+                  className="min-h-20"
+                  placeholder="e.g., Pilot phase with 10 users, Expand to department, Full rollout"
+                  data-testid="textarea-rollout-plan"
+                />
+              </div>
+
+              <div className="flex space-x-4">
+                <Button
+                  onClick={() => setStep("preview")}
+                  className="flex-1"
+                  data-testid="button-save-changes"
+                >
+                  <i className="fas fa-save mr-2"></i>
+                  Save & Review
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // Return to chat with AI
+                    setEditedSolution(null);
+                    setStep("chat");
+                    setStructuredSolution(null);
+                  }}
+                  data-testid="button-back-to-chat"
+                >
+                  <i className="fas fa-comments mr-2"></i>
+                  Back to Chat
                 </Button>
               </div>
             </CardContent>
