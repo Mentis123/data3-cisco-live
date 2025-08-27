@@ -18,6 +18,7 @@ export const submissions = pgTable("submissions", {
   structuredJson: text("structured_json").notNull(),
   subScores: text("sub_scores").notNull(), // JSON string of subscores object
   totalScore: integer("total_score").notNull(),
+  evaluationNotes: text("evaluation_notes"),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 

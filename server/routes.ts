@@ -155,9 +155,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Evaluate solution
+      console.log('[express] Evaluating solution with structured data:', JSON.stringify(structuredSubmission, null, 2));
       const evaluation = await evaluateSolution(structuredSubmission);
+      console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
       
-      // Create submission
+      // Create submission with evaluation notes
       const submission = await storage.createSubmission({
         participantId: session.participantId,
         category,
@@ -165,6 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         structuredJson: JSON.stringify(structuredSubmission),
         subScores: JSON.stringify(evaluation.subscores),
         totalScore: evaluation.total,
+        evaluationNotes: evaluation.notes_short,
       });
 
       // Get current leaderboard to calculate rank
@@ -186,6 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         finalScore: evaluation.total,
         subscores: evaluation.subscores,
+        evaluationNotes: evaluation.notes_short,
         rank: targetRank || leaderboard.length + 1,
         leaderboardUrl: "/leaderboard"
       });
@@ -197,7 +201,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/leaderboard", async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
-      const leaderboard = await storage.getLeaderboard(limit);
+      const category = req.query.category as string | undefined;
+      const leaderboard = await storage.getLeaderboard(limit, category);
       res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ message: "Failed to get leaderboard" });

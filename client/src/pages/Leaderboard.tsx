@@ -30,12 +30,30 @@ const CATEGORY_NAMES: Record<string, string> = {
   "EDGE_IOT": "Edge & IoT Solutions"
 };
 
+const CATEGORY_COLORS: Record<string, string> = {
+  "SECURE_CONNECTIVITY": "from-blue-500 to-blue-600",
+  "HYBRID_DC": "from-purple-500 to-purple-600",
+  "COLLAB_CX": "from-green-500 to-green-600",
+  "OBSERVABILITY": "from-orange-500 to-orange-600",
+  "EDGE_IOT": "from-red-500 to-red-600"
+};
+
+const ALL_CATEGORIES = ["OVERALL", ...Object.keys(CATEGORY_NAMES)];
+
 export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [totalParticipants, setTotalParticipants] = useState(0);
+  const [currentCategory, setCurrentCategory] = useState("OVERALL");
+  const [cycleIndex, setCycleIndex] = useState(0);
+  const [lastUpdateCategory, setLastUpdateCategory] = useState<string | null>(null);
 
-  const { data: leaderboardData, isLoading } = useQuery({
-    queryKey: ["/api/leaderboard"],
+  const { data: leaderboardData, isLoading, refetch } = useQuery({
+    queryKey: ["/api/leaderboard", currentCategory === "OVERALL" ? undefined : currentCategory],
+    queryFn: async () => {
+      const params = currentCategory === "OVERALL" ? "" : `?category=${currentCategory}`;
+      const response = await fetch(`/api/leaderboard${params}`);
+      return response.json();
+    },
     refetchInterval: 30000, // Fallback polling every 30 seconds
   });
 
@@ -57,6 +75,14 @@ export default function Leaderboard() {
         
         if (message.type === "score:new") {
           const { entry } = message;
+          
+          // Switch to the category of the new submission
+          if (entry.category && entry.category !== currentCategory && currentCategory !== "OVERALL") {
+            setCurrentCategory(entry.category);
+            setLastUpdateCategory(entry.category);
+            // Stop cycling temporarily
+            setCycleIndex(ALL_CATEGORIES.indexOf(entry.category));
+          }
           
           // Trigger flash animation
           triggerFlashAndRise(() => {
@@ -94,25 +120,57 @@ export default function Leaderboard() {
         console.error("Failed to parse WebSocket message:", error);
       }
     }
-  }, [lastMessage]);
+  }, [lastMessage, currentCategory]);
+
+  // Cycle through categories every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Only cycle if we haven't had a recent update
+      if (!lastUpdateCategory) {
+        setCycleIndex((prev) => (prev + 1) % ALL_CATEGORIES.length);
+      }
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, [lastUpdateCategory]);
+  
+  // Clear last update category after 30 seconds
+  useEffect(() => {
+    if (lastUpdateCategory) {
+      const timeout = setTimeout(() => {
+        setLastUpdateCategory(null);
+      }, 30000);
+      return () => clearTimeout(timeout);
+    }
+  }, [lastUpdateCategory]);
+  
+  // Update current category when cycle index changes
+  useEffect(() => {
+    setCurrentCategory(ALL_CATEGORIES[cycleIndex]);
+  }, [cycleIndex]);
+  
+  // Refetch when category changes
+  useEffect(() => {
+    refetch();
+  }, [currentCategory, refetch]);
 
   const getRankBadge = (index: number) => {
     const rank = index + 1;
     if (rank === 1) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center text-black font-bold text-lg">
-          {rank}
+        <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+          <i className="fas fa-trophy"></i>
         </div>
       );
     } else if (rank === 2) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-black font-bold text-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
           {rank}
         </div>
       );
     } else if (rank === 3) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-black font-bold text-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
           {rank}
         </div>
       );
@@ -179,10 +237,23 @@ export default function Leaderboard() {
         <div className="p-6 text-center">
           <h2 className="text-4xl font-bold mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
           <p className="text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
-          <div className="mt-4 text-lg">
-            <span className="text-primary font-bold" data-testid="text-total-participants">
-              {totalParticipants}
-            </span> solutions submitted
+          <div className="mt-4 space-y-2">
+            <div className="text-2xl font-bold">
+              {currentCategory === "OVERALL" ? (
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Overall Leaderboard
+                </span>
+              ) : (
+                <span className={`bg-gradient-to-r ${CATEGORY_COLORS[currentCategory]} bg-clip-text text-transparent`}>
+                  {CATEGORY_NAMES[currentCategory]}
+                </span>
+              )}
+            </div>
+            <div className="text-lg">
+              <span className="text-primary font-bold" data-testid="text-total-participants">
+                {totalParticipants}
+              </span> solutions submitted
+            </div>
           </div>
           
           {/* Connection Status */}
@@ -213,8 +284,9 @@ export default function Leaderboard() {
                     <div className="font-bold text-lg" data-testid={`text-name-${index}`}>
                       {entry.name}
                     </div>
-                    <div className="text-sm text-muted-foreground" data-testid={`text-category-${index}`}>
-                      {CATEGORY_NAMES[entry.category] || entry.category}
+                    <div className="flex items-center gap-2 text-sm" data-testid={`text-category-${index}`}>
+                      <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${CATEGORY_COLORS[entry.category] || 'from-gray-500 to-gray-600'}`}></div>
+                      <span className="text-muted-foreground">{CATEGORY_NAMES[entry.category] || entry.category}</span>
                     </div>
                   </div>
                 </div>

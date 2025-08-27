@@ -6,7 +6,7 @@ export interface IStorage {
   getParticipant(id: string): Promise<Participant | undefined>;
   createParticipant(participant: InsertParticipant): Promise<Participant>;
   createSubmission(submission: InsertSubmission): Promise<Submission>;
-  getLeaderboard(limit?: number): Promise<Array<{
+  getLeaderboard(limit?: number, category?: string): Promise<Array<{
     id: string;
     name: string;
     category: string;
@@ -39,14 +39,14 @@ export class DatabaseStorage implements IStorage {
     return submission;
   }
 
-  async getLeaderboard(limit = 100): Promise<Array<{
+  async getLeaderboard(limit = 100, category?: string): Promise<Array<{
     id: string;
     name: string;
     category: string;
     totalScore: number;
     createdAt: Date;
   }>> {
-    const results = await db
+    let query = db
       .select({
         id: submissions.id,
         firstName: participants.firstName,
@@ -56,7 +56,14 @@ export class DatabaseStorage implements IStorage {
         createdAt: submissions.createdAt,
       })
       .from(submissions)
-      .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .innerJoin(participants, eq(submissions.participantId, participants.id));
+    
+    // Filter by category if provided
+    if (category) {
+      query = query.where(eq(submissions.category, category));
+    }
+    
+    const results = await query
       .orderBy(desc(submissions.totalScore), desc(submissions.createdAt))
       .limit(limit);
 
