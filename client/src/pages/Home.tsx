@@ -23,7 +23,7 @@ export default function Home() {
                   <h1 className="text-base sm:text-xl font-bold truncate">Cisco Solution Sprint</h1>
                   <Link href="/admin-leaderboard">
                     <button 
-                      className="ml-2 px-2 py-1 text-background bg-background hover:text-muted-foreground/20 transition-colors"
+                      className="ml-2 px-2 py-1 text-transparent bg-transparent hover:text-muted-foreground/10 transition-colors"
                       aria-label="Admin"
                       data-testid="button-secret-admin"
                     >
