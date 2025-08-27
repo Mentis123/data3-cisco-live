@@ -405,9 +405,128 @@ export default function AdminLeaderboard() {
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Structured Solution</h3>
                     <ScrollArea className="h-96 border rounded-lg p-4">
-                      <pre className="text-sm whitespace-pre-wrap">
-                        {JSON.stringify(submissionDetails.structuredJson, null, 2)}
-                      </pre>
+                      <div className="space-y-4">
+                        {/* Problem Summary */}
+                        {submissionDetails.structuredJson.problem_summary && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Problem Summary</h4>
+                            <p className="text-sm">{submissionDetails.structuredJson.problem_summary}</p>
+                          </div>
+                        )}
+                        
+                        {/* Category & Cisco Products */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {submissionDetails.structuredJson.chosen_category && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Category</h4>
+                              <Badge className="text-sm">
+                                {submissionDetails.structuredJson.chosen_category.replace(/_/g, ' ')}
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          {submissionDetails.structuredJson.cisco_products && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Cisco Products</h4>
+                              <div className="flex flex-wrap gap-1">
+                                {submissionDetails.structuredJson.cisco_products.map((product: string, idx: number) => (
+                                  <Badge key={idx} variant="secondary" className="text-xs">
+                                    {product}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Current State */}
+                        {submissionDetails.structuredJson.current_state && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Current State</h4>
+                            {submissionDetails.structuredJson.current_state.baseline_kpis && (
+                              <div className="mb-2">
+                                <h5 className="text-sm font-medium mb-1">KPIs</h5>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {submissionDetails.structuredJson.current_state.baseline_kpis.map((kpi: any, idx: number) => (
+                                    <div key={idx} className="text-xs">
+                                      <span className="font-medium">{kpi.name}:</span> {kpi.value}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {submissionDetails.structuredJson.current_state.constraints && (
+                              <div>
+                                <h5 className="text-sm font-medium mb-1">Constraints</h5>
+                                <ul className="list-disc list-inside text-xs space-y-0.5">
+                                  {submissionDetails.structuredJson.current_state.constraints.map((constraint: string, idx: number) => (
+                                    <li key={idx}>{constraint}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Target State */}
+                        {submissionDetails.structuredJson.target_state && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Target State</h4>
+                            {submissionDetails.structuredJson.target_state.kpis && (
+                              <div>
+                                <h5 className="text-sm font-medium mb-1">Target KPIs</h5>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {submissionDetails.structuredJson.target_state.kpis.map((kpi: any, idx: number) => (
+                                    <div key={idx} className="text-xs">
+                                      <span className="font-medium">{kpi.name}:</span> {kpi.target}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Rollout Plan */}
+                        {submissionDetails.structuredJson.rollout_plan && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Rollout Plan</h4>
+                            <ul className="space-y-2">
+                              {submissionDetails.structuredJson.rollout_plan.map((phase: string, idx: number) => (
+                                <li key={idx} className="text-sm">
+                                  <span className="font-medium">Phase {idx + 1}:</span> {phase}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {/* Integration Points */}
+                        {submissionDetails.structuredJson.integration_points && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Integration Points</h4>
+                            <div className="flex flex-wrap gap-1">
+                              {submissionDetails.structuredJson.integration_points.map((point: string, idx: number) => (
+                                <Badge key={idx} variant="outline" className="text-xs">
+                                  {point}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Risks */}
+                        {submissionDetails.structuredJson.risks && (
+                          <div className="bg-muted rounded-lg p-4">
+                            <h4 className="font-semibold text-primary mb-2">Risks</h4>
+                            <ul className="list-disc list-inside text-sm space-y-1">
+                              {submissionDetails.structuredJson.risks.map((risk: string, idx: number) => (
+                                <li key={idx}>{risk}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </ScrollArea>
                   </div>
                 )}

@@ -114,14 +114,20 @@ export default function Play() {
       setMessageCount(prev => prev + 1);
 
       // Check if this is a structured JSON response
-      try {
-        const parsed = JSON.parse(data.content);
-        if (parsed.problem_summary && parsed.chosen_category) {
-          setStructuredSolution(parsed);
-          setStep("preview");
+      if (data.content.trim().startsWith('{') && data.content.trim().endsWith('}')) {
+        try {
+          const parsed = JSON.parse(data.content);
+          if (parsed.problem_summary && parsed.chosen_category) {
+            setStructuredSolution(parsed);
+            setStep("preview");
+            toast({
+              title: "Solution Ready!",
+              description: "Review and edit your solution before submitting",
+            });
+          }
+        } catch {
+          // Not JSON, continue chat
         }
-      } catch {
-        // Not JSON, continue chat
       }
     },
     onError: (error) => {
