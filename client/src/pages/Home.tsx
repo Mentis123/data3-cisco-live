@@ -19,7 +19,18 @@ export default function Home() {
                 <i className="fas fa-network-wired text-background text-lg sm:text-xl"></i>
               </div>
               <div className="min-w-0">
-                <h1 className="text-base sm:text-xl font-bold truncate">Cisco Solution Sprint</h1>
+                <div className="flex items-center">
+                  <h1 className="text-base sm:text-xl font-bold truncate">Cisco Solution Sprint</h1>
+                  <Link href="/admin-leaderboard">
+                    <button 
+                      className="ml-2 px-2 py-1 text-background bg-background hover:text-muted-foreground/20 transition-colors"
+                      aria-label="Admin"
+                      data-testid="button-secret-admin"
+                    >
+                      •
+                    </button>
+                  </Link>
+                </div>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Data#3 | Cisco Live Melbourne</p>
               </div>
             </div>

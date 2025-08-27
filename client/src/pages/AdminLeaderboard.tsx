@@ -61,9 +61,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function AdminLeaderboard() {
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
   const [submissionDetails, setSubmissionDetails] = useState<SubmissionDetails | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [showPasswordError, setShowPasswordError] = useState(false);
 
   const { data: leaderboard, isLoading } = useQuery<DetailedEntry[]>({
     queryKey: ["/api/admin/leaderboard"],
+    enabled: isAuthenticated,
   });
 
   // Fetch submission details when an entry is selected
@@ -98,6 +102,66 @@ export default function AdminLeaderboard() {
     if (percentage >= 40) return "text-orange-600";
     return "text-red-600";
   };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === "password") {
+      setIsAuthenticated(true);
+      setShowPasswordError(false);
+    } else {
+      setShowPasswordError(true);
+      setTimeout(() => setShowPasswordError(false), 2000);
+    }
+  };
+
+  // Password Protection Screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-2xl">Admin Access Required</CardTitle>
+              <Link href="/">
+                <Button variant="outline" size="sm">
+                  <i className="fas fa-arrow-left mr-2"></i>
+                  Back
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Enter Admin Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className={`w-full px-4 py-2 rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary ${
+                    showPasswordError ? 'border-destructive ring-2 ring-destructive' : 'border-border'
+                  }`}
+                  placeholder="Enter password"
+                  autoFocus
+                  data-testid="input-admin-password"
+                />
+                {showPasswordError && (
+                  <p className="text-destructive text-sm mt-2">Incorrect password</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" data-testid="button-submit-password">
+                <i className="fas fa-lock mr-2"></i>
+                Access Admin Dashboard
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
