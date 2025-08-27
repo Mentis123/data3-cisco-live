@@ -47,33 +47,39 @@ export function createConfetti(): void {
 }
 
 export function animateRiseToRank(element: HTMLElement, targetPosition: number, duration: number): void {
-  const startPosition = element.getBoundingClientRect().top;
+  // Start from bottom of viewport
+  const viewportHeight = window.innerHeight;
+  const startPosition = viewportHeight + 100; // Start below viewport
+  const targetY = element.getBoundingClientRect().top;
   const startTime = performance.now();
   
   element.style.willChange = 'transform';
+  element.style.position = 'relative';
   
   function updatePosition(currentTime: number) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // Ease cubic-bezier(.65,.05,.36,1)
+    // Smoother easing for slow rise
     const easeInOutCustom = (t: number) => {
-      const p1x = 0.65, p1y = 0.05, p2x = 0.36, p2y = 1;
-      // Approximation of cubic bezier
+      // Slow start, gradual acceleration, slow finish
       return t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        ? 2 * t * t
+        : -1 + (4 - 2 * t) * t;
     };
     
     const easedProgress = easeInOutCustom(progress);
-    const currentY = startPosition + (targetPosition - startPosition) * easedProgress;
+    const currentY = startPosition - (startPosition - targetY) * easedProgress;
     
-    element.style.transform = `translateY(${currentY}px)`;
+    element.style.transform = `translateY(${currentY - targetY}px)`;
+    element.style.opacity = Math.min(progress * 2, 1).toString();
     
     if (progress < 1) {
       requestAnimationFrame(updatePosition);
     } else {
       element.style.willChange = 'auto';
+      element.style.transform = 'none';
+      element.style.opacity = '1';
     }
   }
   

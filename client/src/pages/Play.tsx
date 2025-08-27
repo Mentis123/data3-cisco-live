@@ -61,6 +61,7 @@ export default function Play() {
   const [structuredSolution, setStructuredSolution] = useState<StructuredSolution | null>(null);
   const [editedSolution, setEditedSolution] = useState<StructuredSolution | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +136,12 @@ export default function Play() {
 
   const submitSolutionMutation = useMutation({
     mutationFn: async () => {
+      // Prevent duplicate submissions
+      if (isSubmitting) {
+        throw new Error("Already submitting, please wait...");
+      }
+      setIsSubmitting(true);
+      
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
         category: selectedCategory,
@@ -144,6 +151,7 @@ export default function Play() {
       return response.json();
     },
     onSuccess: (data) => {
+      setIsSubmitting(false);
       toast({
         title: "Solution Submitted!",
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
@@ -171,6 +179,7 @@ export default function Play() {
       }, 3000);
     },
     onError: (error) => {
+      setIsSubmitting(false);
       toast({
         title: "Submission Error",
         description: error.message,
@@ -668,8 +677,8 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
 
               <div className="flex space-x-4">
                 <Button
-                  onClick={() => submitSolutionMutation.mutate()}
-                  disabled={submitSolutionMutation.isPending}
+                  onClick={() => !isSubmitting && submitSolutionMutation.mutate()}
+                  disabled={submitSolutionMutation.isPending || isSubmitting}
                   className="flex-1"
                   data-testid="button-submit-solution"
                 >

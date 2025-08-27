@@ -64,8 +64,12 @@ export default function Leaderboard() {
   // Initialize leaderboard data
   useEffect(() => {
     if (leaderboardData && Array.isArray(leaderboardData)) {
-      setEntries(leaderboardData);
-      setTotalParticipants(leaderboardData.length);
+      // Deduplicate entries by ID before setting
+      const uniqueEntries = Array.from(
+        new Map(leaderboardData.map(entry => [entry.id, entry])).values()
+      );
+      setEntries(uniqueEntries);
+      setTotalParticipants(uniqueEntries.length);
     }
   }, [leaderboardData]);
 
@@ -98,7 +102,19 @@ export default function Leaderboard() {
             };
 
             setEntries(prevEntries => {
-              const updatedEntries = [...prevEntries, newEntry];
+              // Check if this entry already exists
+              const existingIndex = prevEntries.findIndex(e => e.id === newEntry.id);
+              let updatedEntries;
+              
+              if (existingIndex >= 0) {
+                // Update existing entry instead of adding duplicate
+                updatedEntries = [...prevEntries];
+                updatedEntries[existingIndex] = newEntry;
+              } else {
+                // Add new entry
+                updatedEntries = [...prevEntries, newEntry];
+              }
+              
               // Sort by score (descending) then by date (descending)
               updatedEntries.sort((a, b) => {
                 if (b.totalScore !== a.totalScore) {
@@ -111,8 +127,8 @@ export default function Leaderboard() {
 
             setTotalParticipants(prev => prev + 1);
 
-            // Trigger confetti after animation completes (3-5 seconds)
-            const animDuration = 3000 + Math.random() * 2000; // Random between 3-5 seconds
+            // Trigger confetti after animation completes (6-8 seconds for slower movement)
+            const animDuration = 6000 + Math.random() * 2000; // Random between 6-8 seconds
             setTimeout(() => {
               createConfetti();
             }, animDuration);
@@ -124,24 +140,24 @@ export default function Leaderboard() {
     }
   }, [lastMessage, currentCategory]);
 
-  // Cycle through categories every 10 seconds
+  // Cycle through categories every 15 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // Only cycle if we haven't had a recent update
-      if (!lastUpdateCategory) {
+      // Skip cycling if we have a recent update in a specific category
+      if (!lastUpdateCategory || lastUpdateCategory === "OVERALL") {
         setCycleIndex((prev) => (prev + 1) % ALL_CATEGORIES.length);
       }
-    }, 10000);
+    }, 15000); // Increased to 15 seconds for better viewing
     
     return () => clearInterval(interval);
   }, [lastUpdateCategory]);
   
-  // Clear last update category after 30 seconds
+  // Clear last update category after 45 seconds to allow more viewing time
   useEffect(() => {
     if (lastUpdateCategory) {
       const timeout = setTimeout(() => {
         setLastUpdateCategory(null);
-      }, 30000);
+      }, 45000); // Increased to 45 seconds
       return () => clearTimeout(timeout);
     }
   }, [lastUpdateCategory]);
