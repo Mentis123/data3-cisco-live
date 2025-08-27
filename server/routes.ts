@@ -130,6 +130,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No structured solution provided" });
         }
       }
+      
+      // Fix array fields that might come as strings from AI
+      if (structuredSubmission) {
+        const arrayFields = ['cisco_products', 'integration_points', 'security_considerations', 'observability_plan', 'rollout_plan', 'risks'] as const;
+        for (const field of arrayFields) {
+          if ((structuredSubmission as any)[field] && typeof (structuredSubmission as any)[field] === 'string') {
+            // Convert single string to array
+            (structuredSubmission as any)[field] = [(structuredSubmission as any)[field]];
+          }
+        }
+        
+        // Fix nested array fields
+        if (structuredSubmission.current_state) {
+          if (structuredSubmission.current_state.constraints && typeof structuredSubmission.current_state.constraints === 'string') {
+            structuredSubmission.current_state.constraints = [structuredSubmission.current_state.constraints];
+          }
+        }
+        if (structuredSubmission.target_state) {
+          if (structuredSubmission.target_state.persona && typeof structuredSubmission.target_state.persona === 'string') {
+            structuredSubmission.target_state.persona = [structuredSubmission.target_state.persona];
+          }
+        }
+      }
 
       // Evaluate solution
       const evaluation = await evaluateSolution(structuredSubmission);
