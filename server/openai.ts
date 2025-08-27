@@ -75,7 +75,7 @@ export async function chatWithAssistant(messages: Array<{role: string, content: 
         { role: "system", content: SYSTEM_PROMPT },
         ...formattedMessages
       ],
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
     });
 
     return response.choices[0].message.content || "";
@@ -103,7 +103,7 @@ export async function evaluateSolution(structuredSubmission: any): Promise<{
         { role: "user", content: JSON.stringify(structuredSubmission) }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 500,
+      max_completion_tokens: 500,
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
