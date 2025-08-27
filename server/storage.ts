@@ -35,6 +35,7 @@ export interface IStorage {
     evaluationNotes: string | null;
     createdAt: Date;
   }>>;
+  deleteSubmission(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -77,12 +78,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id));
-    
+
     // Filter by category if provided
     if (category) {
       query = query.where(eq(submissions.category, category));
     }
-    
+
     const results = await query
       .orderBy(desc(submissions.totalScore), desc(submissions.createdAt))
       .limit(limit);
@@ -184,6 +185,14 @@ export class DatabaseStorage implements IStorage {
       evaluationNotes: result.evaluationNotes,
       createdAt: result.createdAt!,
     }));
+  }
+
+  async deleteSubmission(id: string): Promise<boolean> {
+    const result = await db
+      .delete(submissions)
+      .where(eq(submissions.id, id));
+
+    return result.changes > 0;
   }
 }
 

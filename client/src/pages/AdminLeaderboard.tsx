@@ -64,11 +64,27 @@ export default function AdminLeaderboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPasswordError, setShowPasswordError] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data: leaderboard, isLoading } = useQuery<DetailedEntry[]>({
+  const { data: leaderboard, isLoading, refetch } = useQuery<DetailedEntry[]>({
     queryKey: ["/api/admin/leaderboard"],
     enabled: isAuthenticated,
   });
+
+  const handleDeleteSubmission = async (id: string) => {
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", `/api/admin/submission/${id}`);
+      setDeleteConfirmId(null);
+      refetch(); // Refresh the leaderboard
+    } catch (error) {
+      console.error("Failed to delete submission:", error);
+      alert("Failed to delete submission. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Fetch submission details when an entry is selected
   useEffect(() => {
@@ -282,14 +298,25 @@ export default function AdminLeaderboard() {
                         </div>
                       </td>
                       <td className="py-3 px-2">
-                        <Button
-                          size="sm"
-                          onClick={() => setSelectedSubmissionId(entry.id)}
-                          data-testid={`button-view-details-${index}`}
-                        >
-                          <i className="fas fa-eye mr-2"></i>
-                          View Details
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => setSelectedSubmissionId(entry.id)}
+                            data-testid={`button-view-details-${index}`}
+                          >
+                            <i className="fas fa-eye mr-2"></i>
+                            View Details
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setDeleteConfirmId(entry.id)}
+                            data-testid={`button-delete-${index}`}
+                          >
+                            <i className="fas fa-trash mr-2"></i>
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -405,6 +432,56 @@ export default function AdminLeaderboard() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={!!deleteConfirmId} 
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setDeleteConfirmId(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to delete this submission? This action cannot be undone.
+            </p>
+            
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteConfirmId(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => deleteConfirmId && handleDeleteSubmission(deleteConfirmId)}
+                disabled={isDeleting}
+                data-testid="button-confirm-delete"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-trash mr-2"></i>
+                    Delete
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

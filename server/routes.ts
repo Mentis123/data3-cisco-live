@@ -243,6 +243,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint to delete a submission
+  app.delete("/api/admin/submission/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteSubmission(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+      res.json({ message: "Submission deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete submission" });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/reset", async (req, res) => {
     try {
