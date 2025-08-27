@@ -470,7 +470,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                     size="sm"
                     onClick={handleCopyTestText}
                     className="text-primary-foreground hover:bg-white/20"
-                    title="Copy test text for testing purposes"
+                    title="Copy collaboration proposal text"
                     data-testid="button-copy-test"
                   >
                     <i className="fas fa-copy"></i>
