@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,6 +61,20 @@ export default function Play() {
   const [structuredSolution, setStructuredSolution] = useState<StructuredSolution | null>(null);
   const [editedSolution, setEditedSolution] = useState<StructuredSolution | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  // Scroll to top when entering preview/edit steps
+  useEffect(() => {
+    if (step === "preview" || step === "edit") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [step]);
 
   const startSessionMutation = useMutation({
     mutationFn: async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
@@ -303,11 +317,115 @@ Security concerns: Ensuring conditional access policies apply consistently acros
 
 For observability, we'd like to use Cisco ThousandEyes for real-time visibility, implement AppDynamics to trace performance, deploy automation workflows in SecureX, and build dashboards that track key KPIs.`;
 
+    const observabilityText = `Employees are increasingly concerned about "being watched everywhere" due to the implementation of observability and monitoring tools across applications, networks, and endpoints. While the intention is to improve service reliability, security, and customer experience, staff perceive the tools as invasive surveillance. This erodes trust, creates resistance to adoption, and negatively impacts morale.
+
+Key pain points include:
+
+Lack of transparency on why data is being collected.
+
+Perception that monitoring is about employee surveillance, not business performance.
+
+Decline in employee engagement scores linked to "trust in IT" and "psychological safety."
+
+Rising costs from downtime and performance blind spots due to partial tool adoption.
+
+The solution is to implement a Full-Stack Observability (FSO) strategy using Cisco ThousandEyes, AppDynamics, and SecureX, supported by clear governance and transparent communications. The focus is on demonstrating that monitoring protects employees and customers by improving application performance, system reliability, and security — rather than monitoring individuals.
+
+AppDynamics – Application Performance Monitoring (APM) to link user experience and application behaviour with business KPIs.
+
+ThousandEyes – End-to-end visibility across internet, cloud, and SaaS services to detect and resolve issues proactively.
+
+SecureX – Orchestration and governance, providing role-based access, anonymisation, and policy enforcement to build employee trust.
+
+Cisco Intersight Workload Optimizer (IWO) – Ensures infrastructure optimisation for hybrid workloads.
+
+Secure Network Analytics (Stealthwatch) – Complements observability with network behaviour insights.
+
+Transparency Campaign: Publish a clear statement of purpose (e.g., "We monitor applications, not employees") with FAQs addressing staff concerns.
+
+Engagement Workshops: Show employees how observability benefits them—fewer outages, faster fixes, reduced blame culture.
+
+KPI Re-alignment: Tie observability metrics to business outcomes (uptime, MTTR, customer satisfaction) rather than personal productivity.
+
+Feedback Loop: Regular staff surveys feeding into observability governance to maintain trust.
+
+Employee Trust Score (Engagement Surveys): ~62% positive (down 10% YoY).
+
+Mean Time to Detect (MTTD): ~90 minutes.
+
+Mean Time to Resolve (MTTR): ~6.5 hours.
+
+Downtime Cost: ~$50,000/hour for Tier-1 applications.
+
+Dashboard Adoption: <40% of IT/Ops teams engage with current monitoring dashboards.
+
+ITSM Tools: ServiceNow, Jira Service Management for automated incident creation.
+
+Identity Platforms: Azure AD, Okta integrated with SecureX for RBAC and anonymisation.
+
+Collaboration Tools: Microsoft Teams, Webex for in-channel alerting and response.
+
+SIEM Platforms: Splunk, QRadar to extend observability telemetry into enterprise-wide security.
+
+AppDynamics Health Rules: Threshold-based alerts on latency, errors, and transaction success.
+
+ThousandEyes Alerts: Proactive notifications for SaaS and internet degradation.
+
+SecureX Orchestration Runbooks:
+
+Alert fires in AppDynamics/ThousandEyes.
+
+SecureX correlates telemetry, opens ServiceNow ticket.
+
+Automated remediation (e.g., restart service, scale cloud workload) triggered with one-click approval.
+
+MTTD Reduction: From 90 minutes → <20 minutes.
+
+MTTR Reduction: From 6.5 hours → <2 hours.
+
+Employee Trust Score: From 62% → >75%.
+
+Downtime Costs: Reduce unplanned downtime impact by ~30% YoY.
+
+Phase 1 – Pilot (Months 1–3):
+
+Deploy AppDynamics + ThousandEyes on one Tier-1 app.
+
+Integrate with ServiceNow.
+
+Launch transparency campaign with staff.
+
+Phase 2 – Expansion (Months 4–6):
+
+Extend to top 5 business-critical apps and hybrid workloads.
+
+Enable SecureX orchestration for automated runbooks.
+
+Collect KPI improvements and employee feedback.
+
+Phase 3 – Scale (Months 7–12):
+
+Roll out observability to entire app and SaaS landscape.
+
+Integrate with SIEM for unified IT + Security monitoring.
+
+Conduct quarterly KPI reviews to demonstrate business value.
+
+By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent communications and governance, this proposal reframes observability as a protective shield rather than "surveillance." The approach reduces downtime, lowers operational costs, and restores employee trust — ensuring observability becomes a strategic business enabler, not a source of friction.`;
+
     const handleCopyTestText = () => {
       navigator.clipboard.writeText(testText);
       toast({
         title: "Copied to clipboard",
         description: "Test text has been copied for testing purposes",
+      });
+    };
+
+    const handleCopyObservabilityText = () => {
+      navigator.clipboard.writeText(observabilityText);
+      toast({
+        title: "Copied to clipboard",
+        description: "Observability proposal copied for testing",
       });
     };
 
@@ -327,21 +445,33 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
                     <p className="text-xs sm:text-sm opacity-90">Let's refine your solution together</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopyTestText}
-                  className="text-primary-foreground hover:bg-white/20"
-                  title="Copy test text for testing purposes"
-                  data-testid="button-copy-test"
-                >
-                  <i className="fas fa-copy"></i>
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyObservabilityText}
+                    className="text-primary-foreground hover:bg-white/20"
+                    title="Copy observability proposal text"
+                    data-testid="button-copy-observability"
+                  >
+                    <i className="fas fa-eye"></i>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyTestText}
+                    className="text-primary-foreground hover:bg-white/20"
+                    title="Copy test text for testing purposes"
+                    data-testid="button-copy-test"
+                  >
+                    <i className="fas fa-copy"></i>
+                  </Button>
+                </div>
               </div>
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
               {messages.map((message, index) => (
                 <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
                   {message.role === "assistant" ? (
@@ -380,6 +510,7 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Chat Input - Fixed at Bottom */}

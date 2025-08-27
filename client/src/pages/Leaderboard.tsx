@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { useWebSocket } from "@/lib/websocket";
 import { triggerFlashAndRise, createConfetti } from "@/lib/anim";
 
@@ -234,9 +236,25 @@ export default function Leaderboard() {
 
       {/* Leaderboard Header */}
       <div className="sticky top-0 z-40 glass-panel safe-area-padding">
-        <div className="p-4 sm:p-6 text-center">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
-          <p className="text-sm sm:text-lg lg:text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
+        <div className="p-4 sm:p-6">
+          <div className="flex items-start justify-between mb-2">
+            <Link href="/">
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-[40px] px-3"
+                data-testid="button-back-home"
+              >
+                <i className="fas fa-arrow-left mr-2"></i>
+                Home
+              </Button>
+            </Link>
+            <div className="flex-1 text-center">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
+              <p className="text-sm sm:text-lg lg:text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
+            </div>
+            <div className="w-[88px]"></div>
+          </div>
           <div className="mt-4 space-y-2">
             <div className="text-lg sm:text-xl lg:text-2xl font-bold">
               {currentCategory === "OVERALL" ? (

@@ -1,0 +1,116 @@
+Cisco Observability Challenge Proposal
+Business Problem
+
+Employees are increasingly concerned about “being watched everywhere” due to the implementation of observability and monitoring tools across applications, networks, and endpoints. While the intention is to improve service reliability, security, and customer experience, staff perceive the tools as invasive surveillance. This erodes trust, creates resistance to adoption, and negatively impacts morale.
+
+Key pain points include:
+
+Lack of transparency on why data is being collected.
+
+Perception that monitoring is about employee surveillance, not business performance.
+
+Decline in employee engagement scores linked to “trust in IT” and “psychological safety.”
+
+Rising costs from downtime and performance blind spots due to partial tool adoption.
+
+Proposed Solution
+
+The solution is to implement a Full-Stack Observability (FSO) strategy using Cisco ThousandEyes, AppDynamics, and SecureX, supported by clear governance and transparent communications. The focus is on demonstrating that monitoring protects employees and customers by improving application performance, system reliability, and security — rather than monitoring individuals.
+
+Technical Components
+
+AppDynamics – Application Performance Monitoring (APM) to link user experience and application behaviour with business KPIs.
+
+ThousandEyes – End-to-end visibility across internet, cloud, and SaaS services to detect and resolve issues proactively.
+
+SecureX – Orchestration and governance, providing role-based access, anonymisation, and policy enforcement to build employee trust.
+
+Cisco Intersight Workload Optimizer (IWO) – Ensures infrastructure optimisation for hybrid workloads.
+
+Secure Network Analytics (Stealthwatch) – Complements observability with network behaviour insights.
+
+People & Process Components
+
+Transparency Campaign: Publish a clear statement of purpose (e.g., “We monitor applications, not employees”) with FAQs addressing staff concerns.
+
+Engagement Workshops: Show employees how observability benefits them—fewer outages, faster fixes, reduced blame culture.
+
+KPI Re-alignment: Tie observability metrics to business outcomes (uptime, MTTR, customer satisfaction) rather than personal productivity.
+
+Feedback Loop: Regular staff surveys feeding into observability governance to maintain trust.
+
+Baseline KPIs / Metrics
+
+Employee Trust Score (Engagement Surveys): ~62% positive (down 10% YoY).
+
+Mean Time to Detect (MTTD): ~90 minutes.
+
+Mean Time to Resolve (MTTR): ~6.5 hours.
+
+Downtime Cost: ~$50,000/hour for Tier-1 applications.
+
+Dashboard Adoption: <40% of IT/Ops teams engage with current monitoring dashboards.
+
+Integration Points
+
+ITSM Tools: ServiceNow, Jira Service Management for automated incident creation.
+
+Identity Platforms: Azure AD, Okta integrated with SecureX for RBAC and anonymisation.
+
+Collaboration Tools: Microsoft Teams, Webex for in-channel alerting and response.
+
+SIEM Platforms: Splunk, QRadar to extend observability telemetry into enterprise-wide security.
+
+Automated Alerts & Runbooks
+
+AppDynamics Health Rules: Threshold-based alerts on latency, errors, and transaction success.
+
+ThousandEyes Alerts: Proactive notifications for SaaS and internet degradation.
+
+SecureX Orchestration Runbooks:
+
+Alert fires in AppDynamics/ThousandEyes.
+
+SecureX correlates telemetry, opens ServiceNow ticket.
+
+Automated remediation (e.g., restart service, scale cloud workload) triggered with one-click approval.
+
+Target KPIs (12-Month Horizon)
+
+MTTD Reduction: From 90 minutes → <20 minutes.
+
+MTTR Reduction: From 6.5 hours → <2 hours.
+
+Employee Trust Score: From 62% → >75%.
+
+Downtime Costs: Reduce unplanned downtime impact by ~30% YoY.
+
+Rollout Plan
+
+Phase 1 – Pilot (Months 1–3):
+
+Deploy AppDynamics + ThousandEyes on one Tier-1 app.
+
+Integrate with ServiceNow.
+
+Launch transparency campaign with staff.
+
+Phase 2 – Expansion (Months 4–6):
+
+Extend to top 5 business-critical apps and hybrid workloads.
+
+Enable SecureX orchestration for automated runbooks.
+
+Collect KPI improvements and employee feedback.
+
+Phase 3 – Scale (Months 7–12):
+
+Roll out observability to entire app and SaaS landscape.
+
+Integrate with SIEM for unified IT + Security monitoring.
+
+Conduct quarterly KPI reviews to demonstrate business value.
+
+Summary
+
+By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent communications and governance, this proposal reframes observability as a protective shield rather than “surveillance.” The approach reduces downtime, lowers operational costs, and restores employee trust — ensuring observability becomes a strategic business enabler, not a source of friction.
