@@ -15,6 +15,26 @@ export interface IStorage {
   }>>;
   getSubmissionCount(): Promise<number>;
   clearDatabase(): Promise<void>;
+  getSubmissionDetails(id: string): Promise<{
+    id: string;
+    participantName: string;
+    category: string;
+    totalScore: number;
+    subScores: any;
+    solutionText: string;
+    structuredJson: any;
+    evaluationNotes: string | null;
+    createdAt: Date;
+  } | undefined>;
+  getDetailedLeaderboard(): Promise<Array<{
+    id: string;
+    name: string;
+    category: string;
+    totalScore: number;
+    subScores: any;
+    evaluationNotes: string | null;
+    createdAt: Date;
+  }>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -86,6 +106,84 @@ export class DatabaseStorage implements IStorage {
   async clearDatabase(): Promise<void> {
     await db.delete(submissions);
     await db.delete(participants);
+  }
+
+  async getSubmissionDetails(id: string): Promise<{
+    id: string;
+    participantName: string;
+    category: string;
+    totalScore: number;
+    subScores: any;
+    solutionText: string;
+    structuredJson: any;
+    evaluationNotes: string | null;
+    createdAt: Date;
+  } | undefined> {
+    const [result] = await db
+      .select({
+        id: submissions.id,
+        firstName: participants.firstName,
+        lastName: participants.lastName,
+        category: submissions.category,
+        totalScore: submissions.totalScore,
+        subScores: submissions.subScores,
+        solutionText: submissions.solutionText,
+        structuredJson: submissions.structuredJson,
+        evaluationNotes: submissions.evaluationNotes,
+        createdAt: submissions.createdAt,
+      })
+      .from(submissions)
+      .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .where(eq(submissions.id, id));
+
+    if (!result) return undefined;
+
+    return {
+      id: result.id,
+      participantName: `${result.firstName} ${result.lastName}`,
+      category: result.category,
+      totalScore: result.totalScore,
+      subScores: result.subScores ? JSON.parse(result.subScores) : null,
+      solutionText: result.solutionText,
+      structuredJson: result.structuredJson ? JSON.parse(result.structuredJson) : null,
+      evaluationNotes: result.evaluationNotes,
+      createdAt: result.createdAt!,
+    };
+  }
+
+  async getDetailedLeaderboard(): Promise<Array<{
+    id: string;
+    name: string;
+    category: string;
+    totalScore: number;
+    subScores: any;
+    evaluationNotes: string | null;
+    createdAt: Date;
+  }>> {
+    const results = await db
+      .select({
+        id: submissions.id,
+        firstName: participants.firstName,
+        lastName: participants.lastName,
+        category: submissions.category,
+        totalScore: submissions.totalScore,
+        subScores: submissions.subScores,
+        evaluationNotes: submissions.evaluationNotes,
+        createdAt: submissions.createdAt,
+      })
+      .from(submissions)
+      .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .orderBy(desc(submissions.totalScore), desc(submissions.createdAt));
+
+    return results.map(result => ({
+      id: result.id,
+      name: `${result.firstName} ${result.lastName}`,
+      category: result.category,
+      totalScore: result.totalScore,
+      subScores: result.subScores ? JSON.parse(result.subScores) : null,
+      evaluationNotes: result.evaluationNotes,
+      createdAt: result.createdAt!,
+    }));
   }
 }
 

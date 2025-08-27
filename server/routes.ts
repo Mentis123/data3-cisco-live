@@ -220,6 +220,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ ok: true });
   });
 
+  // Admin endpoint to get full submission details
+  app.get("/api/admin/submission/:id", async (req, res) => {
+    try {
+      const submission = await storage.getSubmissionDetails(req.params.id);
+      if (!submission) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get submission details" });
+    }
+  });
+
+  // Admin endpoint to get full leaderboard with details
+  app.get("/api/admin/leaderboard", async (req, res) => {
+    try {
+      const leaderboard = await storage.getDetailedLeaderboard();
+      res.json(leaderboard);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get detailed leaderboard" });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/reset", async (req, res) => {
     try {
