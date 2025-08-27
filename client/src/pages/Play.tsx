@@ -489,7 +489,52 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                         <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
                       <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
+                        <div className="whitespace-pre-wrap text-sm sm:text-base">
+                          {(() => {
+                            // Check if content looks like JSON
+                            if (message.content.trim().startsWith('{') && message.content.trim().endsWith('}')) {
+                              try {
+                                const parsed = JSON.parse(message.content);
+                                // Return formatted view for structured solution
+                                return (
+                                  <div className="space-y-3">
+                                    <p className="font-semibold">Here's your structured solution proposal:</p>
+                                    {parsed.problem_summary && (
+                                      <div className="border-l-2 border-primary pl-3">
+                                        <p className="font-medium text-xs uppercase text-muted-foreground">Problem Summary</p>
+                                        <p>{parsed.problem_summary}</p>
+                                      </div>
+                                    )}
+                                    {parsed.chosen_category && (
+                                      <div className="border-l-2 border-primary pl-3">
+                                        <p className="font-medium text-xs uppercase text-muted-foreground">Category</p>
+                                        <p>{parsed.chosen_category.replace(/_/g, ' ')}</p>
+                                      </div>
+                                    )}
+                                    {parsed.cisco_products && (
+                                      <div className="border-l-2 border-primary pl-3">
+                                        <p className="font-medium text-xs uppercase text-muted-foreground">Cisco Products</p>
+                                        <ul className="list-disc list-inside space-y-1">
+                                          {parsed.cisco_products.map((product: string, idx: number) => (
+                                            <li key={idx}>{product}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    <p className="text-xs text-muted-foreground mt-3">
+                                      This structured solution has been prepared for evaluation. Ready to submit when you are!
+                                    </p>
+                                  </div>
+                                );
+                              } catch (e) {
+                                // If parse fails, show as regular text
+                                return message.content;
+                              }
+                            }
+                            // Regular message
+                            return message.content;
+                          })()}
+                        </div>
                       </div>
                     </>
                   ) : (
