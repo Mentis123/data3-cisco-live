@@ -312,11 +312,11 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
     };
 
     return (
-      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card className="glass-panel border-0 overflow-hidden">
+      <div className="min-h-screen bg-background text-foreground flex flex-col safe-area-padding">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-4 py-4 sm:py-8">
+          <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
             {/* Chat Header */}
-            <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground">
+            <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -341,7 +341,7 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
             </div>
 
             {/* Chat Messages */}
-            <div className="h-[400px] sm:h-96 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
               {messages.map((message, index) => (
                 <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
                   {message.role === "assistant" ? (
@@ -382,8 +382,8 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
               )}
             </div>
 
-            {/* Chat Input */}
-            <div className="p-4 sm:p-6 border-t border-border">
+            {/* Chat Input - Fixed at Bottom */}
+            <div className="p-4 sm:p-6 border-t border-border flex-shrink-0 bg-background">
               <div className="flex gap-2 sm:gap-3">
                 <Textarea
                   value={currentMessage}
@@ -429,71 +429,108 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
               <div className="space-y-4">
                 {/* Problem Summary */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <h4 className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-lightbulb text-primary mr-2 text-sm"></i>
                     Problem Summary
-                  </h4>
-                  <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap">{solution.problem_summary}</p>
+                  </Label>
+                  <Textarea
+                    value={solution.problem_summary}
+                    onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value} as StructuredSolution)}
+                    className="min-h-[80px] text-xs sm:text-sm mobile-textarea"
+                    placeholder="Describe the business problem..."
+                    data-testid="textarea-preview-problem"
+                  />
                 </div>
                 
                 {/* Cisco Products */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <h4 className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-network-wired text-primary mr-2 text-sm"></i>
-                    Cisco Products
-                  </h4>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {isArrayField(solution.cisco_products).map((product: string, idx: number) => (
-                      <span key={idx} className="bg-primary/10 text-primary px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
-                        {product}
-                      </span>
-                    ))}
-                  </div>
+                    Cisco Products (comma-separated)
+                  </Label>
+                  <Input
+                    value={isArrayField(solution.cisco_products).join(", ")}
+                    onChange={(e) => setEditedSolution({
+                      ...solution, 
+                      cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
+                    } as StructuredSolution)}
+                    className="mobile-input text-xs sm:text-sm"
+                    placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
+                    data-testid="input-preview-products"
+                  />
                 </div>
                 
                 {/* Target KPIs */}
-                <div className="glass-panel rounded-lg p-4">
-                  <h4 className="font-bold mb-2 flex items-center">
-                    <i className="fas fa-chart-line text-primary mr-2"></i>
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-chart-line text-primary mr-2 text-sm"></i>
                     Target KPIs
-                  </h4>
+                  </Label>
                   <div className="space-y-2">
                     {solution.target_state?.kpis?.map((kpi, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-muted/20 rounded px-3 py-2">
-                        <span className="text-sm font-medium">{kpi.name}</span>
-                        <span className="text-sm text-primary font-bold">{kpi.target}</span>
+                      <div key={idx} className="flex gap-2">
+                        <Input
+                          value={kpi.name}
+                          onChange={(e) => {
+                            const newKpis = [...solution.target_state.kpis];
+                            newKpis[idx] = {...kpi, name: e.target.value};
+                            setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
+                          }}
+                          placeholder="KPI name"
+                          className="flex-1 mobile-input text-xs sm:text-sm"
+                          data-testid={`input-preview-kpi-name-${idx}`}
+                        />
+                        <Input
+                          value={kpi.target}
+                          onChange={(e) => {
+                            const newKpis = [...solution.target_state.kpis];
+                            newKpis[idx] = {...kpi, target: e.target.value};
+                            setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
+                          }}
+                          placeholder="Target"
+                          className="w-24 sm:w-32 mobile-input text-xs sm:text-sm"
+                          data-testid={`input-preview-kpi-target-${idx}`}
+                        />
                       </div>
                     ))}
                   </div>
                 </div>
                 
                 {/* Integration Points */}
-                <div className="glass-panel rounded-lg p-4">
-                  <h4 className="font-bold mb-2 flex items-center">
-                    <i className="fas fa-plug text-primary mr-2"></i>
-                    Integration Points
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {isArrayField(solution.integration_points).map((point: string, idx: number) => (
-                      <span key={idx} className="bg-muted text-muted-foreground px-3 py-1 rounded-lg text-sm">
-                        {point}
-                      </span>
-                    ))}
-                  </div>
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-plug text-primary mr-2 text-sm"></i>
+                    Integration Points (comma-separated)
+                  </Label>
+                  <Input
+                    value={isArrayField(solution.integration_points).join(", ")}
+                    onChange={(e) => setEditedSolution({
+                      ...solution,
+                      integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
+                    } as StructuredSolution)}
+                    className="mobile-input text-xs sm:text-sm"
+                    placeholder="e.g., Microsoft 365, ServiceNow, Okta"
+                    data-testid="input-preview-integrations"
+                  />
                 </div>
 
                 {/* Rollout Plan */}
                 {solution.rollout_plan && (
-                  <div className="glass-panel rounded-lg p-4">
-                    <h4 className="font-bold mb-2 flex items-center">
-                      <i className="fas fa-tasks text-primary mr-2"></i>
-                      Rollout Plan
-                    </h4>
-                    <ol className="list-decimal list-inside space-y-1">
-                      {isArrayField(solution.rollout_plan).map((step: string, idx: number) => (
-                        <li key={idx} className="text-sm text-muted-foreground">{step}</li>
-                      ))}
-                    </ol>
+                  <div className="glass-panel rounded-lg p-3 sm:p-4">
+                    <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                      <i className="fas fa-tasks text-primary mr-2 text-sm"></i>
+                      Rollout Plan (one per line)
+                    </Label>
+                    <Textarea
+                      value={isArrayField(solution.rollout_plan).join("\n")}
+                      onChange={(e) => setEditedSolution({
+                        ...solution,
+                        rollout_plan: e.target.value.split("\n").filter(s => s.trim())
+                      } as StructuredSolution)}
+                      className="min-h-[100px] text-xs sm:text-sm mobile-textarea"
+                      placeholder="Enter rollout steps, one per line"
+                      data-testid="textarea-preview-rollout"
+                    />
                   </div>
                 )}
               </div>
