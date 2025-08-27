@@ -114,9 +114,12 @@ export default function Play() {
       setMessageCount(prev => prev + 1);
 
       // Check if this is a structured JSON response
-      if (data.content.trim().startsWith('{') && data.content.trim().endsWith('}')) {
+      // Look for JSON embedded in the response (may have text before/after)
+      const jsonMatch = data.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
         try {
-          const parsed = JSON.parse(data.content);
+          const jsonStr = jsonMatch[0];
+          const parsed = JSON.parse(jsonStr);
           if (parsed.problem_summary && parsed.chosen_category) {
             setStructuredSolution(parsed);
             setStep("preview");
@@ -125,8 +128,9 @@ export default function Play() {
               description: "Review and edit your solution before submitting",
             });
           }
-        } catch {
-          // Not JSON, continue chat
+        } catch (e) {
+          // Not valid JSON or missing required fields, continue chat
+          console.log("JSON parse attempt failed:", e);
         }
       }
     },
