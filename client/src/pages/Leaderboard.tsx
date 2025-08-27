@@ -158,25 +158,25 @@ export default function Leaderboard() {
     const rank = index + 1;
     if (rank === 1) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-          <i className="fas fa-trophy"></i>
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0">
+          <i className="fas fa-trophy text-sm sm:text-base"></i>
         </div>
       );
     } else if (rank === 2) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0">
           {rank}
         </div>
       );
     } else if (rank === 3) {
       return (
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0">
           {rank}
         </div>
       );
     } else {
       return (
-        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center font-bold text-lg">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-full flex items-center justify-center font-bold text-base sm:text-lg flex-shrink-0">
           {rank}
         </div>
       );
@@ -233,12 +233,12 @@ export default function Leaderboard() {
       </div>
 
       {/* Leaderboard Header */}
-      <div className="sticky top-0 z-40 glass-panel">
-        <div className="p-6 text-center">
-          <h2 className="text-4xl font-bold mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
-          <p className="text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
+      <div className="sticky top-0 z-40 glass-panel safe-area-padding">
+        <div className="p-4 sm:p-6 text-center">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">Data#3 | Cisco Solution Sprint — Live Leaderboard</h2>
+          <p className="text-sm sm:text-lg lg:text-xl text-muted-foreground">Cisco Live Melbourne — World of Solutions</p>
           <div className="mt-4 space-y-2">
-            <div className="text-2xl font-bold">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold">
               {currentCategory === "OVERALL" ? (
                 <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   Overall Leaderboard
@@ -249,7 +249,7 @@ export default function Leaderboard() {
                 </span>
               )}
             </div>
-            <div className="text-lg">
+            <div className="text-base sm:text-lg">
               <span className="text-primary font-bold" data-testid="text-total-participants">
                 {totalParticipants}
               </span> solutions submitted
@@ -257,11 +257,11 @@ export default function Leaderboard() {
           </div>
           
           {/* Connection Status */}
-          <div className="flex items-center justify-center space-x-2 mt-2">
-            <div className={`w-2 h-2 rounded-full ${
+          <div className="flex items-center justify-center gap-2 mt-1 sm:mt-2">
+            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
               connectionState === 'connected' ? 'bg-green-500 animate-pulse' : 'bg-red-500'
             }`}></div>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground">
               {connectionState === 'connected' ? 'Live updates enabled' : 'Reconnecting...'}
             </span>
           </div>
@@ -269,32 +269,32 @@ export default function Leaderboard() {
       </div>
 
       {/* Leaderboard Entries */}
-      <div className="px-6 pb-6">
-        <div className="space-y-3" data-testid="leaderboard-entries">
+      <div className="px-3 sm:px-6 pb-6 safe-area-padding">
+        <div className="space-y-2 sm:space-y-3" data-testid="leaderboard-entries">
           {entries.map((entry, index) => (
             <div 
               key={entry.id}
-              className={`leaderboard-entry ${getBorderColor(index)}`}
+              className={`leaderboard-entry p-3 sm:p-4 ${getBorderColor(index)}`}
               data-testid={`leaderboard-entry-${index}`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   {getRankBadge(index)}
-                  <div>
-                    <div className="font-bold text-lg" data-testid={`text-name-${index}`}>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-base sm:text-lg truncate" data-testid={`text-name-${index}`}>
                       {entry.name}
                     </div>
-                    <div className="flex items-center gap-2 text-sm" data-testid={`text-category-${index}`}>
-                      <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${CATEGORY_COLORS[entry.category] || 'from-gray-500 to-gray-600'}`}></div>
-                      <span className="text-muted-foreground">{CATEGORY_NAMES[entry.category] || entry.category}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" data-testid={`text-category-${index}`}>
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gradient-to-r ${CATEGORY_COLORS[entry.category] || 'from-gray-500 to-gray-600'} flex-shrink-0`}></div>
+                      <span className="text-muted-foreground truncate">{CATEGORY_NAMES[entry.category] || entry.category}</span>
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-bold ${getScoreColor(index)}`} data-testid={`text-score-${index}`}>
+                <div className="text-right flex-shrink-0">
+                  <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(index)}`} data-testid={`text-score-${index}`}>
                     {entry.totalScore}/50
                   </div>
-                  <div className="text-xs text-muted-foreground" data-testid={`text-time-${index}`}>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground" data-testid={`text-time-${index}`}>
                     {formatTimeAgo(entry.createdAt)}
                   </div>
                 </div>
@@ -304,11 +304,11 @@ export default function Leaderboard() {
 
           {entries.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-muted-foreground text-lg mb-4">
+              <div className="text-muted-foreground text-base sm:text-lg mb-3 sm:mb-4">
                 No submissions yet. Be the first to compete!
               </div>
-              <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
-                <i className="fas fa-trophy text-muted-foreground text-2xl"></i>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto">
+                <i className="fas fa-trophy text-muted-foreground text-xl sm:text-2xl"></i>
               </div>
             </div>
           )}

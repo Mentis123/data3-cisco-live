@@ -199,32 +199,34 @@ export default function Play() {
 
   if (step === "registration") {
     return (
-      <div className="min-h-screen bg-background text-foreground py-8">
+      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-2xl mx-auto px-4">
           <Card className="glass-panel border-0">
-            <CardHeader>
-              <CardTitle className="text-3xl text-center">Let's Get Started</CardTitle>
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="text-2xl sm:text-3xl text-center">Let's Get Started</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               {/* Registration Form */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName" className="text-sm sm:text-base mb-1.5">First Name</Label>
                   <Input
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="As shown on your badge"
+                    className="mobile-input"
                     data-testid="input-first-name"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-sm sm:text-base mb-1.5">Last Name</Label>
                   <Input
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="As shown on your badge"
+                    className="mobile-input"
                     data-testid="input-last-name"
                   />
                 </div>
@@ -232,22 +234,22 @@ export default function Play() {
 
               {/* Category Selection */}
               <div>
-                <Label className="text-xl font-bold mb-4 block">Choose Your Solution Category</Label>
-                <div className="space-y-3">
+                <Label className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 block">Choose Your Solution Category</Label>
+                <div className="space-y-2 sm:space-y-3">
                   {CATEGORIES.map((category) => (
                     <div
                       key={category.key}
-                      className={`category-card ${selectedCategory === category.key ? "selected" : ""}`}
+                      className={`category-card touch-manipulation ${selectedCategory === category.key ? "selected" : ""}`}
                       onClick={() => setSelectedCategory(category.key)}
                       data-testid={`category-${category.key}`}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                          <i className="fas fa-network-wired text-white text-lg"></i>
+                      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center flex-shrink-0">
+                          <i className="fas fa-network-wired text-white text-base sm:text-lg"></i>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-lg">{category.name}</h4>
-                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-base sm:text-lg leading-tight">{category.name}</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{category.description}</p>
                         </div>
                         <input
                           type="radio"
@@ -255,7 +257,7 @@ export default function Play() {
                           value={category.key}
                           checked={selectedCategory === category.key}
                           onChange={() => setSelectedCategory(category.key)}
-                          className="w-5 h-5 text-primary"
+                          className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 mt-1 sm:mt-0"
                         />
                       </div>
                     </div>
@@ -266,7 +268,7 @@ export default function Play() {
               <Button
                 onClick={handleStartChat}
                 disabled={!firstName.trim() || !lastName.trim() || !selectedCategory || startSessionMutation.isPending}
-                className="w-full"
+                className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation"
                 data-testid="button-start-chat"
               >
                 {startSessionMutation.isPending ? (
@@ -310,19 +312,19 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
     };
 
     return (
-      <div className="min-h-screen bg-background text-foreground py-8">
+      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="glass-panel border-0 overflow-hidden">
             {/* Chat Header */}
-            <div className="bg-gradient-to-r from-primary to-secondary p-6 text-primary-foreground">
+            <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <i className="fas fa-robot text-lg"></i>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-robot text-base sm:text-lg"></i>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold">Cisco Solution Coach</h3>
-                    <p className="opacity-90">Let's refine your solution together</p>
+                  <div className="min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold truncate">Cisco Solution Coach</h3>
+                    <p className="text-xs sm:text-sm opacity-90">Let's refine your solution together</p>
                   </div>
                 </div>
                 <Button
@@ -339,25 +341,25 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
             </div>
 
             {/* Chat Messages */}
-            <div className="h-96 overflow-y-auto p-6 space-y-4" data-testid="chat-messages">
+            <div className="h-[400px] sm:h-96 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
               {messages.map((message, index) => (
-                <div key={index} className="chat-message flex items-start space-x-3">
+                <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
                   {message.role === "assistant" ? (
                     <>
-                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-robot text-white text-sm"></i>
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
-                      <div className="glass-panel rounded-lg rounded-tl-none p-4 max-w-lg">
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
+                        <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-user text-sm"></i>
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                        <i className="fas fa-user text-xs sm:text-sm"></i>
                       </div>
-                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-4 max-w-lg">
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
+                        <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
                       </div>
                     </>
                   )}
@@ -365,11 +367,11 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
               ))}
               
               {isTyping && (
-                <div className="chat-message flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-white text-sm"></i>
+                <div className="chat-message flex items-start gap-2 sm:gap-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                   </div>
-                  <div className="glass-panel rounded-lg rounded-tl-none p-4">
+                  <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
@@ -381,27 +383,28 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
             </div>
 
             {/* Chat Input */}
-            <div className="p-6 border-t border-border">
-              <div className="flex space-x-3">
+            <div className="p-4 sm:p-6 border-t border-border">
+              <div className="flex gap-2 sm:gap-3">
                 <Textarea
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Describe your business problem..."
-                  className="flex-1 min-h-12 resize-none"
+                  className="flex-1 min-h-[48px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
                   disabled={isTyping}
                   data-testid="input-chat-message"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!currentMessage.trim() || isTyping}
+                  className="min-h-[48px] min-w-[48px] px-3 touch-manipulation"
                   data-testid="button-send-message"
                 >
                   <i className="fas fa-paper-plane"></i>
                 </Button>
               </div>
-              <div className="mt-2 text-sm text-muted-foreground">
-                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Be specific about Cisco products and measurable outcomes
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
+                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Be specific about Cisco products
               </div>
             </div>
           </Card>
@@ -415,33 +418,33 @@ For observability, we'd like to use Cisco ThousandEyes for real-time visibility,
     const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
     
     return (
-      <div className="min-h-screen bg-background text-foreground py-8">
+      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="glass-panel border-0">
-            <CardHeader>
-              <CardTitle className="text-2xl">Review Your Solution</CardTitle>
-              <p className="text-muted-foreground">Review your solution before submitting for scoring</p>
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="text-xl sm:text-2xl">Review Your Solution</CardTitle>
+              <p className="text-sm sm:text-base text-muted-foreground">Review your solution before submitting for scoring</p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               <div className="space-y-4">
                 {/* Problem Summary */}
-                <div className="glass-panel rounded-lg p-4">
-                  <h4 className="font-bold mb-2 flex items-center">
-                    <i className="fas fa-lightbulb text-primary mr-2"></i>
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <h4 className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-lightbulb text-primary mr-2 text-sm"></i>
                     Problem Summary
                   </h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{solution.problem_summary}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap">{solution.problem_summary}</p>
                 </div>
                 
                 {/* Cisco Products */}
-                <div className="glass-panel rounded-lg p-4">
-                  <h4 className="font-bold mb-2 flex items-center">
-                    <i className="fas fa-network-wired text-primary mr-2"></i>
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <h4 className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-network-wired text-primary mr-2 text-sm"></i>
                     Cisco Products
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {isArrayField(solution.cisco_products).map((product: string, idx: number) => (
-                      <span key={idx} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                      <span key={idx} className="bg-primary/10 text-primary px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                         {product}
                       </span>
                     ))}
