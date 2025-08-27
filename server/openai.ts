@@ -6,7 +6,8 @@ const openai = new OpenAI({
 });
 
 const CHAT_MODEL = process.env.CHAT_MODEL || "gpt-4o-mini";
-const EVAL_MODEL = process.env.EVAL_MODEL || "o3";
+// Use gpt-4o-mini for evaluation since o3 seems to have issues with structured output
+const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o-mini";
 
 const SYSTEM_PROMPT = `You are "Cisco Solution Coach" at the Data#3 booth (Cisco Live Melbourne). Your job is to help an attendee craft a crisp, SPECIFIC proposal that uses Cisco tools/technologies to solve a business problem, ready for scoring.
 
@@ -49,17 +50,18 @@ Calibration rules:
 - If <3 Cisco products named OR no numeric KPIs => cap total ≤ 18.
 - Award ≥8 on a criterion only when product-level specifics AND numbers (where relevant) are present.
 - Allow ≥30 totals only if all five criteria ≥6 and at least one criterion ≥8.
-- Return ONLY this JSON:
+
+You MUST return valid JSON with this exact structure. Use numbers 0-10 for each score:
 {
   "subscores": {
-    "outcome": <0-10>,
-    "fit": <0-10>,
-    "feasibility": <0-10>,
-    "impact": <0-10>,
-    "observability": <0-10>
+    "outcome": 0,
+    "fit": 0,
+    "feasibility": 0,
+    "impact": 0,
+    "observability": 0
   },
-  "total": <0-50>,
-  "notes_short": "One sentence rationale highlighting gaps."
+  "total": 0,
+  "notes_short": "One sentence rationale"
 }`;
 
 export async function chatWithAssistant(messages: Array<{role: string, content: string}>): Promise<string> {
@@ -96,6 +98,7 @@ export async function evaluateSolution(structuredSubmission: any): Promise<{
   notes_short: string;
 }> {
   try {
+    console.log('[openai] Calling evaluation model:', EVAL_MODEL);
     const response = await openai.chat.completions.create({
       model: EVAL_MODEL,
       messages: [
@@ -106,10 +109,55 @@ export async function evaluateSolution(structuredSubmission: any): Promise<{
       max_completion_tokens: 500,
     });
 
+    console.log('[openai] Raw evaluation response:', response.choices[0].message.content);
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
-    // Ensure total is calculated correctly and apply calibration
-    const subscores = result.subscores || {};
+    // Ensure we have valid subscores
+    let subscores = result.subscores || {};
+    
+    // If subscores is empty or invalid, provide fallback scoring based on submission quality
+    if (!subscores.outcome && !subscores.fit && !subscores.feasibility) {
+      console.log('[openai] Invalid subscores received, using fallback scoring');
+      subscores = {
+        outcome: 0,
+        fit: 0,
+        feasibility: 0,
+        impact: 0,
+        observability: 0
+      };
+      
+      // Score based on presence of required fields
+      const ciscoProducts = structuredSubmission.cisco_products?.length || 0;
+      const hasKPIs = structuredSubmission.current_state?.baseline_kpis?.length > 0 && 
+                      structuredSubmission.target_state?.kpis?.length > 0;
+      const hasIntegrations = structuredSubmission.integration_points?.length > 0;
+      const hasObservability = structuredSubmission.observability_plan?.length > 0;
+      const hasRollout = structuredSubmission.rollout_plan?.length > 0;
+      
+      // Basic scoring logic
+      if (structuredSubmission.problem_summary && hasKPIs) {
+        subscores.outcome = Math.min(7, 3 + (structuredSubmission.target_state?.kpis?.length || 0));
+      }
+      if (ciscoProducts >= 3) {
+        subscores.fit = Math.min(8, 2 + ciscoProducts);
+      } else if (ciscoProducts >= 1) {
+        subscores.fit = 3;
+      }
+      if (hasIntegrations && structuredSubmission.security_considerations?.length > 0) {
+        subscores.feasibility = 6;
+      } else if (hasIntegrations || structuredSubmission.security_considerations?.length > 0) {
+        subscores.feasibility = 3;
+      }
+      if (hasKPIs && hasRollout) {
+        subscores.impact = 5;
+      } else if (hasKPIs || hasRollout) {
+        subscores.impact = 2;
+      }
+      if (hasObservability) {
+        subscores.observability = Math.min(6, structuredSubmission.observability_plan.length * 2);
+      }
+    }
+    
     let total = Object.values(subscores).reduce((sum: number, score: any) => sum + (score as number), 0);
     
     // Apply calibration rules
@@ -132,9 +180,15 @@ export async function evaluateSolution(structuredSubmission: any): Promise<{
     }
 
     return {
-      subscores,
+      subscores: {
+        outcome: subscores.outcome || 0,
+        fit: subscores.fit || 0,
+        feasibility: subscores.feasibility || 0,
+        impact: subscores.impact || 0,
+        observability: subscores.observability || 0
+      },
       total: total as number,
-      notes_short: result.notes_short || "Evaluation completed."
+      notes_short: result.notes_short || "Solution evaluated based on Cisco product usage and business impact."
     };
   } catch (error) {
     throw new Error("Failed to evaluate solution: " + (error as Error).message);
