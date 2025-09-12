@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 
 export default function Home() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -61,9 +62,9 @@ export default function Home() {
         <div className="text-center mb-8 sm:mb-12">
           <div className="relative h-48 sm:h-64 mb-6 sm:mb-8 rounded-xl sm:rounded-2xl overflow-hidden glass-panel">
             <img 
-              src="https://images.unsplash.com/photo-1514890547357-a9ee288728e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=600" 
-              alt="Melbourne skyline at sunset" 
-              className="w-full h-full object-cover opacity-50"
+              src={headerImage} 
+              alt="Melbourne tech skyline" 
+              className="w-full h-full object-cover opacity-70"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
             <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">

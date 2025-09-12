@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -239,13 +240,22 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
             </Button>
           </div>
           
-          <Card className="glass-panel border-0">
-            <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-2xl sm:text-3xl text-center mb-2">Data<sup className="text-primary">#</sup>3 Solution Sprint</CardTitle>
-              <p className="text-center text-muted-foreground">
-                Solve real business problems with Cisco technologies
-              </p>
-            </CardHeader>
+          <Card className="glass-panel border-0 overflow-hidden">
+            {/* Header with background image */}
+            <div className="relative h-32 sm:h-40">
+              <img 
+                src={headerImage} 
+                alt="Melbourne tech skyline" 
+                className="w-full h-full object-cover opacity-60"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <CardTitle className="text-2xl sm:text-3xl text-center mb-2 text-white drop-shadow-lg">Data<sup className="text-primary">#</sup>3 Solution Sprint</CardTitle>
+                <p className="text-center text-white/90 drop-shadow">
+                  Solve real business problems with Cisco technologies
+                </p>
+              </div>
+            </div>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               {/* Registration Form */}
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">

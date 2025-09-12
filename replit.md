@@ -156,3 +156,9 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - Moved exit confirmation dialog to component level so it works across all Play page sections
 - Leaderboard and Admin pages already have proper home navigation buttons
 - All pages now have clear escape routes back to the home page
+
+**[2025-01-28 21:00] Header Image Update:**
+- Added custom Melbourne tech skyline header image to Home page hero section
+- Integrated same header image into Play registration card with overlay gradient
+- Enhanced visual consistency across main entry points with branded imagery
+- Applied appropriate opacity and gradient overlays for text readability
