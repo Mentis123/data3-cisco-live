@@ -8,6 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -48,6 +58,7 @@ export default function Play() {
   const [editedSolution, setEditedSolution] = useState<StructuredSolution | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -336,6 +347,16 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                     <p className="text-xs sm:text-sm opacity-90">Let's explore your business challenge together</p>
                   </div>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowExitDialog(true)}
+                  className="text-white/90 hover:text-white hover:bg-white/20"
+                  data-testid="button-exit-chat"
+                >
+                  <i className="fas fa-home mr-2"></i>
+                  Exit
+                </Button>
               </div>
             </div>
 
@@ -451,6 +472,30 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
             </div>
           </Card>
         </div>
+        
+        {/* Exit Confirmation Dialog */}
+        <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Exit Solution Chat?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to exit? You'll lose your current conversation and any solution progress. Your work has not been saved.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-exit">
+                Continue Working
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => setLocation('/')}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                data-testid="button-confirm-exit"
+              >
+                Exit & Lose Progress
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }

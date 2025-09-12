@@ -136,3 +136,9 @@ The application facilitates a user journey from landing page (terms acceptance, 
   - Edge & IoT Solutions: #F39C12 (Yellow)
 - Added 15 category-specific stats to database (3 per solution category)
 - Stats now properly filter by category to show relevant data during 5-minute window after submission
+
+**[2025-01-28 19:30] User Experience Enhancement:**
+- Added Exit/Home button to chat interface with confirmation dialog
+- Prevents accidental loss of work during solution development
+- Confirmation dialog warns users about losing unsaved progress
+- Two clear options: "Continue Working" to stay or "Exit & Lose Progress" to leave
