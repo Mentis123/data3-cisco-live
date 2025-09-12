@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
-import { animateScore } from "@/lib/anim";
+import { animateScoreCountUp } from "@/lib/anim";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
 interface LeaderboardEntry {
@@ -62,9 +62,9 @@ export default function Leaderboard() {
     if (message.type === "scoreUpdate") {
       // Trigger animation for new score
       setTimeout(() => {
-        const element = document.querySelector(`[data-entry-id="${message.data.id}"]`);
+        const element = document.querySelector(`[data-entry-id="${message.data.id}"] .text-2xl`);
         if (element) {
-          animateScore(element as HTMLElement);
+          animateScoreCountUp(element as HTMLElement, message.data.totalScore);
         }
       }, 100);
       

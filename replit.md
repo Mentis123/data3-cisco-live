@@ -22,6 +22,12 @@ Preferred communication style: Simple, everyday language.
   - **How**: Updated Leaderboard.tsx with auto-rotating views every 10 seconds, added Recharts for data visualization, integrated Data#3 pre-populated stats in storage.ts
   - **Results**: Dashboard now shows live leaderboard, technology word clouds, category distribution charts, and contextual Data#3 company stats
   - **Issues**: Build error with missing animateScore import needs to be resolved
+- [2025-01-27 13:15] Plan: Fix animateScore import error - the function doesn't exist in anim.ts, need to either add it or use existing animation functions
+- [2025-01-27 13:17] Done: 
+  - **What changed**: Fixed missing animateScore import error
+  - **How**: Changed import from non-existent `animateScore` to existing `animateScoreCountUp` function, updated function call to target score element and pass score value
+  - **Results**: Build error resolved, application should now start successfully
+  - **Issues**: None - ready to test
 
 ### Reflections
 - The rotating dashboard concept works well for booth displays - keeps content dynamic and engaging
