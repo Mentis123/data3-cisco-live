@@ -634,7 +634,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                         <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
                       <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-sm sm:text-base prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground">
                           {message.content}
                         </div>
                       </div>
@@ -645,7 +645,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                         <i className="fas fa-user text-xs sm:text-sm"></i>
                       </div>
                       <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
+                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground">{message.content}</p>
                       </div>
                     </>
                   )}
