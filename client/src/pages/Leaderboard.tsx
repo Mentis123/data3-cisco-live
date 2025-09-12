@@ -72,7 +72,8 @@ export default function Leaderboard() {
     }
   });
 
-  // Auto-rotate views every 10 seconds, but only show views with content
+  // Auto-rotate views every 10 seconds, but only through views with content
+  // However, allow manual selection of any view
   useEffect(() => {
     if (!displayData) return;
 
@@ -82,7 +83,7 @@ export default function Leaderboard() {
       // Always include data3stats as it has pre-populated content
       views.push("data3stats");
       
-      // Only add other views if they have content
+      // Only add other views if they have content (for auto-rotation)
       if (displayData.leaderboard.length > 0) {
         views.push("leaderboard");
       }
@@ -98,9 +99,14 @@ export default function Leaderboard() {
 
     const availableViews = getAvailableViews();
     let currentIndex = availableViews.indexOf(activeView);
+    
+    // If current view is not available for auto-rotation, default to data3stats
     if (currentIndex === -1) {
       currentIndex = 0;
-      setActiveView(availableViews[0]);
+      // Only auto-change if user hasn't manually selected a view
+      if (availableViews[0] !== activeView) {
+        setActiveView(availableViews[0]);
+      }
     }
 
     const interval = setInterval(() => {
@@ -132,7 +138,31 @@ export default function Leaderboard() {
     );
   }
 
-  const renderLeaderboard = () => (
+  const renderLeaderboard = () => {
+    if (displayData.leaderboard.length === 0) {
+      return (
+        <Card className="h-full">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-3xl font-bold text-center">
+              <i className="fas fa-trophy text-yellow-500 mr-3"></i>
+              Live Leaderboard
+            </CardTitle>
+            <p className="text-center text-muted-foreground text-lg">
+              Waiting for first submissions...
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <i className="fas fa-hourglass-half text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-semibold mb-2">No submissions yet!</p>
+              <p className="text-muted-foreground">Rankings will appear here once participants start submitting solutions.</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
     <Card className="h-full">
       <CardHeader className="pb-4">
         <CardTitle className="text-3xl font-bold text-center">
@@ -189,9 +219,33 @@ export default function Leaderboard() {
         </div>
       </CardContent>
     </Card>
-  );
+    );
+  };
 
   const renderWordCloud = () => {
+    if (displayData.wordCloud.length === 0) {
+      return (
+        <Card className="h-full">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-3xl font-bold text-center">
+              <i className="fas fa-cloud text-blue-500 mr-3"></i>
+              Popular Technologies
+            </CardTitle>
+            <p className="text-center text-muted-foreground text-lg">
+              Most mentioned Cisco products in solutions
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <i className="fas fa-cloud text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-semibold mb-2">No technology data yet!</p>
+              <p className="text-muted-foreground">Popular Cisco products will appear here as solutions are submitted.</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     const maxValue = Math.max(...displayData.wordCloud.map(w => w.value));
 
     return (
@@ -240,6 +294,29 @@ export default function Leaderboard() {
     }));
 
     const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
+
+    if (totalSubmissions === 0) {
+      return (
+        <Card className="h-full">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-3xl font-bold text-center">
+              <i className="fas fa-chart-pie text-green-500 mr-3"></i>
+              Problem Categories
+            </CardTitle>
+            <p className="text-center text-muted-foreground text-lg">
+              Distribution of business problems by technology area
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <i className="fas fa-chart-pie text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-semibold mb-2">No category data yet!</p>
+              <p className="text-muted-foreground">Problem distribution will appear here as solutions are submitted across different technology areas.</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
 
     return (
       <Card className="h-full">
@@ -376,8 +453,10 @@ export default function Leaderboard() {
         <div className="flex justify-center mb-6">
           <div className="flex gap-2 p-1 bg-muted/30 rounded-lg">
             {[
-              { key: "leaderboard", icon: "fa-trophy", label: (
-                <div className="flex items-center gap-1">
+              { 
+                key: "leaderboard", 
+                icon: "fa-trophy", 
+                mobileIcon: (
                   <svg width="20" height="16" viewBox="0 0 24 20" fill="none" className="inline-block">
                     {/* Podium steps */}
                     <rect x="0" y="12" width="6" height="8" rx="1" fill="#CD7F32" />
@@ -388,9 +467,10 @@ export default function Leaderboard() {
                     <text x="12" y="14" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">1</text>
                     <text x="21" y="16" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">3</text>
                   </svg>
-                  <span className="ml-1">Rankings</span>
-                </div>
-              ), hasContent: displayData?.leaderboard.length > 0 },
+                ),
+                label: "Rankings", 
+                hasContent: displayData?.leaderboard.length > 0 
+              },
               { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
               { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
               { key: "data3stats", icon: "fa-building", label: "Data#3", hasContent: true }
@@ -400,11 +480,26 @@ export default function Leaderboard() {
                 variant={activeView === view.key ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setActiveView(view.key as any)}
-                disabled={!view.hasContent}
                 className="transition-all duration-200"
               >
-                <i className={`fas ${view.icon} mr-2`}></i>
-                {view.label}
+                {/* Mobile: Show only icons */}
+                <div className="block sm:hidden">
+                  {view.key === "leaderboard" ? view.mobileIcon : <i className={`fas ${view.icon}`}></i>}
+                </div>
+                {/* Desktop: Show icon + text */}
+                <div className="hidden sm:flex items-center">
+                  {view.key === "leaderboard" ? (
+                    <>
+                      {view.mobileIcon}
+                      <span className="ml-2">{view.label}</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className={`fas ${view.icon} mr-2`}></i>
+                      {view.label}
+                    </>
+                  )}
+                </div>
               </Button>
             ))}
           </div>

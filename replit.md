@@ -91,8 +91,12 @@ Preferred communication style: Simple, everyday language.
   - **How**: Created inline SVG with gold (1st), silver (3rd), bronze (2nd) colored podium steps with position numbers, added "Rankings" text beside it
   - **Results**: Professional-looking podium icon that clearly indicates leaderboard/rankings functionality
   - **Issues**: None - clean graphic replaces emoji
-
-### Changelog
+- [2025-01-28 13:28] Plan: Fix two UX issues - 1) Allow manual selection of any view (not just available ones) but still auto-revert to stats after 10s if no data, 2) Show only icons on mobile and icon+text on desktop for better mobile UX
+- [2025-01-28 13:30] Done:
+  - **What changed**: Enabled manual selection of any view regardless of content, optimized button display for mobile/desktop, added empty state messages
+  - **How**: Modified auto-rotation logic to allow manual selection of empty views, implemented responsive button rendering (icons-only on mobile, icon+text on desktop), added empty state UI for all views
+  - **Results**: Users can now manually select any view (even empty ones), mobile UI shows cleaner icon-only buttons, empty views show helpful messaging instead of blank content
+  - **Issues**: None - both UX improvements implemented successfully
 - [2025-01-27 13:25] Plan: Update all UI copy to focus on business problems rather than "solutions" and remove AI-powered marketing emphasis. Make messaging more about the challenge and competition rather than showcasing AI capabilities.
 - [2025-01-27 13:27] Done:
   - **What changed**: Updated all key messaging throughout the app to focus on business problems/challenges rather than solutions
