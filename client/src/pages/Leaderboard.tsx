@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
 
 interface LeaderboardEntry {
   id: string;
@@ -439,16 +439,40 @@ export default function Leaderboard() {
                 <Pie
                   data={categoryData}
                   cx="50%"
-                  cy="45%"
-                  outerRadius={170}
+                  cy="50%"
+                  outerRadius={140}
                   fill="#8884d8"
                   dataKey="value"
-                  label={(entry) => {
-                    const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
-                    return `${percent}% (${entry.value})`;
+                  label={(props) => {
+                    const { name, x, y, textAnchor } = props;
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill="#e2e8f0"
+                        textAnchor={textAnchor}
+                        dominantBaseline="middle"
+                        style={{ fontSize: '20px', fontWeight: '600' }}
+                      >
+                        {name}
+                      </text>
+                    );
                   }}
-                  labelLine={false}
+                  labelLine={{
+                    stroke: '#6b7280',
+                    strokeWidth: 1,
+                  }}
                 >
+                  <LabelList
+                    dataKey="value"
+                    position="inside"
+                    fill="#fff"
+                    style={{ fontSize: '22px', fontWeight: 'bold', textShadow: '0 0 4px rgba(0,0,0,0.5)' }}
+                    formatter={(value: number) => {
+                      const percent = ((value / totalSubmissions) * 100).toFixed(0);
+                      return `${percent}% (${value})`;
+                    }}
+                  />
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -457,15 +481,6 @@ export default function Leaderboard() {
                   formatter={(value: number, name: string) => {
                     const percent = ((value / totalSubmissions) * 100).toFixed(1);
                     return [`${value} submissions (${percent}%)`, name];
-                  }}
-                />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36}
-                  formatter={(value) => value}
-                  wrapperStyle={{
-                    fontSize: '18px',
-                    paddingTop: '20px'
                   }}
                 />
               </PieChart>
