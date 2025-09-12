@@ -23,12 +23,27 @@ export const submissions = pgTable("submissions", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+export const data3Stats = pgTable("data3_stats", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  value: text("value").notNull(),
+  description: text("description"),
+  category: text("category").notNull(),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 export const insertParticipantSchema = createInsertSchema(participants).omit({
   id: true,
   createdAt: true,
 });
 
 export const insertSubmissionSchema = createInsertSchema(submissions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertData3StatSchema = createInsertSchema(data3Stats).omit({
   id: true,
   createdAt: true,
 });
@@ -84,3 +99,5 @@ export type InsertParticipant = z.infer<typeof insertParticipantSchema>;
 export type Participant = typeof participants.$inferSelect;
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;
+export type InsertData3Stat = z.infer<typeof insertData3StatSchema>;
+export type Data3Stat = typeof data3Stats.$inferSelect;

@@ -173,9 +173,9 @@
     animation: slideIn 0.3s ease-out;
   }
 
-  /* Superscript styling for Data³ */
+  /* Superscript styling for Data#3 */
   sup {
-    @apply text-primary;
+    color: inherit; /* Use parent text color, not cyan */
     font-size: 0.75em;
     vertical-align: super;
     line-height: 0;
