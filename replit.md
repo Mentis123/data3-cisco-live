@@ -148,3 +148,11 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - Fixed category-specific stats alignment: Stats now correctly match the recent submission's category instead of the overall top category
 - Backend now uses `recentSubmission.category` for stats filtering during the 5-minute window
 - Ensures proper category correlation between submission badges and displayed statistics
+
+**[2025-01-28 20:30] Navigation Improvements:**
+- Added "Back to Home" button on Play registration page for easy exit
+- Added exit buttons with confirmation dialogs on preview and edit pages to prevent accidental data loss
+- Added "Back to Chat" and "Back to Preview" navigation between solution development steps
+- Moved exit confirmation dialog to component level so it works across all Play page sections
+- Leaderboard and Admin pages already have proper home navigation buttons
+- All pages now have clear escape routes back to the home page

@@ -225,6 +225,20 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     return (
       <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-2xl mx-auto px-4">
+          {/* Home Button */}
+          <div className="mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation('/')}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-home-registration"
+            >
+              <i className="fas fa-arrow-left mr-2"></i>
+              Back to Home
+            </Button>
+          </div>
+          
           <Card className="glass-panel border-0">
             <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="text-2xl sm:text-3xl text-center mb-2">Data<sup className="text-primary">#</sup>3 Solution Sprint</CardTitle>
@@ -472,30 +486,6 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
             </div>
           </Card>
         </div>
-        
-        {/* Exit Confirmation Dialog */}
-        <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Exit Solution Chat?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to exit? You'll lose your current conversation and any solution progress. Your work has not been saved.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel data-testid="button-cancel-exit">
-                Continue Working
-              </AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={() => setLocation('/')}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                data-testid="button-confirm-exit"
-              >
-                Exit & Lose Progress
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     );
   }
@@ -507,6 +497,30 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     return (
       <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-4xl mx-auto px-4">
+          {/* Navigation Buttons */}
+          <div className="mb-4 flex justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowExitDialog(true)}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-home-preview"
+            >
+              <i className="fas fa-home mr-2"></i>
+              Exit to Home
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep('chat')}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-back-to-chat"
+            >
+              <i className="fas fa-arrow-left mr-2"></i>
+              Back to Chat
+            </Button>
+          </div>
+          
           <Card className="glass-panel border-0">
             <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="text-xl sm:text-2xl">Review Your Solution</CardTitle>
@@ -668,6 +682,30 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     return (
       <div className="min-h-screen bg-background text-foreground py-8">
         <div className="max-w-4xl mx-auto px-4">
+          {/* Navigation Buttons */}
+          <div className="mb-4 flex justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowExitDialog(true)}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-home-edit"
+            >
+              <i className="fas fa-home mr-2"></i>
+              Exit to Home
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep('preview')}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-back-to-preview"
+            >
+              <i className="fas fa-arrow-left mr-2"></i>
+              Back to Preview
+            </Button>
+          </div>
+          
           <Card className="glass-panel border-0">
             <CardHeader>
               <CardTitle className="text-2xl">Edit Your Solution</CardTitle>
@@ -836,12 +874,38 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
   // Fallback for any unexpected state, though ideally all states are handled above.
   // Also, added the footer text as requested.
   return (
-    <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
-      <div className="max-w-2xl mx-auto px-4 text-center">
-        <p className="text-muted-foreground">
-          Visit the Data<sup className="text-primary">#</sup>3 booth at Cisco Live Melbourne 2025 to participate in the challenge.
-        </p>
+    <>
+      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <p className="text-muted-foreground">
+            Visit the Data<sup className="text-primary">#</sup>3 booth at Cisco Live Melbourne 2025 to participate in the challenge.
+          </p>
+        </div>
       </div>
-    </div>
+      
+      {/* Exit Confirmation Dialog - shared across all steps */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exit Solution Development?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to exit? You'll lose your current conversation and any solution progress. Your work has not been saved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-exit">
+              Continue Working
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => setLocation('/')}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-exit"
+            >
+              Exit & Lose Progress
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
