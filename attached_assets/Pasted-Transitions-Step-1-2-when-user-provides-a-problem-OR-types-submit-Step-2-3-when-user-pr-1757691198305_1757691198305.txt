@@ -1,0 +1,97 @@
+Transitions
+	•	Step 1 → 2 when user provides a problem OR types “submit”.
+	•	Step 2 → 3 when user provides any impact details (numbers or plain text).
+	•	Step 3 → 4 on user confirmation (“yes”, “sounds good”, “proceed”, or “submit”).
+	•	Typing “submit” at any step → Step 4 with auto-infer for missing sections.
+	•	Guard: max 6 inputs; if reached and not submitted, prompt:
+“You’re at the limit—want me to auto-complete and take you to Submit?”
+
+3) Chat Behavior (3-reply ideal path)
+
+Reply 1 (User): Their problem.
+Agent response:
+	•	Replay/expand their problem (2–3 clean sentences + bullets of friction).
+	•	Ask for impact with one crisp prompt + examples (time, cost, risk).
+	•	Update stepper: ✅ Step 1, ➡️ Step 2.
+
+Reply 2 (User): Impact details.
+Agent response:
+	•	Expand/quantify impact (do small math; declare assumptions if used).
+	•	Show 1–3 Cisco tech matches and an MVS (minimal viable solution).
+	•	Ask lightweight confirmation: “Want to proceed with this approach?”
+	•	Update stepper: ✅ Steps 1–2, ➡️ Step 3.
+
+Reply 3 (User): “Yes” / tweaks / “submit”.
+Agent response:
+	•	If “yes”: finalize Explore, generate Submission Draft and move to Submit page.
+	•	If “submit”: infer missing data, prefill, show final review page (unchanged layout).
+	•	Update stepper: ✅ Steps 1–3, ➡️ Step 4.
+
+If the user backtracks (edits earlier content), recompute downstream sections but keep progress unless content becomes empty.
+
+4) “Submit anytime” affordance
+	•	Always show a subtle pill below the composer on mobile:
+“Type submit anytime — I’ll prefill the rest and take you to final review.”
+	•	Detect variations: submit, finish, finalize, ready, good to go.
+
+5) Mobile-First UX details
+	•	Viewport + 100% width layouts; max line length ~ 36–48ch.
+	•	Single-column stack: Stepper (sticky) → Chat cards → Composer.
+	•	Buttons ≥ 44×44px; 12–16px paddings; 16px base font.
+	•	Avoid wide tables; prefer bullet lists & short paragraphs.
+	•	Collapsible sections (Problem / Impact / Explore) with “Edit” chips.
+	•	Keep images and decoration minimal; prioritize speed and legibility.
+
+6) Content Templates (microcopy)
+	•	After Step 1 (ask for impact):
+“Got it. To size this: about how many times per week? typical time lost? rough cost or risk (e.g., delays, errors, outages)? Even ballpark is fine.”
+	•	After Step 2 (confirm to proceed):
+“Based on that, here’s a lightweight plan and an MVS. Want me to proceed with this and prep your submission?”
+	•	Assumptions banner (if used):
+“I assumed X and Y so we can keep moving—edit anytime, I’ll recalc.”
+
+7) Composer & Limits
+	•	Track inputsCount. On each user send: inputsCount++.
+	•	If inputsCount >= 6 and not submitted:
+“We’ve hit the max. I’ll auto-complete and take you to Submit unless you say ‘back’ to adjust something first.”
+
+8) Final Review Page (unchanged, just prefilled)
+	•	Keep current fields/structure.
+	•	Prefill from submission object.
+	•	Provide Edit per section, Save/Submit actions.
+
+⸻
+
+Components to Add/Update
+	•	components/SprintStepper.tsx — sticky mobile stepper.
+	•	features/sprint/state.ts — context or Zustand store for SprintState.
+	•	features/sprint/compose.ts — helpers:
+	•	expandProblem(text), quantifyImpact(input), mapTechnologies(problem, impact), composeSubmission(problem, impact, explore).
+	•	features/sprint/guards.ts — submit-anytime + max-inputs handling.
+	•	features/sprint/chat/handlers.ts — step routing & backtrack logic.
+
+⸻
+
+Acceptance Criteria
+	1.	Stepper everywhere (chat + final page), live updates (✅ / ➡️).
+	2.	Three-reply happy path results in ready Submit page.
+	3.	Max 6 inputs enforced with auto-complete fallback.
+	4.	Backtrack works; editing earlier steps recomputes later sections.
+	5.	Submit anytime works from any step; missing fields are inferred and prefilled.
+	6.	Mobile performance: First contentful paint fast; all tap targets ≥ 44px; no horizontal scroll; readable on 375px width.
+	7.	Copy quality: concise, supportive tone; no jargon wall; assumptions clearly labeled.
+
+⸻
+
+Example Flow (copy behavior)
+
+User #1: “Our analysts waste time reconciling CSVs from 5 tools; duplications and version confusion delay weekly reports.”
+Agent: (Step 1 expand) + ask for impact → Stepper ➡️ Step 2.
+User #2: “Happens 2–3 times/week, ~2 hours each, and errors slip through monthly.”
+Agent: (Step 2 quantify + Step 3 propose tech & MVS) + “Proceed?” → Stepper ➡️ Step 3.
+User #3: “Yes.”
+Agent: Prefill final review (Step 4), show page. Done.
+
+⸻
+
+If you want, I can also provide a tiny compose.ts scaffold with the math & mapping heuristics you’d like (e.g., time × frequency × blended rate, KPI targets, and a Cisco-tech shortlist pattern).
