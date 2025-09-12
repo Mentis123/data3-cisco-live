@@ -100,13 +100,9 @@ export default function Leaderboard() {
     const availableViews = getAvailableViews();
     let currentIndex = availableViews.indexOf(activeView);
     
-    // If current view is not available for auto-rotation, default to data3stats
+    // If current view is not available for auto-rotation, start with data3stats
     if (currentIndex === -1) {
       currentIndex = 0;
-      // Only auto-change if user hasn't manually selected a view
-      if (availableViews[0] !== activeView) {
-        setActiveView(availableViews[0]);
-      }
     }
 
     const interval = setInterval(() => {
@@ -114,11 +110,14 @@ export default function Leaderboard() {
       if (views.length > 1) {
         currentIndex = (currentIndex + 1) % views.length;
         setActiveView(views[currentIndex]);
+      } else {
+        // Always revert to data3stats if it's the only available view
+        setActiveView("data3stats");
       }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [displayData, activeView]);
+  }, [displayData]);
 
   // Update display data when query data changes
   useEffect(() => {
@@ -155,7 +154,7 @@ export default function Leaderboard() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <i className="fas fa-hourglass-half text-4xl text-muted-foreground mb-4"></i>
               <p className="text-lg font-semibold mb-2">No submissions yet!</p>
-              <p className="text-muted-foreground">Rankings will appear here once participants start submitting solutions.</p>
+              <p className="text-muted-foreground">Come back when participants start submitting solutions to see live rankings here.</p>
             </div>
           </CardContent>
         </Card>
@@ -239,7 +238,7 @@ export default function Leaderboard() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <i className="fas fa-cloud text-4xl text-muted-foreground mb-4"></i>
               <p className="text-lg font-semibold mb-2">No technology data yet!</p>
-              <p className="text-muted-foreground">Popular Cisco products will appear here as solutions are submitted.</p>
+              <p className="text-muted-foreground">Come back when solutions are submitted to see popular Cisco products mentioned.</p>
             </div>
           </CardContent>
         </Card>
@@ -311,7 +310,7 @@ export default function Leaderboard() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <i className="fas fa-chart-pie text-4xl text-muted-foreground mb-4"></i>
               <p className="text-lg font-semibold mb-2">No category data yet!</p>
-              <p className="text-muted-foreground">Problem distribution will appear here as solutions are submitted across different technology areas.</p>
+              <p className="text-muted-foreground">Come back when solutions are submitted to see the distribution across different technology areas.</p>
             </div>
           </CardContent>
         </Card>

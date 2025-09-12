@@ -97,6 +97,12 @@ Preferred communication style: Simple, everyday language.
   - **How**: Modified auto-rotation logic to allow manual selection of empty views, implemented responsive button rendering (icons-only on mobile, icon+text on desktop), added empty state UI for all views
   - **Results**: Users can now manually select any view (even empty ones), mobile UI shows cleaner icon-only buttons, empty views show helpful messaging instead of blank content
   - **Issues**: None - both UX improvements implemented successfully
+- [2025-01-28 14:05] Plan: Fix two issues - 1) Always show all view buttons even when no data, with "come back when there are entries" messaging, 2) Fix auto-revert logic so button states update correctly when auto-reverting to stats view
+- [2025-01-28 14:07] Done:
+  - **What changed**: Fixed view button states and empty state messaging
+  - **How**: Removed activeView dependency from useEffect to prevent button state issues, updated all empty state messages to encourage users to "come back when" content is available, ensured all view buttons always show regardless of data
+  - **Results**: Auto-revert now properly updates button states, all views accessible with encouraging empty state messaging
+  - **Issues**: None - button states and messaging now working correctlycessfully
 - [2025-01-27 13:25] Plan: Update all UI copy to focus on business problems rather than "solutions" and remove AI-powered marketing emphasis. Make messaging more about the challenge and competition rather than showcasing AI capabilities.
 - [2025-01-27 13:27] Done:
   - **What changed**: Updated all key messaging throughout the app to focus on business problems/challenges rather than solutions
