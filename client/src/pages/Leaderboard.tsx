@@ -446,12 +446,15 @@ export default function Leaderboard() {
                   fill="#8884d8"
                   dataKey="value"
                   label={(props) => {
-                    const { name, x, y, textAnchor } = props;
+                    const { name, x, y, textAnchor, fill } = props;
+                    // Get the color from the categoryData
+                    const entryData = categoryData.find(d => d.name === name);
+                    const labelColor = entryData?.color || '#e2e8f0';
                     return (
                       <text
                         x={x}
                         y={y}
-                        fill="#e2e8f0"
+                        fill={labelColor}
                         textAnchor={textAnchor}
                         dominantBaseline="middle"
                         style={{ fontSize: '20px', fontWeight: '600' }}
@@ -460,9 +463,15 @@ export default function Leaderboard() {
                       </text>
                     );
                   }}
-                  labelLine={{
-                    stroke: '#6b7280',
-                    strokeWidth: 1,
+                  labelLine={(props) => {
+                    // Get the color from the categoryData for the line
+                    const entryData = categoryData.find(d => d.name === props.name);
+                    const lineColor = entryData?.color || '#6b7280';
+                    return {
+                      ...props,
+                      stroke: lineColor,
+                      strokeWidth: 2,
+                    };
                   }}
                 >
                   <LabelList
