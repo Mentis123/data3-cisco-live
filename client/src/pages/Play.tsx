@@ -19,61 +19,42 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
+import { SprintStepper } from "@/components/SprintStepper";
+import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
+import { expandProblem, quantifyImpact, mapTechnologies, composeSubmission, inferMissingData } from "@/features/sprint/compose";
+import type { SprintStep } from "@/features/sprint/types";
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
-interface StructuredSolution {
-  problem_summary: string;
-  chosen_category: string;
-  cisco_products: string[];
-  current_state: {
-    baseline_kpis: Array<{ name: string; value: string }>;
-    constraints: string[];
-  };
-  target_state: {
-    kpis: Array<{ name: string; target: string }>;
-    persona: string[];
-  };
-  integration_points: string[];
-  security_considerations: string[];
-  observability_plan: string[];
-  rollout_plan: string[];
-  risks: string[];
-}
-
-export default function Play() {
+function PlayContent() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  const [step, setStep] = useState<"registration" | "chat" | "preview" | "edit">("registration");
+  const { state, dispatch } = useSprint();
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [sessionToken, setSessionToken] = useState<string>("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
-  const [messageCount, setMessageCount] = useState(0);
-  const [structuredSolution, setStructuredSolution] = useState<StructuredSolution | null>(null);
-  const [editedSolution, setEditedSolution] = useState<StructuredSolution | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [state.messages, isTyping]);
 
-  // Scroll to top when entering preview/edit steps
+  // Check for max inputs
   useEffect(() => {
-    if (step === "preview" || step === "edit") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (state.inputsCount >= 6 && state.step < 4) {
+      toast({
+        title: "Maximum inputs reached",
+        description: "You've reached the 6-input limit. Type 'submit' to complete your solution or 'back' to adjust.",
+      });
     }
-  }, [step]);
+  }, [state.inputsCount, state.step, toast]);
 
   const startSessionMutation = useMutation({
     mutationFn: async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
@@ -82,23 +63,26 @@ export default function Play() {
     },
     onSuccess: (data) => {
       setSessionToken(data.sessionToken);
-      setStep("chat");
-      // Add initial assistant message focusing on problem definition
-      setMessages([{
-        role: "assistant",
-        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data#3 Challenge! 🚀
+      setRegistrationComplete(true);
+      
+      // Add initial assistant message for Step 1
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          role: "assistant",
+          content: `Hi ${firstName}! Let's create a winning solution together. I'll guide you through 3 quick steps.
 
-**Let's start with the problem that's been bugging you:**
+**Step 1: Name the Problem** 🎯
 
-What business challenge in your organization:
-• Wastes your time every day?
-• Keeps your team stressed or inefficient?
-• Creates security headaches?
-• Frustrates users and impacts productivity?
+Tell me about a specific business challenge that:
+• Wastes time or resources
+• Creates friction for users
+• Causes errors or delays
+• Impacts productivity
 
-Just describe it naturally - I'll help you turn it into a winning Cisco solution that could land you on our live leaderboard! 🏆`
-      }]);
-      setMessageCount(1);
+Just describe it naturally - what's the problem that needs solving?`
+        }
+      });
     },
     onError: (error) => {
       toast({
@@ -110,45 +94,26 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
   });
 
   const chatMutation = useMutation({
-    mutationFn: async ({ sessionToken, messages }: { sessionToken: string; messages: ChatMessage[] }) => {
-      const response = await apiRequest("POST", "/api/chat", { sessionToken, messages });
+    mutationFn: async ({ message }: { message: string }) => {
+      const response = await apiRequest("POST", "/api/chat", { 
+        sessionToken, 
+        messages: [{ role: "user", content: message }],
+        sprintStep: state.step,
+        previousProblem: state.problem?.userInput,
+        previousImpact: state.impact?.userInput
+      });
       return response.json();
     },
     onSuccess: (data) => {
       setIsTyping(false);
-      const assistantMessage: ChatMessage = { role: "assistant", content: data.content };
-      setMessages(prev => [...prev, assistantMessage]);
-      setMessageCount(prev => prev + 1);
-
-      // Check if this is a structured JSON response
-      const jsonMatch = data.content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          const jsonStr = jsonMatch[0];
-          const parsed = JSON.parse(jsonStr);
-          console.log("Parsed JSON:", parsed);
-          if (parsed.problem_summary && parsed.chosen_category) {
-            console.log("Setting structured solution and moving to preview");
-            setStructuredSolution(parsed);
-            setStep("preview");
-            toast({
-              title: "Solution Ready!",
-              description: "Review and edit your solution before submitting",
-            });
-          } else {
-            console.log("JSON missing required fields:", parsed);
-          }
-        } catch (e) {
-          console.log("JSON parse attempt failed:", e);
-        }
-      } else {
-        console.log("No JSON found in response");
-      }
+      
+      // Process the response based on current step
+      handleAIResponse(data.content);
     },
     onError: (error) => {
       setIsTyping(false);
       toast({
-        title: "Chat Error",
+        title: "Chat Error", 
         description: error.message,
         variant: "destructive",
       });
@@ -162,10 +127,19 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
       }
       setIsSubmitting(true);
 
+      // Ensure we have all data
+      const { problem, impact, explore } = inferMissingData(
+        state.problem,
+        state.impact,
+        state.explore
+      );
+      
+      const submission = state.submission || composeSubmission(problem, impact, explore);
+
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
-        solutionText: messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
-        structuredFields: editedSolution || structuredSolution,
+        solutionText: state.messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
+        structuredFields: submission,
       });
       return response.json();
     },
@@ -190,6 +164,175 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     },
   });
 
+  const handleAIResponse = (content: string) => {
+    // Add assistant message
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: { role: 'assistant', content }
+    });
+
+    // Progress based on current step
+    if (state.step === 1 && state.problem) {
+      // After problem is set, move to impact
+      advanceToNextStep(dispatch, state.step);
+    } else if (state.step === 2 && state.impact) {
+      // After impact is set, move to explore
+      advanceToNextStep(dispatch, state.step);
+    } else if (state.step === 3 && state.explore) {
+      // After explore is set, prepare submission
+      const submission = composeSubmission(state.problem!, state.impact!, state.explore);
+      dispatch({ type: 'SET_SUBMISSION', payload: submission });
+      advanceToNextStep(dispatch, state.step);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!currentMessage.trim() || isTyping) return;
+    if (state.inputsCount >= 6) {
+      toast({
+        title: "Input limit reached",
+        description: "Type 'submit' to complete or 'back' to adjust",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userMessage = currentMessage.trim();
+    setCurrentMessage("");
+    setIsTyping(true);
+
+    // Add user message and increment input count
+    dispatch({ type: 'ADD_USER_INPUT', payload: userMessage });
+
+    // Check for submit command
+    if (isSubmitCommand(userMessage)) {
+      handleSubmitCommand();
+      return;
+    }
+
+    // Process based on current step
+    switch (state.step) {
+      case 1:
+        // Problem step
+        const problem = expandProblem(userMessage);
+        dispatch({ type: 'SET_PROBLEM', payload: problem });
+        
+        // Ask for impact
+        const impactPrompt = `Got it. ${problem.expanded}
+
+**Step 2: Quantify the Impact** 📊
+
+To size this opportunity, tell me about:
+• How often does this happen? (times per week/day)
+• Time lost per incident? (hours/minutes)
+• Cost impact or risk? (rough estimate is fine)
+
+Even ballpark numbers help - I'll calculate the rest.`;
+        
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: { role: 'assistant', content: impactPrompt }
+        });
+        setIsTyping(false);
+        advanceToNextStep(dispatch, state.step);
+        break;
+
+      case 2:
+        // Impact step
+        const impact = quantifyImpact(userMessage, state.problem?.userInput);
+        dispatch({ type: 'SET_IMPACT', payload: impact });
+        
+        // Map technologies and propose MVS
+        const explore = mapTechnologies(state.problem!, impact);
+        dispatch({ type: 'SET_EXPLORE', payload: explore });
+        
+        // Show technology proposal
+        let techProposal = `Perfect! Based on your impact of ${impact.calculatedMetrics?.weeklyHours} hours/week`;
+        if (impact.calculatedMetrics?.annualImpact) {
+          techProposal += ` (~$${Math.round(impact.calculatedMetrics.annualImpact).toLocaleString()} annually)`;
+        }
+        techProposal += `, here's my recommendation:
+
+**Step 3: Technology Solution** 🚀
+
+**Cisco Technologies:**
+${explore.technologies.map(t => `• **${t.name}**: ${t.description}`).join('\n')}
+
+**Quick Win (MVS):**
+${explore.mvs?.title}
+${explore.mvs?.implementation.map(i => `• ${i}`).join('\n')}
+
+Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")`;
+
+        if (impact.assumptions && impact.assumptions.length > 0) {
+          techProposal += `\n\n_Note: ${impact.assumptions.join('; ')}_`;
+        }
+        
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: { role: 'assistant', content: techProposal }
+        });
+        setIsTyping(false);
+        advanceToNextStep(dispatch, state.step);
+        break;
+
+      case 3:
+        // Explore/confirmation step
+        if (userMessage.toLowerCase().includes('yes') || userMessage.toLowerCase().includes('proceed')) {
+          handleProceedToSubmit();
+        } else {
+          // Handle adjustments - send to AI for processing
+          chatMutation.mutate({ message: userMessage });
+        }
+        break;
+
+      default:
+        chatMutation.mutate({ message: userMessage });
+    }
+  };
+
+  const handleSubmitCommand = () => {
+    // Infer any missing data
+    const { problem, impact, explore } = inferMissingData(
+      state.problem,
+      state.impact,
+      state.explore
+    );
+    
+    // Compose submission
+    const submission = composeSubmission(problem, impact, explore);
+    dispatch({ type: 'SET_SUBMISSION', payload: submission });
+    
+    // Move to submit step
+    goToStep(dispatch, 4);
+    setIsTyping(false);
+  };
+
+  const handleProceedToSubmit = () => {
+    if (!state.problem || !state.impact || !state.explore) {
+      handleSubmitCommand();
+      return;
+    }
+    
+    const submission = composeSubmission(state.problem, state.impact, state.explore);
+    dispatch({ type: 'SET_SUBMISSION', payload: submission });
+    goToStep(dispatch, 4);
+    setIsTyping(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleStepClick = (step: SprintStep) => {
+    if (step < state.step) {
+      goToStep(dispatch, step);
+    }
+  };
+
   const handleStartChat = () => {
     if (!firstName.trim() || !lastName.trim()) {
       toast({
@@ -203,30 +346,11 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     startSessionMutation.mutate({ firstName, lastName });
   };
 
-  const handleSendMessage = () => {
-    if (!currentMessage.trim() || isTyping) return;
-
-    const userMessage: ChatMessage = { role: "user", content: currentMessage };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setCurrentMessage("");
-    setIsTyping(true);
-
-    chatMutation.mutate({ sessionToken, messages: [userMessage] });
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  if (step === "registration") {
+  // Registration view
+  if (!registrationComplete) {
     return (
       <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-2xl mx-auto px-4">
-          {/* Home Button */}
           <div className="mb-4">
             <Button
               variant="ghost"
@@ -241,7 +365,6 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
           </div>
           
           <Card className="glass-panel border-0 overflow-hidden">
-            {/* Header with background image */}
             <div className="relative h-32 sm:h-40">
               <img 
                 src={headerImage} 
@@ -250,14 +373,15 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <CardTitle className="text-2xl sm:text-3xl text-center mb-2 text-white drop-shadow-lg">Data<sup className="text-primary">#</sup>3 Solution Sprint</CardTitle>
+                <CardTitle className="text-2xl sm:text-3xl text-center mb-2 text-white drop-shadow-lg">
+                  Data<sup className="text-primary">#</sup>3 Solution Sprint
+                </CardTitle>
                 <p className="text-center text-white/90 drop-shadow">
-                  Solve real business problems with Cisco technologies
+                  3-Step Sprint to Your Winning Solution
                 </p>
               </div>
             </div>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-              {/* Registration Form */}
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label htmlFor="firstName" className="text-sm sm:text-base mb-1.5">First Name</Label>
@@ -283,12 +407,11 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                 </div>
               </div>
 
-              {/* How It Works */}
-              <Card className="mb-6">
+              <Card className="mb-6 bg-primary/5 border-primary/20">
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl">
-                    <i className="fas fa-robot mr-2 text-primary"></i>
-                    Your AI Journey
+                    <i className="fas fa-rocket mr-2 text-primary"></i>
+                    Your 3-Reply Sprint
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -296,31 +419,29 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
                       <div>
-                        <p className="font-semibold text-sm">Share Your Challenge</p>
-                        <p className="text-xs text-muted-foreground">Tell our AI about problems that impact your work</p>
+                        <p className="font-semibold text-sm">Name the Problem</p>
+                        <p className="text-xs text-muted-foreground">Share your business challenge</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
                       <div>
-                        <p className="font-semibold text-sm">Explore Together</p>
-                        <p className="text-xs text-muted-foreground">AI guides you through impacts, KPIs, and solutions</p>
+                        <p className="font-semibold text-sm">Quantify Impact</p>
+                        <p className="text-xs text-muted-foreground">Time, cost, or risk estimates</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
                       <div>
-                        <p className="font-semibold text-sm">Build Your Solution</p>
-                        <p className="text-xs text-muted-foreground">Co-create using the perfect Cisco technologies</p>
+                        <p className="font-semibold text-sm">Get Your Solution</p>
+                        <p className="text-xs text-muted-foreground">AI maps perfect Cisco tech + MVS</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</div>
-                      <div>
-                        <p className="font-semibold text-sm">Go Live!</p>
-                        <p className="text-xs text-muted-foreground">Watch your solution appear on the rotating dashboard</p>
-                      </div>
-                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-secondary/10 rounded-lg">
+                    <p className="text-xs text-center">
+                      💡 <strong>Pro tip:</strong> Type "submit" anytime to jump to final review
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -334,18 +455,18 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                 {startSessionMutation.isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Starting...
+                    Starting Sprint...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-comments mr-2"></i>
-                    Start Solution Chat
+                    <i className="fas fa-bolt mr-2"></i>
+                    Start 3-Step Sprint
                   </>
                 )}
               </Button>
 
               <p className="text-xs text-center text-muted-foreground">
-                The AI will automatically categorize your solution and help you succeed
+                Average completion: 3 replies • Max: 6 inputs
               </p>
             </CardContent>
           </Card>
@@ -354,10 +475,123 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     );
   }
 
-  if (step === "chat") {
+  // Submit/Review view
+  if (state.step === 4 && state.submission) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col safe-area-padding">
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-4 py-4 sm:py-8">
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <SprintStepper 
+          currentStep={state.step}
+          completedSteps={state.completedSteps}
+          onStepClick={handleStepClick}
+        />
+        
+        <div className="flex-1 py-4 sm:py-8 safe-area-padding">
+          <div className="max-w-4xl mx-auto px-4">
+            <Card className="glass-panel border-0">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-xl sm:text-2xl">Final Review & Submit</CardTitle>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Your solution is ready! Review and submit for scoring.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+                {/* Problem Summary */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-lightbulb text-primary mr-2"></i>
+                    Problem Summary
+                  </Label>
+                  <p className="text-sm">{state.submission.problem_summary}</p>
+                </div>
+
+                {/* Cisco Products */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-microchip text-primary mr-2"></i>
+                    Cisco Technologies
+                  </Label>
+                  <ul className="list-disc list-inside space-y-1">
+                    {state.submission.cisco_products.map((product, idx) => (
+                      <li key={idx} className="text-sm">{product}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Impact Metrics */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-chart-line text-primary mr-2"></i>
+                    Impact & KPIs
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Current State</p>
+                      {state.submission.current_state.baseline_kpis.map((kpi, idx) => (
+                        <p key={idx} className="text-sm">
+                          {kpi.name}: <strong>{kpi.value}</strong>
+                        </p>
+                      ))}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Target State</p>
+                      {state.submission.target_state.kpis.map((kpi, idx) => (
+                        <p key={idx} className="text-sm">
+                          {kpi.name}: <strong>{kpi.target}</strong>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <Button
+                    onClick={() => goToStep(dispatch, 3)}
+                    variant="outline"
+                    className="flex-1"
+                    data-testid="button-back-to-explore"
+                  >
+                    <i className="fas fa-arrow-left mr-2"></i>
+                    Back to Edit
+                  </Button>
+                  <Button
+                    onClick={() => submitSolutionMutation.mutate()}
+                    disabled={isSubmitting}
+                    className="flex-1 btn-primary"
+                    data-testid="button-submit-solution"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-trophy mr-2"></i>
+                        Submit & Compete
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Chat view with stepper
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <SprintStepper 
+        currentStep={state.step}
+        completedSteps={state.completedSteps}
+        onStepClick={handleStepClick}
+      />
+      
+      <div className="flex-1 flex flex-col safe-area-padding">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-4 py-4">
           <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
             {/* Chat Header */}
             <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground flex-shrink-0">
@@ -367,8 +601,10 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                     <i className="fas fa-robot text-base sm:text-lg"></i>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-lg sm:text-xl font-bold truncate">Technology Coach</h3>
-                    <p className="text-xs sm:text-sm opacity-90">Let's explore your business challenge together</p>
+                    <h3 className="text-lg sm:text-xl font-bold truncate">Sprint Coach</h3>
+                    <p className="text-xs sm:text-sm opacity-90">
+                      Step {state.step} of 4 • {6 - state.inputsCount} inputs remaining
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -385,8 +621,12 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
             </div>
 
             {/* Chat Messages */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-4 -webkit-overflow-scrolling-touch" data-testid="chat-messages">
-              {messages.map((message, index) => (
+            <div 
+              ref={chatContainerRef} 
+              className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" 
+              data-testid="chat-messages"
+            >
+              {state.messages.map((message, index) => (
                 <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
                   {message.role === "assistant" ? (
                     <>
@@ -394,48 +634,8 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                         <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
                       <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-sm sm:text-base">
-                          {(() => {
-                            // Check if content looks like JSON
-                            if (message.content.trim().startsWith('{') && message.content.trim().endsWith('}')) {
-                              try {
-                                const parsed = JSON.parse(message.content);
-                                return (
-                                  <div className="space-y-3">
-                                    <p className="font-semibold">Here's your structured solution proposal:</p>
-                                    {parsed.problem_summary && (
-                                      <div className="border-l-2 border-primary pl-3">
-                                        <p className="font-medium text-xs uppercase text-muted-foreground">Problem Summary</p>
-                                        <p>{parsed.problem_summary}</p>
-                                      </div>
-                                    )}
-                                    {parsed.chosen_category && (
-                                      <div className="border-l-2 border-primary pl-3">
-                                        <p className="font-medium text-xs uppercase text-muted-foreground">Category</p>
-                                        <p>{parsed.chosen_category.replace(/_/g, ' ')}</p>
-                                      </div>
-                                    )}
-                                    {parsed.cisco_products && (
-                                      <div className="border-l-2 border-primary pl-3">
-                                        <p className="font-medium text-xs uppercase text-muted-foreground">Cisco Products</p>
-                                        <ul className="list-disc list-inside space-y-1">
-                                          {parsed.cisco_products.map((product: string, idx: number) => (
-                                            <li key={idx}>{product}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    <p className="text-xs text-muted-foreground mt-3">
-                                      This structured solution has been prepared for evaluation. Ready to submit when you are!
-                                    </p>
-                                  </div>
-                                );
-                              } catch (e) {
-                                return message.content;
-                              }
-                            }
-                            return message.content;
-                          })()}
+                        <div className="whitespace-pre-wrap text-sm sm:text-base prose prose-sm max-w-none">
+                          {message.content}
                         </div>
                       </div>
                     </>
@@ -476,446 +676,65 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Describe your business problem and its impact..."
+                  placeholder={
+                    state.step === 1 ? "Describe your business problem..." :
+                    state.step === 2 ? "How often? Time lost? Cost impact?" :
+                    state.step === 3 ? "Type 'yes' to proceed or adjust..." :
+                    "Type your message..."
+                  }
                   className="flex-1 min-h-[48px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
-                  disabled={isTyping}
+                  disabled={isTyping || state.inputsCount >= 6}
                   data-testid="input-chat-message"
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!currentMessage.trim() || isTyping}
+                  disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
                   className="min-h-[48px] min-w-[48px] px-3 touch-manipulation"
                   data-testid="button-send-message"
                 >
                   <i className="fas fa-paper-plane"></i>
                 </Button>
               </div>
-              <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Focus on problem impact and technology requirements
+              
+              {/* Submit anytime pill */}
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Input {state.inputsCount}/6
+                </p>
+                <div className="bg-secondary/20 text-secondary px-3 py-1 rounded-full text-xs">
+                  💡 Type "submit" anytime to finish
+                </div>
               </div>
             </div>
           </Card>
         </div>
       </div>
-    );
-  }
 
-  if (step === "preview" && structuredSolution) {
-    const solution = editedSolution || structuredSolution;
-    const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
-
-    return (
-      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
-        <div className="max-w-4xl mx-auto px-4">
-          {/* Navigation Buttons */}
-          <div className="mb-4 flex justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowExitDialog(true)}
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-home-preview"
-            >
-              <i className="fas fa-home mr-2"></i>
-              Exit to Home
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStep('chat')}
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-back-to-chat"
-            >
-              <i className="fas fa-arrow-left mr-2"></i>
-              Back to Chat
-            </Button>
-          </div>
-          
-          <Card className="glass-panel border-0">
-            <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-xl sm:text-2xl">Review Your Solution</CardTitle>
-              <p className="text-sm sm:text-base text-muted-foreground">Review your solution before submitting for scoring</p>
-            </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-              <div className="space-y-4">
-                {/* Problem Summary */}
-                <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-lightbulb text-primary mr-2 text-sm"></i>
-                    1. Problem Summary
-                  </Label>
-                  <Textarea
-                    value={solution.problem_summary}
-                    onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value} as StructuredSolution)}
-                    className="min-h-[80px] text-xs sm:text-sm mobile-textarea"
-                    placeholder="Describe the business problem..."
-                    data-testid="textarea-preview-problem"
-                  />
-                </div>
-
-                {/* Cisco Products */}
-                <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-network-wired text-primary mr-2 text-sm"></i>
-                    2. Cisco Products (comma-separated)
-                  </Label>
-                  <Input
-                    value={isArrayField(solution.cisco_products).join(", ")}
-                    onChange={(e) => setEditedSolution({
-                      ...solution,
-                      cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                    } as StructuredSolution)}
-                    className="mobile-input text-xs sm:text-sm"
-                    placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
-                    data-testid="input-preview-products"
-                  />
-                </div>
-
-                {/* Target KPIs */}
-                <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-chart-line text-primary mr-2 text-sm"></i>
-                    3. Target KPIs
-                  </Label>
-                  <div className="space-y-2">
-                    {solution.target_state?.kpis?.map((kpi, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <Input
-                          value={kpi.name}
-                          onChange={(e) => {
-                            const newKpis = [...solution.target_state.kpis];
-                            newKpis[idx] = {...kpi, name: e.target.value};
-                            setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                          }}
-                          placeholder="KPI name"
-                          className="flex-1 mobile-input text-xs sm:text-sm"
-                          data-testid={`input-preview-kpi-name-${idx}`}
-                        />
-                        <Input
-                          value={kpi.target}
-                          onChange={(e) => {
-                            const newKpis = [...solution.target_state.kpis];
-                            newKpis[idx] = {...kpi, target: e.target.value};
-                            setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                          }}
-                          placeholder="Target"
-                          className="w-24 sm:w-32 mobile-input text-xs sm:text-sm"
-                          data-testid={`input-preview-kpi-target-${idx}`}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Integration Points */}
-                <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-plug text-primary mr-2 text-sm"></i>
-                    4. Integration Points (comma-separated)
-                  </Label>
-                  <Input
-                    value={isArrayField(solution.integration_points).join(", ")}
-                    onChange={(e) => setEditedSolution({
-                      ...solution,
-                      integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                    } as StructuredSolution)}
-                    className="mobile-input text-xs sm:text-sm"
-                    placeholder="e.g., Microsoft 365, ServiceNow, Okta"
-                    data-testid="input-preview-integrations"
-                  />
-                </div>
-
-                {/* Rollout Plan */}
-                {solution.rollout_plan && (
-                  <div className="glass-panel rounded-lg p-3 sm:p-4">
-                    <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                      <i className="fas fa-tasks text-primary mr-2 text-sm"></i>
-                      5. Rollout Plan (one per line)
-                    </Label>
-                    <Textarea
-                      value={isArrayField(solution.rollout_plan).join("\n")}
-                      onChange={(e) => setEditedSolution({
-                        ...solution,
-                        rollout_plan: e.target.value.split("\n").filter(s => s.trim())
-                      } as StructuredSolution)}
-                      className="min-h-[100px] text-xs sm:text-sm mobile-textarea"
-                      placeholder="Enter rollout steps, one per line"
-                      data-testid="textarea-preview-rollout"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex space-x-4">
-                <Button
-                  onClick={() => !isSubmitting && submitSolutionMutation.mutate()}
-                  disabled={submitSolutionMutation.isPending || isSubmitting}
-                  className="flex-1"
-                  data-testid="button-submit-solution"
-                >
-                  {submitSolutionMutation.isPending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-check mr-2"></i>
-                      Submit for Scoring
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditedSolution(solution);
-                    setStep("edit");
-                  }}
-                  data-testid="button-edit-solution"
-                >
-                  <i className="fas fa-edit mr-2"></i>
-                  Edit Solution
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "edit" && (editedSolution || structuredSolution)) {
-    const solution = editedSolution || structuredSolution;
-    if (!solution) return null;
-    const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
-
-    return (
-      <div className="min-h-screen bg-background text-foreground py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          {/* Navigation Buttons */}
-          <div className="mb-4 flex justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowExitDialog(true)}
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-home-edit"
-            >
-              <i className="fas fa-home mr-2"></i>
-              Exit to Home
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStep('preview')}
-              className="text-muted-foreground hover:text-foreground"
-              data-testid="button-back-to-preview"
-            >
-              <i className="fas fa-arrow-left mr-2"></i>
-              Back to Preview
-            </Button>
-          </div>
-          
-          <Card className="glass-panel border-0">
-            <CardHeader>
-              <CardTitle className="text-2xl">Edit Your Solution</CardTitle>
-              <p className="text-muted-foreground">Fine-tune your solution details</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Problem Summary */}
-              <div>
-                <Label htmlFor="problem-summary" className="text-lg font-semibold flex items-center mb-2">
-                  <i className="fas fa-lightbulb text-primary mr-2"></i>
-                  1. Problem Summary
-                </Label>
-                <Textarea
-                  id="problem-summary"
-                  value={solution.problem_summary}
-                  onChange={(e) => setEditedSolution({...solution, problem_summary: e.target.value} as StructuredSolution)}
-                  className="min-h-24"
-                  placeholder="Describe the business problem you're solving..."
-                  data-testid="textarea-problem-summary"
-                />
-              </div>
-
-              {/* Cisco Products */}
-              <div>
-                <Label htmlFor="cisco-products" className="text-lg font-semibold flex items-center mb-2">
-                  <i className="fas fa-network-wired text-primary mr-2"></i>
-                  2. Cisco Products (comma-separated)
-                </Label>
-                <Input
-                  id="cisco-products"
-                  value={isArrayField(solution.cisco_products).join(", ")}
-                  onChange={(e) => setEditedSolution({
-                    ...solution,
-                    cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  } as StructuredSolution)}
-                  placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
-                  data-testid="input-cisco-products"
-                />
-              </div>
-
-              {/* Target KPIs */}
-              <div>
-                <Label className="text-lg font-semibold flex items-center mb-2">
-                  <i className="fas fa-chart-line text-primary mr-2"></i>
-                  3. Target KPIs
-                </Label>
-                <div className="space-y-2">
-                  {solution.target_state?.kpis?.map((kpi, idx) => (
-                    <div key={idx} className="flex space-x-2">
-                      <Input
-                        value={kpi.name}
-                        onChange={(e) => {
-                          const newKpis = [...solution.target_state.kpis];
-                          newKpis[idx] = {...kpi, name: e.target.value};
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                        }}
-                        placeholder="KPI name"
-                        className="flex-1"
-                        data-testid={`input-kpi-name-${idx}`}
-                      />
-                      <Input
-                        value={kpi.target}
-                        onChange={(e) => {
-                          const newKpis = [...solution.target_state.kpis];
-                          newKpis[idx] = {...kpi, target: e.target.value};
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                        }}
-                        placeholder="Target value"
-                        className="flex-1"
-                        data-testid={`input-kpi-target-${idx}`}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          const newKpis = solution.target_state.kpis.filter((_, i) => i !== idx);
-                          setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                        }}
-                        data-testid={`button-remove-kpi-${idx}`}
-                      >
-                        <i className="fas fa-times text-destructive"></i>
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const newKpis = [...(solution.target_state?.kpis || []), {name: "", target: ""}];
-                      setEditedSolution({...solution, target_state: {...solution.target_state, kpis: newKpis}} as StructuredSolution);
-                    }}
-                    data-testid="button-add-kpi"
-                  >
-                    <i className="fas fa-plus mr-2"></i>
-                    Add KPI
-                  </Button>
-                </div>
-              </div>
-
-              {/* Integration Points */}
-              <div>
-                <Label htmlFor="integration-points" className="text-lg font-semibold flex items-center mb-2">
-                  <i className="fas fa-plug text-primary mr-2"></i>
-                  4. Integration Points (comma-separated)
-                </Label>
-                <Input
-                  id="integration-points"
-                  value={isArrayField(solution.integration_points).join(", ")}
-                  onChange={(e) => setEditedSolution({
-                    ...solution,
-                    integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  } as StructuredSolution)}
-                  placeholder="e.g., Active Directory, ServiceNow, Splunk"
-                  data-testid="input-integration-points"
-                />
-              </div>
-
-              {/* Rollout Plan */}
-              <div>
-                <Label htmlFor="rollout-plan" className="text-lg font-semibold flex items-center mb-2">
-                  <i className="fas fa-tasks text-primary mr-2"></i>
-                  5. Rollout Plan (comma-separated steps)
-                </Label>
-                <Textarea
-                  id="rollout-plan"
-                  value={isArrayField(solution.rollout_plan).join(", ")}
-                  onChange={(e) => setEditedSolution({
-                    ...solution,
-                    rollout_plan: e.target.value.split(",").map(p => p.trim()).filter(p => p)
-                  } as StructuredSolution)}
-                  className="min-h-20"
-                  placeholder="e.g., Pilot phase with 10 users, Expand to department, Full rollout"
-                  data-testid="textarea-rollout-plan"
-                />
-              </div>
-
-              <div className="flex space-x-4">
-                <Button
-                  onClick={() => setStep("preview")}
-                  className="flex-1"
-                  data-testid="button-save-changes"
-                >
-                  <i className="fas fa-save mr-2"></i>
-                  Save & Review
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditedSolution(null);
-                    setStep("chat");
-                    setStructuredSolution(null);
-                  }}
-                  data-testid="button-back-to-chat"
-                >
-                  <i className="fas fa-comments mr-2"></i>
-                  Back to Chat
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback for any unexpected state, though ideally all states are handled above.
-  // Also, added the footer text as requested.
-  return (
-    <>
-      <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <p className="text-muted-foreground">
-            Visit the Data<sup className="text-primary">#</sup>3 booth at Cisco Live Melbourne 2025 to participate in the challenge.
-          </p>
-        </div>
-      </div>
-      
-      {/* Exit Confirmation Dialog - shared across all steps */}
+      {/* Exit Dialog */}
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Exit Solution Development?</AlertDialogTitle>
+            <AlertDialogTitle>Exit Sprint?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to exit? You'll lose your current conversation and any solution progress. Your work has not been saved.
+              Your progress will be lost if you exit now. Are you sure you want to leave?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-exit">
-              Continue Working
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => setLocation('/')}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              data-testid="button-confirm-exit"
-            >
-              Exit & Lose Progress
+            <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setLocation("/")}>
+              Exit to Home
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
+  );
+}
+
+export default function Play() {
+  return (
+    <SprintProvider>
+      <PlayContent />
+    </SprintProvider>
   );
 }
