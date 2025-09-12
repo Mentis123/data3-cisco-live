@@ -293,7 +293,7 @@ export default function Leaderboard() {
                   zIndex = 30;
                   position = {
                     position: 'absolute',
-                    top: '50%',
+                    top: 'calc(50% - 10px)',
                     left: '50%',
                     transform: 'translate(-50%, -50%)'
                   };
@@ -463,15 +463,23 @@ export default function Leaderboard() {
                       </text>
                     );
                   }}
-                  labelLine={(props) => {
+                  labelLine={(props: any) => {
                     // Get the color from the categoryData for the line
                     const entryData = categoryData.find(d => d.name === props.name);
                     const lineColor = entryData?.color || '#6b7280';
-                    return {
-                      ...props,
-                      stroke: lineColor,
-                      strokeWidth: 2,
-                    };
+                    const { points } = props;
+                    // Always return a valid element, even if invisible
+                    if (!points || points.length < 2) {
+                      return <polyline points="" fill="none" stroke="transparent" strokeWidth={0} />;
+                    }
+                    return (
+                      <polyline 
+                        points={points.map((p: any) => `${p.x},${p.y}`).join(' ')}
+                        fill="none"
+                        stroke={lineColor}
+                        strokeWidth={2}
+                      />
+                    );
                   }}
                 >
                   <LabelList
