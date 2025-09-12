@@ -67,11 +67,20 @@ const CATEGORY_NAMES: Record<string, string> = {
 
 // Consistent color scheme matching Leaderboard.tsx
 const CATEGORY_COLORS: Record<string, string> = {
+  // Solution categories - bright colors
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",  // Cyan
   "HYBRID_DC": "bg-[#6CC04A]",            // Green  
   "COLLAB_CX": "bg-[#FF6B35]",            // Orange
   "OBSERVABILITY": "bg-[#9B59B6]",        // Purple
-  "EDGE_IOT": "bg-[#F39C12]"              // Yellow
+  "EDGE_IOT": "bg-[#F39C12]",             // Yellow
+  // General stats categories - muted colors
+  "GENERAL": "bg-[#64748b]",              // Slate
+  "SCALE": "bg-[#0891b2]",                // Cyan-600
+  "EXPERTISE": "bg-[#059669]",            // Emerald-600
+  "INFRASTRUCTURE": "bg-[#dc2626]",       // Red-600
+  "SECURITY": "bg-[#ca8a04]",             // Yellow-600
+  "CLOUD": "bg-[#2563eb]",                // Blue-600
+  "NETWORKING": "bg-[#7c3aed]"            // Violet-600
 };
 
 // Stats Management Component
@@ -171,7 +180,20 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
     statFilter === 'ALL' || stat.category === statFilter
   ) || [];
 
-  const categories = ['SCALE', 'EXPERTISE', 'INFRASTRUCTURE', 'SECURITY', 'CLOUD', 'NETWORKING'];
+  const categories = [
+    'GENERAL',
+    'SCALE', 
+    'EXPERTISE', 
+    'INFRASTRUCTURE', 
+    'SECURITY', 
+    'CLOUD', 
+    'NETWORKING',
+    'SECURE_CONNECTIVITY',
+    'HYBRID_DC',
+    'COLLAB_CX',
+    'OBSERVABILITY',
+    'EDGE_IOT'
+  ];
 
   return (
     <>
@@ -239,7 +261,9 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
                       <td className="py-3 px-2 text-primary font-bold">{stat.value}</td>
                       <td className="py-3 px-2 text-sm text-muted-foreground">{stat.description || '-'}</td>
                       <td className="py-3 px-2">
-                        <Badge variant="secondary">{stat.category}</Badge>
+                        <Badge className={`${CATEGORY_COLORS[stat.category] || 'bg-gray-500'} text-white`}>
+                          {stat.category}
+                        </Badge>
                       </td>
                       <td className="py-3 px-2">
                         <div className="flex gap-2">
