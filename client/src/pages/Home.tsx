@@ -74,12 +74,47 @@ export default function Home() {
 
           <Card className="glass-panel border-0 mb-6 sm:mb-8">
             <CardContent className="p-4 sm:p-8">
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">AI-Powered Solution Challenge</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Welcome to the Challenge</h3>
               <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6">
-                Partner with our AI Solution Coach to craft winning business proposals. Share your challenges, explore Cisco technologies, 
-                and watch your solution come to life on our rotating live dashboard.
+                Identify real business problems that waste time or cause frustration. Work with our technology coach to 
+                quantify the impact and explore Cisco technologies that could help.
               </p>
-              
+
+              {/* How it works section */}
+              <div className="mb-6 sm:mb-8">
+                <h4 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-center">How it Works</h4>
+                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
+                    <div>
+                      <p className="font-semibold text-sm">Name the Problem</p>
+                      <p className="text-xs text-muted-foreground">What business challenge wastes your time?</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
+                    <div>
+                      <p className="font-semibold text-sm">Quantify the Impact</p>
+                      <p className="text-xs text-muted-foreground">How much does this problem really cost you?</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
+                    <div>
+                      <p className="font-semibold text-sm">Explore Technologies</p>
+                      <p className="text-xs text-muted-foreground">Discover relevant Cisco tools for your challenge</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</div>
+                    <div>
+                      <p className="font-semibold text-sm">Compete & Win</p>
+                      <p className="text-xs text-muted-foreground">Get scored on your approach - top entries win!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Terms & Conditions */}
               <div className={`bg-muted/20 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
                 <h4 className="text-base sm:text-lg font-semibold mb-3 flex items-center">
@@ -93,7 +128,7 @@ export default function Home() {
                   <p>• Submissions become property of Data#3 for demonstration purposes</p>
                   <p>• Data#3 employees and family members are not eligible for prizes</p>
                 </div>
-                
+
                 <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">
                   <Checkbox 
                     checked={acceptedTerms}
@@ -132,11 +167,11 @@ export default function Home() {
                 >
                   <i className="fas fa-lightbulb mr-2 sm:mr-3 text-lg sm:text-xl"></i>
                   <div className="text-left">
-                    <div className="font-bold">Start AI Coaching</div>
-                    <div className="text-xs sm:text-sm opacity-90">Build your solution together</div>
+                    <div className="font-bold">Start the Challenge</div>
+                    <div className="text-xs sm:text-sm opacity-90">Identify your business problem</div>
                   </div>
                 </Button>
-                
+
                 <Link href="/leaderboard">
                   <Button variant="secondary" className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation" data-testid="button-view-leaderboard">
                     <i className="fas fa-trophy mr-2 sm:mr-3 text-lg sm:text-xl"></i>
@@ -149,6 +184,11 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Auto-categorization message */}
+          <p className="text-xs text-center text-muted-foreground">
+            Your challenge will be categorized based on the technology area most relevant to your problem
+          </p>
         </div>
       </div>
     </div>

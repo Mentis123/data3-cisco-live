@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,7 +66,7 @@ export default function Leaderboard() {
           animateScoreCountUp(element as HTMLElement, message.data.totalScore);
         }
       }, 100);
-      
+
       // Refresh data
       refetch();
     }
@@ -165,7 +164,7 @@ export default function Leaderboard() {
 
   const renderWordCloud = () => {
     const maxValue = Math.max(...displayData.wordCloud.map(w => w.value));
-    
+
     return (
       <Card className="h-full">
         <CardHeader className="pb-4">
@@ -182,7 +181,7 @@ export default function Leaderboard() {
             {displayData.wordCloud.slice(0, 20).map((word, index) => {
               const size = Math.max(16, Math.min(48, (word.value / maxValue) * 48));
               const opacity = Math.max(0.6, word.value / maxValue);
-              
+
               return (
                 <span
                   key={word.text}
@@ -310,7 +309,7 @@ export default function Leaderboard() {
               </div>
             ))}
           </div>
-          
+
           {displayData.recentSubmission && (
             <div className="mt-8 p-4 rounded-lg bg-muted/20 border border-muted-foreground/20">
               <div className="flex items-center gap-3 mb-2">
@@ -377,15 +376,15 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data#3 booth to start your AI coaching session • Live scoring & insights</p>
+          <p>Visit the Data#3 booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              Real-time Updates
+              Live Updates
             </span>
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              Rotating Views
+              Auto-rotating every 10s
             </span>
           </div>
         </div>

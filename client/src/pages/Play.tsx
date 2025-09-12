@@ -332,8 +332,8 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                     <i className="fas fa-robot text-base sm:text-lg"></i>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-lg sm:text-xl font-bold truncate">AI Solution Coach</h3>
-                    <p className="text-xs sm:text-sm opacity-90">Building your winning solution together</p>
+                    <h3 className="text-lg sm:text-xl font-bold truncate">Technology Coach</h3>
+                    <p className="text-xs sm:text-sm opacity-90">Let's explore your business challenge together</p>
                   </div>
                 </div>
               </div>
@@ -446,7 +446,7 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                 </Button>
               </div>
               <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Let the AI guide you to mention relevant Cisco technologies
+                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Focus on problem impact and technology requirements
               </div>
             </div>
           </Card>
