@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiRequest } from "@/lib/queryClient";
 
 interface DetailedEntry {
@@ -246,85 +247,116 @@ export default function AdminLeaderboard() {
           </Card>
         </div>
 
-        {/* Leaderboard Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Submissions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b">
-                  <tr className="text-left">
-                    <th className="pb-2 px-2">Rank</th>
-                    <th className="pb-2 px-2">Participant</th>
-                    <th className="pb-2 px-2">Category</th>
-                    <th className="pb-2 px-2">Total Score</th>
-                    <th className="pb-2 px-2">Evaluation</th>
-                    <th className="pb-2 px-2">Time</th>
-                    <th className="pb-2 px-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard?.map((entry, index) => (
-                    <tr 
-                      key={entry.id}
-                      className="border-b hover:bg-muted/50 transition-colors"
-                    >
-                      <td className="py-3 px-2">
-                        <div className="font-bold text-lg">#{index + 1}</div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="font-medium">{entry.name}</div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <Badge className={`${CATEGORY_COLORS[entry.category] || 'bg-gray-500'} text-white`}>
-                          {CATEGORY_NAMES[entry.category] || entry.category}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="font-bold text-lg">{entry.totalScore}/50</div>
-                      </td>
-                      <td className="py-3 px-2">
-                        {entry.evaluationNotes && (
-                          <div className="text-sm text-muted-foreground max-w-xs truncate">
-                            {entry.evaluationNotes}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="text-sm text-muted-foreground">
-                          {formatTimeAgo(entry.createdAt)}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedSubmissionId(entry.id)}
-                            data-testid={`button-view-details-${index}`}
-                          >
-                            <i className="fas fa-eye mr-2"></i>
-                            View Details
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setDeleteConfirmId(entry.id)}
-                            data-testid={`button-delete-${index}`}
-                          >
-                            <i className="fas fa-trash mr-2"></i>
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Tabs for different admin sections */}
+        <Tabs defaultValue="submissions" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="submissions">Submissions</TabsTrigger>
+            <TabsTrigger value="stats">Data<sup>#</sup>3 Stats</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="submissions">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Submissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b">
+                      <tr className="text-left">
+                        <th className="pb-2 px-2">Rank</th>
+                        <th className="pb-2 px-2">Participant</th>
+                        <th className="pb-2 px-2">Category</th>
+                        <th className="pb-2 px-2">Total Score</th>
+                        <th className="pb-2 px-2">Evaluation</th>
+                        <th className="pb-2 px-2">Time</th>
+                        <th className="pb-2 px-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaderboard?.map((entry, index) => (
+                        <tr 
+                          key={entry.id}
+                          className="border-b hover:bg-muted/50 transition-colors"
+                        >
+                          <td className="py-3 px-2">
+                            <div className="font-bold text-lg">#{index + 1}</div>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="font-medium">{entry.name}</div>
+                          </td>
+                          <td className="py-3 px-2">
+                            <Badge className={`${CATEGORY_COLORS[entry.category] || 'bg-gray-500'} text-white`}>
+                              {CATEGORY_NAMES[entry.category] || entry.category}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="font-bold text-lg">{entry.totalScore}/50</div>
+                          </td>
+                          <td className="py-3 px-2">
+                            {entry.evaluationNotes && (
+                              <div className="text-sm text-muted-foreground max-w-xs truncate">
+                                {entry.evaluationNotes}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="text-sm text-muted-foreground">
+                              {formatTimeAgo(entry.createdAt)}
+                            </div>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => setSelectedSubmissionId(entry.id)}
+                                data-testid={`button-view-details-${index}`}
+                              >
+                                <i className="fas fa-eye mr-2"></i>
+                                View Details
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setDeleteConfirmId(entry.id)}
+                                data-testid={`button-delete-${index}`}
+                              >
+                                <i className="fas fa-trash mr-2"></i>
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <Card>
+              <CardHeader>
+                <CardTitle>Data<sup>#</sup>3 Stats Management</CardTitle>
+                <p className="text-muted-foreground">Manage the stats displayed on the leaderboard. Note: Stats management is currently limited - you can view but not edit in this interface.</p>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <i className="fas fa-chart-bar text-4xl text-muted-foreground mb-4"></i>
+                  <p className="text-lg font-semibold mb-2">Stats Management</p>
+                  <p className="text-muted-foreground mb-4">
+                    Data<sup>#</sup>3 stats are managed through the database directly.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Current stats are pre-populated and displayed on the leaderboard.
+                    Contact the system administrator to update stats.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Details Modal */}

@@ -258,7 +258,7 @@ export default function Leaderboard() {
     const maxValue = Math.max(...displayData.wordCloud.map(w => w.value));
 
     return (
-      <Card className="h-full">
+      <Card className="h-full overflow-hidden">
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-cloud text-blue-500 mr-3"></i>
@@ -269,45 +269,105 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3 justify-center items-center min-h-[400px]">
-            {displayData.wordCloud.slice(0, 20).map((word, index) => {
-              // Enhanced scaling: top 3-4 huge, next 3-6 medium, rest tiny
-              let size: number;
-              let opacity: number;
-              
-              if (index < 3) {
-                // Top 3: Very large (60-80px)
-                size = 60 + (20 * (1 - index / 3));
-                opacity = 1;
-              } else if (index < 4) {
-                // 4th: Large (55px)
-                size = 55;
-                opacity = 0.95;
-              } else if (index < 10) {
-                // Next 6: Medium (30-45px)
-                size = 45 - ((index - 4) * 2.5);
-                opacity = 0.85;
-              } else {
-                // Rest: Tiny (14-20px)
-                size = 20 - ((index - 10) * 0.6);
-                opacity = 0.65;
-              }
-
-              return (
-                <span
-                  key={word.text}
-                  className="inline-block px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 transition-all duration-300 hover:scale-110"
-                  style={{
-                    fontSize: `${size}px`,
-                    opacity,
-                    color: `hsl(197, 95%, ${Math.max(45, 80 - (word.value / maxValue) * 35)}%)`
-                  }}
-                >
-                  {word.text}
-                  <span className="text-xs ml-1 opacity-70">({word.value})</span>
-                </span>
-              );
-            })}
+          <div className="relative min-h-[400px] flex items-center justify-center">
+            {/* Cloud background effects */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+            
+            {/* Word cloud with radial positioning */}
+            <div className="relative w-full h-full flex items-center justify-center">
+              {displayData.wordCloud.slice(0, 20).map((word, index) => {
+                // Position calculation for radial layout
+                let size: number;
+                let opacity: number;
+                let zIndex: number;
+                let position: any = { position: 'absolute' };
+                
+                if (index === 0) {
+                  // Biggest word in center
+                  size = 72;
+                  opacity = 1;
+                  zIndex = 20;
+                  position = {
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)'
+                  };
+                } else if (index < 4) {
+                  // Next 3 - arranged around center
+                  size = 48;
+                  opacity = 0.9;
+                  zIndex = 15;
+                  const angle = (index - 1) * 120; // 120 degrees apart
+                  const radius = 140; // pixels from center
+                  const x = Math.cos(angle * Math.PI / 180) * radius;
+                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  position = {
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
+                  };
+                } else if (index < 10) {
+                  // Next layer - smaller, further out
+                  size = 28;
+                  opacity = 0.75;
+                  zIndex = 10;
+                  const angle = (index - 4) * 60 + 30; // 60 degrees apart, offset
+                  const radius = 220; // pixels from center
+                  const x = Math.cos(angle * Math.PI / 180) * radius;
+                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  position = {
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
+                  };
+                } else {
+                  // Outer ring - tiny
+                  size = 16;
+                  opacity = 0.6;
+                  zIndex = 5;
+                  const angle = (index - 10) * 36; // 36 degrees apart for 10 items
+                  const radius = 300; // pixels from center
+                  const x = Math.cos(angle * Math.PI / 180) * radius;
+                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  position = {
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
+                  };
+                }
+                
+                return (
+                  <div
+                    key={word.text}
+                    className="transition-all duration-500 hover:scale-110"
+                    style={{
+                      ...position,
+                      zIndex,
+                    }}
+                  >
+                    <span
+                      className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                      style={{
+                        fontSize: `${size}px`,
+                        opacity,
+                        textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                      }}
+                    >
+                      {word.text}
+                      <span className="ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -358,47 +418,34 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-            <div className="flex items-center justify-center">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold mb-4">Category Breakdown</h3>
-              {categoryData.map((category) => (
-                <div key={category.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    ></div>
-                    <span className="font-medium">{category.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-bold">{category.value}</span>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      ({((category.value / totalSubmissions) * 100).toFixed(1)}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="flex items-center justify-center h-full">
+            <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={150}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={(entry) => {
+                    const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
+                    return `${entry.name}\n${percent}% (${entry.value})`;
+                  }}
+                  labelLine={false}
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number, name: string) => {
+                    const percent = ((value / totalSubmissions) * 100).toFixed(1);
+                    return [`${value} submissions (${percent}%)`, name];
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
