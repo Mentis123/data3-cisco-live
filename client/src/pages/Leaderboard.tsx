@@ -287,121 +287,155 @@ export default function Leaderboard() {
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 sm:w-72 h-36 sm:h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
             
-            {/* Word cloud with radial positioning */}
-            <div className="relative w-full h-full">
+            {/* Word cloud with absolute center positioning */}
+            <div className="relative w-full h-full flex items-center justify-center">
               {displayData.wordCloud.slice(0, 25).map((word, index) => {
-                // Position calculation for concentric radial layout
-                let size: number;
-                let opacity: number;
-                let zIndex: number;
-                let position: any = { position: 'absolute' };
-                
                 // Check if mobile (viewport width less than 640px)
                 const isMobile = window.innerWidth < 640;
                 
+                let size: number;
+                let opacity: number;
+                let zIndex: number;
+                
                 if (index === 0) {
-                  // Biggest word DEAD CENTER!
+                  // Biggest word - ABSOLUTELY CENTERED
                   size = isMobile ? 36 : 56;
                   opacity = 1;
                   zIndex = 30;
-                  // Ensure perfect centering on mobile
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 'auto',
-                    textAlign: 'center' as const
-                  };
+                  
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute word-cloud-float-1"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        style={{
+                          fontSize: `${size}px`,
+                          opacity,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                        }}
+                      >
+                        {word.text}
+                        <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
                 } else if (index < 5) {
-                  // Next 4 words - positioned around center with no overlap
+                  // Next 4 words - positioned around center
                   size = isMobile ? 18 : 32;
                   opacity = 0.9;
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isMobile ? 80 : 150; // Smaller radius on mobile
+                  const radius = isMobile ? 80 : 150;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                  };
+                  
+                  return (
+                    <div
+                      key={word.text}
+                      className={`absolute word-cloud-float-${(index % 3) + 1}`}
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                        zIndex,
+                        animationDelay: `${index * 0.5}s`,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        style={{
+                          fontSize: `${size}px`,
+                          opacity,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                        }}
+                      >
+                        {word.text}
+                        <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
                 } else if (index < 13) {
-                  // Middle ring - 8 words evenly spaced
+                  // Middle ring - 8 words
                   size = isMobile ? 12 : 20;
                   opacity = 0.75;
                   zIndex = 10;
-                  const angle = ((index - 5) * 45); // 8 words, 45 degrees apart
-                  const radius = isMobile ? 120 : 240; // Smaller radius on mobile
+                  const angle = ((index - 5) * 45);
+                  const radius = isMobile ? 120 : 240;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                  };
+                  
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute word-cloud-drift"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                        zIndex,
+                        animationDelay: `${index * 0.5}s`,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        style={{
+                          fontSize: `${size}px`,
+                          opacity,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                        }}
+                      >
+                        {word.text}
+                        <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
                 } else {
-                  // Outer ring - hide on mobile, show on desktop
+                  // Outer ring - desktop only
                   if (isMobile) {
-                    return null; // Skip rendering outer ring on mobile
+                    return null;
                   }
                   size = 12;
                   opacity = 0.6;
                   zIndex = 5;
-                  const angle = ((index - 13) * 30); // 12 words, 30 degrees apart
-                  const radius = 320; // Furthest from center
+                  const angle = ((index - 13) * 30);
+                  const radius = 320;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                  };
-                }
-                
-                // Determine animation class based on word position
-                let animationClass = '';
-                if (index === 0) {
-                  // Center word gets prominent floating
-                  animationClass = 'word-cloud-float-1';
-                } else if (index < 5) {
-                  // Second ring gets floating animation
-                  animationClass = 'word-cloud-float-' + ((index % 3) + 1);
-                } else if (index < 13) {
-                  // Middle ring gets gentle drift
-                  animationClass = 'word-cloud-drift';
-                } else {
-                  // Outer ring gets subtle drift
-                  animationClass = 'word-cloud-drift';
-                }
-                
-                return (
-                  <div
-                    key={word.text}
-                    className={`transition-all duration-500 hover:scale-110 ${animationClass}`}
-                    style={{
-                      ...position,
-                      zIndex,
-                      animationDelay: `${index * 0.5}s`,
-                    }}
-                  >
-                    <span
-                      className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                  
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute word-cloud-drift"
                       style={{
-                        fontSize: `${size}px`,
-                        opacity,
-                        textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                        top: '50%',
+                        left: '50%',
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                        zIndex,
+                        animationDelay: `${index * 0.5}s`,
                       }}
                     >
-                      {word.text}
-                      <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
-                    </span>
-                  </div>
-                );
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        style={{
+                          fontSize: `${size}px`,
+                          opacity,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                        }}
+                      >
+                        {word.text}
+                        <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                }
               }).filter(Boolean)}
             </div>
           </div>
@@ -540,15 +574,15 @@ export default function Leaderboard() {
                   {categoryData.map((entry, index) => {
                     const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
                     return (
-                      <div key={entry.name} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div key={entry.name} className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-1">
                           <div 
-                            className="w-4 h-4 rounded"
+                            className="w-4 h-4 rounded flex-shrink-0"
                             style={{ backgroundColor: entry.color }}
                           />
                           <span className="text-sm font-medium">{entry.name}</span>
                         </div>
-                        <span className="text-sm font-bold text-muted-foreground">
+                        <span className="text-sm font-bold text-muted-foreground whitespace-nowrap">
                           {percent}% ({entry.value})
                         </span>
                       </div>
