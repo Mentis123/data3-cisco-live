@@ -110,7 +110,7 @@ export const storage = {
       .limit(limit);
   },
 
-  async getTechWordCloud(): Promise<{ text: string; value: number }[]> {
+  async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
     
     const wordFreq: { [key: string]: number } = {};
@@ -209,5 +209,17 @@ export const storage = {
     await db.delete(submissions);
     await db.delete(participants);
     // Don't clear data3_stats as they are reference data
+  },
+
+  async getSubmissionDetails(id: string): Promise<any> {
+    return await this.getSubmission(id);
+  },
+
+  async getDetailedLeaderboard(limit: number = 100): Promise<any[]> {
+    return await this.getAdminLeaderboard(limit);
+  },
+
+  async deleteSubmission(id: string): Promise<void> {
+    await db.delete(submissions).where(eq(submissions.id, id));
   }
 };
