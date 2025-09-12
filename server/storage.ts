@@ -38,7 +38,7 @@ db.exec(`
 
 // Pre-populate Data#3 stats
 const data3Stats = [
-  { title: "Team Members", value: "1,200+", description: "Across Australia & New Zealand", category: "SCALE", display_order: 1 },
+  { title: "Team Members", value: "1,500+", description: "Across Australia", category: "SCALE", display_order: 1 },
   { title: "Years in Business", value: "45+", description: "Trusted technology partner since 1978", category: "SCALE", display_order: 2 },
   { title: "Cisco Certifications", value: "500+", description: "Expert-level certified professionals", category: "EXPERTISE", display_order: 3 },
   { title: "Enterprise Customers", value: "8,000+", description: "From SMB to Fortune 500", category: "SCALE", display_order: 4 },

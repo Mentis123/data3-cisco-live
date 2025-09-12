@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,8 +73,8 @@ export default function Leaderboard() {
     }
   });
 
-  // Auto-rotate views every 10 seconds, but only through views with content
-  // However, allow manual selection of any view
+  // Auto-rotate views every 10 seconds
+  // If user manually selects an empty view, show it for 10s then revert to data3stats
   useEffect(() => {
     if (!displayData) return;
 
@@ -100,10 +101,16 @@ export default function Leaderboard() {
     const availableViews = getAvailableViews();
     let currentIndex = availableViews.indexOf(activeView);
     
-    // If current view is not available for auto-rotation, start with data3stats
-    if (currentIndex === -1) {
-      currentIndex = 0;
-      setActiveView("data3stats");
+    // If current view is not available for auto-rotation, it's empty
+    // Show it briefly then revert to data3stats
+    const isEmptyView = currentIndex === -1 && activeView !== "data3stats";
+    
+    if (isEmptyView) {
+      // Show empty view for 10s then revert to data3stats
+      const revertTimer = setTimeout(() => {
+        setActiveView("data3stats");
+      }, 10000);
+      return () => clearTimeout(revertTimer);
     }
 
     const interval = setInterval(() => {
@@ -389,7 +396,7 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data<sup>#</sup>3 by the Numbers
+            Data<sup>³</sup> by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission
@@ -442,9 +449,15 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-background text-foreground p-4 portrait-leaderboard">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-6 relative">
+          <Link href="/">
+            <Button variant="outline" size="sm" className="absolute left-0 top-0">
+              <i className="fas fa-home mr-2"></i>
+              Home
+            </Button>
+          </Link>
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Data<sup>#</sup>3 Solution Sprint
+            Data<sup>³</sup> Solution Sprint
           </h1>
           <p className="text-xl text-muted-foreground">
             Cisco Live Melbourne 2025 • Powered by AI
@@ -475,7 +488,7 @@ export default function Leaderboard() {
               },
               { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
               { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
-              { key: "data3stats", icon: "fa-building", label: "Data³", hasContent: true }
+              { key: "data3stats", icon: "fa-building", label: "Stats", hasContent: true }
             ].map((view) => (
               <Button
                 key={view.key}
@@ -517,7 +530,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the Data<sup>³</sup> booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
