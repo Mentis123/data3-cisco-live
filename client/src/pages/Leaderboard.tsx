@@ -496,7 +496,7 @@ export default function Leaderboard() {
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission && timeSinceSubmission < 300
               ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}`
-              : "General Data#3 Stats • Scale and expertise across Australia & New Zealand"
+              : <>General Data<sup>#</sup>3 Stats • Scale and expertise across Australia & New Zealand</>
             }
           </p>
         </CardHeader>
