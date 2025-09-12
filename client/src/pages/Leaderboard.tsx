@@ -457,7 +457,7 @@ export default function Leaderboard() {
             </Button>
           </Link>
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Data<sup>³</sup> Solution Sprint
+            Data<sup>#</sup>3 Solution Sprint
           </h1>
           <p className="text-xl text-muted-foreground">
             Cisco Live Melbourne 2025 • Powered by AI
