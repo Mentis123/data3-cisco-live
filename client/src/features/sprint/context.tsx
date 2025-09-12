@@ -69,6 +69,12 @@ function sprintReducer(state: SprintState, action: SprintAction): SprintState {
         completedSteps: submissionSteps
       };
     
+    case 'UPDATE_SUBMISSION':
+      return {
+        ...state,
+        submission: action.payload
+      };
+    
     case 'MARK_STEP_COMPLETE':
       const updatedSteps = new Set(state.completedSteps);
       updatedSteps.add(action.payload);

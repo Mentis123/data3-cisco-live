@@ -76,6 +76,7 @@ export interface SprintAction {
     | 'SET_IMPACT' 
     | 'SET_EXPLORE' 
     | 'SET_SUBMISSION' 
+    | 'UPDATE_SUBMISSION'
     | 'MARK_STEP_COMPLETE'
     | 'RESET_SPRINT'
     | 'ADD_MESSAGE';

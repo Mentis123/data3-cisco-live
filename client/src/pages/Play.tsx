@@ -37,6 +37,8 @@ function PlayContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedSubmission, setEditedSubmission] = useState<any>(null);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -477,6 +479,8 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
 
   // Submit/Review view
   if (state.step === 4 && state.submission) {
+    const currentSubmission = editedSubmission || state.submission;
+    
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
         <SprintStepper 
@@ -491,7 +495,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
               <CardHeader className="pb-4 sm:pb-6">
                 <CardTitle className="text-xl sm:text-2xl">Final Review & Submit</CardTitle>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Your solution is ready! Review and submit for scoring.
+                  {isEditMode ? "Edit your solution details below" : "Your solution is ready! Review and submit for scoring."}
                 </p>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
@@ -501,7 +505,16 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                     <i className="fas fa-lightbulb text-primary mr-2"></i>
                     Problem Summary
                   </Label>
-                  <p className="text-sm">{state.submission.problem_summary}</p>
+                  {isEditMode ? (
+                    <Textarea
+                      value={currentSubmission.problem_summary}
+                      onChange={(e) => setEditedSubmission({...currentSubmission, problem_summary: e.target.value})}
+                      className="text-sm min-h-[60px]"
+                      placeholder="Describe the problem..."
+                    />
+                  ) : (
+                    <p className="text-sm">{currentSubmission.problem_summary}</p>
+                  )}
                 </div>
 
                 {/* Cisco Products */}
@@ -510,11 +523,29 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                     <i className="fas fa-microchip text-primary mr-2"></i>
                     Cisco Technologies
                   </Label>
-                  <ul className="list-disc list-inside space-y-1">
-                    {state.submission.cisco_products.map((product, idx) => (
-                      <li key={idx} className="text-sm">{product}</li>
-                    ))}
-                  </ul>
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
+                        <Input
+                          key={idx}
+                          value={product}
+                          onChange={(e) => {
+                            const newProducts = [...currentSubmission.cisco_products];
+                            newProducts[idx] = e.target.value;
+                            setEditedSubmission({...currentSubmission, cisco_products: newProducts});
+                          }}
+                          className="text-sm"
+                          placeholder="Cisco product..."
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1">
+                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
+                        <li key={idx} className="text-sm">{product}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Impact Metrics */}
@@ -526,18 +557,68 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground mb-1">Current State</p>
-                      {state.submission.current_state.baseline_kpis.map((kpi, idx) => (
-                        <p key={idx} className="text-sm">
-                          {kpi.name}: <strong>{kpi.value}</strong>
-                        </p>
+                      {currentSubmission.current_state.baseline_kpis.map((kpi: any, idx: number) => (
+                        <div key={idx} className="text-sm mb-1">
+                          {isEditMode ? (
+                            <div className="flex gap-2">
+                              <Input
+                                value={kpi.name}
+                                onChange={(e) => {
+                                  const newKpis = [...currentSubmission.current_state.baseline_kpis];
+                                  newKpis[idx] = {...kpi, name: e.target.value};
+                                  setEditedSubmission({...currentSubmission, current_state: {...currentSubmission.current_state, baseline_kpis: newKpis}});
+                                }}
+                                className="text-sm flex-1"
+                                placeholder="KPI name..."
+                              />
+                              <Input
+                                value={kpi.value}
+                                onChange={(e) => {
+                                  const newKpis = [...currentSubmission.current_state.baseline_kpis];
+                                  newKpis[idx] = {...kpi, value: e.target.value};
+                                  setEditedSubmission({...currentSubmission, current_state: {...currentSubmission.current_state, baseline_kpis: newKpis}});
+                                }}
+                                className="text-sm flex-1"
+                                placeholder="Value..."
+                              />
+                            </div>
+                          ) : (
+                            <>{kpi.name}: <strong>{kpi.value}</strong></>
+                          )}
+                        </div>
                       ))}
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground mb-1">Target State</p>
-                      {state.submission.target_state.kpis.map((kpi, idx) => (
-                        <p key={idx} className="text-sm">
-                          {kpi.name}: <strong>{kpi.target}</strong>
-                        </p>
+                      {currentSubmission.target_state.kpis.map((kpi: any, idx: number) => (
+                        <div key={idx} className="text-sm mb-1">
+                          {isEditMode ? (
+                            <div className="flex gap-2">
+                              <Input
+                                value={kpi.name}
+                                onChange={(e) => {
+                                  const newKpis = [...currentSubmission.target_state.kpis];
+                                  newKpis[idx] = {...kpi, name: e.target.value};
+                                  setEditedSubmission({...currentSubmission, target_state: {...currentSubmission.target_state, kpis: newKpis}});
+                                }}
+                                className="text-sm flex-1"
+                                placeholder="KPI name..."
+                              />
+                              <Input
+                                value={kpi.target}
+                                onChange={(e) => {
+                                  const newKpis = [...currentSubmission.target_state.kpis];
+                                  newKpis[idx] = {...kpi, target: e.target.value};
+                                  setEditedSubmission({...currentSubmission, target_state: {...currentSubmission.target_state, kpis: newKpis}});
+                                }}
+                                className="text-sm flex-1"
+                                placeholder="Target..."
+                              />
+                            </div>
+                          ) : (
+                            <>{kpi.name}: <strong>{kpi.target}</strong></>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -545,33 +626,72 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
 
                 {/* Submit Actions */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button
-                    onClick={() => goToStep(dispatch, 3)}
-                    variant="outline"
-                    className="flex-1"
-                    data-testid="button-back-to-explore"
-                  >
-                    <i className="fas fa-arrow-left mr-2"></i>
-                    Back to Edit
-                  </Button>
-                  <Button
-                    onClick={() => submitSolutionMutation.mutate()}
-                    disabled={isSubmitting}
-                    className="flex-1 btn-primary"
-                    data-testid="button-submit-solution"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-trophy mr-2"></i>
-                        Submit & Compete
-                      </>
-                    )}
-                  </Button>
+                  {isEditMode ? (
+                    <>
+                      <Button
+                        onClick={() => {
+                          dispatch({ type: 'UPDATE_SUBMISSION', payload: currentSubmission });
+                          setIsEditMode(false);
+                        }}
+                        className="flex-1"
+                        data-testid="button-save-edits"
+                      >
+                        <i className="fas fa-save mr-2"></i>
+                        Save Changes
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setEditedSubmission(null);
+                          setIsEditMode(false);
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid="button-cancel-edit"
+                      >
+                        <i className="fas fa-times mr-2"></i>
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => setIsEditMode(true)}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid="button-edit-mode"
+                      >
+                        <i className="fas fa-edit mr-2"></i>
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => goToStep(dispatch, 3)}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid="button-back-to-chat"
+                      >
+                        <i className="fas fa-comments mr-2"></i>
+                        Back to Chat
+                      </Button>
+                      <Button
+                        onClick={() => submitSolutionMutation.mutate()}
+                        disabled={isSubmitting}
+                        className="flex-1 btn-primary"
+                        data-testid="button-submit-solution"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-trophy mr-2"></i>
+                            Submit & Compete
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
