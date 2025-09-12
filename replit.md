@@ -18,7 +18,13 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Core Functionality
-The application facilitates a user journey from landing page (terms acceptance, challenge overview) to solution crafting with AI assistance, structured submission, and live leaderboard display.
+The application facilitates a "Three-Reply Sprint" methodology through a mobile-first 4-step process:
+1. **Name the Problem** - Articulate a specific business challenge
+2. **Quantify the Impact** - Calculate time, cost, and productivity metrics  
+3. **Explore Technologies** - Map relevant Cisco solutions
+4. **Compete & Win** - Submit for AI scoring and leaderboard ranking
+
+Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" functionality where the system infers missing pieces.
 
 ## Frontend Architecture
 - **Framework**: React 18 with TypeScript and Vite.
@@ -50,12 +56,13 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - Smooth ranking transitions with easing animations.
 - Real-time participant count and scoring updates.
 
-## AI Integration
-- **Chat Assistant**: GPT-4o-mini coaches users to develop solutions.
-- **Category Assignment**: O3-mini automatically categorizes solutions into one of 5 categories.
-- **Solution Evaluation**: O3-mini evaluates submissions against a 5-criteria rubric (0-50 points).
-- **Structured Output**: AI formats solutions into a standardized JSON schema.
-- **Total AI Calls**: Exactly 3 inference calls per submission (chat, categorization, scoring).
+## AI Integration 
+- **Sprint Coach**: GPT-4o-mini guides users through the 3-step sprint process with contextual prompts
+- **Category Assignment**: O3-mini automatically categorizes solutions into one of 5 categories
+- **Solution Evaluation**: O3-mini evaluates submissions against a 5-criteria rubric (0-50 points)
+- **Structured Output**: AI formats solutions into a standardized JSON schema
+- **Sprint Prompts**: Step-specific guidance to maintain momentum and target completion within 3 exchanges
+- **Total AI Calls**: Exactly 3 inference calls per submission (chat, categorization, scoring)
 
 ## Security & Performance
 - Rate limiting on submissions (60-second cooldown per IP).
