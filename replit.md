@@ -80,3 +80,19 @@ The application facilitates a user journey from landing page (terms acceptance, 
 
 ## Monitoring & Performance
 - **TanStack Query**: Handles caching, background updates, and error handling.
+
+### Validation Tracking
+**Pending Validation:**
+- [2025-01-28 16:08] Button state sync after auto-revert + Data#3 superscript branding
+  - **Test**: Verify button states update correctly when auto-reverting from any view to stats
+  - **Test**: Confirm all Data#3 text shows superscript hashtag (Home, Play, Leaderboard pages)
+
+### Current User Flow Analysis
+**Question: Category Selection Process**
+- [2025-01-28 16:47] User asks about when category selection happens in the flow
+- **Current Process**: 
+  1. User enters problem + impact in chat with AI coach
+  2. AI helps refine and structure the solution through conversation
+  3. When final JSON solution is generated, server auto-categorizes using `categorizeProposal()` function
+  4. Category is assigned automatically based on problem/solution content, not user selection
+- **Key Finding**: Category is NOT manually selected by user - it's AI-determined during submission
