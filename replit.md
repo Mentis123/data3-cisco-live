@@ -41,8 +41,33 @@ Preferred communication style: Simple, everyday language.
 - Auto-categorization removes friction for participants while maintaining data organization
 - Recharts integration provides professional data visualization capabilities
 
+### User Flow & Technical Pipeline
+
+**Frontend User Journey:**
+1. **Landing Page (Home.tsx)**: User accepts terms, enters name, sees challenge overview
+2. **Registration (Play.tsx)**: Creates session token, displays AI coach introduction
+3. **Chat Interface**: Interactive problem exploration with GPT-4o-mini assistant
+4. **Solution Preview**: Structured JSON review/editing interface
+5. **Submission**: Final scoring with O3 model evaluation
+6. **Leaderboard Redirect**: Auto-navigation to live rankings display
+
+**Backend Processing Pipeline:**
+1. **Session Creation**: UUID token generation, participant storage in SQLite
+2. **Chat Processing**: OpenAI API calls with structured prompting for solution development
+3. **Auto-Categorization**: AI classification into 5 technology categories
+4. **Solution Evaluation**: O3 model scoring against 5-criteria rubric (0-50 points)
+5. **Real-time Broadcasting**: WebSocket updates to all connected leaderboard clients
+6. **Data Persistence**: Structured JSON storage with evaluation metadata
+
+**Technical Architecture:**
+- **Frontend**: React + TypeScript, TanStack Query for state management
+- **Backend**: Express.js REST API with WebSocket server
+- **Database**: SQLite with Drizzle ORM for type safety
+- **AI Integration**: OpenAI API (gpt-4o-mini for chat, o3 for evaluation)
+- **Real-time**: WebSocket broadcasting for live leaderboard updates
+
 ### Future Planning
-- Next steps: Update UI copy throughout application to focus on business problems rather than solutions, remove AI-powered marketing emphasis
+- Next steps: Performance optimization for WebSocket scaling, implement Redis session storage
 - Items to validate/test: Auto-rotation timing (10s may be too fast/slow), chart responsiveness on portrait displays  
 - Technical debt: Session management still in-memory (should consider Redis for production)
 - Feature ideas: Add sound effects for score updates, implement admin panel for real-time content management
