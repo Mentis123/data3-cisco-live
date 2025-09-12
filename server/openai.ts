@@ -6,8 +6,8 @@ const openai = new OpenAI({
 });
 
 const CHAT_MODEL = process.env.CHAT_MODEL || "gpt-4o-mini";
-// Use gpt-4o-mini for evaluation since o3 seems to have issues with structured output
-const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o-mini";
+// Use o3-mini for strict evaluation scoring
+const EVAL_MODEL = process.env.EVAL_MODEL || "o3-mini";
 
 const SYSTEM_PROMPT = `You are a friendly Cisco technology coach helping booth visitors at Cisco Live Melbourne craft winning solutions for the Data#3 Solution Sprint challenge.
 
