@@ -454,6 +454,8 @@ export default function AdminLeaderboard() {
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordInput === "password") {
+      // Store the admin key in localStorage for API calls
+      localStorage.setItem('adminKey', 'cisco-live-melbourne-2025');
       setIsAuthenticated(true);
       setShowPasswordError(false);
     } else {

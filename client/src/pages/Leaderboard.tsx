@@ -293,8 +293,8 @@ export default function Leaderboard() {
                   zIndex = 30;
                   position = {
                     position: 'absolute',
-                    top: '50%',
-                    left: '50%',
+                    top: 'calc(50% - 20px)',
+                    left: 'calc(50% - 20px)',
                     transform: 'translate(-50%, -50%)'
                   };
                 } else if (index < 5) {
@@ -457,7 +457,7 @@ export default function Leaderboard() {
                         fill={labelColor}
                         textAnchor={textAnchor}
                         dominantBaseline="middle"
-                        style={{ fontSize: '32px', fontWeight: '700' }}
+                        style={{ fontSize: '24px', fontWeight: '600' }}
                       >
                         {name}
                       </text>
@@ -486,7 +486,7 @@ export default function Leaderboard() {
                     dataKey="value"
                     position="inside"
                     fill="#fff"
-                    style={{ fontSize: '36px', fontWeight: 'bold', textShadow: '0 0 6px rgba(0,0,0,0.8)' }}
+                    style={{ fontSize: '28px', fontWeight: 'bold', textShadow: '0 0 4px rgba(0,0,0,0.7)' }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
                       return `${percent}% (${value})`;
