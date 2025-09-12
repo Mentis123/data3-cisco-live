@@ -243,10 +243,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ]);
 
       const topCategory = await storage.getTopProblemCategory();
+      
+      // Use recent submission's category for stats if available, otherwise use top category
+      const categoryForStats = recentSubmission?.category || topCategory;
       const topCategoryData3Stats = await storage.getData3Stats(
-        topCategory === "SECURE_CONNECTIVITY" ? "SECURITY" :
-        topCategory === "HYBRID_DC" ? "CLOUD" :
-        topCategory === "OBSERVABILITY" ? "INFRASTRUCTURE" :
+        categoryForStats === "SECURE_CONNECTIVITY" ? "SECURITY" :
+        categoryForStats === "HYBRID_DC" ? "CLOUD" :
+        categoryForStats === "OBSERVABILITY" ? "INFRASTRUCTURE" :
+        categoryForStats === "COLLABORATION" ? "COLLABORATION" :
+        categoryForStats === "EDGE_IOT" ? "IOT" :
         "EXPERTISE"
       );
 
@@ -257,7 +262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recentSubmission,
         data3Stats,
         topCategoryStats: topCategoryData3Stats,
-        topCategory
+        topCategory: categoryForStats // Use the category that matches the stats being shown
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get dashboard data" });

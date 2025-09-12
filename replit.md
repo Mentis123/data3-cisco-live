@@ -142,3 +142,9 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - Prevents accidental loss of work during solution development
 - Confirmation dialog warns users about losing unsaved progress
 - Two clear options: "Continue Working" to stay or "Exit & Lose Progress" to leave
+
+**[2025-01-28 20:00] Leaderboard Display Fixes:**
+- Reduced pie chart font sizes: labels from 24px to 20px, percentages/counts from 28px to 22px for better readability
+- Fixed category-specific stats alignment: Stats now correctly match the recent submission's category instead of the overall top category
+- Backend now uses `recentSubmission.category` for stats filtering during the 5-minute window
+- Ensures proper category correlation between submission badges and displayed statistics
