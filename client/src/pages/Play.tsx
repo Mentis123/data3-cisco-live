@@ -74,7 +74,7 @@ export default function Play() {
       // Add initial assistant message focusing on problem definition
       setMessages([{
         role: "assistant",
-        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data<sup className="text-primary">#</sup>3 Challenge! 🚀
+        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data#3 Challenge! 🚀
 
 **Let's start with the problem that's been bugging you:**
 
