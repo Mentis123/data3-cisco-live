@@ -8,6 +8,33 @@ The application consists of a real-time leaderboard for public display, a soluti
 
 Preferred communication style: Simple, everyday language.
 
+## Agent Instructions (read-first)
+- Always read this file before starting any work.
+- Before making changes, append a **Plan** entry in "Changelog" describing intended edits.
+- After making changes, append **What changed / How / Results / Issues** and update "Future Planning" with next steps, items to validate, technical debt, and feature requests.
+- Never overwrite past entries; always append and date-stamp.
+- Safety: work on a branch, run tests, take a backup or snapshot before risky steps, and ask for confirmation before destructive operations.
+
+### Changelog
+- [2025-01-27 12:40] Plan: Major rework to implement rotating dashboard display system with Data#3 stats integration, automatic categorization, and enhanced leaderboard functionality based on user feedback
+- [2025-01-27 12:45] Done: 
+  - **What changed**: Implemented comprehensive dashboard system with 4 rotating views (leaderboard, word cloud, category stats, Data#3 stats)
+  - **How**: Updated Leaderboard.tsx with auto-rotating views every 10 seconds, added Recharts for data visualization, integrated Data#3 pre-populated stats in storage.ts
+  - **Results**: Dashboard now shows live leaderboard, technology word clouds, category distribution charts, and contextual Data#3 company stats
+  - **Issues**: Build error with missing animateScore import needs to be resolved
+
+### Reflections
+- The rotating dashboard concept works well for booth displays - keeps content dynamic and engaging
+- Pre-populating Data#3 stats provides good context about company scale and expertise
+- Auto-categorization removes friction for participants while maintaining data organization
+- Recharts integration provides professional data visualization capabilities
+
+### Future Planning
+- Next steps: Fix the animateScore import error to get application running
+- Items to validate/test: Auto-rotation timing (10s may be too fast/slow), chart responsiveness on portrait displays
+- Technical debt: Session management still in-memory (should consider Redis for production)
+- Feature ideas: Add sound effects for score updates, implement admin panel for real-time content management
+
 # System Architecture
 
 ## Frontend Architecture
