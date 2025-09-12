@@ -279,46 +279,47 @@ export default function Leaderboard() {
             
             {/* Word cloud with radial positioning */}
             <div className="relative w-full h-full flex items-center justify-center">
-              {displayData.wordCloud.slice(0, 20).map((word, index) => {
-                // Position calculation for radial layout
+              {displayData.wordCloud.slice(0, 25).map((word, index) => {
+                // Position calculation for concentric radial layout
                 let size: number;
                 let opacity: number;
                 let zIndex: number;
                 let position: any = { position: 'absolute' };
                 
-                if (index === 0) {
-                  // Biggest word in center
-                  size = 72;
-                  opacity = 1;
-                  zIndex = 20;
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)'
-                  };
-                } else if (index < 4) {
-                  // Next 3 - arranged around center
-                  size = 48;
-                  opacity = 0.9;
+                if (index < 3) {
+                  // Top 3 biggest words in center area
+                  if (index === 0) {
+                    size = 64;
+                    opacity = 1;
+                    zIndex = 30;
+                    position = {
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)'
+                    };
+                  } else {
+                    size = 48;
+                    opacity = 0.95;
+                    zIndex = 25;
+                    const angle = index === 1 ? -45 : 135; // Position at diagonal angles
+                    const radius = 100; // Close to center
+                    const x = Math.cos(angle * Math.PI / 180) * radius;
+                    const y = Math.sin(angle * Math.PI / 180) * radius;
+                    position = {
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
+                    };
+                  }
+                } else if (index < 9) {
+                  // Middle ring - medium sized words
+                  size = 28;
+                  opacity = 0.8;
                   zIndex = 15;
-                  const angle = (index - 1) * 120; // 120 degrees apart
-                  const radius = 140; // pixels from center
-                  const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius;
-                  position = {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                  };
-                } else if (index < 10) {
-                  // Next layer - smaller, further out
-                  size = 24;  // Reduced from 28 for better spacing
-                  opacity = 0.7;
-                  zIndex = 10;
-                  const angle = (index - 4) * 60 + 30; // 60 degrees apart, offset
-                  const radius = 240; // Increased from 220 for more spacing
+                  const angle = ((index - 3) * 60) - 30; // 60 degrees apart, starting from -30
+                  const radius = 180; // Middle distance
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -328,12 +329,12 @@ export default function Leaderboard() {
                     transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
                   };
                 } else {
-                  // Outer ring - even smaller for better spacing
-                  size = 12;  // Reduced from 16
-                  opacity = 0.5;
+                  // Outer ring - smallest words on the edges
+                  size = 14;
+                  opacity = 0.6;
                   zIndex = 5;
-                  const angle = (index - 10) * 36; // 36 degrees apart for 10 items
-                  const radius = 330; // Increased from 300 for more spacing
+                  const angle = ((index - 9) * 22.5); // More items, smaller angle spacing
+                  const radius = 280; // Furthest from center
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -346,13 +347,14 @@ export default function Leaderboard() {
                 
                 // Determine animation class based on word position
                 let animationClass = '';
-                if (index === 0) {
-                  animationClass = 'word-cloud-float-1';
-                } else if (index < 4) {
+                if (index < 3) {
+                  // Center words get the floating animation
                   animationClass = 'word-cloud-float-' + ((index % 3) + 1);
-                } else if (index < 10) {
+                } else if (index < 9) {
+                  // Middle ring gets gentle drift
                   animationClass = 'word-cloud-drift';
                 } else {
+                  // Outer ring gets subtle drift
                   animationClass = 'word-cloud-drift';
                 }
                 
