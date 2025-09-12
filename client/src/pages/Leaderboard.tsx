@@ -278,7 +278,7 @@ export default function Leaderboard() {
             </div>
             
             {/* Word cloud with radial positioning */}
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full">
               {displayData.wordCloud.slice(0, 25).map((word, index) => {
                 // Position calculation for concentric radial layout
                 let size: number;
@@ -287,13 +287,13 @@ export default function Leaderboard() {
                 let position: any = { position: 'absolute' };
                 
                 if (index === 0) {
-                  // Biggest word truly centered
+                  // Biggest word DEAD CENTER!
                   size = 56;
                   opacity = 1;
                   zIndex = 30;
                   position = {
                     position: 'absolute',
-                    top: 'calc(50% - 10px)',
+                    top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)'
                   };
