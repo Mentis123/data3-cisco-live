@@ -114,3 +114,15 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - Updated category assignment to use O3-mini instead of GPT-4o-mini
 - Implemented 5-minute window for category-specific stats display
 - Admin dashboard now includes tabbed interface with stats management section
+
+**[2025-01-28 18:15] Critical Fixes:**
+- Fixed admin authentication: Now properly stores 'cisco-live-melbourne-2025' in localStorage on successful login
+- Reduced pie chart label sizes for optimal readability (24px labels, 28px percentages)
+- Improved word cloud centering with adjusted positioning calculation
+- Added 6 Data#3 company stats to database under 'GENERAL' category:
+  - 2x Revenue Growth in 18 Months
+  - 700% Cloud Services Revenue Increase
+  - 1000+ Experts Across ANZ
+  - 50+ Certified Vendor Technologies
+  - 2,500+ Customers Trust Data#3
+  - 24/7 Support Coverage
