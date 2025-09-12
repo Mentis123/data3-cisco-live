@@ -251,7 +251,7 @@ export default function AdminLeaderboard() {
         <Tabs defaultValue="submissions" className="space-y-4">
           <TabsList>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
-            <TabsTrigger value="stats">Data<sup>#</sup>3 Stats</TabsTrigger>
+            <TabsTrigger value="stats">Data<sup className="text-primary">#</sup>3 Stats</TabsTrigger>
           </TabsList>
 
           <TabsContent value="submissions">
@@ -338,7 +338,7 @@ export default function AdminLeaderboard() {
           <TabsContent value="stats">
             <Card>
               <CardHeader>
-                <CardTitle>Data<sup>#</sup>3 Stats Management</CardTitle>
+                <CardTitle>Data<sup className="text-primary">#</sup>3 Stats Management</CardTitle>
                 <p className="text-muted-foreground">Manage the stats displayed on the leaderboard. Note: Stats management is currently limited - you can view but not edit in this interface.</p>
               </CardHeader>
               <CardContent>
@@ -346,7 +346,7 @@ export default function AdminLeaderboard() {
                   <i className="fas fa-chart-bar text-4xl text-muted-foreground mb-4"></i>
                   <p className="text-lg font-semibold mb-2">Stats Management</p>
                   <p className="text-muted-foreground mb-4">
-                    Data<sup>#</sup>3 stats are managed through the database directly.
+                    Data<sup className="text-primary">#</sup>3 stats are managed through the database directly.
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Current stats are pre-populated and displayed on the leaderboard.

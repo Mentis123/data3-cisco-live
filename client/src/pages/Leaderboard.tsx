@@ -269,7 +269,7 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="relative min-h-[400px] flex items-center justify-center">
+          <div className="relative min-h-[400px] max-h-[400px] overflow-hidden flex items-center justify-center">
             {/* Cloud background effects */}
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
@@ -469,12 +469,12 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data<sup>#</sup>3 by the Numbers
+            Data<sup className="text-primary">#</sup>3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission && timeSinceSubmission < 300
               ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}`
-              : "Scale and expertise across Australia & New Zealand"
+              : "General Data#3 Stats • Scale and expertise across Australia & New Zealand"
             }
           </p>
         </CardHeader>
@@ -530,7 +530,7 @@ export default function Leaderboard() {
             </Button>
           </Link>
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Data<sup>#</sup>3 Solution Sprint
+            Data<sup className="text-primary">#</sup>3 Solution Sprint
           </h1>
           <p className="text-xl text-muted-foreground">
             Cisco Live Melbourne 2025 • Powered by AI
@@ -603,7 +603,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the Data<sup className="text-primary">#</sup>3 booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>

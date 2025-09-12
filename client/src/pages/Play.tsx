@@ -74,7 +74,7 @@ export default function Play() {
       // Add initial assistant message focusing on problem definition
       setMessages([{
         role: "assistant",
-        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data<sup>#</sup>3 Challenge! 🚀
+        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data<sup className="text-primary">#</sup>3 Challenge! 🚀
 
 **Let's start with the problem that's been bugging you:**
 
@@ -216,7 +216,7 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
         <div className="max-w-2xl mx-auto px-4">
           <Card className="glass-panel border-0">
             <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-2xl sm:text-3xl text-center mb-2">Data<sup>#</sup>3 Solution Sprint</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl text-center mb-2">Data<sup className="text-primary">#</sup>3 Solution Sprint</CardTitle>
               <p className="text-center text-muted-foreground">
                 Solve real business problems with Cisco technologies
               </p>
@@ -794,7 +794,7 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
     <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
       <div className="max-w-2xl mx-auto px-4 text-center">
         <p className="text-muted-foreground">
-          Visit the Data<sup>#</sup>3 booth at Cisco Live Melbourne 2025 to participate in the challenge.
+          Visit the Data<sup className="text-primary">#</sup>3 booth at Cisco Live Melbourne 2025 to participate in the challenge.
         </p>
       </div>
     </div>
