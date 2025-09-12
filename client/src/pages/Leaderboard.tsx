@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 interface LeaderboardEntry {
   id: string;
@@ -197,10 +197,10 @@ export default function Leaderboard() {
             >
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                  index === 0 ? 'bg-yellow-500 text-yellow-50' :
-                  index === 1 ? 'bg-gray-400 text-gray-50' :
-                  index === 2 ? 'bg-orange-600 text-orange-50' :
-                  'bg-primary text-primary-foreground'
+                  index === 0 ? 'bg-[#FFD700] text-gray-900 shadow-lg shadow-yellow-400/50' :
+                  index === 1 ? 'bg-[#C0C0C0] text-gray-900 shadow-lg shadow-gray-400/50' :
+                  index === 2 ? 'bg-[#CD7F32] text-white shadow-lg shadow-orange-600/50' :
+                  'bg-cyan-900/30 text-cyan-300/70'
                 }`}>
                   {index < 3 ? (
                     <i className={`fas ${index === 0 ? 'fa-crown' : index === 1 ? 'fa-medal' : 'fa-award'}`}></i>
@@ -344,13 +344,26 @@ export default function Leaderboard() {
                   };
                 }
                 
+                // Determine animation class based on word position
+                let animationClass = '';
+                if (index === 0) {
+                  animationClass = 'word-cloud-float-1';
+                } else if (index < 4) {
+                  animationClass = 'word-cloud-float-' + ((index % 3) + 1);
+                } else if (index < 10) {
+                  animationClass = 'word-cloud-drift';
+                } else {
+                  animationClass = 'word-cloud-drift';
+                }
+                
                 return (
                   <div
                     key={word.text}
-                    className="transition-all duration-500 hover:scale-110"
+                    className={`transition-all duration-500 hover:scale-110 ${animationClass}`}
                     style={{
                       ...position,
                       zIndex,
+                      animationDelay: `${index * 0.5}s`,
                     }}
                   >
                     <span
@@ -419,18 +432,18 @@ export default function Leaderboard() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-full">
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={450}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
-                  cy="50%"
-                  outerRadius={150}
+                  cy="45%"
+                  outerRadius={170}
                   fill="#8884d8"
                   dataKey="value"
                   label={(entry) => {
                     const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
-                    return `${entry.name}\n${percent}% (${entry.value})`;
+                    return `${percent}% (${entry.value})`;
                   }}
                   labelLine={false}
                 >
@@ -442,6 +455,15 @@ export default function Leaderboard() {
                   formatter={(value: number, name: string) => {
                     const percent = ((value / totalSubmissions) * 100).toFixed(1);
                     return [`${value} submissions (${percent}%)`, name];
+                  }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value) => value}
+                  wrapperStyle={{
+                    fontSize: '18px',
+                    paddingTop: '20px'
                   }}
                 />
               </PieChart>
@@ -469,7 +491,7 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data<sup className="text-primary">#</sup>3 by the Numbers
+            Data<sup>#</sup>3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission && timeSinceSubmission < 300
@@ -519,7 +541,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 portrait-leaderboard">
+    <div className="min-h-screen bg-background text-foreground p-4 pt-8 portrait-leaderboard">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6 relative">
@@ -530,7 +552,7 @@ export default function Leaderboard() {
             </Button>
           </Link>
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Data<sup className="text-primary">#</sup>3 Solution Sprint
+            Data<sup>#</sup>3 Solution Sprint
           </h1>
           <p className="text-xl text-muted-foreground">
             Cisco Live Melbourne 2025 • Powered by AI
@@ -603,7 +625,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data<sup className="text-primary">#</sup>3 booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
