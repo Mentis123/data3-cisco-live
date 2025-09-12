@@ -9,11 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-interface Category {
-  key: string;
-  name: string;
-}
-
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -37,14 +32,6 @@ interface StructuredSolution {
   rollout_plan: string[];
   risks: string[];
 }
-
-const CATEGORIES = [
-  { key: "SECURE_CONNECTIVITY", name: "Zero Trust, SASE, SD-WAN, Network Segmentation", description: "(e.g., Catalyst Center, SD-WAN, Secure Client, Duo)" },
-  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud", description: "(e.g., ACI/Nexus, UCS, HyperFabric)" },
-  { key: "COLLAB_CX", name: "Collaboration & Contact Centre", description: "(e.g., Webex, Webex Contact Center)" },
-  { key: "OBSERVABILITY", name: "ThousandEyes, AppDynamics, Full-Stack Observability", description: "resilience/SLOs" },
-  { key: "EDGE_IOT", name: "Meraki/Catalyst at branch/industrial edge", description: "automation/telemetry" },
-];
 
 export default function Play() {
   const [, setLocation] = useLocation();
@@ -84,11 +71,22 @@ export default function Play() {
     onSuccess: (data) => {
       setSessionToken(data.sessionToken);
       setStep("chat");
-      // Add initial assistant message
-      const categoryName = CATEGORIES.find(c => c.key === "")?.name || ""; // Category is not selected anymore
+      // Add initial assistant message focusing on problem definition
       setMessages([{
         role: "assistant",
-        content: `Hi! I'm here to help you craft a winning solution. Let's start by describing the business problem you want to solve in 1-2 sentences.`
+        content: `Hi ${firstName}! I'm here to help you craft a winning Cisco solution. 
+
+Let's start simple:
+
+**What business problem wastes your time, causes stress, or impacts your organization?**
+
+Think about:
+• Daily frustrations with technology
+• Time-consuming manual processes  
+• Security concerns keeping you up at night
+• Poor user experiences affecting productivity
+
+Describe it in 1-2 sentences - we'll dive deeper together!`
       }]);
       setMessageCount(1);
     },
@@ -113,7 +111,6 @@ export default function Play() {
       setMessageCount(prev => prev + 1);
 
       // Check if this is a structured JSON response
-      // Look for JSON embedded in the response (may have text before/after)
       const jsonMatch = data.content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
@@ -132,7 +129,6 @@ export default function Play() {
             console.log("JSON missing required fields:", parsed);
           }
         } catch (e) {
-          // Not valid JSON or missing required fields, continue chat
           console.log("JSON parse attempt failed:", e);
         }
       } else {
@@ -151,7 +147,6 @@ export default function Play() {
 
   const submitSolutionMutation = useMutation({
     mutationFn: async () => {
-      // Prevent duplicate submissions
       if (isSubmitting) {
         throw new Error("Already submitting, please wait...");
       }
@@ -159,7 +154,6 @@ export default function Play() {
 
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
-        // Category is no longer submitted
         solutionText: messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
         structuredFields: editedSolution || structuredSolution,
       });
@@ -172,24 +166,7 @@ export default function Play() {
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
 
-      // If WebSocket blocked, poll /api/leaderboard every 2s for 10s
-      let pollCount = 0;
-      const pollInterval = setInterval(async () => {
-        pollCount++;
-        if (pollCount > 5) {
-          clearInterval(pollInterval);
-          setLocation("/leaderboard");
-          return;
-        }
-        try {
-          await apiRequest("GET", `/api/leaderboard?limit=10`);
-        } catch (e) {
-          // Continue polling
-        }
-      }, 2000);
-
       setTimeout(() => {
-        clearInterval(pollInterval);
         setLocation("/leaderboard");
       }, 3000);
     },
@@ -241,7 +218,10 @@ export default function Play() {
         <div className="max-w-2xl mx-auto px-4">
           <Card className="glass-panel border-0">
             <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-2xl sm:text-3xl text-center">Let's Get Started</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl text-center mb-2">Data#3 Solution Sprint</CardTitle>
+              <p className="text-center text-muted-foreground">
+                Solve real business problems with Cisco technologies
+              </p>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               {/* Registration Form */}
@@ -270,28 +250,44 @@ export default function Play() {
                 </div>
               </div>
 
-              {/* Technology Categories Info */}
+              {/* How It Works */}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl">
-                    <i className="fas fa-info-circle mr-2"></i>
-                    Cisco Technology Categories
+                    <i className="fas fa-lightbulb mr-2 text-primary"></i>
+                    How It Works
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    We'll automatically categorize your solution based on the Cisco technologies mentioned
-                  </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {CATEGORIES.map((category) => (
-                      <div
-                        key={category.key}
-                        className="p-3 rounded-lg border border-muted-foreground/20 bg-muted/20"
-                      >
-                        <div className="font-semibold text-sm mb-1">{category.name}</div>
-                        <div className="text-xs text-muted-foreground">{category.description}</div>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
+                      <div>
+                        <p className="font-semibold text-sm">Define Your Problem</p>
+                        <p className="text-xs text-muted-foreground">What business problem frustrates you daily?</p>
                       </div>
-                    ))}
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
+                      <div>
+                        <p className="font-semibold text-sm">Quantify the Impact</p>
+                        <p className="text-xs text-muted-foreground">How much time/money does this cost you?</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
+                      <div>
+                        <p className="font-semibold text-sm">Craft Your Solution</p>
+                        <p className="text-xs text-muted-foreground">We'll help suggest relevant Cisco technologies</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</div>
+                      <div>
+                        <p className="font-semibold text-sm">Compete & Win</p>
+                        <p className="text-xs text-muted-foreground">AI scores your solution - top entries win prizes!</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -314,6 +310,10 @@ export default function Play() {
                   </>
                 )}
               </Button>
+
+              <p className="text-xs text-center text-muted-foreground">
+                Your solution will be automatically categorized based on the Cisco technologies you mention
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -322,130 +322,6 @@ export default function Play() {
   }
 
   if (step === "chat") {
-    const testText = `Our organisation recently shifted a large part of our workforce to hybrid models, with staff moving between corporate offices, home, and customer sites. Current VPN infrastructure struggles to handle the load, leading to inconsistent performance and frustration among end-users.
-
-Pain points: Slow login/authentication times, dropped connections during video calls, and limited visibility into which users/applications consume bandwidth.
-
-KPIs: Mean time to connect (currently averaging 90+ seconds), help desk tickets related to VPN (~30% of all IT tickets), and NPS scores for collaboration tools trending downward.
-
-I think Cisco Secure Client (AnyConnect successor), Duo MFA integration, Umbrella DNS Security, and Webex embedded AI features could help. We need integration with Microsoft 365, Okta for identity federation, and ServiceNow for IT service workflows.
-
-Security concerns: Ensuring conditional access policies apply consistently across remote, on-prem, and cloud users; monitoring shadow IT apps accessed from home devices; and reducing risk of credential theft in chat applications.
-
-For observability, we'd like to use Cisco ThousandEyes for real-time visibility, implement AppDynamics to trace performance, deploy automation workflows in SecureX, and build dashboards that track key KPIs.`;
-
-    const observabilityText = `Employees are increasingly concerned about "being watched everywhere" due to the implementation of observability and monitoring tools across applications, networks, and endpoints. While the intention is to improve service reliability, security, and customer experience, staff perceive the tools as invasive surveillance. This erodes trust, creates resistance to adoption, and negatively impacts morale.
-
-Key pain points include:
-
-Lack of transparency on why data is being collected.
-
-Perception that monitoring is about employee surveillance, not business performance.
-
-Decline in employee engagement scores linked to "trust in IT" and "psychological safety."
-
-Rising costs from downtime and performance blind spots due to partial tool adoption.
-
-The solution is to implement a Full-Stack Observability (FSO) strategy using Cisco ThousandEyes, AppDynamics, and SecureX, supported by clear governance and transparent communications. The focus is on demonstrating that monitoring protects employees and customers by improving application performance, system reliability, and security — rather than monitoring individuals.
-
-AppDynamics – Application Performance Monitoring (APM) to link user experience and application behaviour with business KPIs.
-
-ThousandEyes – End-to-end visibility across internet, cloud, and SaaS services to detect and resolve issues proactively.
-
-SecureX – Orchestration and governance, providing role-based access, anonymisation, and policy enforcement to build employee trust.
-
-Cisco Intersight Workload Optimizer (IWO) – Ensures infrastructure optimisation for hybrid workloads.
-
-Secure Network Analytics (Stealthwatch) – Complements observability with network behaviour insights.
-
-Transparency Campaign: Publish a clear statement of purpose (e.g., "We monitor applications, not employees") with FAQs addressing staff concerns.
-
-Engagement Workshops: Show employees how observability benefits them—fewer outages, faster fixes, reduced blame culture.
-
-KPI Re-alignment: Tie observability metrics to business outcomes (uptime, MTTR, customer satisfaction) rather than personal productivity.
-
-Feedback Loop: Regular staff surveys feeding into observability governance to maintain trust.
-
-Employee Trust Score (Engagement Surveys): ~62% positive (down 10% YoY).
-
-Mean Time to Detect (MTTD): ~90 minutes.
-
-Mean Time to Resolve (MTTR): ~6.5 hours.
-
-Downtime Cost: ~$50,000/hour for Tier-1 applications.
-
-Dashboard Adoption: <40% of IT/Ops teams engage with current monitoring dashboards.
-
-ITSM Tools: ServiceNow, Jira Service Management for automated incident creation.
-
-Identity Platforms: Azure AD, Okta integrated with SecureX for RBAC and anonymisation.
-
-Collaboration Tools: Microsoft Teams, Webex for in-channel alerting and response.
-
-SIEM Platforms: Splunk, QRadar to extend observability telemetry into enterprise-wide security.
-
-AppDynamics Health Rules: Threshold-based alerts on latency, errors, and transaction success.
-
-ThousandEyes Alerts: Proactive notifications for SaaS and internet degradation.
-
-SecureX Orchestration Runbooks:
-
-Alert fires in AppDynamics/ThousandEyes.
-
-SecureX correlates telemetry, opens ServiceNow ticket.
-
-Automated remediation (e.g., restart service, scale cloud workload) triggered with one-click approval.
-
-MTTD Reduction: From 90 minutes → <20 minutes.
-
-MTTR Reduction: From 6.5 hours → <2 hours.
-
-Employee Trust Score: From 62% → >75%.
-
-Downtime Costs: Reduce unplanned downtime impact by ~30% YoY.
-
-Phase 1 – Pilot (Months 1–3):
-
-Deploy AppDynamics + ThousandEyes on one Tier-1 app.
-
-Integrate with ServiceNow.
-
-Launch transparency campaign with staff.
-
-Phase 2 – Expansion (Months 4–6):
-
-Extend to top 5 business-critical apps and hybrid workloads.
-
-Enable SecureX orchestration for automated runbooks.
-
-Collect KPI improvements and employee feedback.
-
-Phase 3 – Scale (Months 7–12):
-
-Roll out observability to entire app and SaaS landscape.
-
-Integrate with SIEM for unified IT + Security monitoring.
-
-Conduct quarterly KPI reviews to demonstrate business value.
-
-By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent communications and governance, this proposal reframes observability as a protective shield rather than "surveillance." The approach reduces downtime, lowers operational costs, and restores employee trust — ensuring observability becomes a strategic business enabler, not a source of friction.`;
-
-    const handleCopyTestText = () => {
-      navigator.clipboard.writeText(testText);
-      toast({
-        title: "Copied to clipboard",
-        description: "Test text has been copied for testing purposes",
-      });
-    };
-
-    const handleCopyObservabilityText = () => {
-      navigator.clipboard.writeText(observabilityText);
-      toast({
-        title: "Copied to clipboard",
-        description: "Observability proposal copied for testing",
-      });
-    };
-
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col safe-area-padding">
         <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-4 py-4 sm:py-8">
@@ -459,30 +335,8 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-lg sm:text-xl font-bold truncate">Cisco Solution Coach</h3>
-                    <p className="text-xs sm:text-sm opacity-90">Let's refine your solution together</p>
+                    <p className="text-xs sm:text-sm opacity-90">Let's solve your business problem together</p>
                   </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyObservabilityText}
-                    className="text-primary-foreground hover:bg-white/20"
-                    title="Copy observability proposal text"
-                    data-testid="button-copy-observability"
-                  >
-                    <i className="fas fa-eye"></i>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyTestText}
-                    className="text-primary-foreground hover:bg-white/20"
-                    title="Copy collaboration proposal text"
-                    data-testid="button-copy-test"
-                  >
-                    <i className="fas fa-copy"></i>
-                  </Button>
                 </div>
               </div>
             </div>
@@ -503,7 +357,6 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                             if (message.content.trim().startsWith('{') && message.content.trim().endsWith('}')) {
                               try {
                                 const parsed = JSON.parse(message.content);
-                                // Return formatted view for structured solution
                                 return (
                                   <div className="space-y-3">
                                     <p className="font-semibold">Here's your structured solution proposal:</p>
@@ -535,11 +388,9 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                                   </div>
                                 );
                               } catch (e) {
-                                // If parse fails, show as regular text
                                 return message.content;
                               }
                             }
-                            // Regular message
                             return message.content;
                           })()}
                         </div>
@@ -575,14 +426,14 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Chat Input - Fixed at Bottom */}
+            {/* Chat Input */}
             <div className="p-4 sm:p-6 border-t border-border flex-shrink-0 bg-background">
               <div className="flex gap-2 sm:gap-3">
                 <Textarea
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Describe your business problem..."
+                  placeholder="Describe your business problem and its impact..."
                   className="flex-1 min-h-[48px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
                   disabled={isTyping}
                   data-testid="input-chat-message"
@@ -597,7 +448,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                 </Button>
               </div>
               <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Be specific about Cisco products
+                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Focus on problem impact and specific Cisco products
               </div>
             </div>
           </Card>
@@ -922,7 +773,6 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                 <Button
                   variant="outline"
                   onClick={() => {
-                    // Return to chat with AI
                     setEditedSolution(null);
                     setStep("chat");
                     setStructuredSolution(null);

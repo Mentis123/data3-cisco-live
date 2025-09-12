@@ -1,8 +1,9 @@
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupWebSocket, broadcastScoreUpdate } from "./ws";
-import { chatWithAssistant, evaluateSolution } from "./openai";
+import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai";
 import { 
   acceptTncSchema, 
   startSessionSchema, 
@@ -19,11 +20,11 @@ const sessions = new Map<string, { participantId: string; category?: string; mes
 const rateLimits = new Map<string, number>();
 
 const CATEGORIES = [
-  { key: "SECURE_CONNECTIVITY", name: "Zero Trust, SASE, SD-WAN, Network Segmentation" },
-  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud" },
-  { key: "COLLAB_CX", name: "Collaboration & Contact Centre" },
-  { key: "OBSERVABILITY", name: "ThousandEyes, AppDynamics, Full-Stack Observability" },
-  { key: "EDGE_IOT", name: "Meraki/Catalyst at branch/industrial edge" },
+  { key: "SECURE_CONNECTIVITY", name: "Zero Trust & Secure Connectivity", description: "Zero Trust security, network security, firewalls, VPN, secure remote access, identity management, threat detection" },
+  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud", description: "Data center infrastructure, cloud integration, virtualization, storage, compute, hybrid cloud solutions" },
+  { key: "COLLAB_CX", name: "Collaboration & Contact Centre", description: "Video conferencing, team collaboration, contact center, communication platforms, unified communications" },
+  { key: "OBSERVABILITY", name: "Observability & Performance", description: "Network monitoring, analytics, performance management, troubleshooting, visibility tools, automation" },
+  { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks" },
 ];
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -134,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const { sessionToken, category, solutionText, structuredFields } = submitSolutionSchema.parse(req.body);
+      const { sessionToken, solutionText, structuredFields } = submitSolutionSchema.parse(req.body);
       const session = sessions.get(sessionToken);
 
       if (!session) {
@@ -159,11 +160,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // No need to fix arrays here since we already did it before validation
+      // Auto-categorize the solution
+      const category = await categorizeProposal(
+        structuredSubmission.problem_summary,
+        session.messages.map(m => m.content).join(" "),
+        JSON.stringify(structuredSubmission)
+      );
 
       // Evaluate solution
       console.log('[express] Evaluating solution with structured data:', JSON.stringify(structuredSubmission, null, 2));
-      const evaluation = await evaluateSolution(structuredSubmission);
+      const evaluation = await evaluateSolution(
+        structuredSubmission.problem_summary,
+        session.messages.map(m => m.content).join(" "),
+        JSON.stringify(structuredSubmission)
+      );
       console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
 
       // Create submission with evaluation notes
@@ -213,6 +223,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ message: "Failed to get leaderboard" });
+    }
+  });
+
+  // New dashboard data endpoint
+  app.get("/api/dashboard-data", async (req, res) => {
+    try {
+      const [leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats] = await Promise.all([
+        storage.getLeaderboard(10),
+        storage.getWordCloudData(),
+        storage.getCategoryStats(),
+        storage.getRecentSubmission(),
+        storage.getData3Stats()
+      ]);
+
+      const topCategory = await storage.getTopProblemCategory();
+      const topCategoryData3Stats = await storage.getData3Stats(
+        topCategory === "SECURE_CONNECTIVITY" ? "SECURITY" :
+        topCategory === "HYBRID_DC" ? "CLOUD" :
+        topCategory === "OBSERVABILITY" ? "INFRASTRUCTURE" :
+        "EXPERTISE"
+      );
+
+      res.json({
+        leaderboard,
+        wordCloud,
+        categoryStats,
+        recentSubmission,
+        data3Stats,
+        topCategoryStats: topCategoryData3Stats,
+        topCategory
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get dashboard data" });
     }
   });
 
