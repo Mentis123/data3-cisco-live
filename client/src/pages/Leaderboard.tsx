@@ -314,11 +314,11 @@ export default function Leaderboard() {
                   };
                 } else if (index < 10) {
                   // Next layer - smaller, further out
-                  size = 28;
-                  opacity = 0.75;
+                  size = 24;  // Reduced from 28 for better spacing
+                  opacity = 0.7;
                   zIndex = 10;
                   const angle = (index - 4) * 60 + 30; // 60 degrees apart, offset
-                  const radius = 220; // pixels from center
+                  const radius = 240; // Increased from 220 for more spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -328,12 +328,12 @@ export default function Leaderboard() {
                     transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
                   };
                 } else {
-                  // Outer ring - tiny
-                  size = 16;
-                  opacity = 0.6;
+                  // Outer ring - even smaller for better spacing
+                  size = 12;  // Reduced from 16
+                  opacity = 0.5;
                   zIndex = 5;
                   const angle = (index - 10) * 36; // 36 degrees apart for 10 items
-                  const radius = 300; // pixels from center
+                  const radius = 330; // Increased from 300 for more spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -453,7 +453,14 @@ export default function Leaderboard() {
   };
 
   const renderData3Stats = () => {
-    const relevantStats = displayData.recentSubmission
+    // Show category-specific stats for 5 minutes after submission, then show random stats
+    const submissionTime = displayData.recentSubmission?.createdAt 
+      ? new Date(displayData.recentSubmission.createdAt).getTime() 
+      : 0;
+    const now = Date.now();
+    const timeSinceSubmission = (now - submissionTime) / 1000; // in seconds
+    
+    const relevantStats = displayData.recentSubmission && timeSinceSubmission < 300 // 5 minutes = 300 seconds
       ? displayData.topCategoryStats
       : displayData.data3Stats.slice(0, 6);
 
@@ -465,7 +472,7 @@ export default function Leaderboard() {
             Data<sup>#</sup>3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
-            {displayData.recentSubmission
+            {displayData.recentSubmission && timeSinceSubmission < 300
               ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}`
               : "Scale and expertise across Australia & New Zealand"
             }

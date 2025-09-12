@@ -6,7 +6,8 @@ export interface WebSocketHook {
   sendMessage: (data: string) => void;
 }
 
-export function useWebSocket(url: string): WebSocketHook {
+export function useWebSocket(onMessage?: (message: any) => void): WebSocketHook {
+  const url = '/ws';
   const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null);
   const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('connecting');
   const ws = useRef<WebSocket | null>(null);
@@ -29,6 +30,14 @@ export function useWebSocket(url: string): WebSocketHook {
 
       ws.current.onmessage = (event) => {
         setLastMessage(event);
+        if (onMessage) {
+          try {
+            const message = JSON.parse(event.data);
+            onMessage(message);
+          } catch (error) {
+            console.error('Failed to parse WebSocket message:', error);
+          }
+        }
       };
 
       ws.current.onclose = (event) => {
@@ -70,7 +79,7 @@ export function useWebSocket(url: string): WebSocketHook {
         ws.current.close();
       }
     };
-  }, [url]);
+  }, []);
 
   return {
     lastMessage,

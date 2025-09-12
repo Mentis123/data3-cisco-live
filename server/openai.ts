@@ -113,7 +113,7 @@ export async function categorizeProposal(
 ): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "o3-mini",  // Use O3 for category assignment
       messages: [
         {
           role: "system",

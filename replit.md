@@ -52,8 +52,10 @@ The application facilitates a user journey from landing page (terms acceptance, 
 
 ## AI Integration
 - **Chat Assistant**: GPT-4o-mini coaches users to develop solutions.
-- **Solution Evaluation**: O3 model evaluates submissions against a 5-criteria rubric (0-50 points).
+- **Category Assignment**: O3-mini automatically categorizes solutions into one of 5 categories.
+- **Solution Evaluation**: O3-mini evaluates submissions against a 5-criteria rubric (0-50 points).
 - **Structured Output**: AI formats solutions into a standardized JSON schema.
+- **Total AI Calls**: Exactly 3 inference calls per submission (chat, categorization, scoring).
 
 ## Security & Performance
 - Rate limiting on submissions (60-second cooldown per IP).
@@ -82,17 +84,33 @@ The application facilitates a user journey from landing page (terms acceptance, 
 - **TanStack Query**: Handles caching, background updates, and error handling.
 
 ### Validation Tracking
-**Pending Validation:**
-- [2025-01-28 16:08] Button state sync after auto-revert + Data#3 superscript branding
-  - **Test**: Verify button states update correctly when auto-reverting from any view to stats
-  - **Test**: Confirm all Data#3 text shows superscript hashtag (Home, Play, Leaderboard pages)
+**Completed Validations:**
+- [2025-01-28 18:00] AI Models configured correctly:
+  - Chat assistant: GPT-4o-mini
+  - Category assignment: O3-mini
+  - Solution evaluation: O3-mini
+  - Total inference calls: Exactly 3 per submission
+- [2025-01-28 18:00] Word cloud spacing improved:
+  - Smaller words reduced in size (12-14px for outer ring)
+  - Increased radial spacing for better visual hierarchy
+- [2025-01-28 18:00] Stats display logic:
+  - Shows category-specific stats for 5 minutes after submission
+  - Reverts to general Data#3 stats after 5-minute window
 
 ### Current User Flow Analysis
-**Question: Category Selection Process**
-- [2025-01-28 16:47] User asks about when category selection happens in the flow
-- **Current Process**: 
-  1. User enters problem + impact in chat with AI coach
+**Category Selection Process**
+- [2025-01-28 16:47] Confirmed category assignment flow:
+  1. User enters problem + impact in chat with AI coach (GPT-4o-mini)
   2. AI helps refine and structure the solution through conversation
-  3. When final JSON solution is generated, server auto-categorizes using `categorizeProposal()` function
-  4. Category is assigned automatically based on problem/solution content, not user selection
+  3. When final JSON solution is generated, server auto-categorizes using `categorizeProposal()` function (O3-mini)
+  4. Solution is then evaluated for scoring using `evaluateSolution()` function (O3-mini)
+  5. Category is assigned automatically based on problem/solution content, not user selection
 - **Key Finding**: Category is NOT manually selected by user - it's AI-determined during submission
+
+### Recent Updates
+**[2025-01-28 18:00] Improvements:**
+- Fixed Data#3 title to display with superscript hashtag (Data<sup>#</sup>3)
+- Enhanced word cloud with better spacing - smaller words now smaller (12-14px) with increased radial distances
+- Updated category assignment to use O3-mini instead of GPT-4o-mini
+- Implemented 5-minute window for category-specific stats display
+- Admin dashboard now includes tabbed interface with stats management section
