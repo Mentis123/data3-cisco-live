@@ -271,8 +271,27 @@ export default function Leaderboard() {
         <CardContent>
           <div className="flex flex-wrap gap-3 justify-center items-center min-h-[400px]">
             {displayData.wordCloud.slice(0, 20).map((word, index) => {
-              const size = Math.max(16, Math.min(48, (word.value / maxValue) * 48));
-              const opacity = Math.max(0.6, word.value / maxValue);
+              // Enhanced scaling: top 3-4 huge, next 3-6 medium, rest tiny
+              let size: number;
+              let opacity: number;
+              
+              if (index < 3) {
+                // Top 3: Very large (60-80px)
+                size = 60 + (20 * (1 - index / 3));
+                opacity = 1;
+              } else if (index < 4) {
+                // 4th: Large (55px)
+                size = 55;
+                opacity = 0.95;
+              } else if (index < 10) {
+                // Next 6: Medium (30-45px)
+                size = 45 - ((index - 4) * 2.5);
+                opacity = 0.85;
+              } else {
+                // Rest: Tiny (14-20px)
+                size = 20 - ((index - 10) * 0.6);
+                opacity = 0.65;
+              }
 
               return (
                 <span
@@ -396,7 +415,7 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data<sup>³</sup> by the Numbers
+            Data<sup>#</sup>3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission
@@ -530,7 +549,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data<sup>³</sup> booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>

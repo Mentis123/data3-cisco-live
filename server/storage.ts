@@ -221,5 +221,18 @@ export const storage = {
 
   async deleteSubmission(id: string): Promise<void> {
     await db.delete(submissions).where(eq(submissions.id, id));
+  },
+
+  async updateData3Stat(id: string, data: Partial<Data3Stat>): Promise<void> {
+    await db.update(data3Stats).set(data).where(eq(data3Stats.id, id));
+  },
+
+  async createData3Stat(data: Omit<Data3Stat, 'id' | 'createdAt'>): Promise<Data3Stat> {
+    const [result] = await db.insert(data3Stats).values(data).returning();
+    return result;
+  },
+
+  async deleteData3Stat(id: string): Promise<void> {
+    await db.delete(data3Stats).where(eq(data3Stats.id, id));
   }
 };

@@ -160,6 +160,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Check if structuredSubmission exists
+      if (!structuredSubmission) {
+        return res.status(400).json({ message: "No structured solution available" });
+      }
+
       // Auto-categorize the solution
       const category = await categorizeProposal(
         structuredSubmission.problem_summary,
@@ -261,6 +266,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/health", (req, res) => {
     res.json({ ok: true });
+  });
+
+  // Admin endpoint to update Data#3 stats
+  app.post("/api/admin/stats/:id", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { title, value, description, category, displayOrder } = req.body;
+      const id = req.params.id;
+
+      await storage.updateData3Stat(id, {
+        title,
+        value,
+        description,
+        category,
+        displayOrder
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update stat" });
+    }
+  });
+
+  // Admin endpoint to create new Data#3 stat
+  app.post("/api/admin/stats", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { title, value, description, category, displayOrder } = req.body;
+
+      const stat = await storage.createData3Stat({
+        title,
+        value,
+        description,
+        category,
+        displayOrder
+      });
+
+      res.json(stat);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create stat" });
+    }
+  });
+
+  // Admin endpoint to delete Data#3 stat
+  app.delete("/api/admin/stats/:id", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      await storage.deleteData3Stat(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete stat" });
+    }
   });
 
   // Admin endpoint to get full submission details
