@@ -73,6 +73,14 @@ Preferred communication style: Simple, everyday language.
 - Feature ideas: Add sound effects for score updates, implement admin panel for real-time content management
 
 ### Changelog
+- [2025-01-27 13:40] Plan: Implement smart auto-rotation that only shows views with content - default to Data#3 stats when no submissions exist, skip empty leaderboard/wordcloud/categories views
+- [2025-01-27 13:45] Done: 
+  - **What changed**: Implemented smart auto-rotation that only cycles through views with content, defaults to Data#3 stats when no submissions exist
+  - **How**: Added logic to dynamically determine available views based on data presence, disabled empty view buttons, added empty state messaging
+  - **Results**: Dashboard now shows only Data#3 stats until submissions arrive, then intelligently adds other views as content becomes available
+  - **Issues**: None - feature working as intended
+
+### Changelog
 - [2025-01-27 13:25] Plan: Update all UI copy to focus on business problems rather than "solutions" and remove AI-powered marketing emphasis. Make messaging more about the challenge and competition rather than showcasing AI capabilities.
 - [2025-01-27 13:27] Done:
   - **What changed**: Updated all key messaging throughout the app to focus on business problems/challenges rather than solutions

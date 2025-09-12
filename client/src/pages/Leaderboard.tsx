@@ -28,7 +28,7 @@ interface DashboardData {
 
 const CATEGORY_COLORS = {
   SECURE_CONNECTIVITY: "#00BCF2",
-  HYBRID_DC: "#6CC04A", 
+  HYBRID_DC: "#6CC04A",
   COLLAB_CX: "#FF6B35",
   OBSERVABILITY: "#9B59B6",
   EDGE_IOT: "#F39C12"
@@ -36,7 +36,7 @@ const CATEGORY_COLORS = {
 
 const CATEGORY_NAMES = {
   SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Data Centre & Hybrid Cloud", 
+  HYBRID_DC: "Data Centre & Hybrid Cloud",
   COLLAB_CX: "Collaboration & Contact Centre",
   OBSERVABILITY: "Observability & Performance",
   EDGE_IOT: "Edge & IoT Solutions"
@@ -142,8 +142,8 @@ export default function Leaderboard() {
                 </div>
                 <div>
                   <p className="font-semibold text-lg">{entry.name}</p>
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="text-xs"
                     style={{ backgroundColor: `${CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS]}20` }}
                   >
@@ -250,7 +250,7 @@ export default function Leaderboard() {
               {categoryData.map((category) => (
                 <div key={category.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                   <div className="flex items-center gap-3">
-                    <div 
+                    <div
                       className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: category.color }}
                     ></div>
@@ -272,8 +272,8 @@ export default function Leaderboard() {
   };
 
   const renderData3Stats = () => {
-    const relevantStats = displayData.recentSubmission 
-      ? displayData.topCategoryStats 
+    const relevantStats = displayData.recentSubmission
+      ? displayData.topCategoryStats
       : displayData.data3Stats.slice(0, 6);
 
     return (
@@ -284,8 +284,8 @@ export default function Leaderboard() {
             Data#3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
-            {displayData.recentSubmission 
-              ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}` 
+            {displayData.recentSubmission
+              ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}`
               : "Scale and expertise across Australia & New Zealand"
             }
           </p>
@@ -293,7 +293,7 @@ export default function Leaderboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relevantStats.map((stat, index) => (
-              <div 
+              <div
                 key={stat.id}
                 className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20"
               >
