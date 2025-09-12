@@ -301,14 +301,17 @@ export default function Leaderboard() {
                 
                 if (index === 0) {
                   // Biggest word DEAD CENTER!
-                  size = isMobile ? 32 : 56;
+                  size = isMobile ? 36 : 56;
                   opacity = 1;
                   zIndex = 30;
+                  // Ensure perfect centering on mobile
                   position = {
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
-                    transform: 'translate(-50%, -50%)'
+                    transform: 'translate(-50%, -50%)',
+                    width: 'auto',
+                    textAlign: 'center' as const
                   };
                 } else if (index < 5) {
                   // Next 4 words - positioned around center with no overlap
@@ -439,6 +442,8 @@ export default function Leaderboard() {
       );
     }
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    
     return (
       <Card className="h-full">
         <CardHeader className="pb-4">
@@ -451,37 +456,36 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-full">
-            <ResponsiveContainer width="100%" height={450}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={window.innerWidth < 640 ? 100 : 140}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={(props) => {
-                    const { name, x, y, textAnchor, fill } = props;
-                    // Get the color from the categoryData
-                    const entryData = categoryData.find(d => d.name === name);
-                    const labelColor = entryData?.color || '#e2e8f0';
-                    const isMobile = window.innerWidth < 640;
-                    // Shorten names for mobile
-                    const displayName = isMobile ? name.split(' ')[0] : name;
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill={labelColor}
-                        textAnchor={textAnchor}
-                        dominantBaseline="middle"
-                        style={{ fontSize: isMobile ? '12px' : '16px', fontWeight: '600' }}
-                      >
-                        {displayName}
-                      </text>
-                    );
-                  }}
+          <div className="flex flex-col sm:flex-row items-center justify-center h-full gap-4">
+            {/* Pie Chart */}
+            <div className="w-full sm:flex-1">
+              <ResponsiveContainer width="100%" height={isMobile ? 300 : 450}>
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={isMobile ? 100 : 140}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={isMobile ? false : (props) => {
+                      const { name, x, y, textAnchor, fill } = props;
+                      // Get the color from the categoryData
+                      const entryData = categoryData.find(d => d.name === name);
+                      const labelColor = entryData?.color || '#e2e8f0';
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill={labelColor}
+                          textAnchor={textAnchor}
+                          dominantBaseline="middle"
+                          style={{ fontSize: '16px', fontWeight: '600' }}
+                        >
+                          {name}
+                        </text>
+                      );
+                    }}
                   labelLine={(props: any) => {
                     // Get the color from the categoryData for the line
                     const entryData = categoryData.find(d => d.name === props.name);
@@ -527,6 +531,32 @@ export default function Leaderboard() {
                 />
               </PieChart>
             </ResponsiveContainer>
+            </div>
+            
+            {/* Legend for mobile */}
+            {isMobile && (
+              <div className="w-full px-4">
+                <div className="space-y-2">
+                  {categoryData.map((entry, index) => {
+                    const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
+                    return (
+                      <div key={entry.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-4 h-4 rounded"
+                            style={{ backgroundColor: entry.color }}
+                          />
+                          <span className="text-sm font-medium">{entry.name}</span>
+                        </div>
+                        <span className="text-sm font-bold text-muted-foreground">
+                          {percent}% ({entry.value})
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
