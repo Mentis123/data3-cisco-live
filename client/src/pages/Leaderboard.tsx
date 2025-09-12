@@ -27,12 +27,13 @@ interface DashboardData {
   topCategory: string;
 }
 
+// Consistent color scheme for all categories
 const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",
-  HYBRID_DC: "#6CC04A",
-  COLLAB_CX: "#FF6B35",
-  OBSERVABILITY: "#9B59B6",
-  EDGE_IOT: "#F39C12"
+  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
+  HYBRID_DC: "#6CC04A",            // Green
+  COLLAB_CX: "#FF6B35",            // Orange
+  OBSERVABILITY: "#9B59B6",        // Purple
+  EDGE_IOT: "#F39C12"              // Yellow
 };
 
 const CATEGORY_NAMES = {
@@ -41,6 +42,15 @@ const CATEGORY_NAMES = {
   COLLAB_CX: "Collaboration & Contact Centre",
   OBSERVABILITY: "Observability & Performance",
   EDGE_IOT: "Edge & IoT Solutions"
+};
+
+// Tailwind class equivalents for badges
+const CATEGORY_BADGE_CLASSES: Record<string, string> = {
+  SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
+  HYBRID_DC: "bg-[#6CC04A]",            // Green
+  COLLAB_CX: "bg-[#FF6B35]",            // Orange
+  OBSERVABILITY: "bg-[#9B59B6]",        // Purple
+  EDGE_IOT: "bg-[#F39C12]"              // Yellow
 };
 
 export default function Leaderboard() {
@@ -564,7 +574,9 @@ export default function Leaderboard() {
               </div>
               <p className="text-sm">
                 <strong>{displayData.recentSubmission.name}</strong> just submitted a solution for{' '}
-                <Badge variant="secondary" className="mx-1">
+                <Badge 
+                  className={`mx-1 text-white ${CATEGORY_BADGE_CLASSES[displayData.recentSubmission.category as keyof typeof CATEGORY_BADGE_CLASSES] || 'bg-gray-500'}`}
+                >
                   {CATEGORY_NAMES[displayData.recentSubmission.category as keyof typeof CATEGORY_NAMES]}
                 </Badge>
                 scoring <strong>{displayData.recentSubmission.totalScore}/50</strong>

@@ -65,12 +65,13 @@ const CATEGORY_NAMES: Record<string, string> = {
   "EDGE_IOT": "Edge & IoT Solutions"
 };
 
+// Consistent color scheme matching Leaderboard.tsx
 const CATEGORY_COLORS: Record<string, string> = {
-  "SECURE_CONNECTIVITY": "bg-blue-500",
-  "HYBRID_DC": "bg-purple-500",
-  "COLLAB_CX": "bg-green-500",
-  "OBSERVABILITY": "bg-orange-500",
-  "EDGE_IOT": "bg-red-500"
+  "SECURE_CONNECTIVITY": "bg-[#00BCF2]",  // Cyan
+  "HYBRID_DC": "bg-[#6CC04A]",            // Green  
+  "COLLAB_CX": "bg-[#FF6B35]",            // Orange
+  "OBSERVABILITY": "bg-[#9B59B6]",        // Purple
+  "EDGE_IOT": "bg-[#F39C12]"              // Yellow
 };
 
 // Stats Management Component
