@@ -376,7 +376,21 @@ export default function Leaderboard() {
         <div className="flex justify-center mb-6">
           <div className="flex gap-2 p-1 bg-muted/30 rounded-lg">
             {[
-              { key: "leaderboard", icon: "fa-trophy", label: "🥇🥈🥉", hasContent: displayData?.leaderboard.length > 0 },
+              { key: "leaderboard", icon: "fa-trophy", label: (
+                <div className="flex items-center gap-1">
+                  <svg width="20" height="16" viewBox="0 0 24 20" fill="none" className="inline-block">
+                    {/* Podium steps */}
+                    <rect x="0" y="12" width="6" height="8" rx="1" fill="#CD7F32" />
+                    <rect x="9" y="6" width="6" height="14" rx="1" fill="#FFD700" />
+                    <rect x="18" y="9" width="6" height="11" rx="1" fill="#C0C0C0" />
+                    {/* Position numbers */}
+                    <text x="3" y="17" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">2</text>
+                    <text x="12" y="14" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">1</text>
+                    <text x="21" y="16" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">3</text>
+                  </svg>
+                  <span className="ml-1">Rankings</span>
+                </div>
+              ), hasContent: displayData?.leaderboard.length > 0 },
               { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
               { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
               { key: "data3stats", icon: "fa-building", label: "Data#3", hasContent: true }
