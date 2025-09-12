@@ -31,7 +31,7 @@ export default function Home() {
                     </button>
                   </Link>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Data#3 | Cisco Live Melbourne</p>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Data<sup>#</sup>3 | Cisco Live Melbourne</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -122,11 +122,11 @@ export default function Home() {
                   Terms & Conditions
                 </h4>
                 <div className="text-left space-y-1 sm:space-y-2 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
-                  <p>• Participation requires acceptance of Data#3 privacy notice and Cisco Live terms</p>
+                  <p>• Participation requires acceptance of Data<sup>#</sup>3 privacy notice and Cisco Live terms</p>
                   <p>• Only first name and last initial will be displayed on public leaderboards</p>
                   <p>• Solutions will be scored by AI against published criteria</p>
-                  <p>• Submissions become property of Data#3 for demonstration purposes</p>
-                  <p>• Data#3 employees and family members are not eligible for prizes</p>
+                  <p>• Submissions become property of Data<sup>#</sup>3 for demonstration purposes</p>
+                  <p>• Data<sup>#</sup>3 employees and family members are not eligible for prizes</p>
                 </div>
 
                 <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">

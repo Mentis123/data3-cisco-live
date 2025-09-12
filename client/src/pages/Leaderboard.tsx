@@ -103,6 +103,7 @@ export default function Leaderboard() {
     // If current view is not available for auto-rotation, start with data3stats
     if (currentIndex === -1) {
       currentIndex = 0;
+      setActiveView("data3stats");
     }
 
     const interval = setInterval(() => {
@@ -112,12 +113,14 @@ export default function Leaderboard() {
         setActiveView(views[currentIndex]);
       } else {
         // Always revert to data3stats if it's the only available view
-        setActiveView("data3stats");
+        if (activeView !== "data3stats") {
+          setActiveView("data3stats");
+        }
       }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [displayData]);
+  }, [displayData, activeView]);
 
   // Update display data when query data changes
   useEffect(() => {
@@ -386,7 +389,7 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold text-center">
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data#3 by the Numbers
+            Data<sup>#</sup>3 by the Numbers
           </CardTitle>
           <p className="text-center text-muted-foreground text-lg">
             {displayData.recentSubmission
@@ -441,7 +444,7 @@ export default function Leaderboard() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Data#3 Solution Sprint
+            Data<sup>#</sup>3 Solution Sprint
           </h1>
           <p className="text-xl text-muted-foreground">
             Cisco Live Melbourne 2025 • Powered by AI
@@ -472,7 +475,7 @@ export default function Leaderboard() {
               },
               { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
               { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
-              { key: "data3stats", icon: "fa-building", label: "Data#3", hasContent: true }
+              { key: "data3stats", icon: "fa-building", label: "Data³", hasContent: true }
             ].map((view) => (
               <Button
                 key={view.key}
@@ -514,7 +517,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data#3 booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
