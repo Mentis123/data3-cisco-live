@@ -53,15 +53,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/start", async (req, res) => {
     try {
       const { firstName, lastName } = startSessionSchema.parse(req.body);
-      
+
       const participant = await storage.createParticipant({ firstName, lastName });
       const sessionToken = randomUUID();
-      
+
       sessions.set(sessionToken, { 
         participantId: participant.id, 
         messages: [] 
       });
-      
+
       res.json({ participantId: participant.id, sessionToken });
     } catch (error) {
       res.status(400).json({ message: "Invalid request" });
@@ -76,19 +76,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sessionToken, messages } = chatSchema.parse(req.body);
       const session = sessions.get(sessionToken);
-      
+
       if (!session) {
         return res.status(401).json({ message: "Invalid session" });
       }
 
       // Add messages to session
       session.messages.push(...messages);
-      
+
       const response = await chatWithAssistant(session.messages);
-      
+
       // Add assistant response to session
       session.messages.push({ role: "assistant", content: response });
-      
+
       res.json({ content: response });
     } catch (error) {
       res.status(500).json({ message: "Failed to process chat: " + (error as Error).message });
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
       const now = Date.now();
-      
+
       // Rate limiting: 60 second cooldown
       const lastSubmission = rateLimits.get(clientIP);
       if (lastSubmission && now - lastSubmission < 60000) {
@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             req.body.structuredFields[field] = [req.body.structuredFields[field]];
           }
         }
-        
+
         // Fix nested array fields
         if (req.body.structuredFields.current_state) {
           if (req.body.structuredFields.current_state.constraints && typeof req.body.structuredFields.current_state.constraints === 'string') {
@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { sessionToken, category, solutionText, structuredFields } = submitSolutionSchema.parse(req.body);
       const session = sessions.get(sessionToken);
-      
+
       if (!session) {
         return res.status(401).json({ message: "Invalid session" });
       }
@@ -158,14 +158,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No structured solution provided" });
         }
       }
-      
+
       // No need to fix arrays here since we already did it before validation
 
       // Evaluate solution
       console.log('[express] Evaluating solution with structured data:', JSON.stringify(structuredSubmission, null, 2));
       const evaluation = await evaluateSolution(structuredSubmission);
       console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
-      
+
       // Create submission with evaluation notes
       const submission = await storage.createSubmission({
         participantId: session.participantId,
@@ -261,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const adminKey = req.query.key as string;
       const expectedKey = process.env.ADMIN_KEY || "choose-a-strong-string";
-      
+
       if (!adminKey || adminKey !== expectedKey) {
         return res.status(403).json({ message: "Invalid admin key" });
       }
@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.clearDatabase();
       sessions.clear();
       rateLimits.clear();
-      
+
       res.json({ message: "Database reset successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to reset database" });

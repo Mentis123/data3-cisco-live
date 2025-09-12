@@ -49,11 +49,10 @@ const CATEGORIES = [
 export default function Play() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   const [step, setStep] = useState<"registration" | "chat" | "preview" | "edit">("registration");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sessionToken, setSessionToken] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
@@ -86,10 +85,10 @@ export default function Play() {
       setSessionToken(data.sessionToken);
       setStep("chat");
       // Add initial assistant message
-      const categoryName = CATEGORIES.find(c => c.key === selectedCategory)?.name || selectedCategory;
+      const categoryName = CATEGORIES.find(c => c.key === "")?.name || ""; // Category is not selected anymore
       setMessages([{
         role: "assistant",
-        content: `Hi! I'm here to help you craft a winning solution. Let's start with your chosen category: **${categoryName}**\n\nCan you describe the business problem you want to solve in 1-2 sentences?`
+        content: `Hi! I'm here to help you craft a winning solution. Let's start by describing the business problem you want to solve in 1-2 sentences.`
       }]);
       setMessageCount(1);
     },
@@ -157,10 +156,10 @@ export default function Play() {
         throw new Error("Already submitting, please wait...");
       }
       setIsSubmitting(true);
-      
+
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
-        category: selectedCategory,
+        // Category is no longer submitted
         solutionText: messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
         structuredFields: editedSolution || structuredSolution,
       });
@@ -172,7 +171,7 @@ export default function Play() {
         title: "Solution Submitted!",
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
-      
+
       // If WebSocket blocked, poll /api/leaderboard every 2s for 10s
       let pollCount = 0;
       const pollInterval = setInterval(async () => {
@@ -188,7 +187,7 @@ export default function Play() {
           // Continue polling
         }
       }, 2000);
-      
+
       setTimeout(() => {
         clearInterval(pollInterval);
         setLocation("/leaderboard");
@@ -205,10 +204,10 @@ export default function Play() {
   });
 
   const handleStartChat = () => {
-    if (!firstName.trim() || !lastName.trim() || !selectedCategory) {
+    if (!firstName.trim() || !lastName.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all fields and select a category.",
+        description: "Please fill in your first and last name.",
         variant: "destructive",
       });
       return;
@@ -271,42 +270,35 @@ export default function Play() {
                 </div>
               </div>
 
-              {/* Category Selection */}
-              <div>
-                <Label className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 block">Choose Your Solution Category</Label>
-                <div className="space-y-2 sm:space-y-3">
-                  {CATEGORIES.map((category) => (
-                    <div
-                      key={category.key}
-                      className={`category-card touch-manipulation ${selectedCategory === category.key ? "selected" : ""}`}
-                      onClick={() => setSelectedCategory(category.key)}
-                      data-testid={`category-${category.key}`}
-                    >
-                      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center flex-shrink-0">
-                          <i className="fas fa-network-wired text-white text-base sm:text-lg"></i>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-base sm:text-lg leading-tight">{category.name}</h4>
-                          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{category.description}</p>
-                        </div>
-                        <input
-                          type="radio"
-                          name="category"
-                          value={category.key}
-                          checked={selectedCategory === category.key}
-                          onChange={() => setSelectedCategory(category.key)}
-                          className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 mt-1 sm:mt-0"
-                        />
+              {/* Technology Categories Info */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-lg sm:text-xl">
+                    <i className="fas fa-info-circle mr-2"></i>
+                    Cisco Technology Categories
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    We'll automatically categorize your solution based on the Cisco technologies mentioned
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {CATEGORIES.map((category) => (
+                      <div
+                        key={category.key}
+                        className="p-3 rounded-lg border border-muted-foreground/20 bg-muted/20"
+                      >
+                        <div className="font-semibold text-sm mb-1">{category.name}</div>
+                        <div className="text-xs text-muted-foreground">{category.description}</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               <Button
                 onClick={handleStartChat}
-                disabled={!firstName.trim() || !lastName.trim() || !selectedCategory || startSessionMutation.isPending}
+                disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
                 className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation"
                 data-testid="button-start-chat"
               >
@@ -565,7 +557,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                   )}
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="chat-message flex items-start gap-2 sm:gap-3">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
@@ -617,7 +609,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
   if (step === "preview" && structuredSolution) {
     const solution = editedSolution || structuredSolution;
     const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
-    
+
     return (
       <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-4xl mx-auto px-4">
@@ -632,7 +624,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-lightbulb text-primary mr-2 text-sm"></i>
-                    Problem Summary
+                    1. Problem Summary
                   </Label>
                   <Textarea
                     value={solution.problem_summary}
@@ -642,17 +634,17 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                     data-testid="textarea-preview-problem"
                   />
                 </div>
-                
+
                 {/* Cisco Products */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-network-wired text-primary mr-2 text-sm"></i>
-                    Cisco Products (comma-separated)
+                    2. Cisco Products (comma-separated)
                   </Label>
                   <Input
                     value={isArrayField(solution.cisco_products).join(", ")}
                     onChange={(e) => setEditedSolution({
-                      ...solution, 
+                      ...solution,
                       cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
                     } as StructuredSolution)}
                     className="mobile-input text-xs sm:text-sm"
@@ -660,12 +652,12 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                     data-testid="input-preview-products"
                   />
                 </div>
-                
+
                 {/* Target KPIs */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-chart-line text-primary mr-2 text-sm"></i>
-                    Target KPIs
+                    3. Target KPIs
                   </Label>
                   <div className="space-y-2">
                     {solution.target_state?.kpis?.map((kpi, idx) => (
@@ -696,12 +688,12 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Integration Points */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-plug text-primary mr-2 text-sm"></i>
-                    Integration Points (comma-separated)
+                    4. Integration Points (comma-separated)
                   </Label>
                   <Input
                     value={isArrayField(solution.integration_points).join(", ")}
@@ -720,7 +712,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
                   <div className="glass-panel rounded-lg p-3 sm:p-4">
                     <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                       <i className="fas fa-tasks text-primary mr-2 text-sm"></i>
-                      Rollout Plan (one per line)
+                      5. Rollout Plan (one per line)
                     </Label>
                     <Textarea
                       value={isArrayField(solution.rollout_plan).join("\n")}
@@ -778,7 +770,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
     const solution = editedSolution || structuredSolution;
     if (!solution) return null;
     const isArrayField = (field: any) => Array.isArray(field) ? field : typeof field === 'string' ? [field] : [];
-    
+
     return (
       <div className="min-h-screen bg-background text-foreground py-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -792,7 +784,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div>
                 <Label htmlFor="problem-summary" className="text-lg font-semibold flex items-center mb-2">
                   <i className="fas fa-lightbulb text-primary mr-2"></i>
-                  Problem Summary
+                  1. Problem Summary
                 </Label>
                 <Textarea
                   id="problem-summary"
@@ -808,13 +800,13 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div>
                 <Label htmlFor="cisco-products" className="text-lg font-semibold flex items-center mb-2">
                   <i className="fas fa-network-wired text-primary mr-2"></i>
-                  Cisco Products (comma-separated)
+                  2. Cisco Products (comma-separated)
                 </Label>
                 <Input
                   id="cisco-products"
                   value={isArrayField(solution.cisco_products).join(", ")}
                   onChange={(e) => setEditedSolution({
-                    ...solution, 
+                    ...solution,
                     cisco_products: e.target.value.split(",").map(p => p.trim()).filter(p => p)
                   } as StructuredSolution)}
                   placeholder="e.g., Catalyst Center, SD-WAN, ThousandEyes"
@@ -826,7 +818,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div>
                 <Label className="text-lg font-semibold flex items-center mb-2">
                   <i className="fas fa-chart-line text-primary mr-2"></i>
-                  Target KPIs
+                  3. Target KPIs
                 </Label>
                 <div className="space-y-2">
                   {solution.target_state?.kpis?.map((kpi, idx) => (
@@ -885,13 +877,13 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div>
                 <Label htmlFor="integration-points" className="text-lg font-semibold flex items-center mb-2">
                   <i className="fas fa-plug text-primary mr-2"></i>
-                  Integration Points (comma-separated)
+                  4. Integration Points (comma-separated)
                 </Label>
                 <Input
                   id="integration-points"
                   value={isArrayField(solution.integration_points).join(", ")}
                   onChange={(e) => setEditedSolution({
-                    ...solution, 
+                    ...solution,
                     integration_points: e.target.value.split(",").map(p => p.trim()).filter(p => p)
                   } as StructuredSolution)}
                   placeholder="e.g., Active Directory, ServiceNow, Splunk"
@@ -903,7 +895,7 @@ By combining Cisco AppDynamics, ThousandEyes, and SecureX with transparent commu
               <div>
                 <Label htmlFor="rollout-plan" className="text-lg font-semibold flex items-center mb-2">
                   <i className="fas fa-tasks text-primary mr-2"></i>
-                  Rollout Plan (comma-separated steps)
+                  5. Rollout Plan (comma-separated steps)
                 </Label>
                 <Textarea
                   id="rollout-plan"
