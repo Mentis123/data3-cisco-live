@@ -241,7 +241,7 @@ Just describe it naturally - I'll help you turn it into a winning Cisco solution
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="As shown on your badge"
+                    placeholder="Full surname (only initial shown on leaderboard)"
                     className="mobile-input"
                     data-testid="input-last-name"
                   />
