@@ -268,6 +268,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ ok: true });
   });
 
+  // Admin endpoint to get all Data#3 stats
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const stats = await storage.getData3Stats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get stats" });
+    }
+  });
+
   // Admin endpoint to update Data#3 stats
   app.post("/api/admin/stats/:id", async (req, res) => {
     try {
@@ -358,10 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin endpoint to delete a submission
   app.delete("/api/admin/submission/:id", async (req, res) => {
     try {
-      const deleted = await storage.deleteSubmission(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ message: "Submission not found" });
-      }
+      await storage.deleteSubmission(req.params.id);
       res.json({ message: "Submission deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete submission" });

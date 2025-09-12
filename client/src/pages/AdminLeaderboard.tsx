@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { apiRequest } from "@/lib/queryClient";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface DetailedEntry {
   id: string;
@@ -43,6 +47,16 @@ interface SubmissionDetails {
   createdAt: string;
 }
 
+interface Data3Stat {
+  id: string;
+  title: string;
+  value: string;
+  description: string | null;
+  category: string;
+  displayOrder: number;
+  createdAt?: string;
+}
+
 const CATEGORY_NAMES: Record<string, string> = {
   "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
   "HYBRID_DC": "Data Centre & Hybrid Cloud",
@@ -59,6 +73,319 @@ const CATEGORY_COLORS: Record<string, string> = {
   "EDGE_IOT": "bg-red-500"
 };
 
+// Stats Management Component
+function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCreatingNewStat, statFilter, setStatFilter }: {
+  editingStat: Data3Stat | null;
+  setEditingStat: (stat: Data3Stat | null) => void;
+  creatingNewStat: boolean;
+  setCreatingNewStat: (creating: boolean) => void;
+  statFilter: string;
+  setStatFilter: (filter: string) => void;
+}) {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem('adminKey') || '';
+  
+  // Fetch stats
+  const { data: stats, isLoading, refetch } = useQuery<Data3Stat[]>({
+    queryKey: ['/api/admin/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/stats', {
+        headers: { 'x-admin-key': adminKey }
+      });
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    },
+    enabled: !!adminKey
+  });
+
+  // Create stat mutation
+  const createStat = useMutation({
+    mutationFn: async (newStat: Omit<Data3Stat, 'id' | 'createdAt'>) => {
+      const response = await fetch('/api/admin/stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
+        body: JSON.stringify(newStat)
+      });
+      if (!response.ok) throw new Error('Failed to create stat');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Stat created successfully" });
+      refetch();
+      setCreatingNewStat(false);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create stat", variant: "destructive" });
+    }
+  });
+
+  // Update stat mutation
+  const updateStat = useMutation({
+    mutationFn: async ({ id, ...data }: Data3Stat) => {
+      const response = await fetch(`/api/admin/stats/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to update stat');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Stat updated successfully" });
+      refetch();
+      setEditingStat(null);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update stat", variant: "destructive" });
+    }
+  });
+
+  // Delete stat mutation
+  const deleteStat = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/stats/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+      if (!response.ok) throw new Error('Failed to delete stat');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Stat deleted successfully" });
+      refetch();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete stat", variant: "destructive" });
+    }
+  });
+
+  // Filter stats
+  const filteredStats = stats?.filter(stat => 
+    statFilter === 'ALL' || stat.category === statFilter
+  ) || [];
+
+  const categories = ['SCALE', 'EXPERTISE', 'INFRASTRUCTURE', 'SECURITY', 'CLOUD', 'NETWORKING'];
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Data<sup>#</sup>3 Stats Management</CardTitle>
+              <p className="text-muted-foreground mt-1">Manage the stats displayed on the leaderboard</p>
+            </div>
+            <Button onClick={() => setCreatingNewStat(true)} data-testid="button-add-stat">
+              <i className="fas fa-plus mr-2"></i>
+              Add New Stat
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Filter */}
+          <div className="mb-4">
+            <Label htmlFor="category-filter">Filter by Category</Label>
+            <Select value={statFilter} onValueChange={setStatFilter}>
+              <SelectTrigger id="category-filter" className="w-[200px]">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Categories</SelectItem>
+                {categories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Stats Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b">
+                <tr className="text-left">
+                  <th className="pb-2 px-2">Order</th>
+                  <th className="pb-2 px-2">Title</th>
+                  <th className="pb-2 px-2">Value</th>
+                  <th className="pb-2 px-2">Description</th>
+                  <th className="pb-2 px-2">Category</th>
+                  <th className="pb-2 px-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </td>
+                  </tr>
+                ) : filteredStats.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No stats found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStats.sort((a, b) => a.displayOrder - b.displayOrder).map((stat) => (
+                    <tr key={stat.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-2">{stat.displayOrder}</td>
+                      <td className="py-3 px-2 font-semibold">{stat.title}</td>
+                      <td className="py-3 px-2 text-primary font-bold">{stat.value}</td>
+                      <td className="py-3 px-2 text-sm text-muted-foreground">{stat.description || '-'}</td>
+                      <td className="py-3 px-2">
+                        <Badge variant="secondary">{stat.category}</Badge>
+                      </td>
+                      <td className="py-3 px-2">
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingStat(stat)}
+                            data-testid={`button-edit-stat-${stat.id}`}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              if (confirm('Are you sure you want to delete this stat?')) {
+                                deleteStat.mutate(stat.id);
+                              }
+                            }}
+                            data-testid={`button-delete-stat-${stat.id}`}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Edit/Create Dialog */}
+      <Dialog open={!!editingStat || creatingNewStat} onOpenChange={(open) => {
+        if (!open) {
+          setEditingStat(null);
+          setCreatingNewStat(false);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingStat ? 'Edit Stat' : 'Create New Stat'}</DialogTitle>
+          </DialogHeader>
+          <StatForm
+            stat={editingStat}
+            categories={categories}
+            onSubmit={(data) => {
+              if (editingStat) {
+                updateStat.mutate({ ...editingStat, ...data });
+              } else {
+                createStat.mutate(data);
+              }
+            }}
+            onCancel={() => {
+              setEditingStat(null);
+              setCreatingNewStat(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+// Stat Form Component
+function StatForm({ stat, categories, onSubmit, onCancel }: {
+  stat: Data3Stat | null;
+  categories: string[];
+  onSubmit: (data: Omit<Data3Stat, 'id' | 'createdAt'>) => void;
+  onCancel: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    title: stat?.title || '',
+    value: stat?.value || '',
+    description: stat?.description || '',
+    category: stat?.category || 'SCALE',
+    displayOrder: stat?.displayOrder || 0
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="value">Value</Label>
+        <Input
+          id="value"
+          value={formData.value}
+          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+          placeholder="e.g., 1,500+ or 24/7"
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="description">Description (optional)</Label>
+        <Input
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Additional context"
+        />
+      </div>
+      <div>
+        <Label htmlFor="category">Category</Label>
+        <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+          <SelectTrigger id="category">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map(cat => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label htmlFor="displayOrder">Display Order</Label>
+        <Input
+          id="displayOrder"
+          type="number"
+          value={formData.displayOrder}
+          onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
+          required
+        />
+      </div>
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit">{stat ? 'Update' : 'Create'}</Button>
+      </DialogFooter>
+    </form>
+  );
+}
+
 export default function AdminLeaderboard() {
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
   const [submissionDetails, setSubmissionDetails] = useState<SubmissionDetails | null>(null);
@@ -67,6 +394,10 @@ export default function AdminLeaderboard() {
   const [showPasswordError, setShowPasswordError] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editingStat, setEditingStat] = useState<Data3Stat | null>(null);
+  const [creatingNewStat, setCreatingNewStat] = useState(false);
+  const [statFilter, setStatFilter] = useState<string>("ALL");
+  const { toast } = useToast();
 
   const { data: leaderboard, isLoading, refetch } = useQuery<DetailedEntry[]>({
     queryKey: ["/api/admin/leaderboard"],
@@ -336,25 +667,14 @@ export default function AdminLeaderboard() {
           </TabsContent>
 
           <TabsContent value="stats">
-            <Card>
-              <CardHeader>
-                <CardTitle>Data<sup className="text-primary">#</sup>3 Stats Management</CardTitle>
-                <p className="text-muted-foreground">Manage the stats displayed on the leaderboard. Note: Stats management is currently limited - you can view but not edit in this interface.</p>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <i className="fas fa-chart-bar text-4xl text-muted-foreground mb-4"></i>
-                  <p className="text-lg font-semibold mb-2">Stats Management</p>
-                  <p className="text-muted-foreground mb-4">
-                    Data<sup className="text-primary">#</sup>3 stats are managed through the database directly.
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Current stats are pre-populated and displayed on the leaderboard.
-                    Contact the system administrator to update stats.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatsManagement 
+              editingStat={editingStat}
+              setEditingStat={setEditingStat}
+              creatingNewStat={creatingNewStat}
+              setCreatingNewStat={setCreatingNewStat}
+              statFilter={statFilter}
+              setStatFilter={setStatFilter}
+            />
           </TabsContent>
         </Tabs>
       </div>
