@@ -79,6 +79,12 @@ Preferred communication style: Simple, everyday language.
   - **How**: Added logic to dynamically determine available views based on data presence, disabled empty view buttons, added empty state messaging
   - **Results**: Dashboard now shows only Data#3 stats until submissions arrive, then intelligently adds other views as content becomes available
   - **Issues**: None - feature working as intended
+- [2025-01-27 13:50] Plan: Fix auto-rotation logic that's still showing empty leaderboard first instead of defaulting to Data#3 stats, and replace "nkings" text with Olympic podium icon
+- [2025-01-27 13:52] Done:
+  - **What changed**: Fixed auto-rotation to properly default to Data#3 stats when no submissions exist, added Olympic podium emoji icons
+  - **How**: Changed initial state to "data3stats", updated auto-rotation logic to dynamically filter available views based on content, replaced "Rankings" text with 🥇🥈🥉 emoji podium, disabled buttons for empty views
+  - **Results**: Dashboard now correctly starts with Data#3 stats when empty, only rotates through views with actual content, podium emoji clearly indicates leaderboard
+  - **Issues**: None - both issues resolved
 
 ### Changelog
 - [2025-01-27 13:25] Plan: Update all UI copy to focus on business problems rather than "solutions" and remove AI-powered marketing emphasis. Make messaging more about the challenge and competition rather than showcasing AI capabilities.

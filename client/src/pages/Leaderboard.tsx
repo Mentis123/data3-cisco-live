@@ -43,7 +43,7 @@ const CATEGORY_NAMES = {
 };
 
 export default function Leaderboard() {
-  const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("leaderboard");
+  const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("data3stats");
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
 
   // Fetch dashboard data
@@ -72,18 +72,47 @@ export default function Leaderboard() {
     }
   });
 
-  // Auto-rotate views every 10 seconds
+  // Auto-rotate views every 10 seconds, but only show views with content
   useEffect(() => {
-    const views = ["leaderboard", "wordcloud", "categories", "data3stats"] as const;
-    let currentIndex = 0;
+    if (!displayData) return;
+
+    const getAvailableViews = () => {
+      const views: Array<"leaderboard" | "wordcloud" | "categories" | "data3stats"> = [];
+      
+      // Always include data3stats as it has pre-populated content
+      views.push("data3stats");
+      
+      // Only add other views if they have content
+      if (displayData.leaderboard.length > 0) {
+        views.push("leaderboard");
+      }
+      if (displayData.wordCloud.length > 0) {
+        views.push("wordcloud");
+      }
+      if (Object.keys(displayData.categoryStats).length > 0 && Object.values(displayData.categoryStats).some(v => v > 0)) {
+        views.push("categories");
+      }
+      
+      return views;
+    };
+
+    const availableViews = getAvailableViews();
+    let currentIndex = availableViews.indexOf(activeView);
+    if (currentIndex === -1) {
+      currentIndex = 0;
+      setActiveView(availableViews[0]);
+    }
 
     const interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % views.length;
-      setActiveView(views[currentIndex]);
+      const views = getAvailableViews();
+      if (views.length > 1) {
+        currentIndex = (currentIndex + 1) % views.length;
+        setActiveView(views[currentIndex]);
+      }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [displayData, activeView]);
 
   // Update display data when query data changes
   useEffect(() => {
@@ -347,16 +376,17 @@ export default function Leaderboard() {
         <div className="flex justify-center mb-6">
           <div className="flex gap-2 p-1 bg-muted/30 rounded-lg">
             {[
-              { key: "leaderboard", icon: "fa-trophy", label: "Rankings" },
-              { key: "wordcloud", icon: "fa-cloud", label: "Technologies" },
-              { key: "categories", icon: "fa-chart-pie", label: "Categories" },
-              { key: "data3stats", icon: "fa-building", label: "Data#3" }
+              { key: "leaderboard", icon: "fa-trophy", label: "🥇🥈🥉", hasContent: displayData?.leaderboard.length > 0 },
+              { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
+              { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
+              { key: "data3stats", icon: "fa-building", label: "Data#3", hasContent: true }
             ].map((view) => (
               <Button
                 key={view.key}
                 variant={activeView === view.key ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setActiveView(view.key as any)}
+                disabled={!view.hasContent}
                 className="transition-all duration-200"
               >
                 <i className={`fas ${view.icon} mr-2`}></i>
