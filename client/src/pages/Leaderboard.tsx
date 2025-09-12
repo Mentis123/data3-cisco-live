@@ -377,15 +377,15 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data#3 booth to participate • Solutions scored in real-time by AI</p>
+          <p>Visit the Data#3 booth to start your AI coaching session • Live scoring & insights</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              Live Updates
+              Real-time Updates
             </span>
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              Auto-rotating every 10s
+              Rotating Views
             </span>
           </div>
         </div>

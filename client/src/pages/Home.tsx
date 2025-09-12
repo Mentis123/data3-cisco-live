@@ -74,10 +74,10 @@ export default function Home() {
 
           <Card className="glass-panel border-0 mb-6 sm:mb-8">
             <CardContent className="p-4 sm:p-8">
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Welcome to the Challenge</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">AI-Powered Solution Challenge</h3>
               <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6">
-                Propose innovative business solutions using Cisco technologies. Chat with our AI assistant to refine your ideas, 
-                then compete on the live leaderboard for prizes and recognition.
+                Partner with our AI Solution Coach to craft winning business proposals. Share your challenges, explore Cisco technologies, 
+                and watch your solution come to life on our rotating live dashboard.
               </p>
               
               {/* Terms & Conditions */}
@@ -132,8 +132,8 @@ export default function Home() {
                 >
                   <i className="fas fa-lightbulb mr-2 sm:mr-3 text-lg sm:text-xl"></i>
                   <div className="text-left">
-                    <div className="font-bold">Solve a Problem</div>
-                    <div className="text-xs sm:text-sm opacity-90">Propose your solution</div>
+                    <div className="font-bold">Start AI Coaching</div>
+                    <div className="text-xs sm:text-sm opacity-90">Build your solution together</div>
                   </div>
                 </Button>
                 
@@ -141,8 +141,8 @@ export default function Home() {
                   <Button variant="secondary" className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation" data-testid="button-view-leaderboard">
                     <i className="fas fa-trophy mr-2 sm:mr-3 text-lg sm:text-xl"></i>
                     <div className="text-left">
-                      <div className="font-bold">View Leaderboard</div>
-                      <div className="text-xs sm:text-sm opacity-90">See live rankings</div>
+                      <div className="font-bold">Live Dashboard</div>
+                      <div className="text-xs sm:text-sm opacity-90">Rankings, stats & insights</div>
                     </div>
                   </Button>
                 </Link>

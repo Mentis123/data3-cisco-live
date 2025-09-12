@@ -74,19 +74,17 @@ export default function Play() {
       // Add initial assistant message focusing on problem definition
       setMessages([{
         role: "assistant",
-        content: `Hi ${firstName}! I'm here to help you craft a winning Cisco solution. 
+        content: `Hi ${firstName}! I'm your AI Solution Coach, and together we'll create something amazing for the Data#3 Challenge! 🚀
 
-Let's start simple:
+**Let's start with the problem that's been bugging you:**
 
-**What business problem wastes your time, causes stress, or impacts your organization?**
+What business challenge in your organization:
+• Wastes your time every day?
+• Keeps your team stressed or inefficient?
+• Creates security headaches?
+• Frustrates users and impacts productivity?
 
-Think about:
-• Daily frustrations with technology
-• Time-consuming manual processes  
-• Security concerns keeping you up at night
-• Poor user experiences affecting productivity
-
-Describe it in 1-2 sentences - we'll dive deeper together!`
+Just describe it naturally - I'll help you turn it into a winning Cisco solution that could land you on our live leaderboard! 🏆`
       }]);
       setMessageCount(1);
     },
@@ -254,8 +252,8 @@ Describe it in 1-2 sentences - we'll dive deeper together!`
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl">
-                    <i className="fas fa-lightbulb mr-2 text-primary"></i>
-                    How It Works
+                    <i className="fas fa-robot mr-2 text-primary"></i>
+                    Your AI Journey
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -263,29 +261,29 @@ Describe it in 1-2 sentences - we'll dive deeper together!`
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
                       <div>
-                        <p className="font-semibold text-sm">Define Your Problem</p>
-                        <p className="text-xs text-muted-foreground">What business problem frustrates you daily?</p>
+                        <p className="font-semibold text-sm">Share Your Challenge</p>
+                        <p className="text-xs text-muted-foreground">Tell our AI about problems that impact your work</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
                       <div>
-                        <p className="font-semibold text-sm">Quantify the Impact</p>
-                        <p className="text-xs text-muted-foreground">How much time/money does this cost you?</p>
+                        <p className="font-semibold text-sm">Explore Together</p>
+                        <p className="text-xs text-muted-foreground">AI guides you through impacts, KPIs, and solutions</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
                       <div>
-                        <p className="font-semibold text-sm">Craft Your Solution</p>
-                        <p className="text-xs text-muted-foreground">We'll help suggest relevant Cisco technologies</p>
+                        <p className="font-semibold text-sm">Build Your Solution</p>
+                        <p className="text-xs text-muted-foreground">Co-create using the perfect Cisco technologies</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</div>
                       <div>
-                        <p className="font-semibold text-sm">Compete & Win</p>
-                        <p className="text-xs text-muted-foreground">AI scores your solution - top entries win prizes!</p>
+                        <p className="font-semibold text-sm">Go Live!</p>
+                        <p className="text-xs text-muted-foreground">Watch your solution appear on the rotating dashboard</p>
                       </div>
                     </div>
                   </div>
@@ -312,7 +310,7 @@ Describe it in 1-2 sentences - we'll dive deeper together!`
               </Button>
 
               <p className="text-xs text-center text-muted-foreground">
-                Your solution will be automatically categorized based on the Cisco technologies you mention
+                The AI will automatically categorize your solution and help you succeed
               </p>
             </CardContent>
           </Card>
@@ -334,8 +332,8 @@ Describe it in 1-2 sentences - we'll dive deeper together!`
                     <i className="fas fa-robot text-base sm:text-lg"></i>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-lg sm:text-xl font-bold truncate">Cisco Solution Coach</h3>
-                    <p className="text-xs sm:text-sm opacity-90">Let's solve your business problem together</p>
+                    <h3 className="text-lg sm:text-xl font-bold truncate">AI Solution Coach</h3>
+                    <p className="text-xs sm:text-sm opacity-90">Building your winning solution together</p>
                   </div>
                 </div>
               </div>
@@ -448,7 +446,7 @@ Describe it in 1-2 sentences - we'll dive deeper together!`
                 </Button>
               </div>
               <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Focus on problem impact and specific Cisco products
+                Messages: <span data-testid="text-message-count">{messageCount}</span>/6 • Let the AI guide you to mention relevant Cisco technologies
               </div>
             </div>
           </Card>
