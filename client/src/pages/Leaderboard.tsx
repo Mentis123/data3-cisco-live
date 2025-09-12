@@ -457,7 +457,7 @@ export default function Leaderboard() {
                         fill={labelColor}
                         textAnchor={textAnchor}
                         dominantBaseline="middle"
-                        style={{ fontSize: '20px', fontWeight: '600' }}
+                        style={{ fontSize: '32px', fontWeight: '700' }}
                       >
                         {name}
                       </text>
@@ -486,7 +486,7 @@ export default function Leaderboard() {
                     dataKey="value"
                     position="inside"
                     fill="#fff"
-                    style={{ fontSize: '22px', fontWeight: 'bold', textShadow: '0 0 4px rgba(0,0,0,0.5)' }}
+                    style={{ fontSize: '36px', fontWeight: 'bold', textShadow: '0 0 6px rgba(0,0,0,0.8)' }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
                       return `${percent}% (${value})`;
