@@ -222,8 +222,8 @@ export default function Leaderboard() {
                   <p className="font-semibold text-lg">{entry.name}</p>
                   <Badge
                     variant="secondary"
-                    className="text-xs"
-                    style={{ backgroundColor: `${CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS]}20` }}
+                    className="text-xs text-white"
+                    style={{ backgroundColor: CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] }}
                   >
                     {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
                   </Badge>
@@ -279,12 +279,12 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="relative min-h-[400px] max-h-[400px] overflow-hidden flex items-center justify-center">
+          <div className="relative min-h-[300px] sm:min-h-[400px] max-h-[300px] sm:max-h-[400px] overflow-hidden flex items-center justify-center">
             {/* Cloud background effects */}
             <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+              <div className="absolute top-1/4 left-1/4 w-32 sm:w-64 h-32 sm:h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-24 sm:w-48 h-24 sm:h-48 bg-blue-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 sm:w-72 h-36 sm:h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
             
             {/* Word cloud with radial positioning */}
@@ -296,24 +296,27 @@ export default function Leaderboard() {
                 let zIndex: number;
                 let position: any = { position: 'absolute' };
                 
+                // Check if mobile (viewport width less than 640px)
+                const isMobile = window.innerWidth < 640;
+                
                 if (index === 0) {
                   // Biggest word DEAD CENTER!
-                  size = 56;
+                  size = isMobile ? 32 : 56;
                   opacity = 1;
                   zIndex = 30;
                   position = {
                     position: 'absolute',
-                    top: 'calc(50% - 20px)',
-                    left: 'calc(50% - 20px)',
+                    top: '50%',
+                    left: '50%',
                     transform: 'translate(-50%, -50%)'
                   };
                 } else if (index < 5) {
                   // Next 4 words - positioned around center with no overlap
-                  size = 32;
+                  size = isMobile ? 18 : 32;
                   opacity = 0.9;
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = 150; // Far enough to not overlap with center word
+                  const radius = isMobile ? 80 : 150; // Smaller radius on mobile
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -324,11 +327,11 @@ export default function Leaderboard() {
                   };
                 } else if (index < 13) {
                   // Middle ring - 8 words evenly spaced
-                  size = 20;
+                  size = isMobile ? 12 : 20;
                   opacity = 0.75;
                   zIndex = 10;
                   const angle = ((index - 5) * 45); // 8 words, 45 degrees apart
-                  const radius = 240; // Middle distance with good spacing
+                  const radius = isMobile ? 120 : 240; // Smaller radius on mobile
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   position = {
@@ -338,7 +341,10 @@ export default function Leaderboard() {
                     transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
                   };
                 } else {
-                  // Outer ring - smallest words on the edges
+                  // Outer ring - hide on mobile, show on desktop
+                  if (isMobile) {
+                    return null; // Skip rendering outer ring on mobile
+                  }
                   size = 12;
                   opacity = 0.6;
                   zIndex = 5;
@@ -389,11 +395,11 @@ export default function Leaderboard() {
                       }}
                     >
                       {word.text}
-                      <span className="ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
                     </span>
                   </div>
                 );
-              })}
+              }).filter(Boolean)}
             </div>
           </div>
         </CardContent>
@@ -452,7 +458,7 @@ export default function Leaderboard() {
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  outerRadius={140}
+                  outerRadius={window.innerWidth < 640 ? 100 : 140}
                   fill="#8884d8"
                   dataKey="value"
                   label={(props) => {
@@ -460,6 +466,9 @@ export default function Leaderboard() {
                     // Get the color from the categoryData
                     const entryData = categoryData.find(d => d.name === name);
                     const labelColor = entryData?.color || '#e2e8f0';
+                    const isMobile = window.innerWidth < 640;
+                    // Shorten names for mobile
+                    const displayName = isMobile ? name.split(' ')[0] : name;
                     return (
                       <text
                         x={x}
@@ -467,9 +476,9 @@ export default function Leaderboard() {
                         fill={labelColor}
                         textAnchor={textAnchor}
                         dominantBaseline="middle"
-                        style={{ fontSize: '20px', fontWeight: '600' }}
+                        style={{ fontSize: isMobile ? '12px' : '16px', fontWeight: '600' }}
                       >
-                        {name}
+                        {displayName}
                       </text>
                     );
                   }}
@@ -496,10 +505,14 @@ export default function Leaderboard() {
                     dataKey="value"
                     position="inside"
                     fill="#fff"
-                    style={{ fontSize: '22px', fontWeight: 'bold', textShadow: '0 0 4px rgba(0,0,0,0.7)' }}
+                    style={{ 
+                      fontSize: window.innerWidth < 640 ? '14px' : '18px', 
+                      fontWeight: 'bold', 
+                      textShadow: '0 0 4px rgba(0,0,0,0.7)' 
+                    }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
-                      return `${percent}% (${value})`;
+                      return window.innerWidth < 640 ? `${percent}%` : `${percent}% (${value})`;
                     }}
                   />
                   {categoryData.map((entry, index) => (
@@ -592,17 +605,17 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-background text-foreground p-4 pt-8 portrait-leaderboard">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-6 relative">
+        <div className="mb-6">
           <Link href="/">
-            <Button variant="outline" size="sm" className="absolute left-0 top-0">
+            <Button variant="outline" size="sm" className="mb-4">
               <i className="fas fa-home mr-2"></i>
               Home
             </Button>
           </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground text-center">
             Cisco Live Melbourne 2025 • Powered by AI
           </p>
         </div>
