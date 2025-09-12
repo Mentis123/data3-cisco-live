@@ -126,3 +126,13 @@ The application facilitates a user journey from landing page (terms acceptance, 
   - 50+ Certified Vendor Technologies
   - 2,500+ Customers Trust Data#3
   - 24/7 Support Coverage
+
+**[2025-01-28 19:00] Color Consistency & Category Stats:**
+- Unified color scheme across all components (pie chart, submission labels, admin dashboard):
+  - Zero Trust & Secure Connectivity: #00BCF2 (Cyan)
+  - Data Centre & Hybrid Cloud: #6CC04A (Green)
+  - Collaboration & Contact Centre: #FF6B35 (Orange)
+  - Observability & Performance: #9B59B6 (Purple)
+  - Edge & IoT Solutions: #F39C12 (Yellow)
+- Added 15 category-specific stats to database (3 per solution category)
+- Stats now properly filter by category to show relevant data during 5-minute window after submission
