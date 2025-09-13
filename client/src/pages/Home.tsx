@@ -42,16 +42,17 @@ export default function Home() {
                   <span className="hidden sm:inline">Leaderboard</span>
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="min-h-[44px] px-3 sm:px-4"
-                onClick={() => window.open("/static/cisco_live_how_to_play.html", "_blank")}
-                data-testid="button-how-to-play"
-              >
-                <i className="fas fa-question-circle sm:mr-2"></i>
-                <span className="hidden sm:inline">How to Play</span>
-              </Button>
+              <Link href="/how-to-play">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="min-h-[44px] px-3 sm:px-4"
+                  data-testid="button-how-to-play"
+                >
+                  <i className="fas fa-question-circle sm:mr-2"></i>
+                  <span className="hidden sm:inline">How to Play</span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
