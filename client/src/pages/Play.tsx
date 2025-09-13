@@ -206,8 +206,8 @@ Just describe it naturally - what's the problem that needs solving?`
     // Add user message and increment input count
     dispatch({ type: 'ADD_USER_INPUT', payload: userMessage });
 
-    // Check for submit command
-    if (isSubmitCommand(userMessage)) {
+    // Check for submit command - only allow in Step 3 or beyond
+    if (isSubmitCommand(userMessage) && state.step >= 3) {
       handleSubmitCommand();
       return;
     }
@@ -753,8 +753,8 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                         <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
-                      <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground">
+                      <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[95%] sm:max-w-lg">
+                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words">
                           {message.content}
                         </div>
                       </div>
@@ -764,8 +764,8 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                         <i className="fas fa-user text-xs sm:text-sm"></i>
                       </div>
-                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[85%] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground">{message.content}</p>
+                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[95%] sm:max-w-lg">
+                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words">{message.content}</p>
                       </div>
                     </>
                   )}
