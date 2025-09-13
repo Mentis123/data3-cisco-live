@@ -465,37 +465,6 @@ Just describe it naturally - what's the problem that needs solving?`
                   )}
                 </div>
 
-                {/* Cisco Products */}
-                <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-microchip text-primary mr-2"></i>
-                    Cisco Technologies
-                  </Label>
-                  {isEditMode ? (
-                    <div className="space-y-2">
-                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
-                        <Input
-                          key={idx}
-                          value={product}
-                          onChange={(e) => {
-                            const newProducts = [...currentSubmission.cisco_products];
-                            newProducts[idx] = e.target.value;
-                            setEditedSubmission({...currentSubmission, cisco_products: newProducts});
-                          }}
-                          className="text-sm"
-                          placeholder="Cisco product..."
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <ul className="list-disc list-inside space-y-1">
-                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
-                        <li key={idx} className="text-sm">{product}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
                 {/* Impact Metrics */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
@@ -570,6 +539,37 @@ Just describe it naturally - what's the problem that needs solving?`
                       ))}
                     </div>
                   </div>
+                </div>
+
+                {/* Cisco Products */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-microchip text-primary mr-2"></i>
+                    Cisco Technologies
+                  </Label>
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
+                        <Input
+                          key={idx}
+                          value={product}
+                          onChange={(e) => {
+                            const newProducts = [...currentSubmission.cisco_products];
+                            newProducts[idx] = e.target.value;
+                            setEditedSubmission({...currentSubmission, cisco_products: newProducts});
+                          }}
+                          className="text-sm"
+                          placeholder="Cisco product..."
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1">
+                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
+                        <li key={idx} className="text-sm">{product}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Submit Actions */}
