@@ -379,7 +379,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                   Data<sup className="text-primary">#</sup>3 Solution Sprint
                 </CardTitle>
                 <p className="text-center text-white/90 drop-shadow">
-                  3-Step Sprint to Your Winning Solution
+                  Quick Sprint to Your Winning Solution
                 </p>
               </div>
             </div>
@@ -462,7 +462,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                 ) : (
                   <>
                     <i className="fas fa-bolt mr-2"></i>
-                    Start 3-Step Sprint
+                    Start Your Sprint
                   </>
                 )}
               </Button>
