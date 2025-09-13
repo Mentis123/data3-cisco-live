@@ -19,11 +19,11 @@ interface DetailedEntry {
   category: string;
   totalScore: number;
   subScores: {
-    outcome: number;
-    fit: number;
-    feasibility: number;
-    impact: number;
-    observability: number;
+    problem_kpis: number;
+    cisco_fit: number;
+    feasibility_security: number;
+    business_impact: number;
+    observability_automation: number;
   };
   evaluationNotes: string | null;
   createdAt: string;
@@ -35,11 +35,11 @@ interface SubmissionDetails {
   category: string;
   totalScore: number;
   subScores: {
-    outcome: number;
-    fit: number;
-    feasibility: number;
-    impact: number;
-    observability: number;
+    problem_kpis: number;
+    cisco_fit: number;
+    feasibility_security: number;
+    business_impact: number;
+    observability_automation: number;
   };
   solutionText: string;
   structuredJson: any;
@@ -1063,33 +1063,33 @@ export default function AdminLeaderboard() {
                   <h3 className="text-lg font-semibold mb-3">Score Breakdown</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Business Outcome</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.outcome)}`}>
-                        {submissionDetails.subScores.outcome}/10
+                      <div className="text-sm text-muted-foreground mb-1">Problem Definition & KPIs</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.problem_kpis)}`}>
+                        {submissionDetails.subScores.problem_kpis}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Cisco Fit</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.fit)}`}>
-                        {submissionDetails.subScores.fit}/10
+                      <div className="text-sm text-muted-foreground mb-1">Cisco Architecture Fit</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.cisco_fit)}`}>
+                        {submissionDetails.subScores.cisco_fit}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Feasibility</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.feasibility)}`}>
-                        {submissionDetails.subScores.feasibility}/10
+                      <div className="text-sm text-muted-foreground mb-1">Feasibility & Security</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.feasibility_security)}`}>
+                        {submissionDetails.subScores.feasibility_security}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Impact</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.impact)}`}>
-                        {submissionDetails.subScores.impact}/10
+                      <div className="text-sm text-muted-foreground mb-1">Business Impact at Scale</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.business_impact)}`}>
+                        {submissionDetails.subScores.business_impact}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Observability</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.observability)}`}>
-                        {submissionDetails.subScores.observability}/10
+                      <div className="text-sm text-muted-foreground mb-1">Observability & Automation</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.observability_automation)}`}>
+                        {submissionDetails.subScores.observability_automation}/10
                       </div>
                     </div>
                     <div className="bg-primary/10 rounded-lg p-3">

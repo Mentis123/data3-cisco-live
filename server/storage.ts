@@ -116,11 +116,18 @@ export const storage = {
       .innerJoin(participants, eq(submissions.participantId, participants.id))
       .where(eq(submissions.id, id));
     
-    return result || null;
+    if (!result) return null;
+    
+    // Parse JSON strings for subScores and structuredJson
+    return {
+      ...result,
+      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+    };
   },
 
   async getAdminLeaderboard(limit: number = 100): Promise<any[]> {
-    return await db
+    const results = await db
       .select({
         id: submissions.id,
         totalScore: submissions.totalScore,
@@ -136,6 +143,13 @@ export const storage = {
       .innerJoin(participants, eq(submissions.participantId, participants.id))
       .orderBy(desc(submissions.totalScore), submissions.createdAt)
       .limit(limit);
+    
+    // Parse JSON strings for each result
+    return results.map(result => ({
+      ...result,
+      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+    }));
   },
 
   async getWordCloudData(): Promise<{ text: string; value: number }[]> {
@@ -286,7 +300,14 @@ export const storage = {
       .orderBy(desc(submissions.createdAt))
       .limit(1);
     
-    return result || null;
+    if (!result) return null;
+    
+    // Parse JSON strings for subScores and structuredJson
+    return {
+      ...result,
+      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+    };
   },
 
   async getTopProblemCategory(): Promise<string> {
