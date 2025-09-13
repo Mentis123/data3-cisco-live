@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import QRCode from "react-qr-code";
+import { useState, useEffect, useRef } from "react";
 import { Trophy, Target, Lightbulb, Zap, ChevronRight } from "lucide-react";
+import QRCode from "qrcode";
 
 export default function HowToPlay() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  // Use a hardcoded URL for the QR code
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const appUrl = "https://data3-cisco-live.replit.app";
 
   // Update clock every second
@@ -13,6 +13,22 @@ export default function HowToPlay() {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Generate QR code on mount
+  useEffect(() => {
+    if (canvasRef.current) {
+      QRCode.toCanvas(canvasRef.current, appUrl, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      }, (error) => {
+        if (error) console.error('QR Code generation error:', error);
+      });
+    }
   }, []);
 
   const steps = [
@@ -36,12 +52,13 @@ export default function HowToPlay() {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-4 mb-4">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Data<sup className="text-3xl text-[#00d6eb]">#</sup>3 Solution Sprint Challenge
+            Data<sup className="text-3xl">#</sup>3 Solution Sprint Challenge
           </h1>
         </div>
         <p className="text-xl text-cyan-200">Cisco Live Melbourne 2025 • AI-Powered Innovation</p>
         <p className="text-sm text-blue-200 mt-2">{currentTime.toLocaleTimeString()}</p>
       </div>
+
       {/* Main Content Grid */}
       <div className="flex-1 grid grid-cols-12 gap-8">
         {/* Left Column - QR Code & Prize */}
@@ -52,9 +69,9 @@ export default function HowToPlay() {
               Scan to Play
             </h2>
             <div className="bg-white p-4 rounded-xl shadow-inner flex items-center justify-center" style={{ width: '232px', height: '232px' }}>
-              <QRCode 
-                value="https://data3-cisco-live.replit.app"
-                size={200}
+              <canvas 
+                ref={canvasRef}
+                className="max-w-full h-auto"
               />
             </div>
             <div className="mt-4 text-center">
@@ -166,6 +183,7 @@ export default function HowToPlay() {
           </div>
         </div>
       </div>
+
       {/* Footer */}
       <div className="mt-8 text-center">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full px-8 py-4 border border-cyan-400/30">
