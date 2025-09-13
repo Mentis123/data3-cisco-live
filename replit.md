@@ -137,6 +137,14 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
   - Not advertised publicly - internal testing feature
 
 ### Recent Updates
+**[2025-09-13 08:20] Fixed Zero-Scoring Bug:**
+- Switched evaluation model from O3-mini to GPT-4o-mini (O3-mini was too strict, returning all zeros)
+- Enhanced evaluation prompt with explicit participation scoring instructions
+- Reinforced minimum 2 points per criterion for any coherent attempt
+- Clear scoring bands: 10-20 (participation), 20-30 (decent), 30-40 (strong), 40+ (exceptional)
+- Added "IMPORTANT" directive to never give all zeros unless completely empty/nonsensical
+- Scoring system now properly awards participation points while maintaining competitive differentiation
+
 **[2025-09-13 03:35] Balanced Scoring System:**
 - Implemented fairer evaluation scoring with participation floors
 - New banded scoring (0=non-attempt, 2-3=participation, 4-6=mid-tier, 7-9=high-tier, 10=exceptional)

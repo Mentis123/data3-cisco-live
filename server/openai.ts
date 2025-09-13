@@ -9,8 +9,8 @@ const openai = new OpenAI({
 // Model options: "gpt-4o-mini" (faster, cheaper) or "gpt-4o" (better quality, slower)
 // Using GPT-4o for better reasoning and guidance quality
 const CHAT_MODEL = process.env.CHAT_MODEL || "gpt-4o";
-// Use o3-mini for strict evaluation scoring
-const EVAL_MODEL = process.env.EVAL_MODEL || "o3-mini";
+// Use GPT-4o-mini for balanced evaluation scoring (O3-mini was too strict)
+const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o-mini";
 
 const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Cisco Solution Challenge. Your goal is to guide users toward high-scoring solutions across 5 key criteria (each worth 0-10 points):
 
@@ -42,33 +42,40 @@ const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Cisco Solut
 
 const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Cisco Solution Sprint. Score proposals with a balanced, banded rubric (5 criteria × 0–10). Be fair but competitive.
 
-Rubric (0–10 each)
-Score each criterion using bands:
-0 = Non-attempt/irrelevant/off-topic/empty/contradictory
-2–3 = Participation: coherent attempt that completed all sprint steps, generic statements acceptable
-4–6 = Mid-tier: decent coverage with some specifics (1–2 Cisco products, some metrics/targets, partial feasibility/scale/telemetry)
-7–9 = High-tier: excellent, detailed evidence (baselines + numeric targets, 3+ specific Cisco products/features used correctly, clear integration/security plan, quantified value at scale, explicit observability/automation)
-10 = Exceptional: enterprise-grade, configuration-level specifics, quantified KPIs and SLOs, risks/mitigations, automation/runbooks; almost never award
+IMPORTANT: Award participation points (2-3 per criterion minimum) for ANY coherent attempt that completes the sprint. Never give all zeros unless the submission is completely empty or nonsensical.
 
-Criteria:
-1) Problem Definition & KPIs
-2) Cisco Architecture Fit
-3) Feasibility & Security
-4) Business Impact at Scale
-5) Observability & Automation
+Scoring Bands (per criterion):
+- 0 points = Only for completely empty/nonsensical/off-topic submissions
+- 2-3 points = Participation tier (ANY coherent attempt gets at least this)
+- 4-6 points = Mid-tier (some Cisco products mentioned, basic metrics)
+- 7-9 points = High-tier (3+ Cisco products, quantified metrics, clear plans)
+- 10 points = Exceptional (enterprise-grade, rarely awarded)
 
-Global floors and caps:
-- Participation floor: If the submission completed all sprint steps and is coherent, ensure each criterion ≥2 and total 10–20 for weak attempts. Use 0 only for non-attempts.
-- Mediocrity cap: If <3 Cisco products named OR no numeric KPIs, cap total ≤25.
-- Moderate cap: If 3+ products and some numbers exist but are uneven/hand-wavy, cap total ≤35.
-- High-score gate: Totals ≥40 only if all five ≥7 and at least two criteria ≥8. Totals ≥45 only if all five ≥8 and at least one criterion ≥9.
-- Round each subscore to an integer 0–10.
+The 5 Criteria to Score:
+1) Problem Definition & KPIs (baselines, targets, metrics)
+2) Cisco Architecture Fit (specific products/features mentioned)
+3) Feasibility & Security (integration, zero-trust considerations)
+4) Business Impact at Scale (ROI, multi-site scaling)
+5) Observability & Automation (monitoring, alerts, automation plans)
 
-Return JSON exactly:
+Scoring Rules:
+- ALWAYS give at least 2 points per criterion if the submission mentions the topic
+- Total of 10-20 points for basic participation
+- Total of 20-30 points for decent attempts with some specifics
+- Total of 30-40 points for strong solutions with multiple Cisco products
+- Total of 40+ only for exceptional, enterprise-grade solutions
+
+Return this exact JSON structure:
 {
-  "subscores": {"outcome":0,"fit":0,"feasibility":0,"impact":0,"observability":0},
-  "total":0,
-  "notes_short":"One sentence on strongest/weakest areas"
+  "subscores": {
+    "outcome": [2-10],
+    "fit": [2-10], 
+    "feasibility": [2-10],
+    "impact": [2-10],
+    "observability": [2-10]
+  },
+  "total": [sum of subscores],
+  "notes_short": "One sentence evaluation"
 }`;
 
 export async function chatWithAssistant(
@@ -113,7 +120,7 @@ export async function categorizeProposal(
 ): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "o3-mini",  // Use O3 for category assignment
+      model: "gpt-4o-mini",  // Use GPT-4o-mini for category assignment
       messages: [
         {
           role: "system",
