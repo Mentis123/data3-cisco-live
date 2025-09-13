@@ -415,6 +415,19 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
   const { toast } = useToast();
   const adminKey = localStorage.getItem('adminKey') || '';
   
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/categories', {
+        headers: { 'x-admin-key': adminKey }
+      });
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+    enabled: !!adminKey
+  });
+  
   // Fetch stats
   const { data: stats, isLoading, refetch } = useQuery<Data3Stat[]>({
     queryKey: ['/api/admin/stats'],
@@ -500,20 +513,8 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
     statFilter === 'ALL' || stat.category === statFilter
   ) || [];
 
-  const categories = [
-    'GENERAL',
-    'SCALE', 
-    'EXPERTISE', 
-    'INFRASTRUCTURE', 
-    'SECURITY', 
-    'CLOUD', 
-    'NETWORKING',
-    'SECURE_CONNECTIVITY',
-    'HYBRID_DC',
-    'COLLAB_CX',
-    'OBSERVABILITY',
-    'EDGE_IOT'
-  ];
+  // Extract category names from fetched data
+  const categories = categoriesData?.map((cat: any) => cat.name || cat.id) || [];
 
   return (
     <>
@@ -540,7 +541,7 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Categories</SelectItem>
-                {categories.map(cat => (
+                {categories.map((cat: string) => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                 ))}
               </SelectContent>
@@ -707,7 +708,7 @@ function StatForm({ stat, categories, onSubmit, onCancel }: {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {categories.map(cat => (
+            {categories.map((cat: string) => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
             ))}
           </SelectContent>
