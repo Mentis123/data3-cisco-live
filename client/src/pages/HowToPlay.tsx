@@ -52,13 +52,12 @@ export default function HowToPlay() {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-4 mb-4">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Data<sup className="text-3xl">#</sup>3 Solution Sprint Challenge
+            Data<sup className="text-3xl text-[#00d5eb]">#</sup>3 Solution Sprint Challenge
           </h1>
         </div>
         <p className="text-xl text-cyan-200">Cisco Live Melbourne 2025 • AI-Powered Innovation</p>
         <p className="text-sm text-blue-200 mt-2">{currentTime.toLocaleTimeString()}</p>
       </div>
-
       {/* Main Content Grid */}
       <div className="flex-1 grid grid-cols-12 gap-8">
         {/* Left Column - QR Code & Prize */}
@@ -183,7 +182,6 @@ export default function HowToPlay() {
           </div>
         </div>
       </div>
-
       {/* Footer */}
       <div className="mt-8 text-center">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full px-8 py-4 border border-cyan-400/30">
