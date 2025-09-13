@@ -49,6 +49,11 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 - **Sprint Coach**: GPT-4o guides users through the sprint process, pushing for quantified answers and aligning with scoring criteria.
 - **Category Assignment**: GPT-4o automatically categorizes solutions into one of five predefined categories.
 - **Solution Evaluation**: GPT-4o evaluates submissions against a five-criterion rubric (0-50 points) with participation floors and balanced scoring.
+  - Problem Definition & KPIs (0-10 points)
+  - Cisco Architecture Fit (0-10 points)
+  - Feasibility & Security (0-10 points)
+  - Business Impact at Scale (0-10 points)
+  - Observability & Automation (0-10 points)
 - **Structured Output**: AI formats solutions into a standardized JSON schema.
 - **Prompts**: Step-specific guidance and targeted technology recommendations.
 - **AI Calls**: Exactly three inference calls per submission (chat, categorization, scoring).
