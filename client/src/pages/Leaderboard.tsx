@@ -279,7 +279,7 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="relative min-h-[300px] sm:min-h-[400px] max-h-[300px] sm:max-h-[400px] overflow-hidden flex items-center justify-center">
+          <div className="relative min-h-[340px] sm:min-h-[400px] max-h-[340px] sm:max-h-[400px] overflow-hidden flex items-center justify-center">
             {/* Cloud background effects */}
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-1/4 left-1/4 w-32 sm:w-64 h-32 sm:h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
@@ -298,15 +298,14 @@ export default function Leaderboard() {
                 let zIndex: number;
                 
                 if (index === 0) {
-                  // Biggest word - ABSOLUTELY CENTERED
-                  size = isMobile ? 36 : 56;
+                  // Biggest word - ABSOLUTELY CENTERED without animation conflicts
                   opacity = 1;
                   zIndex = 30;
                   
                   return (
                     <div
                       key={word.text}
-                      className="absolute word-cloud-float-1"
+                      className="absolute" // Removed animation class to prevent transform conflicts
                       style={{
                         top: '50%',
                         left: '50%',
@@ -315,11 +314,15 @@ export default function Leaderboard() {
                       }}
                     >
                       <span
-                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 word-cloud-float-1"
                         style={{
-                          fontSize: `${size}px`,
+                          fontSize: 'clamp(24px, 9vw, 56px)', // Responsive sizing that fits mobile
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          whiteSpace: 'nowrap',
+                          wordBreak: 'normal',
+                          overflowWrap: 'normal',
+                          maxWidth: '90vw',
                         }}
                       >
                         {word.text}
