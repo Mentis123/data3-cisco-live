@@ -383,7 +383,7 @@ export default function Leaderboard() {
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 sm:w-72 h-36 sm:h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
             
-            {/* Word cloud with absolute center positioning */}
+            {/* Word cloud with organic positioning */}
             <div className="relative w-full h-full flex items-center justify-center">
               {displayData.wordCloud.slice(0, 25).map((word, index) => {
                 // Check if mobile (viewport width less than 640px)
@@ -392,16 +392,18 @@ export default function Leaderboard() {
                 let size: number;
                 let opacity: number;
                 let zIndex: number;
+                let x: number;
+                let y: number;
                 
                 if (index === 0) {
-                  // Biggest word - ABSOLUTELY CENTERED without animation conflicts
+                  // Biggest word - ABSOLUTELY CENTERED
                   opacity = 1;
                   zIndex = 30;
                   
                   return (
                     <div
                       key={word.text}
-                      className="absolute" // Removed animation class to prevent transform conflicts
+                      className="absolute"
                       style={{
                         top: '50%',
                         left: '50%',
@@ -412,7 +414,7 @@ export default function Leaderboard() {
                       <span
                         className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 word-cloud-float-1"
                         style={{
-                          fontSize: isFullscreen ? 'clamp(40px, 10vw, 80px)' : 'clamp(24px, 9vw, 56px)', // Larger in fullscreen
+                          fontSize: isFullscreen ? 'clamp(40px, 10vw, 80px)' : 'clamp(24px, 9vw, 56px)',
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
                           whiteSpace: 'nowrap',
@@ -427,14 +429,22 @@ export default function Leaderboard() {
                     </div>
                   );
                 } else if (index < 5) {
-                  // Next 4 words - PRIORITIZED for visibility
-                  size = isFullscreen ? 48 : (isMobile ? 22 : 32); // Much larger in fullscreen
-                  opacity = 0.95; // Higher opacity for prominence
+                  // Next 4 words - scattered naturally around center
+                  size = isFullscreen ? 48 : (isMobile ? 22 : 32);
+                  opacity = 0.95;
                   zIndex = 20;
-                  const angle = ((index - 1) * 90); // 4 words at 0, 90, 180, 270 degrees for clear separation
-                  const radius = isFullscreen ? 280 : (isMobile ? 100 : 180); // Moderate radius for good spacing
-                  const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  
+                  // Create more organic positioning
+                  const positions = [
+                    { x: -150, y: -80 },  // Top-left
+                    { x: 160, y: -60 },   // Top-right  
+                    { x: -140, y: 90 },   // Bottom-left
+                    { x: 150, y: 70 }     // Bottom-right
+                  ];
+                  
+                  const pos = positions[index - 1];
+                  x = isFullscreen ? pos.x * 1.8 : (isMobile ? pos.x * 0.6 : pos.x);
+                  y = isFullscreen ? pos.y * 1.8 : (isMobile ? pos.y * 0.6 : pos.y);
                   
                   return (
                     <div
@@ -462,14 +472,26 @@ export default function Leaderboard() {
                     </div>
                   );
                 } else if (index < 13) {
-                  // Middle ring - smaller and less prominent
-                  size = isFullscreen ? 32 : (isMobile ? 10 : 20); // Larger in fullscreen
-                  opacity = 0.7; // Slightly higher opacity for better visibility
+                  // Middle layer - scattered organically
+                  size = isFullscreen ? 32 : (isMobile ? 10 : 20);
+                  opacity = 0.7;
                   zIndex = 10;
-                  const angle = ((index - 5) * 45); // 8 words evenly distributed
-                  const radius = isFullscreen ? 350 : (isMobile ? 140 : 240); // Moderate radius for middle ring
-                  const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  
+                  // More organic scatter pattern
+                  const scatterPositions = [
+                    { x: -220, y: -140 },   // Far top-left
+                    { x: 0, y: -180 },      // Top center
+                    { x: 200, y: -120 },    // Far top-right
+                    { x: -250, y: 20 },     // Left middle
+                    { x: 240, y: 0 },       // Right middle
+                    { x: -180, y: 150 },    // Bottom-left
+                    { x: 0, y: 160 },       // Bottom center
+                    { x: 210, y: 140 }      // Bottom-right
+                  ];
+                  
+                  const pos = scatterPositions[index - 5];
+                  x = isFullscreen ? pos.x * 1.5 : (isMobile ? pos.x * 0.5 : pos.x * 0.85);
+                  y = isFullscreen ? pos.y * 1.5 : (isMobile ? pos.y * 0.5 : pos.y * 0.85);
                   
                   // Hide some of the middle ring on mobile to reduce clutter
                   if (isMobile && index > 8) {
@@ -502,17 +524,34 @@ export default function Leaderboard() {
                     </div>
                   );
                 } else {
-                  // Outer ring - desktop only
+                  // Outer layer - desktop only, very scattered
                   if (isMobile) {
                     return null;
                   }
-                  size = isFullscreen ? 24 : 12; // Larger in fullscreen
+                  size = isFullscreen ? 24 : 12;
                   opacity = 0.6;
                   zIndex = 5;
-                  const angle = ((index - 13) * 30); // 12 words evenly distributed
-                  const radius = isFullscreen ? 420 : 300; // Outer ring with reasonable spacing
-                  const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  
+                  // Far scattered positions
+                  const outerPositions = [
+                    { x: -320, y: -200 },
+                    { x: -100, y: -250 },
+                    { x: 150, y: -220 },
+                    { x: 300, y: -100 },
+                    { x: -350, y: 50 },
+                    { x: 320, y: 80 },
+                    { x: -280, y: 200 },
+                    { x: -80, y: 240 },
+                    { x: 120, y: 220 },
+                    { x: 280, y: 180 },
+                    { x: -200, y: -50 },
+                    { x: 180, y: 30 }
+                  ];
+                  
+                  const posIndex = (index - 13) % outerPositions.length;
+                  const pos = outerPositions[posIndex];
+                  x = isFullscreen ? pos.x * 1.3 : pos.x * 0.9;
+                  y = isFullscreen ? pos.y * 1.3 : pos.y * 0.9;
                   
                   return (
                     <div
