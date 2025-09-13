@@ -659,7 +659,7 @@ Just describe it naturally - what's the problem that needs solving?`
       />
       
       <div className="flex-1 flex flex-col safe-area-padding">
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-4 py-4">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4">
           <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
             {/* Chat Header */}
             <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground flex-shrink-0">
@@ -738,8 +738,8 @@ Just describe it naturally - what's the problem that needs solving?`
             </div>
 
             {/* Chat Input */}
-            <div className="p-3 sm:p-6 border-t border-border flex-shrink-0 bg-background">
-              <div className="flex gap-2 sm:gap-3">
+            <div className="p-2 sm:p-6 border-t border-border flex-shrink-0 bg-background">
+              <div className="flex gap-2 sm:gap-3 w-full">
                 <Textarea
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
@@ -765,11 +765,11 @@ Just describe it naturally - what's the problem that needs solving?`
               </div>
               
               {/* Submit anytime pill */}
-              <div className="mt-3 flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
+              <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground flex-shrink-0">
                   Input {state.inputsCount}/6
                 </p>
-                <div className="bg-secondary/20 text-secondary px-3 py-1 rounded-full text-xs">
+                <div className="bg-secondary/20 text-secondary px-2 sm:px-3 py-1 rounded-full text-xs truncate">
                   💡 Type "submit" anytime to finish
                 </div>
               </div>
