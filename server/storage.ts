@@ -49,6 +49,18 @@ async function initializeData() {
 // Initialize on module load
 initializeData();
 
+// Define system category names that are reserved and cannot be used for custom categories
+const SYSTEM_CATEGORY_NAMES = [
+  'GENERAL',
+  'SCALE',
+  'EXPERTISE',
+  'SECURE_CONNECTIVITY',
+  'HYBRID_DC',
+  'COLLAB_CX',
+  'OBSERVABILITY',
+  'EDGE_IOT'
+] as const;
+
 export const storage = {
   async createParticipant(data: InsertParticipant): Promise<Participant> {
     const [result] = await db.insert(participants).values(data).returning();
@@ -338,8 +350,20 @@ export const storage = {
     // Get custom categories from database
     const customCategoriesFromDb = await db.select().from(customCategories);
     
+    // Defensive deduplication: Filter out any custom categories that collide with system categories
+    // This handles the case where bad data might already exist in the database
+    const systemCategoryNamesLower = SYSTEM_CATEGORY_NAMES.map(name => name.toLowerCase());
+    const filteredCustomCategories = customCategoriesFromDb.filter(cat => {
+      const categoryNameLower = cat.name.toLowerCase();
+      const isCollision = systemCategoryNamesLower.includes(categoryNameLower);
+      if (isCollision) {
+        console.warn(`Filtering out custom category '${cat.name}' that collides with system category`);
+      }
+      return !isCollision;
+    });
+    
     // Transform custom categories to match the expected format
-    const customCategoriesList = customCategoriesFromDb.map(cat => ({
+    const customCategoriesList = filteredCustomCategories.map(cat => ({
       id: cat.name, // Use name as ID for compatibility
       name: cat.name,
       displayName: cat.displayName,
@@ -353,6 +377,19 @@ export const storage = {
   },
 
   async createCategory(data: { name: string; displayName: string; color: string }): Promise<any> {
+    // Check if the name collides with a system category (case-insensitive)
+    const normalizedName = data.name.toUpperCase();
+    if (SYSTEM_CATEGORY_NAMES.includes(normalizedName as any)) {
+      throw new Error(`Cannot create category '${data.name}': This name is reserved for system categories. Please choose a different name.`);
+    }
+    
+    // Also check case-insensitive against all system names
+    const nameLower = data.name.toLowerCase();
+    const systemNameLower = SYSTEM_CATEGORY_NAMES.find(sysName => sysName.toLowerCase() === nameLower);
+    if (systemNameLower) {
+      throw new Error(`Cannot create category '${data.name}': This name is too similar to the system category '${systemNameLower}'. Please choose a different name.`);
+    }
+    
     // Check if category with same name already exists
     const existing = await db.select().from(customCategories).where(eq(customCategories.name, data.name));
     if (existing.length > 0) {
