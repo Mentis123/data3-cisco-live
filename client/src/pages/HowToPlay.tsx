@@ -4,7 +4,8 @@ import { Trophy, Target, Lightbulb, Zap, ChevronRight } from "lucide-react";
 
 export default function HowToPlay() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const appUrl = window.location.origin;
+  // Use a hardcoded URL for the QR code
+  const appUrl = "https://data3-cisco-live.replit.app";
 
   // Update clock every second
   useEffect(() => {
@@ -50,13 +51,10 @@ export default function HowToPlay() {
               <Trophy className="inline-block w-8 h-8 mr-2 text-yellow-400" />
               Scan to Play
             </h2>
-            <div className="bg-white p-4 rounded-xl shadow-inner">
+            <div className="bg-white p-4 rounded-xl shadow-inner flex items-center justify-center" style={{ width: '232px', height: '232px' }}>
               <QRCode 
-                value={appUrl}
+                value="https://data3-cisco-live.replit.app"
                 size={200}
-                level="M"
-                bgColor="#ffffff"
-                fgColor="#000000"
               />
             </div>
             <div className="mt-4 text-center">
