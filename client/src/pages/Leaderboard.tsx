@@ -742,23 +742,25 @@ export default function Leaderboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex gap-2 mb-4">
-            <Link href="/">
-              <Button variant="outline" size="sm">
-                <i className="fas fa-home mr-2"></i>
-                Home
+          {!isFullscreen && (
+            <div className="flex gap-2 mb-4">
+              <Link href="/">
+                <Button variant="outline" size="sm">
+                  <i className="fas fa-home mr-2"></i>
+                  Home
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleFullscreen}
+                data-testid="button-fullscreen"
+              >
+                <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
+                {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               </Button>
-            </Link>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleFullscreen}
-              data-testid="button-fullscreen"
-            >
-              <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            </Button>
-          </div>
+            </div>
+          )}
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
           </h1>
