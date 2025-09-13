@@ -385,7 +385,7 @@ export default function Leaderboard() {
             
             {/* Word cloud with organic positioning */}
             <div className="relative w-full h-full flex items-center justify-center">
-              {displayData.wordCloud.slice(0, 25).map((word, index) => {
+              {displayData.wordCloud.slice(0, 8).map((word, index) => {
                 // Check if mobile (viewport width less than 640px)
                 const isMobile = window.innerWidth < 640;
                 
@@ -471,32 +471,22 @@ export default function Leaderboard() {
                       </span>
                     </div>
                   );
-                } else if (index < 13) {
-                  // Middle layer - scattered organically
-                  size = isFullscreen ? 32 : (isMobile ? 10 : 20);
-                  opacity = 0.7;
+                } else {
+                  // Remaining 3 words (index 5-7) - outer layer
+                  size = isFullscreen ? 28 : (isMobile ? 16 : 24);
+                  opacity = 0.8;
                   zIndex = 10;
                   
-                  // More organic scatter pattern
-                  const scatterPositions = [
-                    { x: -220, y: -140 },   // Far top-left
-                    { x: 0, y: -180 },      // Top center
-                    { x: 200, y: -120 },    // Far top-right
-                    { x: -250, y: 20 },     // Left middle
-                    { x: 240, y: 0 },       // Right middle
-                    { x: -180, y: 150 },    // Bottom-left
-                    { x: 0, y: 160 },       // Bottom center
-                    { x: 210, y: 140 }      // Bottom-right
+                  // Scatter the last 3 words nicely
+                  const outerPositions = [
+                    { x: -200, y: -120 },   // Top-left
+                    { x: 0, y: 150 },       // Bottom center
+                    { x: 180, y: -100 }     // Top-right
                   ];
                   
-                  const pos = scatterPositions[index - 5];
-                  x = isFullscreen ? pos.x * 1.5 : (isMobile ? pos.x * 0.5 : pos.x * 0.85);
-                  y = isFullscreen ? pos.y * 1.5 : (isMobile ? pos.y * 0.5 : pos.y * 0.85);
-                  
-                  // Hide some of the middle ring on mobile to reduce clutter
-                  if (isMobile && index > 8) {
-                    return null; // Show only first 4 of the middle ring on mobile
-                  }
+                  const pos = outerPositions[index - 5];
+                  x = isFullscreen ? pos.x * 1.5 : (isMobile ? pos.x * 0.7 : pos.x);
+                  y = isFullscreen ? pos.y * 1.5 : (isMobile ? pos.y * 0.7 : pos.y);
                   
                   return (
                     <div
@@ -516,61 +506,6 @@ export default function Leaderboard() {
                           fontSize: `${size}px`,
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
-                        }}
-                      >
-                        {word.text}
-                        <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
-                      </span>
-                    </div>
-                  );
-                } else {
-                  // Outer layer - desktop only, very scattered
-                  if (isMobile) {
-                    return null;
-                  }
-                  size = isFullscreen ? 24 : 12;
-                  opacity = 0.6;
-                  zIndex = 5;
-                  
-                  // Far scattered positions
-                  const outerPositions = [
-                    { x: -320, y: -200 },
-                    { x: -100, y: -250 },
-                    { x: 150, y: -220 },
-                    { x: 300, y: -100 },
-                    { x: -350, y: 50 },
-                    { x: 320, y: 80 },
-                    { x: -280, y: 200 },
-                    { x: -80, y: 240 },
-                    { x: 120, y: 220 },
-                    { x: 280, y: 180 },
-                    { x: -200, y: -50 },
-                    { x: 180, y: 30 }
-                  ];
-                  
-                  const posIndex = (index - 13) % outerPositions.length;
-                  const pos = outerPositions[posIndex];
-                  x = isFullscreen ? pos.x * 1.3 : pos.x * 0.9;
-                  y = isFullscreen ? pos.y * 1.3 : pos.y * 0.9;
-                  
-                  return (
-                    <div
-                      key={word.text}
-                      className="absolute" // Removed animation class from wrapper
-                      style={{
-                        top: '50%',
-                        left: '50%',
-                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                        zIndex,
-                      }}
-                    >
-                      <span
-                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap word-cloud-drift"
-                        style={{
-                          fontSize: `${size}px`,
-                          opacity,
-                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
-                          animationDelay: `${index * 0.5}s`,
                         }}
                       >
                         {word.text}
@@ -684,12 +619,14 @@ export default function Leaderboard() {
                   <LabelList
                     dataKey="value"
                     position="inside"
-                    fill="#ffffff"
+                    fill="#000000"
                     style={{ 
                       fontSize: valueFontSize, 
-                      fontWeight: 'bold', 
-                      textShadow: '1px 1px 0 rgba(0,0,0,1)', // Sharp, clean shadow with no blur
-                      letterSpacing: '0.5px' // Added letter spacing for clarity
+                      fontWeight: '900', // Extra bold for better contrast
+                      textShadow: 'none', // Remove all shadows for crisp text
+                      letterSpacing: '0.5px', // Added letter spacing for clarity
+                      WebkitFontSmoothing: 'antialiased', // Better font rendering
+                      MozOsxFontSmoothing: 'grayscale'
                     }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
