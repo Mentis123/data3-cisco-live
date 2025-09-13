@@ -561,7 +561,7 @@ export default function Leaderboard() {
     const chartRadius = isFullscreen ? (isLargeScreen ? 200 : 160) : (isMobile ? 100 : 140);
     const chartHeight = isFullscreen ? 600 : (isMobile ? 300 : 450);
     const labelFontSize = isFullscreen ? '28px' : (isMobile ? '16px' : '20px'); // Increased font sizes
-    const valueFontSize = isFullscreen ? '32px' : (isMobile ? '16px' : '22px'); // Increased font sizes
+    const valueFontSize = isFullscreen ? '24px' : (isMobile ? '12px' : '16px'); // Smaller font sizes for better fit
     const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
     const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
     
