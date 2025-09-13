@@ -483,3 +483,17 @@
     }
   }
 }
+
+/* Fix blurry text in Recharts pie charts */
+.recharts-text {
+  text-rendering: geometricPrecision !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.recharts-pie-label-text {
+  font-weight: 500 !important;
+  text-rendering: geometricPrecision !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}

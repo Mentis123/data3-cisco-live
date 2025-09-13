@@ -581,7 +581,14 @@ export default function Leaderboard() {
             {/* Pie Chart */}
             <div className="w-full sm:flex-1">
               <ResponsiveContainer width="100%" height={chartHeight}>
-                <PieChart>
+                <PieChart
+                  style={{
+                    textRendering: 'geometricPrecision',
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                    shapeRendering: 'crispEdges'
+                  }}
+                >
                   <Pie
                     data={categoryData}
                     cx="50%"
