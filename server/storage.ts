@@ -113,7 +113,39 @@ export const storage = {
   async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
     
-    const wordFreq: { [key: string]: number } = {};
+    // Track both frequency and proper casing
+    const wordData: { 
+      [lowerKey: string]: { 
+        count: number; 
+        variants: { [casing: string]: number };
+        properCase?: string;
+      } 
+    } = {};
+
+    // Define proper casing for known Cisco products
+    const properCasing: { [lower: string]: string } = {
+      'appdynamics': 'AppDynamics',
+      'thousandeyes': 'ThousandEyes',
+      'webex': 'Webex',
+      'meraki': 'Meraki',
+      'securex': 'SecureX',
+      'aci': 'Cisco ACI',
+      'nexus': 'Nexus',
+      'ucs': 'UCS',
+      'sd-wan': 'SD-WAN',
+      'zero trust': 'Zero Trust',
+      'umbrella': 'Umbrella',
+      'duo': 'Duo',
+      'ise': 'ISE',
+      'dna': 'DNA',
+      'sase': 'SASE',
+      'intersight': 'Intersight',
+      'stealthwatch': 'Stealthwatch',
+      'catalyst': 'Catalyst',
+      'hyperflex': 'HyperFlex',
+      'cisco': 'Cisco',
+      'firepower': 'Firepower'
+    };
 
     allSubmissions.forEach(submission => {
       // Extract Cisco products from structured JSON
@@ -122,22 +154,60 @@ export const storage = {
         const products = structured.cisco_products || [];
         products.forEach((product: string) => {
           const cleanProduct = product.trim();
-          wordFreq[cleanProduct] = (wordFreq[cleanProduct] || 0) + 3; // Weight products higher
+          const lowerKey = cleanProduct.toLowerCase();
+          
+          if (!wordData[lowerKey]) {
+            wordData[lowerKey] = { count: 0, variants: {} };
+          }
+          
+          wordData[lowerKey].count += 3; // Weight products higher
+          wordData[lowerKey].variants[cleanProduct] = (wordData[lowerKey].variants[cleanProduct] || 0) + 1;
         });
       } catch (e) {
         // Fallback to solution text parsing
       }
 
       // Extract key technology terms from solution text
-      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch)\b/gi) || [];
+      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch|HyperFlex|Cisco|Firepower)\b/gi) || [];
       techTerms.forEach((term: string) => {
-        const cleanTerm = term.toLowerCase();
-        wordFreq[cleanTerm] = (wordFreq[cleanTerm] || 0) + 1;
+        const cleanTerm = term.trim();
+        const lowerKey = cleanTerm.toLowerCase();
+        
+        if (!wordData[lowerKey]) {
+          wordData[lowerKey] = { count: 0, variants: {} };
+        }
+        
+        wordData[lowerKey].count += 1;
+        wordData[lowerKey].variants[cleanTerm] = (wordData[lowerKey].variants[cleanTerm] || 0) + 1;
       });
     });
 
-    return Object.entries(wordFreq)
-      .map(([text, value]) => ({ text, value }))
+    // Determine the best casing for each word
+    Object.keys(wordData).forEach(lowerKey => {
+      const data = wordData[lowerKey];
+      
+      // Check if we have a known proper casing
+      if (properCasing[lowerKey]) {
+        data.properCase = properCasing[lowerKey];
+      } else {
+        // Use the most frequent variant
+        const mostFrequent = Object.entries(data.variants)
+          .sort((a, b) => b[1] - a[1])[0];
+        
+        if (mostFrequent) {
+          data.properCase = mostFrequent[0];
+        } else {
+          // Fallback: capitalize first letter
+          data.properCase = lowerKey.charAt(0).toUpperCase() + lowerKey.slice(1);
+        }
+      }
+    });
+
+    return Object.entries(wordData)
+      .map(([lowerKey, data]) => ({ 
+        text: data.properCase || lowerKey, 
+        value: data.count 
+      }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 30); // Top 30 terms
   },

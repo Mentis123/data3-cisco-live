@@ -67,6 +67,7 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 - Exit/Home buttons with confirmation dialogs to prevent data loss.
 - Category management system in the admin dashboard for CRUD operations on categories, including visual color picker.
 - Post-submission UI displays category-specific stats with color-coded headers for 5 minutes, then reverts to general stats.
+- Word cloud consolidates case variations of technology terms (e.g., "appdynamics" and "AppDynamics") using proper product casing.
 
 # External Dependencies
 
