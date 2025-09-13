@@ -546,8 +546,8 @@ export default function Leaderboard() {
     // Dynamic sizing based on fullscreen and screen size
     const chartRadius = isFullscreen ? (isLargeScreen ? 200 : 160) : (isMobile ? 100 : 140);
     const chartHeight = isFullscreen ? 600 : (isMobile ? 300 : 450);
-    const labelFontSize = isFullscreen ? '24px' : (isMobile ? '14px' : '16px');
-    const valueFontSize = isFullscreen ? '28px' : (isMobile ? '14px' : '18px');
+    const labelFontSize = isFullscreen ? '28px' : (isMobile ? '16px' : '20px'); // Increased font sizes
+    const valueFontSize = isFullscreen ? '32px' : (isMobile ? '16px' : '22px'); // Increased font sizes
     const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
     const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
     
@@ -575,42 +575,32 @@ export default function Leaderboard() {
                     outerRadius={chartRadius}
                     fill="#8884d8"
                     dataKey="value"
+                    labelLine={false} // Disable default label lines to position labels further out
                     label={isMobile ? false : (props) => {
-                      const { name, x, y, textAnchor, fill } = props;
+                      const RADIAN = Math.PI / 180;
+                      const { cx, cy, midAngle, innerRadius, outerRadius, name, index } = props;
+                      // Position labels further out from the pie
+                      const radius = outerRadius + 40; // Push labels 40px beyond the outer edge
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      
                       // Get the color from the categoryData
                       const entryData = categoryData.find(d => d.name === name);
                       const labelColor = entryData?.color || '#e2e8f0';
+                      
                       return (
                         <text
                           x={x}
                           y={y}
                           fill={labelColor}
-                          textAnchor={textAnchor}
+                          textAnchor={x > cx ? 'start' : 'end'}
                           dominantBaseline="middle"
-                          style={{ fontSize: labelFontSize, fontWeight: '600' }}
+                          style={{ fontSize: labelFontSize, fontWeight: '700' }} // Increased font weight
                         >
                           {name}
                         </text>
                       );
                     }}
-                  labelLine={(props: any) => {
-                    // Get the color from the categoryData for the line
-                    const entryData = categoryData.find(d => d.name === props.name);
-                    const lineColor = entryData?.color || '#6b7280';
-                    const { points } = props;
-                    // Always return a valid element, even if invisible
-                    if (!points || points.length < 2) {
-                      return <polyline points="" fill="none" stroke="transparent" strokeWidth={0} />;
-                    }
-                    return (
-                      <polyline 
-                        points={points.map((p: any) => `${p.x},${p.y}`).join(' ')}
-                        fill="none"
-                        stroke={lineColor}
-                        strokeWidth={2}
-                      />
-                    );
-                  }}
                 >
                   <LabelList
                     dataKey="value"
@@ -619,7 +609,8 @@ export default function Leaderboard() {
                     style={{ 
                       fontSize: valueFontSize, 
                       fontWeight: 'bold', 
-                      textShadow: '0 0 4px rgba(0,0,0,0.7)' 
+                      textShadow: '1px 1px 2px rgba(0,0,0,0.8)', // Reduced blur for sharper text
+                      letterSpacing: '0.5px' // Added letter spacing for clarity
                     }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
