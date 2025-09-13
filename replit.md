@@ -77,6 +77,14 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 - Word cloud consolidates case variations of technology terms (e.g., "appdynamics" and "AppDynamics") using proper product casing.
 - Fullscreen mode for leaderboard display (portrait-optimized) with toggle button and escape key exit.
 
+# Production Safety
+
+## Database Initialization
+- Default stats and categories are ONLY initialized in development mode (NODE_ENV !== 'production')
+- Production database maintains its own data without interference from deployment
+- The `initializeData()` function in `server/storage.ts` checks environment before seeding
+- No automatic data population occurs in production to preserve existing stats and categories
+
 # External Dependencies
 
 ## Third-Party Services

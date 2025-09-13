@@ -25,21 +25,28 @@ const defaultCustomCategories = [
   { name: 'NETWORKING', displayName: 'Networking', color: 'bg-[#7c3aed]' }
 ];
 
-// Initialize stats and categories on startup
+// Initialize stats and categories on startup (development only)
 async function initializeData() {
+  // Only initialize default data in development mode
+  // Production should maintain its own data
+  if (process.env.NODE_ENV === 'production') {
+    console.log("Running in production - skipping default data initialization");
+    return;
+  }
+  
   try {
     // Initialize stats
     const existingStats = await db.select().from(data3Stats);
     if (existingStats.length === 0) {
       await db.insert(data3Stats).values(defaultData3Stats);
-      console.log("Data#3 stats initialized");
+      console.log("Data#3 stats initialized (development mode)");
     }
     
     // Initialize custom categories
     const existingCategories = await db.select().from(customCategories);
     if (existingCategories.length === 0) {
       await db.insert(customCategories).values(defaultCustomCategories);
-      console.log("Custom categories initialized");
+      console.log("Custom categories initialized (development mode)");
     }
   } catch (e) {
     console.error("Error initializing data:", e);
