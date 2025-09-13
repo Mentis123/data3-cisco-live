@@ -114,6 +114,14 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
   5. Category is assigned automatically based on problem/solution content, not user selection
 - **Key Finding**: Category is NOT manually selected by user - it's AI-determined during submission
 
+**The 5 Categories Available:**
+- [2025-01-28 19:47] User asked about possible categories. The system has 5 predefined categories:
+  1. SECURE_CONNECTIVITY - Zero Trust & Secure Connectivity
+  2. HYBRID_DC - Data Centre & Hybrid Cloud  
+  3. COLLAB_CX - Collaboration & Contact Centre
+  4. OBSERVABILITY - Observability & Performance
+  5. EDGE_IOT - Edge & IoT Solutions
+
 ### Recent Updates
 **[2025-09-13 03:35] Balanced Scoring System:**
 - Implemented fairer evaluation scoring with participation floors
