@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import QRCode from "react-qr-code";
 import { Trophy, Target, Lightbulb, Zap, ChevronRight } from "lucide-react";
 
 export default function HowToPlay() {
@@ -55,7 +55,7 @@ export default function HowToPlay() {
               Scan to Play
             </h2>
             <div className="bg-white p-4 rounded-xl shadow-inner">
-              <QRCodeSVG 
+              <QRCode 
                 value={appUrl}
                 size={200}
                 level="M"
