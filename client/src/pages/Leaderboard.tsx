@@ -431,12 +431,10 @@ export default function Leaderboard() {
                   size = isFullscreen ? 48 : (isMobile ? 22 : 32); // Much larger in fullscreen
                   opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
-                  const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isFullscreen ? 450 : (isMobile ? 150 : 320); // Much larger radius to prevent clustering
-                  // Add slight vertical adjustment to prevent overlapping at 45° and 315°
-                  const verticalAdjust = (angle === 45 || angle === 315) ? (isFullscreen ? 40 : 20) : 0;
+                  const angle = ((index - 1) * 90); // 4 words at 0, 90, 180, 270 degrees for clear separation
+                  const radius = isFullscreen ? 280 : (isMobile ? 100 : 180); // Moderate radius for good spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius + verticalAdjust;
+                  const y = Math.sin(angle * Math.PI / 180) * radius;
                   
                   return (
                     <div
@@ -468,8 +466,8 @@ export default function Leaderboard() {
                   size = isFullscreen ? 32 : (isMobile ? 10 : 20); // Larger in fullscreen
                   opacity = 0.7; // Slightly higher opacity for better visibility
                   zIndex = 10;
-                  const angle = ((index - 5) * 45);
-                  const radius = isFullscreen ? 550 : (isMobile ? 180 : 380); // Much larger radius to prevent clustering
+                  const angle = ((index - 5) * 45); // 8 words evenly distributed
+                  const radius = isFullscreen ? 350 : (isMobile ? 140 : 240); // Moderate radius for middle ring
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
@@ -511,8 +509,8 @@ export default function Leaderboard() {
                   size = isFullscreen ? 24 : 12; // Larger in fullscreen
                   opacity = 0.6;
                   zIndex = 5;
-                  const angle = ((index - 13) * 30);
-                  const radius = isFullscreen ? 650 : 450; // Much larger radius to keep words spread out
+                  const angle = ((index - 13) * 30); // 12 words evenly distributed
+                  const radius = isFullscreen ? 420 : 300; // Outer ring with reasonable spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
