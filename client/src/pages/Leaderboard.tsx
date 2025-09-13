@@ -184,11 +184,11 @@ export default function Leaderboard() {
       const timeSinceSubmission = (now - submissionTime) / 1000; // in seconds
       const isWithin5Minutes = displayData.recentSubmission && timeSinceSubmission < 300;
       
-      if (isWithin5Minutes && activeView === "leaderboard") {
-        // Get the current display count for the leaderboard view
+      if (isWithin5Minutes && activeView === "data3stats") {
+        // Get the current display count for the stats view
         const currentViewCount = viewDisplayCounts[activeView] || 0;
         
-        // Graduated timing: 30s -> 20s -> 10s for leaderboard view only
+        // Graduated timing: 30s -> 20s -> 10s for stats view only after new submission
         if (currentViewCount === 0) {
           return 30000; // First display: 30 seconds
         } else if (currentViewCount === 1) {
