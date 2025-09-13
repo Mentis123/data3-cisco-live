@@ -57,9 +57,9 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
 - Real-time participant count and scoring updates.
 
 ## AI Integration 
-- **Sprint Coach**: GPT-4o-mini guides users through the 3-step sprint process with contextual prompts
-- **Category Assignment**: O3-mini automatically categorizes solutions into one of 5 categories
-- **Solution Evaluation**: O3-mini evaluates submissions against a 5-criteria rubric (0-50 points)
+- **Sprint Coach**: GPT-4o guides users through the 3-step sprint process with contextual prompts
+- **Category Assignment**: GPT-4o automatically categorizes solutions into one of 5 categories
+- **Solution Evaluation**: GPT-4o evaluates submissions against a 5-criteria rubric (0-50 points)
 - **Structured Output**: AI formats solutions into a standardized JSON schema
 - **Sprint Prompts**: Step-specific guidance to maintain momentum and target completion within 3 exchanges
 - **Total AI Calls**: Exactly 3 inference calls per submission (chat, categorization, scoring)

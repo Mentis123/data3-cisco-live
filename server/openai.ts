@@ -9,8 +9,8 @@ const openai = new OpenAI({
 // Model options: "gpt-4o-mini" (faster, cheaper) or "gpt-4o" (better quality, slower)
 // Using GPT-4o for better reasoning and guidance quality
 const CHAT_MODEL = process.env.CHAT_MODEL || "gpt-4o";
-// Use GPT-4o-mini for balanced evaluation scoring (O3-mini was too strict)
-const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o-mini";
+// Use GPT-4o for balanced, intelligent evaluation scoring
+const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o";
 
 const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Cisco Solution Challenge. Your goal is to guide users toward high-scoring solutions across 5 key criteria (each worth 0-10 points):
 
@@ -120,7 +120,7 @@ export async function categorizeProposal(
 ): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",  // Use GPT-4o-mini for category assignment
+      model: "gpt-4o",  // Use GPT-4o for intelligent category assignment
       messages: [
         {
           role: "system",
