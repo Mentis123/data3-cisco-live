@@ -225,6 +225,33 @@ Just describe it naturally - what's the problem that needs solving?`
     // Add user message and increment input count
     dispatch({ type: 'ADD_USER_INPUT', payload: userMessage });
 
+    // Easter egg: Cat command shows categories
+    if (userMessage.toLowerCase() === 'cat') {
+      const categoryList = `Here are the 5 categories:
+
+1. SECURE_CONNECTIVITY - Zero Trust & Secure Connectivity
+2. HYBRID_DC - Data Centre & Hybrid Cloud  
+3. COLLAB_CX - Collaboration & Contact Centre
+4. OBSERVABILITY - Observability & Performance
+5. EDGE_IOT - Edge & IoT Solutions
+
+Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scoring).`;
+      
+      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'assistant', content: categoryList } });
+      setIsTyping(false);
+      return;
+    }
+
+    // Handle category selection (e.g., "1a", "3b", etc.)
+    const categoryMatch = userMessage.match(/^([1-5])([ab])$/i);
+    if (categoryMatch) {
+      const categoryNum = parseInt(categoryMatch[1]);
+      const scoringLevel = categoryMatch[2].toLowerCase();
+      
+      handleCategorySelection(categoryNum, scoringLevel);
+      return;
+    }
+
     // Check for submit command - only allow in Step 3 or beyond
     if (isSubmitCommand(userMessage) && state.step >= 3) {
       handleSubmitCommand();
@@ -266,6 +293,111 @@ Just describe it naturally - what's the problem that needs solving?`
     
     const submission = composeSubmission(state.problem, state.impact, state.explore);
     dispatch({ type: 'SET_SUBMISSION', payload: submission });
+    goToStep(dispatch, 4);
+    setIsTyping(false);
+  };
+
+  const testSubmissions = {
+    1: { // SECURE_CONNECTIVITY
+      a: {
+        problem: "Our company has security issues and people can access things they shouldn't",
+        impact: "It's bad for business and costs money",
+        technologies: "Cisco firewalls, some security software, maybe VPN"
+      },
+      b: {
+        problem: "Remote employees access critical financial systems through legacy VPN with no device verification, creating 47 security incidents monthly averaging 3.2 hours remediation each",
+        impact: "147.4 hours monthly × $180/hour security analyst cost = $26,532 monthly ($318,384 annually). Current system allows lateral movement - one compromised device accessed 12 different systems in October breach",
+        technologies: "Cisco ISE for device compliance and posture assessment with EAP-TLS certificates, Duo MFA with push notifications and biometric verification, Umbrella DNS security blocking 99.7% malicious domains with real-time threat intelligence, ASA 5516-X firewalls with Firepower threat detection providing microsegmentation between network zones"
+      }
+    },
+    2: { // HYBRID_DC
+      a: {
+        problem: "Our servers are slow and we need cloud integration",
+        impact: "Takes too long to do things and users complain",
+        technologies: "Cisco servers, cloud connections, some storage"
+      },
+      b: {
+        problem: "Three physical data centers running 340 VMs on aging hardware with 23% average CPU utilization, taking 6-8 weeks to provision new services while business demands 48-hour deployment cycles",
+        impact: "Current provisioning: 6 weeks × $150K delayed project revenue × 12 annual requests = $10.8M opportunity cost. Resource waste: 77% unused compute capacity × $2.3M annual infrastructure spend = $1.77M inefficiency",
+        technologies: "UCS X-Series chassis with B200 M6 blade servers providing 40% better performance-per-watt, HyperFlex HX240c nodes creating hyperconverged infrastructure with automated scaling, Intersight cloud operations platform enabling zero-touch provisioning and predictive analytics, ACI fabric with Nexus 9000 switches providing consistent policy across on-premises and AWS environments"
+      }
+    },
+    3: { // COLLAB_CX
+      a: {
+        problem: "Customer calls are handled poorly and meetings don't work well",
+        impact: "Customers are unhappy and productivity is low",
+        technologies: "Webex, contact center software, some phones"
+      },
+      b: {
+        problem: "Contact center experiences 34% first-call resolution rate with average 8.2-minute handle time, while 73% of customer escalations stem from agent inability to access integrated customer data during calls",
+        impact: "Poor FCR costs: 66% callbacks × 14,200 monthly calls × 8.2 min average × $0.85/min = $67,588 monthly ($811K annually). Agent productivity loss: 73% escalations requiring supervisor intervention averaging 12 additional minutes = $156K annual labor cost",
+        technologies: "Webex Contact Center Enterprise with advanced queueing and skills-based routing algorithms, Finesse desktop integration with Salesforce CRM providing 360-degree customer view with automatic screen pops, Unity Connection voicemail-to-email with transcription reducing callback volume by 40%, Webex Devices (Room Kit Pro) in 15 conference rooms with automatic meeting join and wireless presentation capabilities"
+      }
+    },
+    4: { // OBSERVABILITY
+      a: {
+        problem: "Network is sometimes slow and we can't see what's wrong",
+        impact: "Users complain and IT doesn't know how to fix things quickly",
+        technologies: "Some monitoring tools, network devices, basic alerts"
+      },
+      b: {
+        problem: "Network outages detected reactively after 23-minute average user-reported delays, with root cause analysis taking 4.7 hours across 15 distributed sites using manual troubleshooting methods",
+        impact: "Downtime cost: 23 minutes × 850 users × $95/hour productivity = $30,658 per incident. MTTR reduction opportunity: Current 4.7 hours vs target 45 minutes = 4.25 hours savings × $180/hour NOC analyst × 18 monthly incidents = $41,310 monthly savings",
+        technologies: "ThousandEyes Enterprise agents deployed at all 15 sites providing hop-by-hop network path visibility with 1-minute polling intervals, DNA Center Assurance with AI-powered insights analyzing 200+ network metrics and predictive failure detection, AppDynamics APM monitoring business transactions end-to-end with automatic baseline establishment and anomaly detection, Catalyst 9300 switches with streaming telemetry feeding real-time performance data to centralized analytics platform"
+      }
+    },
+    5: { // EDGE_IOT
+      a: {
+        problem: "Factory equipment isn't connected and we need IoT",
+        impact: "Can't monitor things properly and maintenance is reactive",
+        technologies: "IoT sensors, edge computing, wireless networks"
+      },
+      b: {
+        problem: "Manufacturing line sensors generate 2.3TB daily data transmitted to cloud for processing, creating 340ms latency causing 12 false-positive shutdown alerts monthly and $47K in unnecessary production stops",
+        impact: "Current cloud processing: 340ms latency × 12 false shutdowns × $3,900 average restart cost = $46,800 monthly waste. Edge processing opportunity: Reduce latency to 15ms enabling real-time decision making, preventing 89% false positives and saving $41,652 monthly ($499,824 annually)",
+        technologies: "IE 3400 Heavy Duty Series switches providing Power-over-Ethernet+ for 48 industrial sensors with -40°C to 75°C operating range, IR1101 Integrated Services Routers with LTE failover and GPS synchronization for remote site connectivity, IOx-enabled edge computing platform running containerized analytics applications with 16GB memory processing sensor data locally, Catalyst 9800 wireless controller managing 60 industrial-grade access points with 802.11ax Wi-Fi 6 supporting 200 connected devices per AP"
+      }
+    }
+  };
+
+  const handleCategorySelection = (categoryNum: number, scoringLevel: string) => {
+    const submission = testSubmissions[categoryNum as keyof typeof testSubmissions];
+    if (!submission) {
+      setIsTyping(false);
+      return;
+    }
+
+    const data = submission[scoringLevel as 'a' | 'b'];
+    if (!data) {
+      setIsTyping(false);
+      return;
+    }
+
+    // Simulate the three-step process with the test data
+    const problem = expandProblem(data.problem);
+    const impact = quantifyImpact(data.impact, data.problem);
+    const explore = mapTechnologies(problem, impact);
+
+    // Override technologies with test data
+    explore.technologies = data.technologies.split(', ').map((tech, index) => ({
+      name: tech.split(' ')[0] + (index > 0 ? ` ${tech.split(' ')[1] || ''}` : ''),
+      description: `Enterprise solution addressing your specific needs`,
+      relevance: `Directly addresses the identified challenges`
+    }));
+
+    // Set all the data and advance to final submission
+    dispatch({ type: 'SET_PROBLEM', payload: problem });
+    dispatch({ type: 'SET_IMPACT', payload: impact });
+    dispatch({ type: 'SET_EXPLORE', payload: explore });
+
+    const finalSubmission = composeSubmission(problem, impact, explore);
+    dispatch({ type: 'SET_SUBMISSION', payload: finalSubmission });
+    
+    // Add confirmation message
+    const confirmMessage = `Test submission loaded: Category ${categoryNum}, ${scoringLevel === 'a' ? 'Low' : 'High'} scoring. Ready to submit!`;
+    dispatch({ type: 'ADD_MESSAGE', payload: { role: 'assistant', content: confirmMessage } });
+    
+    // Go to step 4 (submit)
     goToStep(dispatch, 4);
     setIsTyping(false);
   };

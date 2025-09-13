@@ -129,6 +129,13 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
   - High-scoring range: 40-45 points (excellent/near-exceptional level)
   - Each submission needs: Problem, Impact, and Technologies components
 
+**Easter Egg Implementation:**
+- [2025-01-28 20:10] Added hidden "cat" command for testing:
+  - Typing "cat" alone shows numbered list of 5 categories
+  - Follow-up with "#a" (low scoring) or "#b" (high scoring) for that category
+  - Example: "5a" = EDGE_IOT low-scoring submission auto-fills
+  - Not advertised publicly - internal testing feature
+
 ### Recent Updates
 **[2025-09-13 03:35] Balanced Scoring System:**
 - Implemented fairer evaluation scoring with participation floors
