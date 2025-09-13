@@ -57,6 +57,8 @@ export default function Leaderboard() {
   const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("data3stats");
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewDisplayCounts, setViewDisplayCounts] = useState<Record<string, number>>({});
+  const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
 
   // Fetch dashboard data
   const { data, isLoading, refetch } = useQuery<DashboardData>({
@@ -125,8 +127,15 @@ export default function Leaderboard() {
     };
   }, []);
 
-  // Auto-rotate views every 10 seconds
-  // If user manually selects an empty view, show it for 10s then revert to data3stats
+  // Reset view counts when a new submission arrives
+  useEffect(() => {
+    if (displayData?.recentSubmission?.id && displayData.recentSubmission.id !== lastSubmissionId) {
+      setLastSubmissionId(displayData.recentSubmission.id);
+      setViewDisplayCounts({}); // Reset counts for new submission
+    }
+  }, [displayData?.recentSubmission?.id, lastSubmissionId]);
+
+  // Auto-rotate views with graduated timing for new submissions
   useEffect(() => {
     if (!displayData) return;
 
@@ -165,7 +174,40 @@ export default function Leaderboard() {
       return () => clearTimeout(revertTimer);
     }
 
+    // Calculate display interval based on submission timing and view count
+    const getDisplayInterval = () => {
+      // Check if we have a recent submission within 5 minutes
+      const submissionTime = displayData.recentSubmission?.createdAt 
+        ? new Date(displayData.recentSubmission.createdAt).getTime() 
+        : 0;
+      const now = Date.now();
+      const timeSinceSubmission = (now - submissionTime) / 1000; // in seconds
+      const isWithin5Minutes = displayData.recentSubmission && timeSinceSubmission < 300;
+      
+      if (isWithin5Minutes && activeView === "leaderboard") {
+        // Get the current display count for the leaderboard view
+        const currentViewCount = viewDisplayCounts[activeView] || 0;
+        
+        // Graduated timing: 30s -> 20s -> 10s for leaderboard view only
+        if (currentViewCount === 0) {
+          return 30000; // First display: 30 seconds
+        } else if (currentViewCount === 1) {
+          return 20000; // Second display: 20 seconds
+        }
+      }
+      
+      return 10000; // Default: 10 seconds
+    };
+
+    const displayInterval = getDisplayInterval();
+
     const interval = setInterval(() => {
+      // Update the display count for the current view before rotating
+      setViewDisplayCounts(prev => ({
+        ...prev,
+        [activeView]: (prev[activeView] || 0) + 1
+      }));
+      
       const views = getAvailableViews();
       if (views.length > 1) {
         currentIndex = (currentIndex + 1) % views.length;
@@ -176,10 +218,10 @@ export default function Leaderboard() {
           setActiveView("data3stats");
         }
       }
-    }, 10000);
+    }, displayInterval);
 
     return () => clearInterval(interval);
-  }, [displayData, activeView]);
+  }, [displayData, activeView, viewDisplayCounts]);
 
   // Update display data when query data changes
   useEffect(() => {
