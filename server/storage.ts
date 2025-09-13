@@ -185,7 +185,6 @@ export const storage = {
       'stealthwatch': 'Stealthwatch',
       'catalyst': 'Catalyst',
       'hyperflex': 'HyperFlex',
-      'cisco': 'Cisco',
       'firepower': 'Firepower'
     };
 
@@ -209,8 +208,8 @@ export const storage = {
         // Fallback to solution text parsing
       }
 
-      // Extract key technology terms from solution text
-      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch|HyperFlex|Cisco|Firepower)\b/gi) || [];
+      // Extract key technology terms from solution text (excluding generic "Cisco")
+      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch|HyperFlex|Firepower)\b/gi) || [];
       techTerms.forEach((term: string) => {
         const cleanTerm = term.trim();
         const lowerKey = cleanTerm.toLowerCase();
@@ -246,6 +245,7 @@ export const storage = {
     });
 
     return Object.entries(wordData)
+      .filter(([lowerKey]) => lowerKey !== 'cisco') // Exclude generic "Cisco" term
       .map(([lowerKey, data]) => ({ 
         text: data.properCase || lowerKey, 
         value: data.count 
