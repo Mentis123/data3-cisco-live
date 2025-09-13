@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
 import Play from "@/pages/Play";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
+import HowToPlay from "@/pages/HowToPlay";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,10 +17,7 @@ function Router() {
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/play" component={Play} />
       <Route path="/admin-leaderboard" component={AdminLeaderboard} />
-      <Route path="/how-to-play" component={() => {
-        window.location.href = "/static/cisco_live_how_to_play.html";
-        return null;
-      }} />
+      <Route path="/how-to-play" component={HowToPlay} />
       <Route component={NotFound} />
     </Switch>
   );
