@@ -200,15 +200,24 @@ export default function Leaderboard() {
   }
 
   const renderLeaderboard = () => {
+    const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
+    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
+    const nameSize = isFullscreen ? 'text-2xl' : 'text-lg';
+    const scoreSize = isFullscreen ? 'text-4xl' : 'text-2xl';
+    const badgeSize = isFullscreen ? 'text-sm' : 'text-xs';
+    const rankSize = isFullscreen ? 'w-16 h-16 text-2xl' : 'w-12 h-12 text-lg';
+    const padding = isFullscreen ? 'p-6' : 'p-4';
+    const spaceY = isFullscreen ? 'space-y-4' : 'space-y-3';
+    
     if (displayData.leaderboard.length === 0) {
       return (
         <Card className="h-full">
           <CardHeader className="pb-4">
-            <CardTitle className="text-3xl font-bold text-center">
+            <CardTitle className={`${titleSize} font-bold text-center`}>
               <i className="fas fa-trophy text-yellow-500 mr-3"></i>
               Live Leaderboard
             </CardTitle>
-            <p className="text-center text-muted-foreground text-lg">
+            <p className={`text-center text-muted-foreground ${subtitleSize}`}>
               Waiting for first submissions...
             </p>
           </CardHeader>
@@ -226,21 +235,21 @@ export default function Leaderboard() {
     return (
     <Card className="h-full">
       <CardHeader className="pb-4">
-        <CardTitle className="text-3xl font-bold text-center">
+        <CardTitle className={`${titleSize} font-bold text-center`}>
           <i className="fas fa-trophy text-yellow-500 mr-3"></i>
           Live Leaderboard
         </CardTitle>
-        <p className="text-center text-muted-foreground text-lg">
+        <p className={`text-center text-muted-foreground ${subtitleSize}`}>
           {displayData.leaderboard.length} Solutions • Real-time Rankings
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className={spaceY}>
           {displayData.leaderboard.slice(0, 10).map((entry, index) => (
             <div
               key={entry.id}
               data-entry-id={entry.id}
-              className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+              className={`flex items-center justify-between ${padding} rounded-xl transition-all duration-300 ${
                 index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/30' :
                 index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border-2 border-gray-400/30' :
                 index === 2 ? 'bg-gradient-to-r from-orange-600/20 to-orange-700/20 border-2 border-orange-600/30' :
@@ -248,7 +257,7 @@ export default function Leaderboard() {
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                <div className={`${rankSize} rounded-full flex items-center justify-center font-bold ${
                   index === 0 ? 'bg-[#FFD700] text-gray-900 shadow-lg shadow-yellow-400/50' :
                   index === 1 ? 'bg-[#C0C0C0] text-gray-900 shadow-lg shadow-gray-400/50' :
                   index === 2 ? 'bg-[#CD7F32] text-white shadow-lg shadow-orange-600/50' :
@@ -261,10 +270,10 @@ export default function Leaderboard() {
                   )}
                 </div>
                 <div>
-                  <p className="font-semibold text-lg">{entry.name}</p>
+                  <p className={`font-semibold ${nameSize}`}>{entry.name}</p>
                   <Badge
                     variant="secondary"
-                    className="text-xs text-white"
+                    className={`${badgeSize} text-white`}
                     style={{ backgroundColor: CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] }}
                   >
                     {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
@@ -272,8 +281,8 @@ export default function Leaderboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-primary">{entry.totalScore}</p>
-                <p className="text-sm text-muted-foreground">/ 50</p>
+                <p className={`${scoreSize} font-bold text-primary`}>{entry.totalScore}</p>
+                <p className={`${isFullscreen ? 'text-lg' : 'text-sm'} text-muted-foreground`}>/ 50</p>
               </div>
             </div>
           ))}
@@ -284,15 +293,18 @@ export default function Leaderboard() {
   };
 
   const renderWordCloud = () => {
+    const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
+    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
+    
     if (displayData.wordCloud.length === 0) {
       return (
         <Card className="h-full">
           <CardHeader className="pb-4">
-            <CardTitle className="text-3xl font-bold text-center">
+            <CardTitle className={`${titleSize} font-bold text-center`}>
               <i className="fas fa-cloud text-blue-500 mr-3"></i>
               Popular Technologies
             </CardTitle>
-            <p className="text-center text-muted-foreground text-lg">
+            <p className={`text-center text-muted-foreground ${subtitleSize}`}>
               Most mentioned Cisco products in solutions
             </p>
           </CardHeader>
@@ -312,11 +324,11 @@ export default function Leaderboard() {
     return (
       <Card className="h-full overflow-hidden">
         <CardHeader className="pb-4">
-          <CardTitle className="text-3xl font-bold text-center">
+          <CardTitle className={`${titleSize} font-bold text-center`}>
             <i className="fas fa-cloud text-blue-500 mr-3"></i>
             Popular Technologies
           </CardTitle>
-          <p className="text-center text-muted-foreground text-lg">
+          <p className={`text-center text-muted-foreground ${subtitleSize}`}>
             Most mentioned Cisco products in solutions
           </p>
         </CardHeader>
@@ -358,7 +370,7 @@ export default function Leaderboard() {
                       <span
                         className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 word-cloud-float-1"
                         style={{
-                          fontSize: 'clamp(24px, 9vw, 56px)', // Responsive sizing that fits mobile
+                          fontSize: isFullscreen ? 'clamp(40px, 10vw, 80px)' : 'clamp(24px, 9vw, 56px)', // Larger in fullscreen
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
                           whiteSpace: 'nowrap',
@@ -374,7 +386,7 @@ export default function Leaderboard() {
                   );
                 } else if (index < 5) {
                   // Next 4 words - PRIORITIZED for visibility
-                  size = isMobile ? 22 : 32; // Larger on mobile for better visibility
+                  size = isFullscreen ? 48 : (isMobile ? 22 : 32); // Much larger in fullscreen
                   opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
@@ -409,7 +421,7 @@ export default function Leaderboard() {
                   );
                 } else if (index < 13) {
                   // Middle ring - smaller and less prominent
-                  size = isMobile ? 10 : 20; // Smaller on mobile to prioritize second level
+                  size = isFullscreen ? 32 : (isMobile ? 10 : 20); // Larger in fullscreen
                   opacity = 0.6; // Lower opacity to emphasize the important words
                   zIndex = 10;
                   const angle = ((index - 5) * 45);
@@ -452,7 +464,7 @@ export default function Leaderboard() {
                   if (isMobile) {
                     return null;
                   }
-                  size = 12;
+                  size = isFullscreen ? 24 : 12; // Larger in fullscreen
                   opacity = 0.6;
                   zIndex = 5;
                   const angle = ((index - 13) * 30);
@@ -527,15 +539,24 @@ export default function Leaderboard() {
     }
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const isLargeScreen = typeof window !== 'undefined' && window.innerWidth > 1024;
+    
+    // Dynamic sizing based on fullscreen and screen size
+    const chartRadius = isFullscreen ? (isLargeScreen ? 200 : 160) : (isMobile ? 100 : 140);
+    const chartHeight = isFullscreen ? 600 : (isMobile ? 300 : 450);
+    const labelFontSize = isFullscreen ? '24px' : (isMobile ? '14px' : '16px');
+    const valueFontSize = isFullscreen ? '28px' : (isMobile ? '14px' : '18px');
+    const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
+    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
     
     return (
       <Card className="h-full">
         <CardHeader className="pb-4">
-          <CardTitle className="text-3xl font-bold text-center">
+          <CardTitle className={`${titleSize} font-bold text-center`}>
             <i className="fas fa-chart-pie text-green-500 mr-3"></i>
             Problem Categories
           </CardTitle>
-          <p className="text-center text-muted-foreground text-lg">
+          <p className={`text-center text-muted-foreground ${subtitleSize}`}>
             Distribution of business problems by technology area
           </p>
         </CardHeader>
@@ -543,13 +564,13 @@ export default function Leaderboard() {
           <div className="flex flex-col sm:flex-row items-center justify-center h-full gap-4">
             {/* Pie Chart */}
             <div className="w-full sm:flex-1">
-              <ResponsiveContainer width="100%" height={isMobile ? 300 : 450}>
+              <ResponsiveContainer width="100%" height={chartHeight}>
                 <PieChart>
                   <Pie
                     data={categoryData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={isMobile ? 100 : 140}
+                    outerRadius={chartRadius}
                     fill="#8884d8"
                     dataKey="value"
                     label={isMobile ? false : (props) => {
@@ -564,7 +585,7 @@ export default function Leaderboard() {
                           fill={labelColor}
                           textAnchor={textAnchor}
                           dominantBaseline="middle"
-                          style={{ fontSize: '16px', fontWeight: '600' }}
+                          style={{ fontSize: labelFontSize, fontWeight: '600' }}
                         >
                           {name}
                         </text>
@@ -594,7 +615,7 @@ export default function Leaderboard() {
                     position="inside"
                     fill="#fff"
                     style={{ 
-                      fontSize: window.innerWidth < 640 ? '14px' : '18px', 
+                      fontSize: valueFontSize, 
                       fontWeight: 'bold', 
                       textShadow: '0 0 4px rgba(0,0,0,0.7)' 
                     }}
@@ -648,6 +669,12 @@ export default function Leaderboard() {
   };
 
   const renderData3Stats = () => {
+    const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
+    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
+    const statValueSize = isFullscreen ? 'text-6xl' : 'text-4xl';
+    const statTitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
+    const statDescSize = isFullscreen ? 'text-lg' : 'text-sm';
+    const padding = isFullscreen ? 'p-8' : 'p-6';
     // Show category-specific stats for 5 minutes after submission, then show random stats
     const submissionTime = displayData.recentSubmission?.createdAt 
       ? new Date(displayData.recentSubmission.createdAt).getTime() 
@@ -667,11 +694,11 @@ export default function Leaderboard() {
     return (
       <Card className="h-full">
         <CardHeader className="pb-4">
-          <CardTitle className="text-3xl font-bold text-center">
+          <CardTitle className={`${titleSize} font-bold text-center`}>
             <i className="fas fa-building text-blue-600 mr-3"></i>
             Data<sup>#</sup>3 by the Numbers
           </CardTitle>
-          <p className="text-center text-lg">
+          <p className={`text-center ${subtitleSize}`}>
             {isWithin5Minutes ? (
               <>
                 <span 
@@ -684,7 +711,7 @@ export default function Leaderboard() {
                 >
                   {CATEGORY_NAMES[displayData.recentSubmission?.category as keyof typeof CATEGORY_NAMES]} Stats
                 </span>
-                <span className="text-muted-foreground block mt-2 text-base">
+                <span className={`text-muted-foreground block mt-2 ${isFullscreen ? 'text-xl' : 'text-base'}`}>
                   Related to the recent submission
                 </span>
               </>
@@ -700,15 +727,15 @@ export default function Leaderboard() {
             {relevantStats.map((stat, index) => (
               <div
                 key={stat.id}
-                className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20"
+                className={`text-center ${padding} rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20`}
               >
-                <div className="text-4xl font-bold text-primary mb-2">
+                <div className={`${statValueSize} font-bold text-primary mb-2`}>
                   {stat.value}
                 </div>
-                <div className="text-lg font-semibold mb-1">
+                <div className={`${statTitleSize} font-semibold mb-1`}>
                   {stat.title}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className={`${statDescSize} text-muted-foreground`}>
                   {stat.description}
                 </div>
               </div>
@@ -716,15 +743,15 @@ export default function Leaderboard() {
           </div>
 
           {displayData.recentSubmission && (
-            <div className="mt-8 p-4 rounded-lg bg-muted/20 border border-muted-foreground/20">
+            <div className={`mt-8 ${isFullscreen ? 'p-6' : 'p-4'} rounded-lg bg-muted/20 border border-muted-foreground/20`}>
               <div className="flex items-center gap-3 mb-2">
                 <i className="fas fa-clock text-primary"></i>
-                <span className="font-semibold">Latest Submission</span>
+                <span className={`font-semibold ${isFullscreen ? 'text-xl' : ''}`}>Latest Submission</span>
               </div>
-              <p className="text-sm">
+              <p className={isFullscreen ? 'text-lg' : 'text-sm'}>
                 <strong>{displayData.recentSubmission.name}</strong> {isWithin5Minutes ? 'just ' : ''}submitted a solution for{' '}
                 <Badge 
-                  className={`mx-1 text-white ${CATEGORY_BADGE_CLASSES[displayData.recentSubmission.category as keyof typeof CATEGORY_BADGE_CLASSES] || 'bg-gray-500'}`}
+                  className={`mx-1 text-white ${isFullscreen ? 'text-base' : ''} ${CATEGORY_BADGE_CLASSES[displayData.recentSubmission.category as keyof typeof CATEGORY_BADGE_CLASSES] || 'bg-gray-500'}`}
                 >
                   {CATEGORY_NAMES[displayData.recentSubmission.category as keyof typeof CATEGORY_NAMES]}
                 </Badge>
@@ -761,10 +788,10 @@ export default function Leaderboard() {
               </Button>
             </div>
           )}
-          <h1 className="text-4xl sm:text-5xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className={`${isFullscreen ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'} font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent`}>
             Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
           </h1>
-          <p className="text-xl text-muted-foreground text-center">
+          <p className={`${isFullscreen ? 'text-3xl' : 'text-xl'} text-muted-foreground text-center`}>
             Cisco Live Melbourne 2025 • Powered by AI
           </p>
         </div>
