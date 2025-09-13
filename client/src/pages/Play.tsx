@@ -390,7 +390,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   </div>
                   <div className="mt-4 p-3 bg-secondary/10 rounded-lg">
                     <p className="text-xs text-center">
-                      💡 <strong>Pro tip:</strong> Type "submit" anytime to jump to final review
+                      💡 <strong>Pro tip:</strong> Submit anytime to jump to final review
                     </p>
                   </div>
                 </CardContent>
@@ -764,14 +764,24 @@ Just describe it naturally - what's the problem that needs solving?`
                 </Button>
               </div>
               
-              {/* Submit anytime pill */}
+              {/* Input counter and Submit button */}
               <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground flex-shrink-0">
                   Input {state.inputsCount}/6
                 </p>
-                <div className="bg-secondary/20 text-secondary px-2 sm:px-3 py-1 rounded-full text-xs truncate">
-                  💡 Type "submit" anytime to finish
-                </div>
+                {/* Submit button - show from step 2 onwards */}
+                {state.step >= 2 && (
+                  <Button
+                    onClick={handleSubmitCommand}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs px-2 sm:px-3 py-1 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
+                    data-testid="button-quick-submit"
+                  >
+                    <i className="fas fa-rocket text-xs mr-1.5"></i>
+                    Submit
+                  </Button>
+                )}
               </div>
             </div>
           </Card>
