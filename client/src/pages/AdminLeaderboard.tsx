@@ -57,6 +57,15 @@ interface Data3Stat {
   createdAt?: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  displayName: string;
+  color: string;
+  isSystemCategory: boolean;
+  createdAt?: string;
+}
+
 const CATEGORY_NAMES: Record<string, string> = {
   "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
   "HYBRID_DC": "Data Centre & Hybrid Cloud",
@@ -82,6 +91,317 @@ const CATEGORY_COLORS: Record<string, string> = {
   "CLOUD": "bg-[#2563eb]",                // Blue-600
   "NETWORKING": "bg-[#7c3aed]"            // Violet-600
 };
+
+// Category Management Component
+function CategoryManagement({ editingCategory, setEditingCategory, creatingNewCategory, setCreatingNewCategory }: {
+  editingCategory: Category | null;
+  setEditingCategory: (category: Category | null) => void;
+  creatingNewCategory: boolean;
+  setCreatingNewCategory: (creating: boolean) => void;
+}) {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem('adminKey') || '';
+  
+  // Fetch categories
+  const { data: categories, isLoading, refetch } = useQuery<Category[]>({
+    queryKey: ['/api/admin/categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/categories', {
+        headers: { 'x-admin-key': adminKey }
+      });
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+    enabled: !!adminKey
+  });
+
+  // Create category mutation
+  const createCategory = useMutation({
+    mutationFn: async (newCategory: Omit<Category, 'id' | 'createdAt' | 'isSystemCategory'>) => {
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
+        body: JSON.stringify(newCategory)
+      });
+      if (!response.ok) throw new Error('Failed to create category');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Category created successfully" });
+      refetch();
+      setCreatingNewCategory(false);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create category", variant: "destructive" });
+    }
+  });
+
+  // Update category mutation
+  const updateCategory = useMutation({
+    mutationFn: async ({ id, ...data }: Category) => {
+      const response = await fetch(`/api/admin/categories/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to update category');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Category updated successfully" });
+      refetch();
+      setEditingCategory(null);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update category", variant: "destructive" });
+    }
+  });
+
+  // Delete category mutation
+  const deleteCategory = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/categories/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+      if (!response.ok) throw new Error('Failed to delete category');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ 
+        title: "Success", 
+        description: data.reassignedStats 
+          ? `Category deleted. ${data.reassignedStats} stats reassigned to GENERAL.`
+          : "Category deleted successfully" 
+      });
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete category", variant: "destructive" });
+    }
+  });
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Category Management</CardTitle>
+              <p className="text-muted-foreground mt-1">Manage categories for submissions and stats</p>
+            </div>
+            <Button onClick={() => setCreatingNewCategory(true)} data-testid="button-add-category">
+              <i className="fas fa-plus mr-2"></i>
+              Add New Category
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b">
+                <tr className="text-left">
+                  <th className="pb-2 px-2">Category ID</th>
+                  <th className="pb-2 px-2">Display Name</th>
+                  <th className="pb-2 px-2">Color</th>
+                  <th className="pb-2 px-2">Type</th>
+                  <th className="pb-2 px-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    </td>
+                  </tr>
+                ) : categories?.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No categories found
+                    </td>
+                  </tr>
+                ) : (
+                  categories?.map((category) => (
+                    <tr key={category.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-2 font-mono text-sm">{category.name}</td>
+                      <td className="py-3 px-2 font-semibold">{category.displayName}</td>
+                      <td className="py-3 px-2">
+                        <Badge className={`${category.color} text-white`}>
+                          Preview
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-2">
+                        <Badge variant={category.isSystemCategory ? "secondary" : "outline"}>
+                          {category.isSystemCategory ? "System" : "Custom"}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-2">
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingCategory(category)}
+                            disabled={category.isSystemCategory}
+                            data-testid={`button-edit-category-${category.id}`}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              if (category.isSystemCategory) {
+                                toast({ 
+                                  title: "Cannot delete", 
+                                  description: "System categories cannot be deleted",
+                                  variant: "destructive" 
+                                });
+                                return;
+                              }
+                              if (confirm(`Delete category "${category.displayName}"? Any stats using this category will be reassigned to GENERAL.`)) {
+                                deleteCategory.mutate(category.id);
+                              }
+                            }}
+                            disabled={category.isSystemCategory}
+                            data-testid={`button-delete-category-${category.id}`}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Edit/Create Dialog */}
+      <Dialog open={!!editingCategory || creatingNewCategory} onOpenChange={(open) => {
+        if (!open) {
+          setEditingCategory(null);
+          setCreatingNewCategory(false);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? 'Edit Category' : 'Create New Category'}</DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            category={editingCategory}
+            onSubmit={(data) => {
+              if (editingCategory) {
+                updateCategory.mutate({ ...editingCategory, ...data });
+              } else {
+                createCategory.mutate(data);
+              }
+            }}
+            onCancel={() => {
+              setEditingCategory(null);
+              setCreatingNewCategory(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+// Category Form Component
+function CategoryForm({ category, onSubmit, onCancel }: {
+  category: Category | null;
+  onSubmit: (data: Omit<Category, 'id' | 'createdAt' | 'isSystemCategory'>) => void;
+  onCancel: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: category?.name || '',
+    displayName: category?.displayName || '',
+    color: category?.color || 'bg-[#6B7280]'
+  });
+
+  const availableColors = [
+    { value: 'bg-[#00BCF2]', label: 'Cyan' },
+    { value: 'bg-[#6CC04A]', label: 'Green' },
+    { value: 'bg-[#FF6B35]', label: 'Orange' },
+    { value: 'bg-[#9B59B6]', label: 'Purple' },
+    { value: 'bg-[#F39C12]', label: 'Yellow' },
+    { value: 'bg-[#64748b]', label: 'Slate' },
+    { value: 'bg-[#0891b2]', label: 'Cyan-600' },
+    { value: 'bg-[#059669]', label: 'Emerald' },
+    { value: 'bg-[#dc2626]', label: 'Red' },
+    { value: 'bg-[#ca8a04]', label: 'Yellow-600' },
+    { value: 'bg-[#2563eb]', label: 'Blue' },
+    { value: 'bg-[#7c3aed]', label: 'Violet' }
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="name">Category ID (internal use)</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value.toUpperCase().replace(/[^A-Z_]/g, '') })}
+          placeholder="e.g., CUSTOM_CATEGORY"
+          pattern="[A-Z_]+"
+          required
+          disabled={!!category}
+        />
+        <p className="text-xs text-muted-foreground mt-1">Use uppercase letters and underscores only</p>
+      </div>
+      <div>
+        <Label htmlFor="displayName">Display Name</Label>
+        <Input
+          id="displayName"
+          value={formData.displayName}
+          onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+          placeholder="e.g., Custom Category"
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="color">Color</Label>
+        <Select value={formData.color} onValueChange={(value) => setFormData({ ...formData, color: value })}>
+          <SelectTrigger id="color">
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded ${formData.color}`} />
+              <SelectValue />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {availableColors.map(color => (
+              <SelectItem key={color.value} value={color.value}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded ${color.value}`} />
+                  {color.label}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit">{category ? 'Update' : 'Create'}</Button>
+      </DialogFooter>
+    </form>
+  );
+}
 
 // Stats Management Component
 function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCreatingNewStat, statFilter, setStatFilter }: {
@@ -422,6 +742,8 @@ export default function AdminLeaderboard() {
   const [editingStat, setEditingStat] = useState<Data3Stat | null>(null);
   const [creatingNewStat, setCreatingNewStat] = useState(false);
   const [statFilter, setStatFilter] = useState<string>("ALL");
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [creatingNewCategory, setCreatingNewCategory] = useState(false);
   const { toast } = useToast();
 
   const { data: leaderboard, isLoading, refetch } = useQuery<DetailedEntry[]>({
@@ -610,6 +932,7 @@ export default function AdminLeaderboard() {
           <TabsList>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="stats">Data<sup className="text-primary">#</sup>3 Stats</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
           </TabsList>
 
           <TabsContent value="submissions">
@@ -701,6 +1024,15 @@ export default function AdminLeaderboard() {
               setCreatingNewStat={setCreatingNewStat}
               statFilter={statFilter}
               setStatFilter={setStatFilter}
+            />
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <CategoryManagement
+              editingCategory={editingCategory}
+              setEditingCategory={setEditingCategory}
+              creatingNewCategory={creatingNewCategory}
+              setCreatingNewCategory={setCreatingNewCategory}
             />
           </TabsContent>
         </Tabs>

@@ -137,6 +137,15 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
   - Not advertised publicly - internal testing feature
 
 ### Recent Updates
+**[2025-09-13 08:25] Category Management System:**
+- Added new "Categories" tab to admin dashboard for comprehensive category management
+- Implemented CRUD operations for categories (Create, Read, Update, Delete)
+- Categories have ID (internal), Display Name, Color, and Type (System/Custom)
+- System categories are protected from deletion (GENERAL, SCALE, EXPERTISE, etc.)
+- Automatic reassignment: When a category is deleted, all stats using it are reassigned to "GENERAL"
+- Visual color picker for category customization with 12 predefined color options
+- Category filtering now shows both system and custom categories in stats management
+
 **[2025-09-13 08:20] Fixed Zero-Scoring Bug:**
 - Switched evaluation model from O3-mini to GPT-4o-mini (O3-mini was too strict, returning all zeros)
 - Enhanced evaluation prompt with explicit participation scoring instructions

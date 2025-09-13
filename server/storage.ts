@@ -234,5 +234,61 @@ export const storage = {
 
   async deleteData3Stat(id: string): Promise<void> {
     await db.delete(data3Stats).where(eq(data3Stats.id, id));
+  },
+
+  async getCategories(): Promise<any[]> {
+    // Return hardcoded categories as we're using string-based categories
+    const systemCategories = [
+      { id: 'GENERAL', name: 'GENERAL', displayName: 'General', color: 'bg-[#64748b]', isSystemCategory: true },
+      { id: 'SCALE', name: 'SCALE', displayName: 'Scale', color: 'bg-[#0891b2]', isSystemCategory: true },
+      { id: 'EXPERTISE', name: 'EXPERTISE', displayName: 'Expertise', color: 'bg-[#059669]', isSystemCategory: true },
+      { id: 'INFRASTRUCTURE', name: 'INFRASTRUCTURE', displayName: 'Infrastructure', color: 'bg-[#dc2626]', isSystemCategory: true },
+      { id: 'SECURITY', name: 'SECURITY', displayName: 'Security', color: 'bg-[#ca8a04]', isSystemCategory: true },
+      { id: 'CLOUD', name: 'CLOUD', displayName: 'Cloud', color: 'bg-[#2563eb]', isSystemCategory: true },
+      { id: 'NETWORKING', name: 'NETWORKING', displayName: 'Networking', color: 'bg-[#7c3aed]', isSystemCategory: true },
+      { id: 'SECURE_CONNECTIVITY', name: 'SECURE_CONNECTIVITY', displayName: 'Zero Trust & Secure Connectivity', color: 'bg-[#00BCF2]', isSystemCategory: true },
+      { id: 'HYBRID_DC', name: 'HYBRID_DC', displayName: 'Data Centre & Hybrid Cloud', color: 'bg-[#6CC04A]', isSystemCategory: true },
+      { id: 'COLLAB_CX', name: 'COLLAB_CX', displayName: 'Collaboration & Contact Centre', color: 'bg-[#FF6B35]', isSystemCategory: true },
+      { id: 'OBSERVABILITY', name: 'OBSERVABILITY', displayName: 'Observability & Performance', color: 'bg-[#9B59B6]', isSystemCategory: true },
+      { id: 'EDGE_IOT', name: 'EDGE_IOT', displayName: 'Edge & IoT Solutions', color: 'bg-[#F39C12]', isSystemCategory: true }
+    ];
+    
+    // Get custom categories from a separate table if you implement one
+    // For now, just return system categories
+    return systemCategories;
+  },
+
+  async createCategory(data: { name: string; displayName: string; color: string }): Promise<any> {
+    // Since we're using string-based categories, we'd need to implement a separate categories table
+    // For now, return a mock response
+    return {
+      id: data.name,
+      name: data.name,
+      displayName: data.displayName,
+      color: data.color,
+      isSystemCategory: false,
+      createdAt: new Date().toISOString()
+    };
+  },
+
+  async updateCategory(id: string, data: { displayName: string; color: string }): Promise<void> {
+    // Since we're using string-based categories, updates would need to be tracked separately
+    // For now, this is a no-op
+  },
+
+  async deleteCategory(id: string): Promise<{ success: boolean; reassignedStats?: number }> {
+    // When deleting a category, reassign all stats using it to GENERAL
+    const stats = await db.select().from(data3Stats).where(eq(data3Stats.category, id));
+    
+    if (stats.length > 0) {
+      await db.update(data3Stats)
+        .set({ category: 'GENERAL' })
+        .where(eq(data3Stats.category, id));
+    }
+    
+    return { 
+      success: true, 
+      reassignedStats: stats.length 
+    };
   }
 };

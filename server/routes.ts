@@ -353,6 +353,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint to get all categories
+  app.get("/api/admin/categories", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get categories" });
+    }
+  });
+
+  // Admin endpoint to create new category
+  app.post("/api/admin/categories", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { name, displayName, color } = req.body;
+      const category = await storage.createCategory({
+        name,
+        displayName,
+        color
+      });
+
+      res.json(category);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create category" });
+    }
+  });
+
+  // Admin endpoint to update category
+  app.put("/api/admin/categories/:id", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { displayName, color } = req.body;
+      await storage.updateCategory(req.params.id, {
+        displayName,
+        color
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update category" });
+    }
+  });
+
+  // Admin endpoint to delete category (reassigns orphaned stats to GENERAL)
+  app.delete("/api/admin/categories/:id", async (req, res) => {
+    try {
+      const adminKey = req.headers['x-admin-key'];
+      if (adminKey !== process.env.ADMIN_KEY) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const result = await storage.deleteCategory(req.params.id);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
   // Admin endpoint to get full submission details
   app.get("/api/admin/submission/:id", async (req, res) => {
     try {
