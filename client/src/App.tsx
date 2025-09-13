@@ -17,6 +17,7 @@ function Router() {
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/play" component={Play} />
       <Route path="/admin-leaderboard" component={AdminLeaderboard} />
+      <Route path="/admin" component={AdminLeaderboard} />
       <Route path="/how-to-play" component={HowToPlay} />
       <Route component={NotFound} />
     </Switch>
