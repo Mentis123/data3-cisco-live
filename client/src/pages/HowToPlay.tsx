@@ -34,11 +34,8 @@ export default function HowToPlay() {
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-xl">
-            <span className="text-3xl font-bold text-white">#3</span>
-          </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Solution Sprint Challenge
+            Data<sup className="text-3xl">#</sup>3 Solution Sprint Challenge
           </h1>
         </div>
         <p className="text-xl text-cyan-200">Cisco Live Melbourne 2025 • AI-Powered Innovation</p>
