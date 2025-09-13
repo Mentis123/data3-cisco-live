@@ -75,6 +75,7 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 - Custom categories (INFRASTRUCTURE, SECURITY, CLOUD, NETWORKING) can be fully managed with CRUD operations.
 - Post-submission UI displays category-specific stats with color-coded headers for 5 minutes, then reverts to general stats.
 - Word cloud consolidates case variations of technology terms (e.g., "appdynamics" and "AppDynamics") using proper product casing.
+- Fullscreen mode for leaderboard display (portrait-optimized) with toggle button and escape key exit.
 
 # External Dependencies
 

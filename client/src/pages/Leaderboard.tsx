@@ -56,6 +56,7 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
 export default function Leaderboard() {
   const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("data3stats");
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Fetch dashboard data
   const { data, isLoading, refetch } = useQuery<DashboardData>({
@@ -82,6 +83,47 @@ export default function Leaderboard() {
       refetch();
     }
   });
+
+  // Fullscreen functionality
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } catch (err) {
+        console.error('Error attempting to enable fullscreen:', err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      } catch (err) {
+        console.error('Error attempting to exit fullscreen:', err);
+      }
+    }
+  };
+
+  // Listen for fullscreen changes and escape key
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && document.fullscreenElement) {
+        // Browser handles escape automatically, we just update state
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Auto-rotate views every 10 seconds
   // If user manually selects an empty view, show it for 10s then revert to data3stats
@@ -700,12 +742,23 @@ export default function Leaderboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Link href="/">
-            <Button variant="outline" size="sm" className="mb-4">
-              <i className="fas fa-home mr-2"></i>
-              Home
+          <div className="flex gap-2 mb-4">
+            <Link href="/">
+              <Button variant="outline" size="sm">
+                <i className="fas fa-home mr-2"></i>
+                Home
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={toggleFullscreen}
+              data-testid="button-fullscreen"
+            >
+              <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
             </Button>
-          </Link>
+          </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
           </h1>
