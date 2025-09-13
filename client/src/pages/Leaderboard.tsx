@@ -645,11 +645,11 @@ export default function Leaderboard() {
                   <LabelList
                     dataKey="value"
                     position="inside"
-                    fill="#fff"
+                    fill="#ffffff"
                     style={{ 
                       fontSize: valueFontSize, 
                       fontWeight: 'bold', 
-                      textShadow: '1px 1px 2px rgba(0,0,0,0.8)', // Reduced blur for sharper text
+                      textShadow: '1px 1px 0 rgba(0,0,0,1)', // Sharp, clean shadow with no blur
                       letterSpacing: '0.5px' // Added letter spacing for clarity
                     }}
                     formatter={(value: number) => {
