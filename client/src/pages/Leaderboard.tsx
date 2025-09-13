@@ -759,6 +759,51 @@ export default function Leaderboard() {
                 </Badge>
                 scoring <strong>{displayData.recentSubmission.totalScore}/50</strong>
               </p>
+              
+              {/* Show detailed submission info during 5-minute window */}
+              {isWithin5Minutes && displayData.recentSubmission && (
+                <>
+                  {/* Problem Summary */}
+                  {(() => {
+                    try {
+                      const structuredData = typeof displayData.recentSubmission.structuredJson === 'string' 
+                        ? JSON.parse(displayData.recentSubmission.structuredJson)
+                        : displayData.recentSubmission.structuredJson;
+                      
+                      if (structuredData?.problem_summary) {
+                        return (
+                          <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-primary/10 border border-primary/20`}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-lightbulb text-yellow-500"></i>
+                              <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>Problem Summary</span>
+                            </div>
+                            <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
+                              {structuredData.problem_summary}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    } catch (e) {
+                      console.error('Error parsing structuredJson:', e);
+                      return null;
+                    }
+                  })()}
+                  
+                  {/* AI Evaluation Summary */}
+                  {displayData.recentSubmission.evaluationNotes && (
+                    <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-cyan-500/10 border border-cyan-500/20`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <i className="fas fa-robot text-cyan-500"></i>
+                        <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>AI Evaluation Summary</span>
+                      </div>
+                      <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
+                        {displayData.recentSubmission.evaluationNotes}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </CardContent>
