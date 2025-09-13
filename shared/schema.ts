@@ -63,6 +63,7 @@ export const chatSchema = z.object({
     role: z.enum(["user", "assistant"]),
     content: z.string(),
   })),
+  sprintStep: z.number().optional(),
 });
 
 export const submitSolutionSchema = z.object({

@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { sessionToken, messages } = chatSchema.parse(req.body);
+      const { sessionToken, messages, sprintStep } = chatSchema.parse(req.body);
       const session = sessions.get(sessionToken);
 
       if (!session) {
@@ -85,7 +85,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add messages to session
       session.messages.push(...messages);
 
-      const response = await chatWithAssistant(session.messages);
+      // Pass sprintStep to AI for context-aware responses
+      const response = await chatWithAssistant(session.messages, sprintStep);
 
       // Add assistant response to session
       session.messages.push({ role: "assistant", content: response });

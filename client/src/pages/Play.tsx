@@ -173,18 +173,37 @@ Just describe it naturally - what's the problem that needs solving?`
       payload: { role: 'assistant', content }
     });
 
-    // Progress based on current step
-    if (state.step === 1 && state.problem) {
-      // After problem is set, move to impact
+    // Extract structured data from AI response based on current step
+    if (state.step === 1) {
+      // Extract problem from the user's input (last user message)
+      const lastUserMessage = state.messages.filter(m => m.role === 'user').pop();
+      if (lastUserMessage) {
+        const problem = expandProblem(lastUserMessage.content);
+        dispatch({ type: 'SET_PROBLEM', payload: problem });
+      }
       advanceToNextStep(dispatch, state.step);
-    } else if (state.step === 2 && state.impact) {
-      // After impact is set, move to explore
+    } else if (state.step === 2) {
+      // Extract impact from the user's input
+      const lastUserMessage = state.messages.filter(m => m.role === 'user').pop();
+      if (lastUserMessage) {
+        const impact = quantifyImpact(lastUserMessage.content, state.problem?.userInput);
+        dispatch({ type: 'SET_IMPACT', payload: impact });
+        
+        // Also prepare technologies for next step
+        const explore = mapTechnologies(state.problem!, impact);
+        dispatch({ type: 'SET_EXPLORE', payload: explore });
+      }
       advanceToNextStep(dispatch, state.step);
-    } else if (state.step === 3 && state.explore) {
-      // After explore is set, prepare submission
-      const submission = composeSubmission(state.problem!, state.impact!, state.explore);
-      dispatch({ type: 'SET_SUBMISSION', payload: submission });
-      advanceToNextStep(dispatch, state.step);
+    } else if (state.step === 3) {
+      // Check if the AI response confirms proceeding
+      const lowerContent = content.toLowerCase();
+      if (lowerContent.includes('ready to submit') || lowerContent.includes('solution is ready') || lowerContent.includes('proceed with this')) {
+        // Prepare submission if not already done
+        if (!state.submission && state.problem && state.impact && state.explore) {
+          const submission = composeSubmission(state.problem, state.impact, state.explore);
+          dispatch({ type: 'SET_SUBMISSION', payload: submission });
+        }
+      }
     }
   };
 
@@ -212,85 +231,14 @@ Just describe it naturally - what's the problem that needs solving?`
       return;
     }
 
-    // Process based on current step
-    switch (state.step) {
-      case 1:
-        // Problem step
-        const problem = expandProblem(userMessage);
-        dispatch({ type: 'SET_PROBLEM', payload: problem });
-        
-        // Ask for impact
-        const impactPrompt = `Got it. ${problem.expanded}
-
-**Step 2: Quantify the Impact** 📊
-
-To size this opportunity, tell me about:
-• How often does this happen? (times per week/day)
-• Time lost per incident? (hours/minutes)
-• Cost impact or risk? (rough estimate is fine)
-
-Even ballpark numbers help - I'll calculate the rest.`;
-        
-        dispatch({
-          type: 'ADD_MESSAGE',
-          payload: { role: 'assistant', content: impactPrompt }
-        });
-        setIsTyping(false);
-        advanceToNextStep(dispatch, state.step);
-        break;
-
-      case 2:
-        // Impact step
-        const impact = quantifyImpact(userMessage, state.problem?.userInput);
-        dispatch({ type: 'SET_IMPACT', payload: impact });
-        
-        // Map technologies and propose MVS
-        const explore = mapTechnologies(state.problem!, impact);
-        dispatch({ type: 'SET_EXPLORE', payload: explore });
-        
-        // Show technology proposal
-        let techProposal = `Perfect! Based on your impact of ${impact.calculatedMetrics?.weeklyHours} hours/week`;
-        if (impact.calculatedMetrics?.annualImpact) {
-          techProposal += ` (~$${Math.round(impact.calculatedMetrics.annualImpact).toLocaleString()} annually)`;
-        }
-        techProposal += `, here's my recommendation:
-
-**Step 3: Technology Solution** 🚀
-
-**Cisco Technologies:**
-${explore.technologies.map(t => `• **${t.name}**: ${t.description}`).join('\n')}
-
-**Quick Win (MVS):**
-${explore.mvs?.title}
-${explore.mvs?.implementation.map(i => `• ${i}`).join('\n')}
-
-Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")`;
-
-        if (impact.assumptions && impact.assumptions.length > 0) {
-          techProposal += `\n\n_Note: ${impact.assumptions.join('; ')}_`;
-        }
-        
-        dispatch({
-          type: 'ADD_MESSAGE',
-          payload: { role: 'assistant', content: techProposal }
-        });
-        setIsTyping(false);
-        advanceToNextStep(dispatch, state.step);
-        break;
-
-      case 3:
-        // Explore/confirmation step
-        if (userMessage.toLowerCase().includes('yes') || userMessage.toLowerCase().includes('proceed')) {
-          handleProceedToSubmit();
-        } else {
-          // Handle adjustments - send to AI for processing
-          chatMutation.mutate({ message: userMessage });
-        }
-        break;
-
-      default:
-        chatMutation.mutate({ message: userMessage });
+    // Check for confirmation in Step 3
+    if (state.step === 3 && (userMessage.toLowerCase().includes('yes') || userMessage.toLowerCase().includes('proceed') || userMessage.toLowerCase().includes('confirm'))) {
+      handleProceedToSubmit();
+      return;
     }
+
+    // Always use AI for all responses
+    chatMutation.mutate({ message: userMessage });
   };
 
   const handleSubmitCommand = () => {
@@ -743,7 +691,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
             {/* Chat Messages */}
             <div 
               ref={chatContainerRef} 
-              className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" 
+              className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" 
               data-testid="chat-messages"
             >
               {state.messages.map((message, index) => (
@@ -753,8 +701,8 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                         <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                       </div>
-                      <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[95%] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words">
+                      <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
+                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words overflow-wrap-anywhere">
                           {message.content}
                         </div>
                       </div>
@@ -764,8 +712,8 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                         <i className="fas fa-user text-xs sm:text-sm"></i>
                       </div>
-                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-3 sm:p-4 max-w-[95%] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words">{message.content}</p>
+                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
+                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words overflow-wrap-anywhere">{message.content}</p>
                       </div>
                     </>
                   )}
@@ -777,7 +725,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                     <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
                   </div>
-                  <div className="glass-panel rounded-lg rounded-tl-none p-3 sm:p-4">
+                  <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
@@ -790,7 +738,7 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
             </div>
 
             {/* Chat Input */}
-            <div className="p-4 sm:p-6 border-t border-border flex-shrink-0 bg-background">
+            <div className="p-3 sm:p-6 border-t border-border flex-shrink-0 bg-background">
               <div className="flex gap-2 sm:gap-3">
                 <Textarea
                   value={currentMessage}
@@ -802,14 +750,14 @@ Ready to proceed with this approach? (Type "yes", make adjustments, or "submit")
                     state.step === 3 ? "Type 'yes' to proceed or adjust..." :
                     "Type your message..."
                   }
-                  className="flex-1 min-h-[48px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
+                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
                   disabled={isTyping || state.inputsCount >= 6}
                   data-testid="input-chat-message"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                  className="min-h-[48px] min-w-[48px] px-3 touch-manipulation"
+                  className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] px-2.5 sm:px-3 touch-manipulation"
                   data-testid="button-send-message"
                 >
                   <i className="fas fa-paper-plane"></i>

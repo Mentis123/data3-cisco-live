@@ -404,3 +404,35 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+@layer utilities {
+  .safe-area-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Better mobile text wrapping */
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Ensure chat messages fit on mobile */
+  @media (max-width: 640px) {
+    .chat-message {
+      max-width: 100%;
+    }
+    
+    .chat-message > div:last-child {
+      max-width: calc(100% - 2.5rem);
+    }
+    
+    /* Reduce font size slightly on mobile for better fit */
+    .chat-message p,
+    .chat-message div {
+      font-size: 0.875rem;
+    }
+  }
+}
