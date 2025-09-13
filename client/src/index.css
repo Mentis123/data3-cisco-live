@@ -370,6 +370,28 @@
   50% { transform: translate(4px, -3px); }
 }
 
+/* New animations for peripheral words that maintain their distance */
+@keyframes peripheral-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(3px, -2px) scale(1.01); }
+  50% { transform: translate(-2px, -3px) scale(1); }
+  75% { transform: translate(2px, 2px) scale(1.01); }
+}
+
+@keyframes peripheral-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(-3px, 3px) scale(1); }
+  40% { transform: translate(2px, -3px) scale(1.01); }
+  60% { transform: translate(-3px, -2px) scale(1); }
+  80% { transform: translate(4px, 2px) scale(1.01); }
+}
+
+@keyframes peripheral-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(4px, -3px) scale(1.02); }
+  66% { transform: translate(-3px, 4px) scale(1.01); }
+}
+
 .word-cloud-float-1 {
   animation: float-1 8s ease-in-out infinite;
   will-change: transform;
@@ -385,6 +407,22 @@
   will-change: transform;
 }
 
+/* New peripheral animations with smaller movements */
+.word-cloud-peripheral-1 {
+  animation: peripheral-1 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+.word-cloud-peripheral-2 {
+  animation: peripheral-2 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+.word-cloud-peripheral-3 {
+  animation: peripheral-3 13s ease-in-out infinite;
+  will-change: transform;
+}
+
 .word-cloud-drift {
   animation: drift-small 15s ease-in-out infinite;
   will-change: transform;
@@ -394,6 +432,9 @@
   .word-cloud-float-1,
   .word-cloud-float-2,
   .word-cloud-float-3,
+  .word-cloud-peripheral-1,
+  .word-cloud-peripheral-2,
+  .word-cloud-peripheral-3,
   .word-cloud-drift {
     animation: none !important;
   }

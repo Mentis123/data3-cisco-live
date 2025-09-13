@@ -390,7 +390,7 @@ export default function Leaderboard() {
                   opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isFullscreen ? 250 : (isMobile ? 90 : 180); // Much larger radius in fullscreen to prevent overlap
+                  const radius = isFullscreen ? 320 : (isMobile ? 120 : 240); // Increased radius to keep them more peripheral
                   // Add slight vertical adjustment to prevent overlapping at 45° and 315°
                   const verticalAdjust = (angle === 45 || angle === 315) ? (isFullscreen ? 30 : 15) : 0;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
@@ -399,21 +399,21 @@ export default function Leaderboard() {
                   return (
                     <div
                       key={word.text}
-                      className={`absolute word-cloud-float-${(index % 3) + 1}`}
+                      className="absolute" // Removed animation class from wrapper to preserve positioning
                       style={{
                         top: '50%',
                         left: '50%',
                         transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                         zIndex,
-                        animationDelay: `${index * 0.5}s`,
                       }}
                     >
                       <span
-                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        className={`inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap word-cloud-peripheral-${(index % 3) + 1}`} // Added new animation class for peripheral movement
                         style={{
                           fontSize: `${size}px`,
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          animationDelay: `${index * 0.5}s`,
                         }}
                       >
                         {word.text}
@@ -427,7 +427,7 @@ export default function Leaderboard() {
                   opacity = 0.7; // Slightly higher opacity for better visibility
                   zIndex = 10;
                   const angle = ((index - 5) * 45);
-                  const radius = isFullscreen ? 380 : (isMobile ? 130 : 260); // Much larger radius in fullscreen
+                  const radius = isFullscreen ? 420 : (isMobile ? 150 : 300); // Increased radius to maintain spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
@@ -470,28 +470,28 @@ export default function Leaderboard() {
                   opacity = 0.6;
                   zIndex = 5;
                   const angle = ((index - 13) * 30);
-                  const radius = isFullscreen ? 480 : 320; // Larger radius in fullscreen
+                  const radius = isFullscreen ? 520 : 360; // Increased radius to maintain peripheral position
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
                   return (
                     <div
                       key={word.text}
-                      className="absolute word-cloud-drift"
+                      className="absolute" // Removed animation class from wrapper
                       style={{
                         top: '50%',
                         left: '50%',
                         transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                         zIndex,
-                        animationDelay: `${index * 0.5}s`,
                       }}
                     >
                       <span
-                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap word-cloud-drift"
                         style={{
                           fontSize: `${size}px`,
                           opacity,
                           textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          animationDelay: `${index * 0.5}s`,
                         }}
                       >
                         {word.text}
