@@ -1,8 +1,6 @@
 # Overview
 
-This is a full-stack web application for Data#3's "Cisco Solution Sprint" activation at Cisco Live Melbourne. The application offers an interactive booth experience where attendees propose business solutions using Cisco technologies. It features a live leaderboard, an AI-powered chat assistant for solution crafting, and an automated scoring system.
-
-The application guides participants through accepting terms, interacting with an AI coach to develop proposals, submitting them for scoring, and viewing their results on a live, animated leaderboard display. The system is designed to provide a dynamic and engaging experience for attendees.
+This full-stack web application is designed for Data#3's "Cisco Solution Sprint" activation at Cisco Live Melbourne. Its primary purpose is to provide an interactive booth experience where attendees develop and propose business solutions using Cisco technologies. The application features an AI-powered chat assistant for solution crafting, an automated scoring system, and a live, animated leaderboard. The goal is to offer a dynamic and engaging experience that guides participants from problem identification to solution submission and ranking.
 
 # User Preferences
 
@@ -18,218 +16,73 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Core Functionality
-The application facilitates a "Three-Reply Sprint" methodology through a mobile-first 4-step process:
-1. **Name the Problem** - Articulate a specific business challenge
-2. **Quantify the Impact** - Calculate time, cost, and productivity metrics  
-3. **Explore Technologies** - Map relevant Cisco solutions
-4. **Compete & Win** - Submit for AI scoring and leaderboard ranking
-
-Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" functionality where the system infers missing pieces.
+The application implements a "Three-Reply Sprint" methodology through a mobile-first, 4-step process: "Name the Problem," "Quantify the Impact," "Explore Technologies," and "Compete & Win." It targets three user replies with a hard cap of six inputs, allowing submissions at any point with the system inferring missing information.
 
 ## Frontend Architecture
 - **Framework**: React 18 with TypeScript and Vite.
-- **Styling**: Tailwind CSS with custom CSS variables for a consistent dark theme.
-- **UI Components**: Radix UI and shadcn/ui for accessible and customizable components.
-- **State Management**: TanStack Query for server state management and caching.
-- **Routing**: Wouter for lightweight client-side routing.
-- **Real-time Updates**: Custom WebSocket hook for live leaderboard.
+- **Styling**: Tailwind CSS with custom CSS variables (dark theme).
+- **UI Components**: Radix UI and shadcn/ui.
+- **State Management**: TanStack Query.
+- **Routing**: Wouter.
+- **Real-time Updates**: Custom WebSocket hook.
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js REST API.
-- **Database**: SQLite with Drizzle ORM for type-safe operations.
-- **Real-time Communication**: WebSocket server for broadcasting live score updates.
-- **AI Integration**: OpenAI API for chat and evaluation.
+- **Database**: SQLite with Drizzle ORM.
+- **Real-time Communication**: WebSocket server.
+- **AI Integration**: OpenAI API.
 - **Session Management**: In-memory session storage with rate limiting.
 
 ## Database Design
-- **Participants Table**: Stores user information (first name, last name, timestamp).
-- **Submissions Table**: Stores solution details, structured JSON, scoring, and category.
-- **Schema Validation**: Zod for runtime type checking.
+- **Tables**: `Participants` (user info) and `Submissions` (solution details, scoring, category).
+- **Schema Validation**: Zod.
 
 ## API Structure
-- **Public Routes**: Home, portrait-oriented leaderboard, solution crafting, "How to Play" board.
-- **API Endpoints**: Session management, category listing, AI chat assistance, solution submission, leaderboard data retrieval, health checks, and admin functions.
+- **Public Routes**: Home, leaderboard, solution crafting, "How to Play."
+- **API Endpoints**: Session management, category listing, AI chat, solution submission, leaderboard data, health checks, admin functions.
 
 ## Real-time Features
-- Live leaderboard updates via WebSocket connection.
-- Animated score insertion, flash effects, confetti.
-- Smooth ranking transitions with easing animations.
+- Live leaderboard updates via WebSocket, including animated score insertion, flash effects, confetti, and smooth ranking transitions.
 - Real-time participant count and scoring updates.
 
-## AI Integration 
-- **Sprint Coach**: GPT-4o guides users through the 3-step sprint process with contextual prompts
-- **Category Assignment**: GPT-4o automatically categorizes solutions into one of 5 categories
-- **Solution Evaluation**: GPT-4o evaluates submissions against a 5-criteria rubric (0-50 points)
-- **Structured Output**: AI formats solutions into a standardized JSON schema
-- **Sprint Prompts**: Step-specific guidance to maintain momentum and target completion within 3 exchanges
-- **Total AI Calls**: Exactly 3 inference calls per submission (chat, categorization, scoring)
+## AI Integration
+- **Sprint Coach**: GPT-4o guides users through the sprint process, pushing for quantified answers and aligning with scoring criteria.
+- **Category Assignment**: GPT-4o automatically categorizes solutions into one of five predefined categories.
+- **Solution Evaluation**: GPT-4o evaluates submissions against a five-criterion rubric (0-50 points) with participation floors and balanced scoring.
+- **Structured Output**: AI formats solutions into a standardized JSON schema.
+- **Prompts**: Step-specific guidance and targeted technology recommendations.
+- **AI Calls**: Exactly three inference calls per submission (chat, categorization, scoring).
 
 ## Security & Performance
-- Rate limiting on submissions (60-second cooldown per IP).
+- Rate limiting (60-second cooldown per IP).
 - Input validation and sanitization.
 - Configurable environment variables for API keys.
 - Efficient caching with React Query.
 - Optimistic UI updates.
 
+## UI/UX Decisions
+- Consistent dark theme with custom CSS variables.
+- Unified color scheme across components for categories.
+- Header image with custom Melbourne tech skyline.
+- Exit/Home buttons with confirmation dialogs to prevent data loss.
+- Category management system in the admin dashboard for CRUD operations on categories, including visual color picker.
+- Post-submission UI displays category-specific stats with color-coded headers for 5 minutes, then reverts to general stats.
+
 # External Dependencies
 
 ## Third-Party Services
-- **OpenAI API**: Used for chat assistance (gpt-4o-mini) and solution evaluation (o3).
+- **OpenAI API**: Used for AI chat assistance (GPT-4o) and solution evaluation (GPT-4o).
 - **Neon Database**: PostgreSQL database service for production deployment.
 
 ## Development & Deployment
-- **Replit Platform**: Hosting environment with integrated development tools.
-- **Vite Development Server**: For hot module replacement and optimized development.
+- **Replit Platform**: Hosting and development environment.
+- **Vite Development Server**: For optimized development experience.
 
 ## UI Component Libraries
-- **Radix UI**: Provides accessible, unstyled UI primitives.
-- **shadcn/ui**: Pre-styled component collection built on Radix UI.
+- **Radix UI**: Accessible, unstyled UI primitives.
+- **shadcn/ui**: Pre-styled components built on Radix UI.
 - **Lucide Icons**: Modern icon library.
 - **Font Awesome**: Specialized icon set.
 
 ## Monitoring & Performance
 - **TanStack Query**: Handles caching, background updates, and error handling.
-
-### Validation Tracking
-**Completed Validations:**
-- [2025-01-28 18:00] AI Models configured correctly:
-  - Chat assistant: GPT-4o-mini
-  - Category assignment: O3-mini
-  - Solution evaluation: O3-mini
-  - Total inference calls: Exactly 3 per submission
-- [2025-01-28 18:00] Word cloud spacing improved:
-  - Smaller words reduced in size (12-14px for outer ring)
-  - Increased radial spacing for better visual hierarchy
-- [2025-01-28 18:00] Stats display logic:
-  - Shows category-specific stats for 5 minutes after submission
-  - Reverts to general Data#3 stats after 5-minute window
-
-### Current User Flow Analysis
-**Category Selection Process**
-- [2025-01-28 16:47] Confirmed category assignment flow:
-  1. User enters problem + impact in chat with AI coach (GPT-4o-mini)
-  2. AI helps refine and structure the solution through conversation
-  3. When final JSON solution is generated, server auto-categorizes using `categorizeProposal()` function (O3-mini)
-  4. Solution is then evaluated for scoring using `evaluateSolution()` function (O3-mini)
-  5. Category is assigned automatically based on problem/solution content, not user selection
-- **Key Finding**: Category is NOT manually selected by user - it's AI-determined during submission
-
-**The 5 Categories Available:**
-- [2025-01-28 19:47] User asked about possible categories. The system has 5 predefined categories:
-  1. SECURE_CONNECTIVITY - Zero Trust & Secure Connectivity
-  2. HYBRID_DC - Data Centre & Hybrid Cloud  
-  3. COLLAB_CX - Collaboration & Contact Centre
-  4. OBSERVABILITY - Observability & Performance
-  5. EDGE_IOT - Edge & IoT Solutions
-
-**Test Submission Generation Request:**
-- [2025-01-28 20:08] User requested test submissions for each category:
-  - 2 sets per category (10 total submissions)
-  - Low-scoring range: 10-30 points (basic participation level)
-  - High-scoring range: 40-45 points (excellent/near-exceptional level)
-  - Each submission needs: Problem, Impact, and Technologies components
-
-**Easter Egg Implementation:**
-- [2025-01-28 20:10] Added hidden "cat" command for testing:
-  - Typing "cat" alone shows numbered list of 5 categories
-  - Follow-up with "#a" (low scoring) or "#b" (high scoring) for that category
-  - Example: "5a" = EDGE_IOT low-scoring submission auto-fills
-  - Not advertised publicly - internal testing feature
-
-### Recent Updates
-**[2025-09-13 08:25] Category Management System:**
-- Added new "Categories" tab to admin dashboard for comprehensive category management
-- Implemented CRUD operations for categories (Create, Read, Update, Delete)
-- Categories have ID (internal), Display Name, Color, and Type (System/Custom)
-- System categories are protected from deletion (GENERAL, SCALE, EXPERTISE, etc.)
-- Automatic reassignment: When a category is deleted, all stats using it are reassigned to "GENERAL"
-- Visual color picker for category customization with 12 predefined color options
-- Category filtering now shows both system and custom categories in stats management
-
-**[2025-09-13 08:20] Fixed Zero-Scoring Bug:**
-- Switched evaluation model from O3-mini to GPT-4o-mini (O3-mini was too strict, returning all zeros)
-- Enhanced evaluation prompt with explicit participation scoring instructions
-- Reinforced minimum 2 points per criterion for any coherent attempt
-- Clear scoring bands: 10-20 (participation), 20-30 (decent), 30-40 (strong), 40+ (exceptional)
-- Added "IMPORTANT" directive to never give all zeros unless completely empty/nonsensical
-- Scoring system now properly awards participation points while maintaining competitive differentiation
-
-**[2025-09-13 03:35] Balanced Scoring System:**
-- Implemented fairer evaluation scoring with participation floors
-- New banded scoring (0=non-attempt, 2-3=participation, 4-6=mid-tier, 7-9=high-tier, 10=exceptional)
-- Ensures completed sprints get minimum 10 points (2 per criterion) for genuine attempts
-- Caps mediocre attempts at ~25 points (50% max)
-- Maintains difficulty for high scores (40+ rare, 45+ exceptional)
-- Added debug logging to track evaluation inputs and outputs
-- Fixes the issue where valid submissions were receiving 0/50 scores
-
-**[2025-01-28 18:00] Improvements:**
-- Fixed Data#3 title to display with superscript hashtag (Data<sup>#</sup>3)
-- Enhanced word cloud with better spacing - smaller words now smaller (12-14px) with increased radial distances
-- Updated category assignment to use O3-mini instead of GPT-4o-mini
-- Implemented 5-minute window for category-specific stats display
-- Admin dashboard now includes tabbed interface with stats management section
-
-**[2025-01-28 18:15] Critical Fixes:**
-- Fixed admin authentication: Now properly stores 'cisco-live-melbourne-2025' in localStorage on successful login
-- Reduced pie chart label sizes for optimal readability (24px labels, 28px percentages)
-- Improved word cloud centering with adjusted positioning calculation
-- Added 6 Data#3 company stats to database under 'GENERAL' category:
-  - 2x Revenue Growth in 18 Months
-  - 700% Cloud Services Revenue Increase
-  - 1000+ Experts Across ANZ
-  - 50+ Certified Vendor Technologies
-  - 2,500+ Customers Trust Data#3
-  - 24/7 Support Coverage
-
-**[2025-01-28 19:00] Color Consistency & Category Stats:**
-- Unified color scheme across all components (pie chart, submission labels, admin dashboard):
-  - Zero Trust & Secure Connectivity: #00BCF2 (Cyan)
-  - Data Centre & Hybrid Cloud: #6CC04A (Green)
-  - Collaboration & Contact Centre: #FF6B35 (Orange)
-  - Observability & Performance: #9B59B6 (Purple)
-  - Edge & IoT Solutions: #F39C12 (Yellow)
-- Added 15 category-specific stats to database (3 per solution category)
-- Stats now properly filter by category to show relevant data during 5-minute window after submission
-
-**[2025-01-28 19:30] User Experience Enhancement:**
-- Added Exit/Home button to chat interface with confirmation dialog
-- Prevents accidental loss of work during solution development
-- Confirmation dialog warns users about losing unsaved progress
-- Two clear options: "Continue Working" to stay or "Exit & Lose Progress" to leave
-
-**[2025-01-28 20:00] Leaderboard Display Fixes:**
-- Reduced pie chart font sizes: labels from 24px to 20px, percentages/counts from 28px to 22px for better readability
-- Fixed category-specific stats alignment: Stats now correctly match the recent submission's category instead of the overall top category
-- Backend now uses `recentSubmission.category` for stats filtering during the 5-minute window
-- Ensures proper category correlation between submission badges and displayed statistics
-
-**[2025-01-28 20:30] Navigation Improvements:**
-- Added "Back to Home" button on Play registration page for easy exit
-- Added exit buttons with confirmation dialogs on preview and edit pages to prevent accidental data loss
-- Added "Back to Chat" and "Back to Preview" navigation between solution development steps
-- Moved exit confirmation dialog to component level so it works across all Play page sections
-- Leaderboard and Admin pages already have proper home navigation buttons
-- All pages now have clear escape routes back to the home page
-
-**[2025-01-28 21:00] Header Image Update:**
-- Added custom Melbourne tech skyline header image to Home page hero section
-- Integrated same header image into Play registration card with overlay gradient
-- Enhanced visual consistency across main entry points with branded imagery
-- Applied appropriate opacity and gradient overlays for text readability
-
-**[2025-09-13 02:55] AI Conversation Quality Overhaul:**
-- **Model Upgrade**: Switched from GPT-4o-mini to GPT-4o for superior reasoning and contextual understanding
-- **Smart Pushback Logic**: AI now rejects vague answers like "Big" and demands specific metrics ("How many interruptions/day? Time cost per interruption?")
-- **Scoring-Aligned Prompts**: Completely redesigned system prompts to guide toward all 5 scoring criteria:
-  - Problem Definition & KPIs: Quantified baselines, targets, business impact calculations
-  - Cisco Architecture Fit: Specific product recommendations with technical reasoning  
-  - Feasibility & Security: Integration points, zero-trust principles, constraint acknowledgment
-  - Business Impact at Scale: ROI calculations, multi-site rollout planning
-  - Observability & Automation: Monitoring plans, automation strategies
-- **Targeted Technology Recommendations**: Replaces generic suggestions with relevant solutions:
-  - Call interruption problems → Contact Center (routing), Unity Connection (voicemail), Webex Calling (DND policies)
-  - Network issues → Catalyst switches, DNA Center, ThousandEyes monitoring
-  - Security challenges → ISE, Umbrella, ASA firewalls
-- **Quality Verification**: Step 3 includes comprehensive checklist ensuring all high-scoring elements are covered
-- **Testing Validation**: End-to-end testing confirms AI properly pushes back on vague responses and guides toward quantified, high-scoring solutions

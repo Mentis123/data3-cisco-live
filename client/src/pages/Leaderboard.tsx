@@ -613,9 +613,14 @@ export default function Leaderboard() {
     const now = Date.now();
     const timeSinceSubmission = (now - submissionTime) / 1000; // in seconds
     
-    const relevantStats = displayData.recentSubmission && timeSinceSubmission < 300 // 5 minutes = 300 seconds
+    const isWithin5Minutes = displayData.recentSubmission && timeSinceSubmission < 300; // 5 minutes = 300 seconds
+    const relevantStats = isWithin5Minutes
       ? displayData.topCategoryStats
       : displayData.data3Stats.slice(0, 6);
+    
+    const categoryColor = isWithin5Minutes && displayData.recentSubmission?.category
+      ? CATEGORY_COLORS[displayData.recentSubmission.category as keyof typeof CATEGORY_COLORS]
+      : null;
 
     return (
       <Card className="h-full">
@@ -624,11 +629,28 @@ export default function Leaderboard() {
             <i className="fas fa-building text-blue-600 mr-3"></i>
             Data<sup>#</sup>3 by the Numbers
           </CardTitle>
-          <p className="text-center text-muted-foreground text-lg">
-            {displayData.recentSubmission && timeSinceSubmission < 300
-              ? `Stats related to ${CATEGORY_NAMES[displayData.topCategory as keyof typeof CATEGORY_NAMES]}`
-              : <>General Data<sup>#</sup>3 Stats • Scale and expertise across Australia & New Zealand</>
-            }
+          <p className="text-center text-lg">
+            {isWithin5Minutes ? (
+              <>
+                <span 
+                  className="font-semibold px-2 py-1 rounded inline-block"
+                  style={{ 
+                    backgroundColor: categoryColor ? `${categoryColor}20` : 'transparent',
+                    color: categoryColor || 'inherit',
+                    border: categoryColor ? `2px solid ${categoryColor}` : 'none'
+                  }}
+                >
+                  {CATEGORY_NAMES[displayData.recentSubmission?.category as keyof typeof CATEGORY_NAMES]} Stats
+                </span>
+                <span className="text-muted-foreground block mt-2 text-base">
+                  Related to the recent submission
+                </span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">
+                General Data<sup>#</sup>3 Stats • Scale and expertise across Australia & New Zealand
+              </span>
+            )}
           </p>
         </CardHeader>
         <CardContent>
@@ -658,7 +680,7 @@ export default function Leaderboard() {
                 <span className="font-semibold">Latest Submission</span>
               </div>
               <p className="text-sm">
-                <strong>{displayData.recentSubmission.name}</strong> just submitted a solution for{' '}
+                <strong>{displayData.recentSubmission.name}</strong> {isWithin5Minutes ? 'just ' : ''}submitted a solution for{' '}
                 <Badge 
                   className={`mx-1 text-white ${CATEGORY_BADGE_CLASSES[displayData.recentSubmission.category as keyof typeof CATEGORY_BADGE_CLASSES] || 'bg-gray-500'}`}
                 >
