@@ -122,6 +122,13 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
   4. OBSERVABILITY - Observability & Performance
   5. EDGE_IOT - Edge & IoT Solutions
 
+**Test Submission Generation Request:**
+- [2025-01-28 20:08] User requested test submissions for each category:
+  - 2 sets per category (10 total submissions)
+  - Low-scoring range: 10-30 points (basic participation level)
+  - High-scoring range: 40-45 points (excellent/near-exceptional level)
+  - Each submission needs: Problem, Impact, and Technologies components
+
 ### Recent Updates
 **[2025-09-13 03:35] Balanced Scoring System:**
 - Implemented fairer evaluation scoring with participation floors
