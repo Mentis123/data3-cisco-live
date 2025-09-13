@@ -331,12 +331,12 @@ export default function Leaderboard() {
                     </div>
                   );
                 } else if (index < 5) {
-                  // Next 4 words - positioned around center
-                  size = isMobile ? 18 : 32;
-                  opacity = 0.9;
+                  // Next 4 words - PRIORITIZED for visibility
+                  size = isMobile ? 22 : 32; // Larger on mobile for better visibility
+                  opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isMobile ? 80 : 150;
+                  const radius = isMobile ? 90 : 150; // Slightly larger radius for better spacing
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
@@ -366,14 +366,19 @@ export default function Leaderboard() {
                     </div>
                   );
                 } else if (index < 13) {
-                  // Middle ring - 8 words
-                  size = isMobile ? 12 : 20;
-                  opacity = 0.75;
+                  // Middle ring - smaller and less prominent
+                  size = isMobile ? 10 : 20; // Smaller on mobile to prioritize second level
+                  opacity = 0.6; // Lower opacity to emphasize the important words
                   zIndex = 10;
                   const angle = ((index - 5) * 45);
-                  const radius = isMobile ? 120 : 240;
+                  const radius = isMobile ? 130 : 240; // Pushed further out on mobile
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
+                  
+                  // Hide some of the middle ring on mobile to reduce clutter
+                  if (isMobile && index > 8) {
+                    return null; // Show only first 4 of the middle ring on mobile
+                  }
                   
                   return (
                     <div
