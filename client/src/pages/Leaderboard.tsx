@@ -432,9 +432,9 @@ export default function Leaderboard() {
                   opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isFullscreen ? 320 : (isMobile ? 120 : 240); // Increased radius to keep them more peripheral
+                  const radius = isFullscreen ? 450 : (isMobile ? 150 : 320); // Much larger radius to prevent clustering
                   // Add slight vertical adjustment to prevent overlapping at 45° and 315°
-                  const verticalAdjust = (angle === 45 || angle === 315) ? (isFullscreen ? 30 : 15) : 0;
+                  const verticalAdjust = (angle === 45 || angle === 315) ? (isFullscreen ? 40 : 20) : 0;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius + verticalAdjust;
                   
@@ -469,7 +469,7 @@ export default function Leaderboard() {
                   opacity = 0.7; // Slightly higher opacity for better visibility
                   zIndex = 10;
                   const angle = ((index - 5) * 45);
-                  const radius = isFullscreen ? 420 : (isMobile ? 150 : 300); // Increased radius to maintain spacing
+                  const radius = isFullscreen ? 550 : (isMobile ? 180 : 380); // Much larger radius to prevent clustering
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
@@ -512,7 +512,7 @@ export default function Leaderboard() {
                   opacity = 0.6;
                   zIndex = 5;
                   const angle = ((index - 13) * 30);
-                  const radius = isFullscreen ? 520 : 360; // Increased radius to maintain peripheral position
+                  const radius = isFullscreen ? 650 : 450; // Much larger radius to keep words spread out
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
