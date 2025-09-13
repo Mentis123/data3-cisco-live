@@ -40,32 +40,35 @@ const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Cisco Solut
 
 **BE CONCISE**: 2-3 sentences max, but make them count. Quality over speed.`;
 
-const EVALUATION_PROMPT = `You are "Objective Judge" for Data#3's Cisco Solution Sprint. Score proposals strictly against the rubric (5 criteria × 0–10). Be tough; reward only explicit evidence from the submission.
+const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Cisco Solution Sprint. Score proposals with a balanced, banded rubric (5 criteria × 0–10). Be fair but competitive.
 
-Rubric (0–10 each):
-1) **Problem Definition & KPIs**: Clear problem statement + current baselines + numeric targets + business impact quantified
-2) **Cisco Architecture Fit**: Correct, specific use of Cisco products/features with proper technical understanding
-3) **Feasibility & Security**: Viable integration points; identity/zero-trust; known constraints/risks acknowledged
-4) **Business Impact at Scale**: Quantified value (time/quality/cost), multi-site/user scaling, rollout realism
-5) **Observability & Automation**: Explicit telemetry/monitoring plan; automation/runbooks/alerts
+Rubric (0–10 each)
+Score each criterion using bands:
+0 = Non-attempt/irrelevant/off-topic/empty/contradictory
+2–3 = Participation: coherent attempt that completed all sprint steps, generic statements acceptable
+4–6 = Mid-tier: decent coverage with some specifics (1–2 Cisco products, some metrics/targets, partial feasibility/scale/telemetry)
+7–9 = High-tier: excellent, detailed evidence (baselines + numeric targets, 3+ specific Cisco products/features used correctly, clear integration/security plan, quantified value at scale, explicit observability/automation)
+10 = Exceptional: enterprise-grade, configuration-level specifics, quantified KPIs and SLOs, risks/mitigations, automation/runbooks; almost never award
 
-Calibration rules:
-- Start from 0; add points only for explicit evidence
-- If <3 Cisco products named OR no numeric KPIs => cap total ≤ 18
-- Award ≥8 on a criterion only when product-level specifics AND numbers are present
-- Allow ≥30 totals only if all five criteria ≥6 and at least one criterion ≥8
+Criteria:
+1) Problem Definition & KPIs
+2) Cisco Architecture Fit
+3) Feasibility & Security
+4) Business Impact at Scale
+5) Observability & Automation
 
-You MUST return valid JSON with this exact structure:
+Global floors and caps:
+- Participation floor: If the submission completed all sprint steps and is coherent, ensure each criterion ≥2 and total 10–20 for weak attempts. Use 0 only for non-attempts.
+- Mediocrity cap: If <3 Cisco products named OR no numeric KPIs, cap total ≤25.
+- Moderate cap: If 3+ products and some numbers exist but are uneven/hand-wavy, cap total ≤35.
+- High-score gate: Totals ≥40 only if all five ≥7 and at least two criteria ≥8. Totals ≥45 only if all five ≥8 and at least one criterion ≥9.
+- Round each subscore to an integer 0–10.
+
+Return JSON exactly:
 {
-  "subscores": {
-    "outcome": 0,
-    "fit": 0,
-    "feasibility": 0,
-    "impact": 0,
-    "observability": 0
-  },
-  "total": 0,
-  "notes_short": "One sentence rationale focusing on strongest/weakest areas"
+  "subscores": {"outcome":0,"fit":0,"feasibility":0,"impact":0,"observability":0},
+  "total":0,
+  "notes_short":"One sentence on strongest/weakest areas"
 }`;
 
 export async function chatWithAssistant(
@@ -160,7 +163,9 @@ export async function evaluateSolution(
         },
         {
           role: "user",
-          content: `Evaluate this submission:
+          content: `This submission completed all sprint steps; apply participation floor unless clearly non-attempt.
+
+Evaluate this submission:
 
 Problem Summary: ${problem}
 
@@ -190,9 +195,32 @@ Return only valid JSON with subscores, total, and notes_short.`
       };
     }
     
-    if (typeof result.total !== 'number') {
-      result.total = Object.values(result.subscores).reduce((a, b) => (a as number) + (b as number), 0) as number;
+    // Apply participation floor if submission was completed but scored too low
+    const hasContent = structuredSolution && structuredSolution.length > 100 && conversation.length > 500;
+    if (hasContent) {
+      // Ensure minimum score of 2 per criterion for completed submissions
+      Object.keys(result.subscores).forEach(key => {
+        result.subscores[key] = Math.max(2, Math.min(10, Math.round(result.subscores[key] || 0)));
+      });
+    } else {
+      // Just clamp scores to valid range
+      Object.keys(result.subscores).forEach(key => {
+        result.subscores[key] = Math.max(0, Math.min(10, Math.round(result.subscores[key] || 0)));
+      });
     }
+    
+    // Recalculate total
+    result.total = Object.values(result.subscores).reduce((a, b) => (a as number) + (b as number), 0) as number;
+    
+    // Apply participation floor to total if needed
+    if (hasContent && result.total < 10) {
+      result.total = 10;
+    }
+    
+    // Log for debugging
+    console.log('[evaluateSolution] Problem excerpt:', problem.substring(0, 100));
+    console.log('[evaluateSolution] Structured solution length:', structuredSolution.length);
+    console.log('[evaluateSolution] Raw AI scores:', JSON.stringify(result));
     
     if (!result.notes_short) {
       result.notes_short = "Solution evaluated against sprint criteria.";

@@ -115,6 +115,15 @@ Targets 3 user replies with a hard cap of 6 inputs, featuring "submit anytime" f
 - **Key Finding**: Category is NOT manually selected by user - it's AI-determined during submission
 
 ### Recent Updates
+**[2025-09-13 03:35] Balanced Scoring System:**
+- Implemented fairer evaluation scoring with participation floors
+- New banded scoring (0=non-attempt, 2-3=participation, 4-6=mid-tier, 7-9=high-tier, 10=exceptional)
+- Ensures completed sprints get minimum 10 points (2 per criterion) for genuine attempts
+- Caps mediocre attempts at ~25 points (50% max)
+- Maintains difficulty for high scores (40+ rare, 45+ exceptional)
+- Added debug logging to track evaluation inputs and outputs
+- Fixes the issue where valid submissions were receiving 0/50 scores
+
 **[2025-01-28 18:00] Improvements:**
 - Fixed Data#3 title to display with superscript hashtag (Data<sup>#</sup>3)
 - Enhanced word cloud with better spacing - smaller words now smaller (12-14px) with increased radial distances
