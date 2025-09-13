@@ -390,9 +390,11 @@ export default function Leaderboard() {
                   opacity = 0.95; // Higher opacity for prominence
                   zIndex = 20;
                   const angle = ((index - 1) * 90) + 45; // 4 words at 45, 135, 225, 315 degrees
-                  const radius = isMobile ? 90 : 150; // Slightly larger radius for better spacing
+                  const radius = isFullscreen ? 250 : (isMobile ? 90 : 180); // Much larger radius in fullscreen to prevent overlap
+                  // Add slight vertical adjustment to prevent overlapping at 45° and 315°
+                  const verticalAdjust = (angle === 45 || angle === 315) ? (isFullscreen ? 30 : 15) : 0;
                   const x = Math.cos(angle * Math.PI / 180) * radius;
-                  const y = Math.sin(angle * Math.PI / 180) * radius;
+                  const y = Math.sin(angle * Math.PI / 180) * radius + verticalAdjust;
                   
                   return (
                     <div
@@ -422,10 +424,10 @@ export default function Leaderboard() {
                 } else if (index < 13) {
                   // Middle ring - smaller and less prominent
                   size = isFullscreen ? 32 : (isMobile ? 10 : 20); // Larger in fullscreen
-                  opacity = 0.6; // Lower opacity to emphasize the important words
+                  opacity = 0.7; // Slightly higher opacity for better visibility
                   zIndex = 10;
                   const angle = ((index - 5) * 45);
-                  const radius = isMobile ? 130 : 240; // Pushed further out on mobile
+                  const radius = isFullscreen ? 380 : (isMobile ? 130 : 260); // Much larger radius in fullscreen
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
@@ -468,7 +470,7 @@ export default function Leaderboard() {
                   opacity = 0.6;
                   zIndex = 5;
                   const angle = ((index - 13) * 30);
-                  const radius = 320;
+                  const radius = isFullscreen ? 480 : 320; // Larger radius in fullscreen
                   const x = Math.cos(angle * Math.PI / 180) * radius;
                   const y = Math.sin(angle * Math.PI / 180) * radius;
                   
