@@ -57,6 +57,15 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
 export default function Leaderboard() {
   const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("data3stats");
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
+
+  // Test function for manual audio trigger
+  const testAudio = () => {
+    console.log('🎵 Testing audio manually...');
+    audioManager.playFlashSound().catch(err => console.warn('Manual flash sound failed:', err));
+    setTimeout(() => {
+      audioManager.playNewChallengerSound().catch(err => console.warn('Manual challenger sound failed:', err));
+    }, 500); // Same timing as real announcement
+  };
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewDisplayCounts, setViewDisplayCounts] = useState<Record<string, number>>({});
   const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
@@ -86,12 +95,17 @@ export default function Leaderboard() {
 
   // WebSocket for real-time updates
   useWebSocket((message) => {
+    console.log('WebSocket message received:', message);
     if (message.type === "scoreUpdate") {
       // Check if this is a genuinely new submission
       const submissionId = message.data.id;
       const isNewSubmission = !knownSubmissionIds.has(submissionId);
       
+      console.log('Score update - New submission?', isNewSubmission, 'ID:', submissionId);
+      
       if (isNewSubmission) {
+        console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds...');
+        
         // Mark as announcement mode and record time
         setIsAnnouncementMode(true);
         setNewSubmissionTime(Date.now());
@@ -99,9 +113,11 @@ export default function Leaderboard() {
         // Add to known submissions
         setKnownSubmissionIds(prev => new Set([...Array.from(prev), submissionId]));
         
-        // Play flash sound immediately, then challenger sound
-        audioManager.playFlashSound().catch(console.warn);
-        audioManager.playNewChallengerSound().catch(console.warn);
+        // Play flash sound immediately, then challenger sound after a brief delay
+        audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+        setTimeout(() => {
+          audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+        }, 500); // Wait 500ms so flash sound plays first
         
         // Store submission data for announcement page
         const submissionData = {
@@ -913,6 +929,15 @@ export default function Leaderboard() {
               >
                 <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
                 {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={testAudio}
+                data-testid="button-test-audio"
+              >
+                <i className="fas fa-volume-up mr-2"></i>
+                Test Audio
               </Button>
             </div>
           )}
