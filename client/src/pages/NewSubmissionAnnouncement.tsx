@@ -1,0 +1,325 @@
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+interface SubmissionData {
+  id: string;
+  participantName: string;
+  firstName: string;
+  lastName: string;
+  category: string;
+  totalScore: number;
+  rank: number;
+  subScores?: {
+    problem_definition: number;
+    impact_quantification: number;
+    technology_alignment: number;
+    implementation_feasibility: number;
+    business_value: number;
+  };
+  createdAt: string;
+}
+
+interface NewSubmissionAnnouncementProps {
+  submission: SubmissionData;
+  onDismiss?: () => void;
+}
+
+// Consistent color scheme for all categories
+const CATEGORY_COLORS = {
+  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
+  HYBRID_DC: "#6CC04A",            // Green
+  COLLAB_CX: "#FF6B35",            // Orange
+  OBSERVABILITY: "#9B59B6",        // Purple
+  EDGE_IOT: "#F39C12"              // Yellow
+};
+
+const CATEGORY_NAMES = {
+  SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
+  HYBRID_DC: "Data Centre & Hybrid Cloud",
+  COLLAB_CX: "Collaboration & Contact Centre",
+  OBSERVABILITY: "Observability & Performance",
+  EDGE_IOT: "Edge & IoT Solutions"
+};
+
+const CATEGORY_ICONS = {
+  SECURE_CONNECTIVITY: "fa-shield-alt",
+  HYBRID_DC: "fa-cloud",
+  COLLAB_CX: "fa-users",
+  OBSERVABILITY: "fa-chart-line",
+  EDGE_IOT: "fa-microchip"
+};
+
+export default function NewSubmissionAnnouncement({ submission, onDismiss }: NewSubmissionAnnouncementProps) {
+  const [, setLocation] = useLocation();
+  const [showContent, setShowContent] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState<'flash' | 'reveal' | 'display'>('flash');
+
+  const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || "#00BCF2";
+  const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
+  const categoryIcon = CATEGORY_ICONS[submission.category as keyof typeof CATEGORY_ICONS] || "fa-star";
+
+  // Animation sequence
+  useEffect(() => {
+    const timer1 = setTimeout(() => {
+      setAnimationPhase('reveal');
+      setShowContent(true);
+    }, 1500); // Flash for 1.5 seconds
+
+    const timer2 = setTimeout(() => {
+      setAnimationPhase('display');
+    }, 3000); // Start main display after 3 seconds
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+
+  // Auto-dismiss after showing for a while
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onDismiss) {
+        onDismiss();
+      } else {
+        setLocation('/leaderboard');
+      }
+    }, 15000); // Show for 15 seconds total
+
+    return () => clearTimeout(timer);
+  }, [onDismiss, setLocation]);
+
+  const handleDismiss = () => {
+    if (onDismiss) {
+      onDismiss();
+    } else {
+      setLocation('/leaderboard');
+    }
+  };
+
+  const getRankDisplay = (rank: number) => {
+    if (rank === 1) return { icon: "fa-crown", text: "1ST PLACE!", class: "text-yellow-400" };
+    if (rank === 2) return { icon: "fa-medal", text: "2ND PLACE!", class: "text-gray-300" };
+    if (rank === 3) return { icon: "fa-award", text: "3RD PLACE!", class: "text-orange-400" };
+    return { icon: "fa-trophy", text: `RANK #${rank}`, class: "text-primary" };
+  };
+
+  const rankDisplay = getRankDisplay(submission.rank);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm">
+      {/* Flash overlay during flash phase */}
+      {animationPhase === 'flash' && (
+        <div className="absolute inset-0 announcement-strobe" 
+             style={{ backgroundColor: categoryColor }}>
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="min-h-screen flex items-center justify-center p-4">
+        {showContent && (
+          <div className={`w-full max-w-6xl mx-auto text-center space-y-8 ${
+            animationPhase === 'reveal' ? 'announcement-reveal' : 
+            animationPhase === 'display' ? 'announcement-display' : ''
+          }`}>
+            
+            {/* NEW SUBMISSION Header */}
+            <div className="space-y-4">
+              <div className="announcement-pulse">
+                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-primary drop-shadow-2xl">
+                  NEW
+                </h1>
+                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white drop-shadow-2xl -mt-4">
+                  SUBMISSION!
+                </h1>
+              </div>
+              
+              <div className="flex justify-center items-center gap-4 text-4xl md:text-6xl text-primary/80">
+                <div className="announcement-bounce">🚀</div>
+                <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
+                <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
+              </div>
+            </div>
+
+            {/* Participant Name */}
+            <div className="announcement-slide-up" style={{ animationDelay: '0.5s' }}>
+              <Card className="glass-panel border-2 border-primary/30 bg-background/80 max-w-4xl mx-auto">
+                <CardContent className="p-8">
+                  <div className="flex items-center justify-center gap-6 mb-6">
+                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center">
+                      <i className="fas fa-user text-4xl text-primary"></i>
+                    </div>
+                    <div>
+                      <h2 className="text-4xl md:text-6xl font-bold text-white">
+                        {submission.firstName} {submission.lastName.charAt(0)}.
+                      </h2>
+                      <p className="text-xl md:text-2xl text-primary/80">has joined the leaderboard!</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Score Display */}
+            <div className="announcement-slide-up" style={{ animationDelay: '0.8s' }}>
+              <Card className="glass-panel border-2 max-w-3xl mx-auto"
+                    style={{ 
+                      borderColor: `${categoryColor}50`,
+                      backgroundColor: `${categoryColor}08`
+                    }}>
+                <CardContent className="p-8">
+                  <div className="flex items-center justify-between">
+                    <div className="text-center flex-1">
+                      <div className="announcement-score-pulse">
+                        <p className="text-2xl md:text-3xl text-white/80 font-semibold mb-2">FINAL SCORE</p>
+                        <p className="text-7xl md:text-9xl font-black text-white drop-shadow-2xl">
+                          {submission.totalScore}
+                        </p>
+                        <p className="text-3xl md:text-4xl text-white/60">/50</p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center flex-1">
+                      <div className="announcement-rank-glow">
+                        <i className={`fas ${rankDisplay.icon} text-5xl md:text-7xl ${rankDisplay.class} mb-4`}></i>
+                        <p className={`text-3xl md:text-4xl font-black ${rankDisplay.class} drop-shadow-lg`}>
+                          {rankDisplay.text}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Category Display */}
+            <div className="announcement-slide-up" style={{ animationDelay: '1.1s' }}>
+              <Card className="glass-panel border-2 max-w-4xl mx-auto"
+                    style={{ 
+                      borderColor: categoryColor,
+                      backgroundColor: `${categoryColor}15`
+                    }}>
+                <CardContent className="p-8">
+                  <div className="text-center">
+                    <div className="announcement-category-icon mb-6">
+                      <div className="w-24 h-24 rounded-full mx-auto flex items-center justify-center"
+                           style={{ backgroundColor: `${categoryColor}30` }}>
+                        <i className={`fas ${categoryIcon} text-5xl`}
+                           style={{ color: categoryColor }}></i>
+                      </div>
+                    </div>
+                    
+                    <Badge 
+                      variant="secondary" 
+                      className="text-2xl md:text-3xl px-8 py-4 mb-4 text-white font-bold"
+                      style={{ backgroundColor: categoryColor }}
+                    >
+                      {categoryName}
+                    </Badge>
+                    
+                    <p className="text-xl md:text-2xl text-white/80">
+                      Solution category automatically assigned based on content analysis
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Subscore Breakdown */}
+            {submission.subScores && (
+              <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
+                <Card className="glass-panel border border-primary/20 max-w-5xl mx-auto">
+                  <CardContent className="p-6">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+                      <i className="fas fa-chart-bar mr-3 text-primary"></i>
+                      Score Breakdown
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      {Object.entries(submission.subScores).map(([key, value], index) => (
+                        <div key={key} className="text-center announcement-subscore-pop"
+                             style={{ animationDelay: `${1.6 + index * 0.1}s` }}>
+                          <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                            <p className="text-sm text-white/80 mb-2 capitalize">
+                              {key.replace(/_/g, ' ')}
+                            </p>
+                            <p className="text-2xl md:text-3xl font-bold text-primary">
+                              {value}/10
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="announcement-slide-up" style={{ animationDelay: '1.8s' }}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button
+                  onClick={() => setLocation('/leaderboard')}
+                  className="text-xl px-8 py-4 bg-primary hover:bg-primary/90"
+                  data-testid="button-view-leaderboard"
+                >
+                  <i className="fas fa-trophy mr-3"></i>
+                  View Full Leaderboard
+                </Button>
+                <Button
+                  onClick={handleDismiss}
+                  variant="outline" 
+                  className="text-xl px-8 py-4 border-primary/50 text-primary hover:bg-primary/10"
+                  data-testid="button-dismiss-announcement"
+                >
+                  <i className="fas fa-times mr-3"></i>
+                  Dismiss
+                </Button>
+              </div>
+            </div>
+
+            {/* Auto-dismiss countdown */}
+            <div className="text-center text-white/60 text-lg">
+              <i className="fas fa-clock mr-2"></i>
+              Auto-closing in a few seconds...
+            </div>
+            
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Component for use in routing (with URL params)
+export function NewSubmissionAnnouncementPage() {
+  const [, setLocation] = useLocation();
+  
+  // For demo purposes, create sample data
+  // In real use, this would get data from URL params or context
+  const sampleSubmission: SubmissionData = {
+    id: "demo",
+    participantName: "Demo User",
+    firstName: "Demo",
+    lastName: "User",
+    category: "SECURE_CONNECTIVITY",
+    totalScore: 42,
+    rank: 3,
+    subScores: {
+      problem_definition: 8,
+      impact_quantification: 9,
+      technology_alignment: 8,
+      implementation_feasibility: 8,
+      business_value: 9
+    },
+    createdAt: new Date().toISOString()
+  };
+
+  return (
+    <NewSubmissionAnnouncement 
+      submission={sampleSubmission} 
+      onDismiss={() => setLocation('/leaderboard')} 
+    />
+  );
+}

@@ -8,6 +8,7 @@ import Leaderboard from "@/pages/Leaderboard";
 import Play from "@/pages/Play";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
+import { NewSubmissionAnnouncementPage } from "@/pages/NewSubmissionAnnouncement";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/admin-leaderboard" component={AdminLeaderboard} />
       <Route path="/admin" component={AdminLeaderboard} />
       <Route path="/how-to-play" component={HowToPlay} />
+      <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
       <Route component={NotFound} />
     </Switch>
   );
