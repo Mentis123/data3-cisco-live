@@ -709,14 +709,15 @@ export default function Leaderboard() {
                   <LabelList
                     dataKey="value"
                     position="inside"
-                    fill="#000000"
+                    fill="#ffffff"
                     style={{ 
                       fontSize: valueFontSize, 
                       fontWeight: '900', // Extra bold for better contrast
-                      textShadow: 'none', // Remove all shadows for crisp text
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.8), -1px -1px 0px rgba(0,0,0,0.8), 1px -1px 0px rgba(0,0,0,0.8), -1px 1px 0px rgba(0,0,0,0.8), 1px 1px 0px rgba(0,0,0,0.8)', // Strong text outline
                       letterSpacing: '0.5px', // Added letter spacing for clarity
                       WebkitFontSmoothing: 'antialiased', // Better font rendering
-                      MozOsxFontSmoothing: 'grayscale'
+                      MozOsxFontSmoothing: 'grayscale',
+                      textRendering: 'geometricPrecision' // Crisp text rendering
                     }}
                     formatter={(value: number) => {
                       const percent = ((value / totalSubmissions) * 100).toFixed(0);
