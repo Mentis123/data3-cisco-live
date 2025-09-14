@@ -660,11 +660,13 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row items-center justify-center h-full gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {/* Pie Chart */}
-            <div className="w-full sm:flex-1">
-              <ResponsiveContainer width="100%" height={chartHeight}>
+            <div className="w-full sm:flex-1" style={{ minHeight: `${chartHeight}px`, height: `${chartHeight}px` }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart
+                  width={isMobile ? 300 : 500}
+                  height={chartHeight}
                   style={{
                     textRendering: 'geometricPrecision',
                     WebkitFontSmoothing: 'antialiased',
