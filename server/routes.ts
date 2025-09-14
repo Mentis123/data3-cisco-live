@@ -248,12 +248,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use recent submission's category for stats if available, otherwise use top category
       const categoryForStats = recentSubmission?.category || topCategory;
       const topCategoryData3Stats = await storage.getData3Stats(
-        categoryForStats === "SECURE_CONNECTIVITY" ? "SECURITY" :
-        categoryForStats === "HYBRID_DC" ? "CLOUD" :
-        categoryForStats === "OBSERVABILITY" ? "INFRASTRUCTURE" :
-        categoryForStats === "COLLABORATION" ? "COLLABORATION" :
-        categoryForStats === "EDGE_IOT" ? "IOT" :
-        "EXPERTISE"
+        categoryForStats === "SECURE_CONNECTIVITY" ? "SECURE_CONNECTIVITY" :
+        categoryForStats === "HYBRID_DC" ? "HYBRID_DC" :
+        categoryForStats === "OBSERVABILITY" ? "OBSERVABILITY" :
+        categoryForStats === "COLLAB_CX" ? "COLLAB_CX" :
+        categoryForStats === "EDGE_IOT" ? "EDGE_IOT" :
+        "GENERAL" // Default to GENERAL instead of EXPERTISE
       );
 
       res.json({
