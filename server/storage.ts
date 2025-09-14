@@ -3,29 +3,21 @@ import { eq, desc, sql, and } from "drizzle-orm";
 import { participants, submissions, data3Stats, customCategories } from "@shared/schema";
 import type { InsertParticipant, InsertSubmission, Participant, Submission, Data3Stat, InsertCustomCategory, CustomCategory } from "@shared/schema";
 
-// Pre-populate Data#3 stats
+// Pre-populate Data#3 stats (using only system categories)
 const defaultData3Stats = [
   { title: "Team Members", value: "1,500+", description: "Across Australia", category: "SCALE", displayOrder: 1 },
   { title: "Years in Business", value: "45+", description: "Trusted technology partner since 1978", category: "SCALE", displayOrder: 2 },
   { title: "Cisco Certifications", value: "500+", description: "Expert-level certified professionals", category: "EXPERTISE", displayOrder: 3 },
   { title: "Enterprise Customers", value: "8,000+", description: "From SMB to Fortune 500", category: "SCALE", displayOrder: 4 },
-  { title: "Data Centres", value: "15+", description: "Sovereign cloud infrastructure", category: "INFRASTRUCTURE", displayOrder: 5 },
-  { title: "Security Operations", value: "24/7", description: "Always-on threat monitoring", category: "SECURITY", displayOrder: 6 },
-  { title: "Cloud Migrations", value: "2,000+", description: "Successful digital transformations", category: "CLOUD", displayOrder: 7 },
-  { title: "Network Endpoints", value: "1M+", description: "Devices under management", category: "NETWORKING", displayOrder: 8 },
+  { title: "Data Centres", value: "15+", description: "Sovereign cloud infrastructure", category: "GENERAL", displayOrder: 5 },
+  { title: "Security Operations", value: "24/7", description: "Always-on threat monitoring", category: "GENERAL", displayOrder: 6 },
+  { title: "Cloud Migrations", value: "2,000+", description: "Successful digital transformations", category: "GENERAL", displayOrder: 7 },
+  { title: "Network Endpoints", value: "1M+", description: "Devices under management", category: "GENERAL", displayOrder: 8 },
   { title: "Cisco Gold Partner", value: "Premier", description: "Highest tier partnership status", category: "EXPERTISE", displayOrder: 9 },
   { title: "Annual Revenue", value: "$1.8B+", description: "Sustained growth and investment", category: "SCALE", displayOrder: 10 }
 ];
 
-// Default custom categories to initialize
-const defaultCustomCategories = [
-  { name: 'INFRASTRUCTURE', displayName: 'Infrastructure', color: 'bg-[#dc2626]' },
-  { name: 'SECURITY', displayName: 'Security', color: 'bg-[#ca8a04]' },
-  { name: 'CLOUD', displayName: 'Cloud', color: 'bg-[#2563eb]' },
-  { name: 'NETWORKING', displayName: 'Networking', color: 'bg-[#7c3aed]' }
-];
-
-// Initialize stats and categories on startup (development only)
+// Initialize stats on startup (development only)
 async function initializeData() {
   // Only initialize default data in development mode
   // Production should maintain its own data
@@ -42,12 +34,8 @@ async function initializeData() {
       console.log("Data#3 stats initialized (development mode)");
     }
     
-    // Initialize custom categories
-    const existingCategories = await db.select().from(customCategories);
-    if (existingCategories.length === 0) {
-      await db.insert(customCategories).values(defaultCustomCategories);
-      console.log("Custom categories initialized (development mode)");
-    }
+    // NOTE: Custom categories are no longer auto-initialized
+    // Only system categories (GENERAL, SCALE, EXPERTISE, SECURE_CONNECTIVITY, etc.) are used
   } catch (e) {
     console.error("Error initializing data:", e);
   }
