@@ -106,13 +106,10 @@ function CategoryManagement({ editingCategory, setEditingCategory, creatingNewCa
   const { data: categories, isLoading, refetch } = useQuery<Category[]>({
     queryKey: ['/api/admin/categories'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/categories', {
-        headers: { 'x-admin-key': adminKey }
-      });
+      const response = await fetch('/api/public/categories');
       if (!response.ok) throw new Error('Failed to fetch categories');
       return response.json();
-    },
-    enabled: !!adminKey
+    }
   });
 
   // Create category mutation
@@ -415,30 +412,24 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
   const { toast } = useToast();
   const adminKey = localStorage.getItem('adminKey') || '';
   
-  // Fetch categories
+  // Fetch categories - use public endpoint for viewing
   const { data: categoriesData } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/categories', {
-        headers: { 'x-admin-key': adminKey }
-      });
+      const response = await fetch('/api/public/categories');
       if (!response.ok) throw new Error('Failed to fetch categories');
       return response.json();
-    },
-    enabled: !!adminKey
+    }
   });
   
-  // Fetch stats
+  // Fetch stats - use public endpoint for viewing
   const { data: stats, isLoading, refetch } = useQuery<Data3Stat[]>({
     queryKey: ['/api/admin/stats'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/stats', {
-        headers: { 'x-admin-key': adminKey }
-      });
+      const response = await fetch('/api/public/stats');
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
-    },
-    enabled: !!adminKey
+    }
   });
 
   // Create stat mutation

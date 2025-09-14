@@ -274,6 +274,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ ok: true });
   });
 
+  // Public endpoint to get Data#3 stats (read-only)
+  app.get("/api/public/stats", async (req, res) => {
+    try {
+      const stats = await storage.getData3Stats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get stats" });
+    }
+  });
+
+  // Public endpoint to get categories (read-only)
+  app.get("/api/public/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get categories" });
+    }
+  });
+
   // Admin endpoint to get all Data#3 stats
   app.get("/api/admin/stats", async (req, res) => {
     try {
