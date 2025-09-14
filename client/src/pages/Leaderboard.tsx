@@ -613,9 +613,6 @@ export default function Leaderboard() {
     })).filter(item => item.value > 0); // Only include categories with data
 
     const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
-    
-    console.log('Category data:', categoryData); // Debug logging
-    console.log('Total submissions:', totalSubmissions);
 
     if (totalSubmissions === 0) {
       return (
@@ -689,20 +686,20 @@ export default function Leaderboard() {
             </div>
             
             {/* Legend with percentages and counts */}
-            <div className="w-full px-4">
-              <div className="space-y-2">
+            <div className="w-full max-w-xl mx-auto px-4">
+              <div className="space-y-3">
                 {categoryData.map((entry, index) => {
                   const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
                   return (
-                    <div key={entry.name} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 flex-1">
+                    <div key={entry.name} className="flex items-center justify-between gap-6 max-w-md mx-auto">
+                      <div className="flex items-center gap-3">
                         <div 
-                          className="w-4 h-4 rounded flex-shrink-0"
+                          className="w-5 h-5 rounded flex-shrink-0"
                           style={{ backgroundColor: entry.color }}
                         />
-                        <span className={`${isFullscreen ? 'text-xl' : 'text-sm'} font-medium`}>{entry.name}</span>
+                        <span className={`${isFullscreen ? 'text-2xl' : 'text-lg'} font-medium`}>{entry.name}</span>
                       </div>
-                      <span className={`${isFullscreen ? 'text-xl' : 'text-sm'} font-bold text-muted-foreground whitespace-nowrap`}>
+                      <span className={`${isFullscreen ? 'text-2xl' : 'text-lg'} font-bold text-muted-foreground whitespace-nowrap`}>
                         {percent}% ({entry.value})
                       </span>
                     </div>
