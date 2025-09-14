@@ -99,7 +99,8 @@ export default function Leaderboard() {
         // Add to known submissions
         setKnownSubmissionIds(prev => new Set([...Array.from(prev), submissionId]));
         
-        // Play sound effect
+        // Play flash sound immediately, then challenger sound
+        audioManager.playFlashSound().catch(console.warn);
         audioManager.playNewChallengerSound().catch(console.warn);
         
         // Store submission data for announcement page
