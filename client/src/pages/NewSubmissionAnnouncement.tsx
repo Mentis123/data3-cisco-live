@@ -292,33 +292,49 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   );
 }
 
-// Component for use in routing (with URL params)
+// Component for use in routing (retrieves data from sessionStorage)
 export function NewSubmissionAnnouncementPage() {
   const [, setLocation] = useLocation();
   
-  // For demo purposes, create sample data
-  // In real use, this would get data from URL params or context
-  const sampleSubmission: SubmissionData = {
-    id: "demo",
-    participantName: "Demo User",
-    firstName: "Demo",
-    lastName: "User",
-    category: "SECURE_CONNECTIVITY",
-    totalScore: 42,
-    rank: 3,
-    subScores: {
-      problem_definition: 8,
-      impact_quantification: 9,
-      technology_alignment: 8,
-      implementation_feasibility: 8,
-      business_value: 9
-    },
-    createdAt: new Date().toISOString()
+  // Retrieve submission data from sessionStorage
+  const getSubmissionData = (): SubmissionData => {
+    try {
+      const storedData = sessionStorage.getItem('newSubmissionData');
+      if (storedData) {
+        const submissionData = JSON.parse(storedData);
+        // Clear the data after retrieving it
+        sessionStorage.removeItem('newSubmissionData');
+        return submissionData;
+      }
+    } catch (error) {
+      console.warn('Failed to retrieve submission data from sessionStorage:', error);
+    }
+    
+    // Fallback to sample data if no stored data available
+    return {
+      id: "demo",
+      participantName: "Demo User",
+      firstName: "Demo",
+      lastName: "User",
+      category: "SECURE_CONNECTIVITY",
+      totalScore: 42,
+      rank: 3,
+      subScores: {
+        problem_definition: 8,
+        impact_quantification: 9,
+        technology_alignment: 8,
+        implementation_feasibility: 8,
+        business_value: 9
+      },
+      createdAt: new Date().toISOString()
+    };
   };
+
+  const submissionData = getSubmissionData();
 
   return (
     <NewSubmissionAnnouncement 
-      submission={sampleSubmission} 
+      submission={submissionData} 
       onDismiss={() => setLocation('/leaderboard')} 
     />
   );

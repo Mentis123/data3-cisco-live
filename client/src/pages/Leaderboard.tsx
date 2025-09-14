@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
+import { audioManager } from "@/lib/audio";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
 
 interface LeaderboardEntry {
@@ -59,6 +60,19 @@ export default function Leaderboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewDisplayCounts, setViewDisplayCounts] = useState<Record<string, number>>({});
   const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
+  
+  // New submission detection and announcement state
+  const [, setLocation] = useLocation();
+  const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
+  const [newSubmissionTime, setNewSubmissionTime] = useState<number | null>(null);
+  const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
+
+  // Reset timing counters when a new submission occurs
+  useEffect(() => {
+    if (newSubmissionTime) {
+      setViewDisplayCounts({});
+    }
+  }, [newSubmissionTime]);
 
   // Fetch dashboard data
   const { data, isLoading, refetch } = useQuery<DashboardData>({
@@ -73,11 +87,50 @@ export default function Leaderboard() {
   // WebSocket for real-time updates
   useWebSocket((message) => {
     if (message.type === "scoreUpdate") {
-      // Trigger animation for new score
+      // Check if this is a genuinely new submission
+      const submissionId = message.data.id;
+      const isNewSubmission = !knownSubmissionIds.has(submissionId);
+      
+      if (isNewSubmission) {
+        // Mark as announcement mode and record time
+        setIsAnnouncementMode(true);
+        setNewSubmissionTime(Date.now());
+        
+        // Add to known submissions
+        setKnownSubmissionIds(prev => new Set([...Array.from(prev), submissionId]));
+        
+        // Play sound effect
+        audioManager.playNewChallengerSound().catch(console.warn);
+        
+        // Store submission data for announcement page
+        const submissionData = {
+          id: submissionId,
+          participantName: message.data.name,
+          firstName: message.data.name.split(' ')[0],
+          lastName: message.data.name.split(' ')[1] || '',
+          category: message.data.category,
+          totalScore: message.data.finalScore,
+          rank: message.data.targetRank,
+          createdAt: new Date().toISOString()
+        };
+        
+        // Store in sessionStorage for announcement page to retrieve
+        sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
+        
+        // Navigate to announcement page
+        setLocation('/announcement');
+        
+        // Auto-return to leaderboard after 10 seconds
+        setTimeout(() => {
+          setLocation('/leaderboard');
+        }, 10000);
+      }
+      
+      // Trigger animation for score update
       setTimeout(() => {
         const element = document.querySelector(`[data-entry-id="${message.data.id}"] .text-2xl`);
         if (element) {
-          animateScoreCountUp(element as HTMLElement, message.data.totalScore);
+          animateScoreCountUp(element as HTMLElement, message.data.finalScore || message.data.totalScore);
         }
       }, 100);
 
@@ -176,24 +229,22 @@ export default function Leaderboard() {
 
     // Calculate display interval based on submission timing and view count
     const getDisplayInterval = () => {
-      // Check if we have a recent submission within 5 minutes
-      const submissionTime = displayData.recentSubmission?.createdAt 
-        ? new Date(displayData.recentSubmission.createdAt).getTime() 
-        : 0;
+      // Check if we're in announcement mode and within 5 minutes of new submission
       const now = Date.now();
-      const timeSinceSubmission = (now - submissionTime) / 1000; // in seconds
-      const isWithin5Minutes = displayData.recentSubmission && timeSinceSubmission < 300;
+      const timeSinceNewSubmission = newSubmissionTime ? (now - newSubmissionTime) / 1000 : Infinity; // in seconds
+      const isWithin5Minutes = isAnnouncementMode && timeSinceNewSubmission < 300;
       
       if (isWithin5Minutes && activeView === "data3stats") {
         // Get the current display count for the stats view
         const currentViewCount = viewDisplayCounts[activeView] || 0;
         
-        // Graduated timing: 30s -> 20s -> 10s for stats view only after new submission
+        // Graduated timing: 30s → 20s → 10s for stats view only after new submission
         if (currentViewCount === 0) {
           return 30000; // First display: 30 seconds
         } else if (currentViewCount === 1) {
           return 20000; // Second display: 20 seconds
         }
+        // Third display and beyond: 10 seconds (falls through to default)
       }
       
       return 10000; // Default: 10 seconds
@@ -223,12 +274,27 @@ export default function Leaderboard() {
     return () => clearInterval(interval);
   }, [displayData, activeView, viewDisplayCounts]);
 
-  // Update display data when query data changes
+  // Initialize known submission IDs from existing data and update display data
   useEffect(() => {
     if (data) {
       setDisplayData(data);
+      
+      // Initialize known submission IDs from existing leaderboard
+      if (data.leaderboard) {
+        const existingIds = new Set(data.leaderboard.map(entry => entry.id));
+        setKnownSubmissionIds(existingIds);
+      }
     }
   }, [data]);
+
+  // Clear announcement mode when returning to leaderboard
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAnnouncementMode(false);
+    }, 5 * 60 * 1000); // Clear after 5 minutes
+    
+    return () => clearTimeout(timer);
+  }, [newSubmissionTime]);
 
   if (isLoading || !displayData) {
     return (

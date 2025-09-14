@@ -29,8 +29,8 @@ export function broadcastScoreUpdate(entry: {
   finalScore: number;
 }): void {
   const message = JSON.stringify({
-    type: "score:new",
-    entry
+    type: "scoreUpdate",
+    data: entry
   });
   
   clients.forEach(client => {
