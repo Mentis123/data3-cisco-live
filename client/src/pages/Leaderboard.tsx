@@ -64,7 +64,7 @@ export default function Leaderboard() {
     audioManager.playFlashSound().catch(err => console.warn('Manual flash sound failed:', err));
     setTimeout(() => {
       audioManager.playNewChallengerSound().catch(err => console.warn('Manual challenger sound failed:', err));
-    }, 500); // Same timing as real announcement
+    }, 750); // Same timing as real announcement
   };
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewDisplayCounts, setViewDisplayCounts] = useState<Record<string, number>>({});
@@ -117,7 +117,7 @@ export default function Leaderboard() {
         audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
         setTimeout(() => {
           audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
-        }, 500); // Wait 500ms so flash sound plays first
+        }, 750); // Wait 750ms so flash sound plays first
         
         // Store submission data for announcement page
         const submissionData = {
