@@ -607,12 +607,15 @@ export default function Leaderboard() {
 
   const renderCategoryStats = () => {
     const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => ({
-      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES],
+      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
       value: count,
-      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS]
-    }));
+      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || '#888888'
+    })).filter(item => item.value > 0); // Only include categories with data
 
     const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
+    
+    console.log('Category data:', categoryData); // Debug logging
+    console.log('Total submissions:', totalSubmissions);
 
     if (totalSubmissions === 0) {
       return (
@@ -660,27 +663,17 @@ export default function Leaderboard() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-4">
             {/* Pie Chart */}
-            <div className="w-full sm:flex-1">
-              <ResponsiveContainer width="100%" height={chartHeight}>
-                <PieChart
-                  style={{
-                    textRendering: 'geometricPrecision',
-                    WebkitFontSmoothing: 'antialiased',
-                    MozOsxFontSmoothing: 'grayscale',
-                    shapeRendering: 'crispEdges'
-                  }}
-                >
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={chartRadius}
-                    fill="#8884d8"
-                    dataKey="value"
-                    labelLine={false}
-                    label={false}
+            <div className="w-full flex justify-center">
+              <PieChart width={isMobile ? 300 : 500} height={chartHeight}>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={chartRadius}
+                  fill="#8884d8"
+                  dataKey="value"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -693,7 +686,6 @@ export default function Leaderboard() {
                   }}
                 />
               </PieChart>
-            </ResponsiveContainer>
             </div>
             
             {/* Legend with percentages and counts */}
