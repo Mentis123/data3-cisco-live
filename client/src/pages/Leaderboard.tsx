@@ -679,51 +679,9 @@ export default function Leaderboard() {
                     outerRadius={chartRadius}
                     fill="#8884d8"
                     dataKey="value"
-                    labelLine={false} // Disable default label lines to position labels further out
-                    label={isMobile ? false : (props) => {
-                      const RADIAN = Math.PI / 180;
-                      const { cx, cy, midAngle, innerRadius, outerRadius, name, index } = props;
-                      // Position labels further out from the pie
-                      const radius = outerRadius + 40; // Push labels 40px beyond the outer edge
-                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                      
-                      // Get the color from the categoryData
-                      const entryData = categoryData.find(d => d.name === name);
-                      const labelColor = entryData?.color || '#e2e8f0';
-                      
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          fill={labelColor}
-                          textAnchor={x > cx ? 'start' : 'end'}
-                          dominantBaseline="middle"
-                          style={{ fontSize: labelFontSize, fontWeight: '700' }} // Increased font weight
-                        >
-                          {name}
-                        </text>
-                      );
-                    }}
+                    labelLine={false}
+                    label={false}
                 >
-                  <LabelList
-                    dataKey="value"
-                    position="inside"
-                    fill="#ffffff"
-                    style={{ 
-                      fontSize: valueFontSize, 
-                      fontWeight: '900', // Extra bold for better contrast
-                      textShadow: '2px 2px 4px rgba(0,0,0,0.8), -1px -1px 0px rgba(0,0,0,0.8), 1px -1px 0px rgba(0,0,0,0.8), -1px 1px 0px rgba(0,0,0,0.8), 1px 1px 0px rgba(0,0,0,0.8)', // Strong text outline
-                      letterSpacing: '0.5px', // Added letter spacing for clarity
-                      WebkitFontSmoothing: 'antialiased', // Better font rendering
-                      MozOsxFontSmoothing: 'grayscale',
-                      textRendering: 'geometricPrecision' // Crisp text rendering
-                    }}
-                    formatter={(value: number) => {
-                      const percent = ((value / totalSubmissions) * 100).toFixed(0);
-                      return window.innerWidth < 640 ? `${percent}%` : `${percent}% (${value})`;
-                    }}
-                  />
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -738,30 +696,28 @@ export default function Leaderboard() {
             </ResponsiveContainer>
             </div>
             
-            {/* Legend for mobile */}
-            {isMobile && (
-              <div className="w-full px-4">
-                <div className="space-y-2">
-                  {categoryData.map((entry, index) => {
-                    const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
-                    return (
-                      <div key={entry.name} className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 flex-1">
-                          <div 
-                            className="w-4 h-4 rounded flex-shrink-0"
-                            style={{ backgroundColor: entry.color }}
-                          />
-                          <span className="text-sm font-medium">{entry.name}</span>
-                        </div>
-                        <span className="text-sm font-bold text-muted-foreground whitespace-nowrap">
-                          {percent}% ({entry.value})
-                        </span>
+            {/* Legend with percentages and counts */}
+            <div className="w-full px-4">
+              <div className="space-y-2">
+                {categoryData.map((entry, index) => {
+                  const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
+                  return (
+                    <div key={entry.name} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1">
+                        <div 
+                          className="w-4 h-4 rounded flex-shrink-0"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className={`${isFullscreen ? 'text-xl' : 'text-sm'} font-medium`}>{entry.name}</span>
                       </div>
-                    );
-                  })}
-                </div>
+                      <span className={`${isFullscreen ? 'text-xl' : 'text-sm'} font-bold text-muted-foreground whitespace-nowrap`}>
+                        {percent}% ({entry.value})
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
