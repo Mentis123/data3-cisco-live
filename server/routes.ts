@@ -110,28 +110,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Pre-process structuredFields to fix array fields before validation
       if (req.body.structuredFields) {
-        const arrayFields = ['cisco_products', 'integration_points', 'security_considerations', 'observability_plan', 'rollout_plan', 'risks'] as const;
+        const arrayFields = ['action_plan', 'success_checks', 'risks'] as const;
         for (const field of arrayFields) {
           if (req.body.structuredFields[field] && typeof req.body.structuredFields[field] === 'string') {
             req.body.structuredFields[field] = [req.body.structuredFields[field]];
-          }
-        }
-
-        // Fix nested array fields
-        if (req.body.structuredFields.current_state) {
-          if (req.body.structuredFields.current_state.constraints && typeof req.body.structuredFields.current_state.constraints === 'string') {
-            req.body.structuredFields.current_state.constraints = [req.body.structuredFields.current_state.constraints];
-          }
-          if (req.body.structuredFields.current_state.baseline_kpis && typeof req.body.structuredFields.current_state.baseline_kpis === 'string') {
-            req.body.structuredFields.current_state.baseline_kpis = [];
-          }
-        }
-        if (req.body.structuredFields.target_state) {
-          if (req.body.structuredFields.target_state.persona && typeof req.body.structuredFields.target_state.persona === 'string') {
-            req.body.structuredFields.target_state.persona = [req.body.structuredFields.target_state.persona];
-          }
-          if (req.body.structuredFields.target_state.kpis && typeof req.body.structuredFields.target_state.kpis === 'string') {
-            req.body.structuredFields.target_state.kpis = [];
           }
         }
       }
