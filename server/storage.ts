@@ -151,104 +151,64 @@ export const storage = {
 
   async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
-    
-    // Track both frequency and proper casing
-    const wordData: { 
-      [lowerKey: string]: { 
-        count: number; 
-        variants: { [casing: string]: number };
-        properCase?: string;
-      } 
-    } = {};
 
-    // Define proper casing for known Cisco products
-    const properCasing: { [lower: string]: string } = {
-      'appdynamics': 'AppDynamics',
-      'thousandeyes': 'ThousandEyes',
-      'webex': 'Webex',
-      'meraki': 'Meraki',
-      'securex': 'SecureX',
-      'aci': 'Cisco ACI',
-      'nexus': 'Nexus',
-      'ucs': 'UCS',
-      'sd-wan': 'SD-WAN',
-      'zero trust': 'Zero Trust',
-      'umbrella': 'Umbrella',
-      'duo': 'Duo',
-      'ise': 'ISE',
-      'dna': 'DNA',
-      'sase': 'SASE',
-      'intersight': 'Intersight',
-      'stealthwatch': 'Stealthwatch',
-      'catalyst': 'Catalyst',
-      'hyperflex': 'HyperFlex',
-      'firepower': 'Firepower'
-    };
+    const wordData: Record<string, { count: number; properCase: string }> = {};
+    const stopWords = new Set([
+      'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
+      'into', 'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under',
+      'while', 'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user',
+      'people', 'hours', 'hours', 'per', 'week', 'month', 'year', 'each', 'every', 'daily', 'weekly'
+    ]);
 
     allSubmissions.forEach(submission => {
-      // Extract Cisco products from structured JSON
+      let aggregatedText = '';
+
       try {
         const structured = JSON.parse(submission.structuredJson);
-        const products = structured.cisco_products || [];
-        products.forEach((product: string) => {
-          const cleanProduct = product.trim();
-          const lowerKey = cleanProduct.toLowerCase();
-          
-          if (!wordData[lowerKey]) {
-            wordData[lowerKey] = { count: 0, variants: {} };
-          }
-          
-          wordData[lowerKey].count += 3; // Weight products higher
-          wordData[lowerKey].variants[cleanProduct] = (wordData[lowerKey].variants[cleanProduct] || 0) + 1;
-        });
+        const pieces: string[] = [];
+
+        if (structured.problem_summary) pieces.push(structured.problem_summary);
+        if (structured.impact_summary) pieces.push(structured.impact_summary);
+        if (Array.isArray(structured.action_plan)) pieces.push(structured.action_plan.join(' '));
+        if (Array.isArray(structured.success_checks)) pieces.push(structured.success_checks.join(' '));
+        if (Array.isArray(structured.risks)) pieces.push(structured.risks.join(' '));
+
+        aggregatedText = pieces.join(' ');
       } catch (e) {
-        // Fallback to solution text parsing
+        // Ignore JSON parsing issues and fallback to solution text
       }
 
-      // Extract key technology terms from solution text (excluding generic "Cisco")
-      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch|HyperFlex|Firepower)\b/gi) || [];
-      techTerms.forEach((term: string) => {
-        const cleanTerm = term.trim();
-        const lowerKey = cleanTerm.toLowerCase();
-        
-        if (!wordData[lowerKey]) {
-          wordData[lowerKey] = { count: 0, variants: {} };
-        }
-        
-        wordData[lowerKey].count += 1;
-        wordData[lowerKey].variants[cleanTerm] = (wordData[lowerKey].variants[cleanTerm] || 0) + 1;
-      });
-    });
-
-    // Determine the best casing for each word
-    Object.keys(wordData).forEach(lowerKey => {
-      const data = wordData[lowerKey];
-      
-      // Check if we have a known proper casing
-      if (properCasing[lowerKey]) {
-        data.properCase = properCasing[lowerKey];
-      } else {
-        // Use the most frequent variant
-        const mostFrequent = Object.entries(data.variants)
-          .sort((a, b) => b[1] - a[1])[0];
-        
-        if (mostFrequent) {
-          data.properCase = mostFrequent[0];
-        } else {
-          // Fallback: capitalize first letter
-          data.properCase = lowerKey.charAt(0).toUpperCase() + lowerKey.slice(1);
-        }
+      if (!aggregatedText) {
+        aggregatedText = submission.solutionText;
       }
+
+      aggregatedText
+        .replace(/[^a-zA-Z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .forEach(word => {
+          const clean = word.trim();
+          if (!clean) return;
+
+          const lower = clean.toLowerCase();
+          if (clean.length < 3 || stopWords.has(lower)) {
+            return;
+          }
+
+          if (!wordData[lower]) {
+            wordData[lower] = {
+              count: 0,
+              properCase: clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase()
+            };
+          }
+
+          wordData[lower].count += 1;
+        });
     });
 
     return Object.entries(wordData)
-      .filter(([lowerKey]) => lowerKey !== 'cisco') // Exclude generic "Cisco" term
-      .map(([lowerKey, data]) => ({ 
-        text: data.properCase || lowerKey, 
-        value: data.count 
-      }))
+      .map(([lower, data]) => ({ text: data.properCase, value: data.count }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 30); // Top 30 terms
+      .slice(0, 30);
   },
 
   async getCategoryStats(): Promise<{ [key: string]: number }> {

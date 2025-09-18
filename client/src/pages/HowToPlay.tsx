@@ -56,13 +56,13 @@ export default function HowToPlay() {
     },
     {
       title: "Coach your AI solver",
-      description: "Walk through KPIs, impact and Cisco tech ideas with our guided prompts.",
+      description: "Walk through KPIs, impact math, and action plans with our guided prompts.",
       icon: BrainCircuit,
       gradient: "from-violet-500/30 to-purple-500/30"
     },
     {
       title: "Submit for instant scoring",
-      description: "Our AI judge scores clarity, Cisco fit, feasibility, impact and automation.",
+      description: "Our AI judge scores clarity, impact, KPI strength, execution and confidence.",
       icon: Sparkles,
       gradient: "from-amber-500/30 to-orange-500/30"
     },
@@ -152,42 +152,42 @@ export default function HowToPlay() {
               AI Scoring System
             </h2>
             
-            <div className="space-y-4">
-              <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-4 border border-yellow-400/30">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg">🎯 Problem & KPIs</span>
-                  <span className="text-xl font-bold text-yellow-400">10pts</span>
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-4 border border-yellow-400/30">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg">🎯 Clarity</span>
+                    <span className="text-xl font-bold text-yellow-400">10pts</span>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg p-4 border border-cyan-400/30">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg">🏗️ Cisco Fit</span>
-                  <span className="text-xl font-bold text-cyan-400">10pts</span>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-4 border border-green-400/30">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg">🔐 Feasibility</span>
-                  <span className="text-xl font-bold text-green-400">10pts</span>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-4 border border-purple-400/30">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg">📈 Business Impact</span>
-                  <span className="text-xl font-bold text-purple-400">10pts</span>
-                </div>
-              </div>
 
-              <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-lg p-4 border border-orange-400/30">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg">🤖 Automation</span>
-                  <span className="text-xl font-bold text-orange-400">10pts</span>
+                <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg p-4 border border-cyan-400/30">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg">📊 Impact</span>
+                    <span className="text-xl font-bold text-cyan-400">10pts</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-4 border border-green-400/30">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg">📌 KPI Strength</span>
+                    <span className="text-xl font-bold text-green-400">10pts</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-4 border border-purple-400/30">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg">🚀 Execution</span>
+                    <span className="text-xl font-bold text-purple-400">10pts</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-lg p-4 border border-orange-400/30">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg">🧭 Confidence</span>
+                    <span className="text-xl font-bold text-orange-400">10pts</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
             <div className="mt-6 text-center">
               <p className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
@@ -215,7 +215,7 @@ export default function HowToPlay() {
       <div className="mt-8 text-center">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full px-8 py-4 border border-cyan-400/30">
           <Lightbulb className="w-6 h-6 text-yellow-400" />
-          <p className="text-lg font-semibold">Pro Tip: Be specific with metrics and use real Cisco product names for higher scores!</p>
+          <p className="text-lg font-semibold">Pro Tip: Be specific with baselines, targets, owners and next steps for higher scores!</p>
           <Zap className="w-6 h-6 text-cyan-400" />
         </div>
       </div>

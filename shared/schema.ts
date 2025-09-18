@@ -85,26 +85,18 @@ export const submitSolutionSchema = z.object({
   solutionText: z.string(),
   structuredFields: z.object({
     problem_summary: z.string(),
+    impact_summary: z.string(),
     chosen_category: z.string(),
-    cisco_products: z.array(z.string()),
-    current_state: z.object({
-      baseline_kpis: z.array(z.object({
-        name: z.string(),
-        value: z.string(),
-      })),
-      constraints: z.array(z.string()),
-    }),
-    target_state: z.object({
-      kpis: z.array(z.object({
-        name: z.string(),
-        target: z.string(),
-      })),
-      persona: z.array(z.string()),
-    }),
-    integration_points: z.array(z.string()),
-    security_considerations: z.array(z.string()),
-    observability_plan: z.array(z.string()),
-    rollout_plan: z.array(z.string()),
+    baseline_metrics: z.array(z.object({
+      name: z.string(),
+      value: z.string(),
+    })),
+    target_metrics: z.array(z.object({
+      name: z.string(),
+      target: z.string(),
+    })),
+    action_plan: z.array(z.string()),
+    success_checks: z.array(z.string()),
     risks: z.array(z.string()),
   }).optional(),
 });

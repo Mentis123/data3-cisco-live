@@ -27,7 +27,7 @@ export const standMessaging = {
     highlight: "From pain point to solution storyboard while you wait.",
     pillars: [
       "Map the business impact in minutes",
-      "Match the right Cisco innovation",
+      "Size the impact with confident metrics",
       "Showcase a path to measurable outcomes",
     ],
     shoutOutLabel: "Spotlight slide",
@@ -47,7 +47,7 @@ export const standMessaging = {
       },
       {
         title: "Co-design a fix",
-        detail: "Work with our coaches to align Cisco tech with your outcomes.",
+        detail: "Work with our coaches to turn metrics into an action plan.",
       },
     ] as StandInstruction[],
     footer: "Leaderboard updates live. Top scores win daily bragging rights.",

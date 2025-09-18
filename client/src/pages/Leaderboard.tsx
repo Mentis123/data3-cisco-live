@@ -481,17 +481,17 @@ export default function Leaderboard() {
           <CardHeader className="pb-4">
             <CardTitle className={`${titleSize} font-bold text-center`}>
               <i className="fas fa-cloud text-blue-500 mr-3"></i>
-              Popular Technologies
+              Popular Solution Themes
             </CardTitle>
             <p className={`text-center text-muted-foreground ${subtitleSize}`}>
-              Most mentioned Cisco products in solutions
+              Most mentioned phrases across submissions
             </p>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <i className="fas fa-cloud text-4xl text-muted-foreground mb-4"></i>
-              <p className="text-lg font-semibold mb-2">No technology data yet!</p>
-              <p className="text-muted-foreground">Come back when solutions are submitted to see popular Cisco products mentioned.</p>
+              <p className="text-lg font-semibold mb-2">No theme data yet!</p>
+              <p className="text-muted-foreground">Come back when solutions are submitted to see the most common themes highlighted.</p>
             </div>
           </CardContent>
         </Card>
@@ -505,10 +505,10 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className={`${titleSize} font-bold text-center`}>
             <i className="fas fa-cloud text-blue-500 mr-3"></i>
-            Popular Technologies
+            Popular Solution Themes
           </CardTitle>
           <p className={`text-center text-muted-foreground ${subtitleSize}`}>
-            Most mentioned Cisco products in solutions
+            Most mentioned phrases across submissions
           </p>
         </CardHeader>
         <CardContent>
@@ -677,14 +677,14 @@ export default function Leaderboard() {
               Problem Categories
             </CardTitle>
             <p className="text-center text-muted-foreground text-lg">
-              Distribution of business problems by technology area
+              Distribution of business problems by category
             </p>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <i className="fas fa-chart-pie text-4xl text-muted-foreground mb-4"></i>
               <p className="text-lg font-semibold mb-2">No category data yet!</p>
-              <p className="text-muted-foreground">Come back when solutions are submitted to see the distribution across different technology areas.</p>
+              <p className="text-muted-foreground">Come back when solutions are submitted to see the distribution across different categories.</p>
             </div>
           </CardContent>
         </Card>
@@ -710,7 +710,7 @@ export default function Leaderboard() {
             Problem Categories
           </CardTitle>
           <p className={`text-center text-muted-foreground ${subtitleSize}`}>
-            Distribution of business problems by technology area
+            Distribution of business problems by category
           </p>
         </CardHeader>
         <CardContent>

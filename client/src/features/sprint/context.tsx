@@ -46,25 +46,14 @@ function sprintReducer(state: SprintState, action: SprintAction): SprintState {
         completedSteps: impactSteps
       };
     
-    case 'SET_EXPLORE':
-      const exploreSteps = new Set(state.completedSteps);
-      exploreSteps.add(1);
-      exploreSteps.add(2);
-      exploreSteps.add(3);
-      return { 
-        ...state, 
-        explore: action.payload,
-        completedSteps: exploreSteps
-      };
-    
     case 'SET_SUBMISSION':
       const submissionSteps = new Set<SprintStep>();
       submissionSteps.add(1);
       submissionSteps.add(2);
       submissionSteps.add(3);
       submissionSteps.add(4);
-      return { 
-        ...state, 
+      return {
+        ...state,
         submission: action.payload,
         completedSteps: submissionSteps
       };

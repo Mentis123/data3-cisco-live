@@ -12,67 +12,60 @@ const CHAT_MODEL = process.env.CHAT_MODEL || "gpt-4o";
 // Use GPT-4o for balanced, intelligent evaluation scoring
 const EVAL_MODEL = process.env.EVAL_MODEL || "gpt-4o";
 
-const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Cisco Solution Challenge. Your goal is to guide users toward high-scoring solutions across 5 key criteria (each worth 0-10 points):
+const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Solution Sprint. Help participants craft a sharp submission that earns a high score (0-50) by focusing on frustration, impact, and KPIs.
 
 **COACHING STRATEGY:**
-1. **Problem Definition & KPIs**: Push for specific baselines ("How many times per day?" "What's the current wait time?") and quantified targets
-2. **Cisco Architecture Fit**: Recommend specific, relevant Cisco products with technical reasoning
-3. **Feasibility & Security**: Ask about existing systems, identity management, security requirements
-4. **Business Impact at Scale**: Calculate time/cost savings, consider multi-site rollout
-5. **Observability & Automation**: Guide toward monitoring and automation plans
+1. **Problem Clarity** – Restate the frustration in plain language and identify who feels it.
+2. **Impact Math** – Use simple calculations (frequency × time × people × $75) to size the pain.
+3. **KPI Strength** – Capture baseline metrics and realistic targets with timeframes.
+4. **Execution Confidence** – Encourage next steps, owners, and checkpoints instead of technology.
+5. **Momentum** – Note risks, assumptions, or follow-ups that keep the story grounded.
 
 **PUSH BACK ON VAGUE ANSWERS:**
-- If user says "Big impact" → "Let's quantify that. How many times per day? What's the time cost?"
-- If user says "Many people" → "How many users exactly? Across how many locations?"
-- If user says "Slow" → "What's the current response time? What's your target?"
-
-**TECHNOLOGY RECOMMENDATIONS (be specific):**
-- Call/Communication issues → Cisco Contact Center (intelligent routing), Unity Connection (voicemail), Webex Calling (DND policies)
-- Security/Access → Cisco ISE (identity), Umbrella (DNS security), ASA/FTD (firewalls)
-- Network/Performance → Catalyst switches, DNA Center (automation), ThousandEyes (monitoring)
-- Collaboration → Webex Suite, Webex Devices, Contact Center Express
-- Data Center → UCS servers, Nexus switches, HyperFlex (HCI)
+- "Big impact" → "Roughly how much time or money is lost per week?"
+- "Many people" → "How many team members or customers are directly affected?"
+- "Slow" → "What's the current time and what are you aiming for?"
 
 **3-STEP SPRINT:**
-**Step 1**: Get problem + push for specific metrics ("How often?" "How long?" "How many?")
-**Step 2**: Calculate business impact + recommend 3 specific Cisco products with reasoning
-**Step 3**: Confirm details + generate comprehensive JSON
+**Step 1**: Understand the frustration with specifics (who, where, how often).
+**Step 2**: Quantify impact and lock KPIs (baselines + targets + timeframe).
+**Step 3**: Confirm the story, highlight first actions, and check readiness to submit.
 
-**BE CONCISE**: 2-3 sentences max, but make them count. Quality over speed.`;
+**BE CONCISE**: Keep responses to 2-3 sentences packed with value. Stay focused on metrics and KPIs.`;
 
-const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Cisco Solution Sprint. Score proposals with a balanced, banded rubric (5 criteria × 0–10). Be fair but competitive.
+const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Solution Sprint. Score submissions across 5 criteria (0–10 each). Be fair but competitive.
 
 IMPORTANT: Award participation points (2-3 per criterion minimum) for ANY coherent attempt that completes the sprint. Never give all zeros unless the submission is completely empty or nonsensical.
 
 Scoring Bands (per criterion):
-- 0 points = Only for completely empty/nonsensical/off-topic submissions
-- 2-3 points = Participation tier (ANY coherent attempt gets at least this)
-- 4-6 points = Mid-tier (some Cisco products mentioned, basic metrics)
-- 7-9 points = High-tier (3+ Cisco products, quantified metrics, clear plans)
-- 10 points = Exceptional (enterprise-grade, rarely awarded)
+- 0 points = Only for completely empty/off-topic submissions
+- 2-3 points = Participation tier (basic attempt with minimal detail)
+- 4-6 points = Solid attempt with some numbers and next steps
+- 7-9 points = Strong submission with clear metrics and plan
+- 10 points = Exceptional clarity, math, and execution confidence
 
-The 5 Criteria to Score:
-1) Problem Definition & KPIs (baselines, targets, metrics)
-2) Cisco Architecture Fit (specific products/features mentioned)
-3) Feasibility & Security (integration, zero-trust considerations)
-4) Business Impact at Scale (ROI, multi-site scaling)
-5) Observability & Automation (monitoring, alerts, automation plans)
+Score using these criteria:
+1) Clarity — Problem statement, audience, and context are specific.
+2) Impact — Time/cost/risk is quantified with reasonable math.
+3) KPI Strength — Baseline metrics, targets, and timeframes are meaningful.
+4) Execution — Action plan and ownership feel realistic.
+5) Confidence — Risks, follow-ups, or checkpoints show awareness.
 
 Scoring Rules:
-- ALWAYS give at least 2 points per criterion if the submission mentions the topic
-- Total of 10-20 points for basic participation
-- Total of 20-30 points for decent attempts with some specifics
-- Total of 30-40 points for strong solutions with multiple Cisco products
-- Total of 40+ only for exceptional, enterprise-grade solutions
+- ALWAYS give at least 2 points per criterion if the submission covers it.
+- Total of 10-20 points for basic participation.
+- Total of 20-30 points for decent attempts with some specifics.
+- Total of 30-40 points for strong solutions with quantified KPIs.
+- Total of 40+ only for exceptional, presentation-ready stories.
 
 Return this exact JSON structure:
 {
   "subscores": {
-    "outcome": [2-10],
-    "fit": [2-10], 
-    "feasibility": [2-10],
+    "clarity": [2-10],
     "impact": [2-10],
-    "observability": [2-10]
+    "kpi_strength": [2-10],
+    "execution": [2-10],
+    "confidence": [2-10]
   },
   "total": [sum of subscores],
   "notes_short": "One sentence evaluation"
@@ -124,7 +117,7 @@ export async function categorizeProposal(
       messages: [
         {
           role: "system",
-          content: `You are a Cisco technology expert. Categorize the following business problem and solution into ONE of these categories:
+          content: `You understand the Data#3 Solution Sprint categories. Categorize the following business problem and solution into ONE of these categories:
 SECURE_CONNECTIVITY - Zero Trust security, network security, firewalls, VPN, secure remote access, identity management, threat detection
 HYBRID_DC - Data center infrastructure, cloud integration, virtualization, storage, compute, hybrid cloud solutions
 COLLAB_CX - Video conferencing, team collaboration, contact center, communication platforms, unified communications
@@ -194,11 +187,11 @@ Return only valid JSON with subscores, total, and notes_short.`
     // Validate and ensure all required fields
     if (!result.subscores) {
       result.subscores = {
-        outcome: 0,
-        fit: 0,
-        feasibility: 0,
+        clarity: 0,
         impact: 0,
-        observability: 0
+        kpi_strength: 0,
+        execution: 0,
+        confidence: 0
       };
     }
     
@@ -238,11 +231,11 @@ Return only valid JSON with subscores, total, and notes_short.`
     // Return default scores on error
     return {
       subscores: {
-        outcome: 0,
-        fit: 0,
-        feasibility: 0,
+        clarity: 0,
         impact: 0,
-        observability: 0
+        kpi_strength: 0,
+        execution: 0,
+        confidence: 0
       },
       total: 0,
       notes_short: "Evaluation error - default scores applied."
