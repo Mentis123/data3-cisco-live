@@ -7,13 +7,15 @@ import type { InsertParticipant, InsertSubmission, Participant, Submission, Data
 const defaultData3Stats = [
   { title: "Team Members", value: "1,500+", description: "Across Australia", category: "SCALE", displayOrder: 1 },
   { title: "Years in Business", value: "45+", description: "Trusted technology partner since 1978", category: "SCALE", displayOrder: 2 },
-  { title: "Cisco Certifications", value: "500+", description: "Expert-level certified professionals", category: "EXPERTISE", displayOrder: 3 },
+  { title: "Cisco Certifications", value: "500+", description: "Cisco certifications held across our national team", category: "EXPERTISE", displayOrder: 3 },
+  { title: "Cisco Training Hours", value: "8K+", description: "Hours invested every year in Cisco enablement", category: "EXPERTISE", displayOrder: 4 },
+  { title: "Cisco Specialisations", value: "30+", description: "Cisco specialisations spanning the full architecture", category: "EXPERTISE", displayOrder: 5 },
+  { title: "Cisco Master Specialisations", value: "4", description: "Cisco Master specialisations recognising our depth", category: "EXPERTISE", displayOrder: 6 },
   { title: "Enterprise Customers", value: "8,000+", description: "From SMB to Fortune 500", category: "SCALE", displayOrder: 4 },
   { title: "Data Centres", value: "15+", description: "Sovereign cloud infrastructure", category: "GENERAL", displayOrder: 5 },
   { title: "Security Operations", value: "24/7", description: "Always-on threat monitoring", category: "GENERAL", displayOrder: 6 },
   { title: "Cloud Migrations", value: "2,000+", description: "Successful digital transformations", category: "GENERAL", displayOrder: 7 },
   { title: "Network Endpoints", value: "1M+", description: "Devices under management", category: "GENERAL", displayOrder: 8 },
-  { title: "Cisco Gold Partner", value: "Premier", description: "Highest tier partnership status", category: "EXPERTISE", displayOrder: 9 },
   { title: "Annual Revenue", value: "$1.8B+", description: "Sustained growth and investment", category: "SCALE", displayOrder: 10 }
 ];
 
