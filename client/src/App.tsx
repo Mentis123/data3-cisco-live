@@ -9,6 +9,7 @@ import Play from "@/pages/Play";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
 import { NewSubmissionAnnouncementPage } from "@/pages/NewSubmissionAnnouncement";
+import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/play" component={Play} />
       <Route path="/admin-leaderboard" component={AdminLeaderboard} />
       <Route path="/admin" component={AdminLeaderboard} />
+      <Route path="/stand" component={StandMessaging} />
       <Route path="/how-to-play" component={HowToPlay} />
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
       <Route component={NotFound} />

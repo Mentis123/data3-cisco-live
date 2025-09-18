@@ -22,15 +22,26 @@ export default function Home() {
               <div className="min-w-0">
                 <div className="flex items-center">
                   <h1 className="text-base sm:text-xl font-bold truncate">Cisco Solution Sprint</h1>
-                  <Link href="/admin-leaderboard">
-                    <button 
-                      className="ml-2 px-2 py-1 text-transparent bg-transparent hover:text-muted-foreground/10 transition-colors"
-                      aria-label="Admin"
-                      data-testid="button-secret-admin"
-                    >
-                      •
-                    </button>
-                  </Link>
+                  <div className="ml-1 flex items-center">
+                    <Link href="/admin-leaderboard">
+                      <button
+                        className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
+                        aria-label="Admin"
+                        data-testid="button-secret-admin"
+                      >
+                        •
+                      </button>
+                    </Link>
+                    <Link href="/stand">
+                      <button
+                        className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
+                        aria-label="Stand signage"
+                        data-testid="button-secret-stand"
+                      >
+                        ·
+                      </button>
+                    </Link>
+                  </div>
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Data<sup className="text-primary">#</sup>3 | Cisco Live Melbourne</p>
               </div>
