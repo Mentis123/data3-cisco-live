@@ -103,3 +103,19 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 
 ## Monitoring & Performance
 - **TanStack Query**: Handles caching, background updates, and error handling.
+
+## Changelog
+- 2025-09-15 - **Plan**: Refresh the Home page hero copy with the new tagline, replace the four-step explainer with a concise
+  bullet list aligned to Side 3 messaging, update CTA labels to match the signage script while keeping routes intact, and tighten
+  the terms gate copy.
+- 2025-09-15 - **What changed**: Updated the Home hero, explainer, CTA labels, and terms copy to reflect the new "Beat the Bot"
+  storytelling flow.
+  - **How**: Replaced the heading/subheading, swapped the four-step grid for a three-point bullet list, renamed the CTA buttons,
+    and rewrote the terms text while retaining the checkbox gate.
+  - **Results**: Copy now mirrors the onsite signage script and Side 3 messaging while preserving existing navigation behaviour.
+  - **Issues**: None.
+
+## Future Planning
+- Confirm the onsite signage script team is happy with the phrasing ahead of show open.
+- Capture feedback from the booth on whether visitors understand the shortened explainer.
+- Revisit the terms copy if legal requests additional language before launch.
