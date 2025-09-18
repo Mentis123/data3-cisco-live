@@ -145,7 +145,7 @@ export default function Leaderboard() {
       
       // Trigger animation for score update
       setTimeout(() => {
-        const element = document.querySelector(`[data-entry-id="${message.data.id}"] .text-2xl`);
+        const element = document.querySelector(`[data-entry-id="${message.data.id}"] .score-value`);
         if (element) {
           animateScoreCountUp(element as HTMLElement, message.data.finalScore || message.data.totalScore);
         }
@@ -325,95 +325,149 @@ export default function Leaderboard() {
   }
 
   const renderLeaderboard = () => {
-    const titleSize = isFullscreen ? 'text-5xl' : 'text-3xl';
-    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-lg';
-    const nameSize = isFullscreen ? 'text-2xl' : 'text-lg';
-    const scoreSize = isFullscreen ? 'text-4xl' : 'text-2xl';
-    const badgeSize = isFullscreen ? 'text-sm' : 'text-xs';
-    const rankSize = isFullscreen ? 'w-16 h-16 text-2xl' : 'w-12 h-12 text-lg';
-    const padding = isFullscreen ? 'p-6' : 'p-4';
-    const spaceY = isFullscreen ? 'space-y-4' : 'space-y-3';
-    
-    if (displayData.leaderboard.length === 0) {
-      return (
-        <Card className="h-full">
-          <CardHeader className="pb-4">
-            <CardTitle className={`${titleSize} font-bold text-center`}>
-              <i className="fas fa-trophy text-yellow-500 mr-3"></i>
-              Live Leaderboard
-            </CardTitle>
-            <p className={`text-center text-muted-foreground ${subtitleSize}`}>
-              Waiting for first submissions...
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <i className="fas fa-hourglass-half text-4xl text-muted-foreground mb-4"></i>
-              <p className="text-lg font-semibold mb-2">No submissions yet!</p>
-              <p className="text-muted-foreground">Come back when participants start submitting solutions to see live rankings here.</p>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
+    const titleSize = isFullscreen ? 'text-6xl' : 'text-4xl sm:text-5xl';
+    const subtitleSize = isFullscreen ? 'text-2xl' : 'text-base sm:text-lg';
+    const rowPadding = isFullscreen ? 'py-6 px-10' : 'py-4 px-6 sm:px-8';
+    const listGap = isFullscreen ? 'space-y-6' : 'space-y-4';
+    const nameSize = isFullscreen ? 'text-3xl' : 'text-xl sm:text-2xl';
+    const metaSize = isFullscreen ? 'text-lg' : 'text-xs sm:text-sm';
+    const scoreSize = isFullscreen ? 'text-6xl' : 'text-3xl sm:text-4xl';
+    const rankSize = isFullscreen ? 'h-16 w-16 text-3xl' : 'h-12 w-12 sm:h-14 sm:w-14 text-lg sm:text-2xl';
+    const scoreLabelSize = isFullscreen ? 'text-lg' : 'text-[0.65rem] sm:text-xs';
+
+    const leaderboardEntries = displayData.leaderboard.slice(0, 10);
+    const rows = Array.from({ length: 10 }, (_, index) => leaderboardEntries[index] || null);
+
+    const getRowClasses = (index: number, hasEntry: boolean) => {
+      if (!hasEntry) {
+        return 'bg-white/5 border-white/10 opacity-50';
+      }
+
+      if (index === 0) {
+        return 'bg-gradient-to-r from-cyan-500/30 via-blue-500/25 to-purple-500/30 border-cyan-300/60 shadow-2xl shadow-cyan-500/30';
+      }
+
+      if (index === 1) {
+        return 'bg-white/10 border-white/40 shadow-xl shadow-blue-500/20';
+      }
+
+      if (index === 2) {
+        return 'bg-white/10 border-white/30 shadow-xl shadow-purple-500/20';
+      }
+
+      return 'bg-white/5 border-white/20 hover:bg-white/10';
+    };
+
+    const getRankClasses = (index: number, hasEntry: boolean) => {
+      if (!hasEntry) {
+        return 'bg-white/10 text-cyan-100/50';
+      }
+
+      if (index === 0) {
+        return 'bg-gradient-to-br from-yellow-300 via-amber-200 to-amber-400 text-gray-900 shadow-lg shadow-yellow-400/40';
+      }
+
+      if (index === 1) {
+        return 'bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 text-gray-900 shadow-lg shadow-slate-400/30';
+      }
+
+      if (index === 2) {
+        return 'bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/40';
+      }
+
+      return 'bg-white/10 text-cyan-100 border border-white/20 shadow-inner';
+    };
+
+    const renderEmptyState = () => (
+      <div className="flex flex-col items-center justify-center text-center py-20">
+        <i className="fas fa-hourglass-half text-5xl text-cyan-200/70 mb-6"></i>
+        <p className="text-2xl font-semibold text-white/90 mb-2">Waiting for the first submission</p>
+        <p className="text-base sm:text-lg text-cyan-100/80 max-w-xl">
+          As soon as the first challenge entry lands, the live rankings will appear here with automatic updates.
+        </p>
+      </div>
+    );
 
     return (
-    <Card className="h-full">
-      <CardHeader className="pb-4">
-        <CardTitle className={`${titleSize} font-bold text-center`}>
-          <i className="fas fa-trophy text-yellow-500 mr-3"></i>
-          Live Leaderboard
-        </CardTitle>
-        <p className={`text-center text-muted-foreground ${subtitleSize}`}>
-          {displayData.leaderboard.length} Solutions • Real-time Rankings
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className={spaceY}>
-          {displayData.leaderboard.slice(0, 10).map((entry, index) => (
-            <div
-              key={entry.id}
-              data-entry-id={entry.id}
-              className={`flex items-center justify-between ${padding} rounded-xl transition-all duration-300 ${
-                index === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/30' :
-                index === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border-2 border-gray-400/30' :
-                index === 2 ? 'bg-gradient-to-r from-orange-600/20 to-orange-700/20 border-2 border-orange-600/30' :
-                'bg-muted/30 border border-border'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`${rankSize} rounded-full flex items-center justify-center font-bold ${
-                  index === 0 ? 'bg-[#FFD700] text-gray-900 shadow-lg shadow-yellow-400/50' :
-                  index === 1 ? 'bg-[#C0C0C0] text-gray-900 shadow-lg shadow-gray-400/50' :
-                  index === 2 ? 'bg-[#CD7F32] text-white shadow-lg shadow-orange-600/50' :
-                  'bg-cyan-900/30 text-cyan-300/70'
-                }`}>
-                  {index < 3 ? (
-                    <i className={`fas ${index === 0 ? 'fa-crown' : index === 1 ? 'fa-medal' : 'fa-award'}`}></i>
-                  ) : (
-                    index + 1
-                  )}
-                </div>
-                <div>
-                  <p className={`font-semibold ${nameSize}`}>{entry.name}</p>
-                  <Badge
-                    variant="secondary"
-                    className={`${badgeSize} text-white`}
-                    style={{ backgroundColor: CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] }}
+      <Card className="relative overflow-hidden border-none bg-gradient-to-b from-[#071734] via-[#0b2650] to-[#13316b] text-white shadow-2xl">
+        <div className="absolute -top-40 -left-32 h-72 w-72 rounded-full bg-cyan-500/30 blur-3xl"></div>
+        <div className="absolute -bottom-48 -right-24 h-80 w-80 rounded-full bg-purple-500/20 blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-500/10 blur-[160px]"></div>
+
+        <CardHeader className="relative z-10 pt-12 pb-8 text-center">
+          <p className={`uppercase tracking-[0.5em] text-cyan-100/60 ${isFullscreen ? 'text-sm' : 'text-[0.65rem] sm:text-xs'}`}>
+            Live Rankings
+          </p>
+          <CardTitle className={`${titleSize} font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(15,76,129,0.55)]`}>
+            Live Leaderboard
+          </CardTitle>
+          <p className={`mt-3 ${subtitleSize} text-cyan-100/80`}> 
+            {displayData.leaderboard.length > 0
+              ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'} • Updated in Real Time`
+              : 'Challenge results will appear here the moment they are submitted'}
+          </p>
+        </CardHeader>
+
+        <CardContent className="relative z-10 pb-12">
+          {displayData.leaderboard.length === 0 ? (
+            renderEmptyState()
+          ) : (
+            <div className={`flex flex-col ${listGap}`}>
+              {rows.map((entry, index) => {
+                const hasEntry = Boolean(entry);
+                const categoryColor = entry
+                  ? CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#1cc8e4'
+                  : undefined;
+
+                return (
+                  <div
+                    key={entry ? entry.id : `placeholder-${index}`}
+                    data-entry-id={entry ? entry.id : undefined}
+                    className={`grid grid-cols-[auto,1fr,auto] items-center gap-6 rounded-3xl border backdrop-blur-xl transition-all duration-300 ${rowPadding} ${getRowClasses(index, hasEntry)} ${hasEntry ? 'hover:-translate-y-1' : ''}`}
                   >
-                    {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
-                  </Badge>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className={`${scoreSize} font-bold text-primary`}>{entry.totalScore}</p>
-                <p className={`${isFullscreen ? 'text-lg' : 'text-sm'} text-muted-foreground`}>/ 50</p>
-              </div>
+                    <div
+                      className={`flex items-center justify-center rounded-full font-black tracking-tight ${rankSize} ${getRankClasses(index, hasEntry)}`}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div className="min-w-0">
+                      <p className={`${nameSize} font-semibold tracking-tight truncate ${hasEntry ? 'text-white' : 'text-cyan-100/60'}`}>
+                        {entry ? entry.name : 'Awaiting Challenger'}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-cyan-100/80">
+                        {entry ? (
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 font-medium uppercase tracking-[0.35em] ${metaSize}`}
+                            style={{
+                              backgroundColor: `${categoryColor}1A`,
+                              color: categoryColor,
+                              border: `1px solid ${categoryColor}4D`
+                            }}
+                          >
+                            {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
+                          </span>
+                        ) : (
+                          <span className={`uppercase tracking-[0.35em] ${metaSize} text-cyan-100/60`}>
+                            Open Slot
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`score-value font-black tabular-nums tracking-tight ${scoreSize} ${hasEntry ? 'text-white drop-shadow-[0_10px_25px_rgba(28,200,228,0.35)]' : 'text-white/40'}`}>
+                        {entry ? entry.totalScore.toString().padStart(2, '0') : '--'}
+                      </p>
+                      <p className={`uppercase tracking-[0.4em] text-cyan-100/60 mt-1 ${scoreLabelSize}`}>
+                        pts
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
     );
   };
 
