@@ -32,10 +32,10 @@ INSERT INTO data3_stats (title, value, description, category, display_order) VAL
 
 -- EXPERTISE Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Certified Professionals', '2M+', 'Cisco certified individuals globally', 'EXPERTISE', 1);
-INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('R&D Investment', '$6.3B', 'annual investment in innovation', 'EXPERTISE', 2);
-INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Certifications', '500+', 'Expert-level certified professionals', 'EXPERTISE', 3);
-INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Patents Portfolio', '15K+', 'technology patents held by Cisco', 'EXPERTISE', 3);
-INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Gold Partner', 'Premier', 'Highest tier partnership status', 'EXPERTISE', 9);
+INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Certifications', '500+', 'Cisco certifications held across our national team', 'EXPERTISE', 3);
+INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Training Hours', '8K+', 'Hours invested every year in Cisco enablement', 'EXPERTISE', 4);
+INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Specialisations', '30+', 'Cisco specialisations spanning the full architecture', 'EXPERTISE', 5);
+INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cisco Master Specialisations', '4', 'Cisco Master specialisations recognising our depth', 'EXPERTISE', 6);
 
 -- GENERAL Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Digital Transformation', '91%', 'of organizations accelerating digital initiatives', 'GENERAL', 1);
