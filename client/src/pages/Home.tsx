@@ -80,52 +80,47 @@ export default function Home() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
             <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
-              <h2 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-white">Cisco Solution Sprint</h2>
-              <p className="text-sm sm:text-xl text-white/90">Innovate. Compete. Win at Cisco Live Melbourne 2025</p>
+              <h2 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-white">Can you beat the bot?</h2>
+              <p className="text-sm sm:text-xl text-white/90">
+                Bring the frustration that&apos;s slowing your team, size the impact, and see if our AI puts you on the board.
+              </p>
             </div>
           </div>
 
           <Card className="glass-panel border-0 mb-6 sm:mb-8">
             <CardContent className="p-4 sm:p-8">
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Welcome to the Challenge</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">This is your sprint</h3>
               <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6">
-                Identify real business problems that waste time or cause frustration. Work with our technology coach to 
-                quantify the impact and explore Cisco technologies that could help.
+                Tell us the business headache that&apos;s burning time or trust, show the stakes, and let our AI coach and judge
+                decide if you really can beat the bot.
               </p>
 
               {/* How it works section */}
               <div className="mb-6 sm:mb-8">
-                <h4 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-center">How it Works</h4>
-                <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
-                    <div>
-                      <p className="font-semibold text-sm">Name the Problem</p>
-                      <p className="text-xs text-muted-foreground">What business challenge wastes your time?</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
-                    <div>
-                      <p className="font-semibold text-sm">Quantify the Impact</p>
-                      <p className="text-xs text-muted-foreground">How much does this problem really cost you?</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
-                    <div>
-                      <p className="font-semibold text-sm">Explore Technologies</p>
-                      <p className="text-xs text-muted-foreground">Discover relevant Cisco tools for your challenge</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">4</div>
-                    <div>
-                      <p className="font-semibold text-sm">Compete & Win</p>
-                      <p className="text-xs text-muted-foreground">Get scored on your approach - top entries win!</p>
-                    </div>
-                  </div>
-                </div>
+                <h4 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-center">Three moves to make</h4>
+                <ul className="space-y-3 sm:space-y-4 text-left text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-comment-dots text-primary text-lg sm:text-xl mt-1"></i>
+                    <span>
+                      <span className="font-semibold text-foreground">Share the frustration.</span> Tell us what&apos;s grinding your
+                      team to a halt.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-chart-line text-primary text-lg sm:text-xl mt-1"></i>
+                    <span>
+                      <span className="font-semibold text-foreground">Estimate the impact.</span> Put numbers around the time,
+                      cost, or customer hit.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-robot text-primary text-lg sm:text-xl mt-1"></i>
+                    <span>
+                      <span className="font-semibold text-foreground">Let the bot decide.</span> The AI coach scores your pitch and
+                      drops you straight onto the live leaderboard.
+                    </span>
+                  </li>
+                </ul>
               </div>
 
               {/* Terms & Conditions */}
@@ -134,16 +129,15 @@ export default function Home() {
                   <i className="fas fa-shield-alt text-primary mr-2"></i>
                   Terms & Conditions
                 </h4>
-                <div className="text-left space-y-1 sm:space-y-2 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
-                  <p>• Participation requires acceptance of Data<sup className="text-primary">#</sup>3 privacy notice and Cisco Live terms</p>
-                  <p>• Only first name and last initial will be displayed on public leaderboards</p>
-                  <p>• Solutions will be scored by AI against published criteria</p>
-                  <p>• Submissions become property of Data<sup className="text-primary">#</sup>3 for demonstration purposes</p>
-                  <p>• Data<sup className="text-primary">#</sup>3 employees and family members are not eligible for prizes</p>
+                <div className="text-left space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
+                  <p>• Playing means you accept the Data<sup className="text-primary">#</sup>3 privacy notice and Cisco Live terms.</p>
+                  <p>• The leaderboard only shows your first name and last initial.</p>
+                  <p>• An AI judge scores every submission, and Data<sup className="text-primary">#</sup>3 may reuse standout entries for demonstrations.</p>
+                  <p>• Data<sup className="text-primary">#</sup>3 employees and their families are not eligible for prizes.</p>
                 </div>
 
                 <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">
-                  <Checkbox 
+                  <Checkbox
                     checked={acceptedTerms}
                     onCheckedChange={(checked) => {
                       setAcceptedTerms(!!checked);
@@ -153,7 +147,7 @@ export default function Home() {
                     data-testid="checkbox-accept-terms"
                   />
                   <span className={`text-xs sm:text-sm leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : ''}`}>
-                    I accept the Terms & Conditions and privacy notice, and confirm my details match my Cisco Live registration badge.
+                    I accept these terms, including the privacy notice, and confirm my entry matches my Cisco Live badge details.
                   </span>
                 </label>
                 {showTermsError && (
@@ -180,8 +174,8 @@ export default function Home() {
                 >
                   <i className="fas fa-lightbulb mr-2 sm:mr-3 text-lg sm:text-xl"></i>
                   <div className="text-left">
-                    <div className="font-bold">Start the Challenge</div>
-                    <div className="text-xs sm:text-sm opacity-90">Identify your business problem</div>
+                    <div className="font-bold">Beat the Bot</div>
+                    <div className="text-xs sm:text-sm opacity-90">Pitch your frustration and see if you score.</div>
                   </div>
                 </Button>
 
@@ -189,8 +183,8 @@ export default function Home() {
                   <Button variant="secondary" className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation" data-testid="button-view-leaderboard">
                     <i className="fas fa-trophy mr-2 sm:mr-3 text-lg sm:text-xl"></i>
                     <div className="text-left">
-                      <div className="font-bold">Live Dashboard</div>
-                      <div className="text-xs sm:text-sm opacity-90">Rankings, stats & insights</div>
+                      <div className="font-bold">See the Leaderboard</div>
+                      <div className="text-xs sm:text-sm opacity-90">Track who the bot is crowning right now.</div>
                     </div>
                   </Button>
                 </Link>
