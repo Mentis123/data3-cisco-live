@@ -194,7 +194,7 @@ export default function Home() {
 
           {/* Auto-categorization message */}
           <p className="text-xs text-center text-muted-foreground">
-            Your challenge will be categorized based on the technology area most relevant to your problem
+            Your challenge will be automatically categorized for the live leaderboard
           </p>
         </div>
       </div>

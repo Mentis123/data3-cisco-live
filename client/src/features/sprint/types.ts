@@ -22,37 +22,14 @@ export interface ImpactBlock {
   };
 }
 
-export interface ExploreBlock {
-  technologies: Array<{
-    name: string;
-    description: string;
-    relevance: string;
-  }>;
-  mvs?: {
-    title: string;
-    description: string;
-    implementation: string[];
-    estimatedTime?: string;
-  };
-  extendedPlan?: string[];
-}
-
 export interface SubmissionDraft {
   problem_summary: string;
+  impact_summary: string;
   chosen_category: string;
-  cisco_products: string[];
-  current_state: {
-    baseline_kpis: Array<{ name: string; value: string }>;
-    constraints: string[];
-  };
-  target_state: {
-    kpis: Array<{ name: string; target: string }>;
-    persona: string[];
-  };
-  integration_points: string[];
-  security_considerations: string[];
-  observability_plan: string[];
-  rollout_plan: string[];
+  baseline_metrics: Array<{ name: string; value: string }>;
+  target_metrics: Array<{ name: string; target: string }>;
+  action_plan: string[];
+  success_checks: string[];
   risks: string[];
 }
 
@@ -62,20 +39,18 @@ export interface SprintState {
   completedSteps: Set<SprintStep>;
   problem?: ProblemBlock;
   impact?: ImpactBlock;
-  explore?: ExploreBlock;
   submission?: SubmissionDraft;
   canSubmitAnytime: boolean;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 export interface SprintAction {
-  type: 
-    | 'SET_STEP' 
-    | 'ADD_USER_INPUT' 
-    | 'SET_PROBLEM' 
-    | 'SET_IMPACT' 
-    | 'SET_EXPLORE' 
-    | 'SET_SUBMISSION' 
+  type:
+    | 'SET_STEP'
+    | 'ADD_USER_INPUT'
+    | 'SET_PROBLEM'
+    | 'SET_IMPACT'
+    | 'SET_SUBMISSION'
     | 'UPDATE_SUBMISSION'
     | 'MARK_STEP_COMPLETE'
     | 'RESET_SPRINT'

@@ -3,6 +3,31 @@ import { eq, desc, sql, and } from "drizzle-orm";
 import { participants, submissions, data3Stats, customCategories } from "@shared/schema";
 import type { InsertParticipant, InsertSubmission, Participant, Submission, Data3Stat, InsertCustomCategory, CustomCategory } from "@shared/schema";
 
+// Expanded list of filler words that should never appear in the attendee facing word cloud.
+// Includes pronouns, articles, helper verbs, and other low-signal connectors so the output
+// highlights the technology terms participants actually typed.
+const WORD_CLOUD_STOP_WORDS = new Set(
+  [
+    'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
+    'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under', 'while',
+    'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user', 'people',
+    'per', 'week', 'weeks', 'month', 'months', 'year', 'years', 'day', 'days', 'hour', 'hours',
+    'problem', 'problems', 'solution', 'solutions', 'impact', 'impacts', 'kpi', 'kpis', 'metric',
+    'metrics', 'goal', 'goals', 'each', 'every', 'daily', 'weekly', 'assistant', 'coach', 'system',
+    'a', 'an', 'and', 'any', 'are', 'as', 'at', 'be', 'been', 'being', 'but', 'by',
+    'can', 'could', 'did', 'do', 'does', 'done', 'during', 'else', 'ever', 'every', 'few', 'for',
+    'from', 'further', 'had', 'has', 'have', 'having', 'here', 'how', 'if', 'in', 'into', 'is',
+    'it', 'its', 'itself', 'just', 'least', 'less', 'made', 'make', 'many', 'may', 'might', 'more',
+    'most', 'mostly', 'much', 'must', 'near', 'need', 'needs', 'nor', 'not', 'now', 'of', 'off',
+    'often', 'on', 'once', 'only', 'onto', 'or', 'other', 'our', 'ours', 'ourselves', 'out',
+    'over', 'own', 'same', 'should', 'so', 'some', 'such', 'than', 'that', 'the', 'their', 'theirs',
+    'them', 'themselves', 'then', 'there', 'these', 'they', 'through', 'to', 'too', 'under', 'until',
+    'up', 'upon', 'very', 'via', 'was', 'we', 'were', 'what', 'when', 'where', 'whether', 'which',
+    'while', 'who', 'whom', 'whose', 'why', 'will', 'with', 'within', 'without', 'would', 'you',
+    'your', 'yours', 'yourself', 'yourselves'
+  ].map(word => word.toLowerCase())
+);
+
 // Pre-populate Data#3 stats (using only system categories)
 const defaultData3Stats = [
   { title: "Team Members", value: "1,500+", description: "Across Australia", category: "SCALE", displayOrder: 1 },
@@ -151,104 +176,62 @@ export const storage = {
 
   async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
-    
-    // Track both frequency and proper casing
-    const wordData: { 
-      [lowerKey: string]: { 
-        count: number; 
-        variants: { [casing: string]: number };
-        properCase?: string;
-      } 
-    } = {};
 
-    // Define proper casing for known Cisco products
-    const properCasing: { [lower: string]: string } = {
-      'appdynamics': 'AppDynamics',
-      'thousandeyes': 'ThousandEyes',
-      'webex': 'Webex',
-      'meraki': 'Meraki',
-      'securex': 'SecureX',
-      'aci': 'Cisco ACI',
-      'nexus': 'Nexus',
-      'ucs': 'UCS',
-      'sd-wan': 'SD-WAN',
-      'zero trust': 'Zero Trust',
-      'umbrella': 'Umbrella',
-      'duo': 'Duo',
-      'ise': 'ISE',
-      'dna': 'DNA',
-      'sase': 'SASE',
-      'intersight': 'Intersight',
-      'stealthwatch': 'Stealthwatch',
-      'catalyst': 'Catalyst',
-      'hyperflex': 'HyperFlex',
-      'firepower': 'Firepower'
+    const wordData: Record<string, { count: number; properCase: string }> = {};
+
+    const extractUserSuppliedText = (solutionText?: string | null) => {
+      if (!solutionText) return '';
+
+      const userMatches = Array.from(
+        solutionText.matchAll(/user:\s*([\s\S]*?)(?=\r?\n\s*(?:user|assistant|coach|system):|$)/gi)
+      );
+
+      if (userMatches.length > 0) {
+        return userMatches
+          .map(match => match[1]?.trim() || '')
+          .filter(Boolean)
+          .join(' ');
+      }
+
+      return solutionText
+        .split(/\r?\n+/)
+        .filter(line => !/^(assistant|coach|system)\s*:/i.test(line))
+        .join(' ');
     };
 
     allSubmissions.forEach(submission => {
-      // Extract Cisco products from structured JSON
-      try {
-        const structured = JSON.parse(submission.structuredJson);
-        const products = structured.cisco_products || [];
-        products.forEach((product: string) => {
-          const cleanProduct = product.trim();
-          const lowerKey = cleanProduct.toLowerCase();
-          
-          if (!wordData[lowerKey]) {
-            wordData[lowerKey] = { count: 0, variants: {} };
+      const aggregatedText = extractUserSuppliedText(submission.solutionText);
+      if (!aggregatedText.trim()) {
+        return;
+      }
+
+      aggregatedText
+        .replace(/[^a-zA-Z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .forEach(word => {
+          const clean = word.trim();
+          if (!clean) return;
+
+          const lower = clean.toLowerCase();
+          if (clean.length < 3 || WORD_CLOUD_STOP_WORDS.has(lower)) {
+            return;
           }
-          
-          wordData[lowerKey].count += 3; // Weight products higher
-          wordData[lowerKey].variants[cleanProduct] = (wordData[lowerKey].variants[cleanProduct] || 0) + 1;
+
+          if (!wordData[lower]) {
+            wordData[lower] = {
+              count: 0,
+              properCase: clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase()
+            };
+          }
+
+          wordData[lower].count += 1;
         });
-      } catch (e) {
-        // Fallback to solution text parsing
-      }
-
-      // Extract key technology terms from solution text (excluding generic "Cisco")
-      const techTerms = submission.solutionText.match(/\b(Catalyst|ThousandEyes|AppDynamics|Webex|Meraki|SecureX|ACI|Nexus|UCS|SD-WAN|Zero Trust|Umbrella|Duo|ISE|DNA|SASE|Intersight|Stealthwatch|HyperFlex|Firepower)\b/gi) || [];
-      techTerms.forEach((term: string) => {
-        const cleanTerm = term.trim();
-        const lowerKey = cleanTerm.toLowerCase();
-        
-        if (!wordData[lowerKey]) {
-          wordData[lowerKey] = { count: 0, variants: {} };
-        }
-        
-        wordData[lowerKey].count += 1;
-        wordData[lowerKey].variants[cleanTerm] = (wordData[lowerKey].variants[cleanTerm] || 0) + 1;
-      });
-    });
-
-    // Determine the best casing for each word
-    Object.keys(wordData).forEach(lowerKey => {
-      const data = wordData[lowerKey];
-      
-      // Check if we have a known proper casing
-      if (properCasing[lowerKey]) {
-        data.properCase = properCasing[lowerKey];
-      } else {
-        // Use the most frequent variant
-        const mostFrequent = Object.entries(data.variants)
-          .sort((a, b) => b[1] - a[1])[0];
-        
-        if (mostFrequent) {
-          data.properCase = mostFrequent[0];
-        } else {
-          // Fallback: capitalize first letter
-          data.properCase = lowerKey.charAt(0).toUpperCase() + lowerKey.slice(1);
-        }
-      }
     });
 
     return Object.entries(wordData)
-      .filter(([lowerKey]) => lowerKey !== 'cisco') // Exclude generic "Cisco" term
-      .map(([lowerKey, data]) => ({ 
-        text: data.properCase || lowerKey, 
-        value: data.count 
-      }))
+      .map(([lower, data]) => ({ text: data.properCase, value: data.count }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 30); // Top 30 terms
+      .slice(0, 30);
   },
 
   async getCategoryStats(): Promise<{ [key: string]: number }> {
