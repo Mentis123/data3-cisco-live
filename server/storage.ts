@@ -152,61 +152,301 @@ export const storage = {
   async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
 
-    const wordData: Record<string, { count: number; properCase: string }> = {};
     const stopWords = new Set([
       'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
-      'into', 'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under',
-      'while', 'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user',
-      'people', 'hours', 'hours', 'per', 'week', 'month', 'year', 'each', 'every', 'daily', 'weekly'
+      'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under', 'while',
+      'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user', 'people',
+      'per', 'week', 'weeks', 'month', 'months', 'year', 'years', 'each', 'every', 'daily', 'weekly',
+      'solution', 'solutions', 'problem', 'problems', 'impact', 'summary', 'baseline', 'target',
+      'targets', 'kpi', 'kpis', 'plan', 'plans', 'action', 'actions', 'risk', 'risks', 'success',
+      'check', 'checks', 'business', 'customer', 'customers', 'experience', 'experiences', 'operations',
+      'operation', 'operational', 'strategy', 'strategies', 'architecture', 'architectures', 'teams',
+      'team', 'leader', 'leaders', 'program', 'programs', 'enablement', 'visibility', 'governance',
+      'process', 'processes', 'automation', 'automated', 'monitoring', 'performance', 'delivery',
+      'services', 'service', 'environment', 'environments', 'employee', 'employees', 'site', 'sites',
+      'deployment', 'deployments', 'deploy', 'deploying', 'rollout', 'rollouts', 'phase', 'phases',
+      'global', 'regional', 'improve', 'improves', 'improved', 'improving', 'increase', 'increases',
+      'increased', 'reduces', 'reduced', 'reducing', 'reduction', 'reductions', 'optimize',
+      'optimise', 'optimised', 'optimizing', 'optimising', 'system', 'systems', 'application',
+      'applications', 'apps', 'app', 'cloud', 'digital', 'data', 'security', 'secure', 'connectivity',
+      'hybrid', 'observability', 'edge', 'iot', 'general', 'scale', 'expertise', 'cisco', 'zero',
+      'trust', 'fso', 'network', 'networks', 'platform', 'platforms', 'technology', 'technologies',
+      'client', 'clients'
     ]);
 
+    const knownTechnologyTerms = new Set([
+      'appdynamics',
+      'app dynamics',
+      'thousandeyes',
+      'securex',
+      'duo',
+      'duo mfa',
+      'duo security',
+      'meraki',
+      'meraki mx',
+      'meraki mr',
+      'meraki mg',
+      'meraki mv',
+      'meraki insight',
+      'meraki dashboard',
+      'meraki systems manager',
+      'umbrella',
+      'webex',
+      'webex calling',
+      'webex contact center',
+      'webex control hub',
+      'catalyst',
+      'catalyst center',
+      'catalyst 9000',
+      'catalyst sd-wan',
+      'vmanage',
+      'vsmart',
+      'ise',
+      'identity services engine',
+      'intersight',
+      'ucs',
+      'hyperflex',
+      'sd-wan',
+      'sase',
+      'aci',
+      'aci fabric',
+      'nexus',
+      'nx-os',
+      'nxos',
+      'dna center',
+      'secure client',
+      'anyconnect',
+      'amp',
+      'secure endpoint',
+      'xdr',
+      'panoptica',
+      'threat grid',
+      'firepower',
+      'firepower threat defense',
+      'ftd',
+      'stealthwatch',
+      'tetration',
+      'servicenow',
+      'salesforce',
+      'microsoft teams',
+      'power bi',
+      'azure',
+      'aws',
+      'google cloud',
+      'splunk',
+      'pagerduty',
+      'datadog',
+      'new relic',
+      'snowflake',
+      'tableau',
+      'dynatrace',
+      'okta',
+      'workday',
+      'sap',
+      'jira',
+      'confluence',
+      'github',
+      'gitlab',
+      'slack',
+      'zoom',
+      'servicenow cmdb',
+      'servicenow itom',
+      'meraki vision',
+      'appdynamics synthetics',
+      'thousandeyes synthetics',
+      'securex orchestration'
+    ]);
+
+    const technologyCounts = new Map<string, { count: number; display: string }>();
+
+    const addTechnology = (term: string) => {
+      const cleaned = term.replace(/\s+/g, ' ').trim();
+      if (!cleaned) return;
+      const canonical = cleaned.toLowerCase();
+      const existing = technologyCounts.get(canonical);
+      if (existing) {
+        existing.count += 1;
+        if (cleaned.length > existing.display.length) {
+          existing.display = cleaned;
+        }
+      } else {
+        technologyCounts.set(canonical, { count: 1, display: cleaned });
+      }
+    };
+
+    const isTechnologyToken = (token: string) => {
+      const cleaned = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+\-\/#!]+$/g, '');
+      if (!cleaned) return false;
+
+      const lower = cleaned.toLowerCase();
+      if (stopWords.has(lower)) return false;
+      if (knownTechnologyTerms.has(lower)) return true;
+
+      if (!/[a-zA-Z]/.test(cleaned)) return false;
+
+      if (/^[A-Z0-9+\-\/#!]+$/.test(cleaned)) {
+        if (cleaned.length <= 2 && !knownTechnologyTerms.has(lower)) return false;
+        return true;
+      }
+
+      if (/[0-9]/.test(cleaned)) return true;
+      if (/^[A-Z][a-z]+[A-Z][a-zA-Z0-9]*$/.test(cleaned)) return true;
+      if (/[A-Z]/.test(cleaned.slice(1))) return true;
+
+      return knownTechnologyTerms.has(lower);
+    };
+
+    const tryAddPhrase = (
+      tokens: Array<{ cleaned: string; lower: string }>,
+      start: number,
+      length: number,
+      used: Set<number>
+    ) => {
+      if (start + length > tokens.length) return false;
+      for (let offset = 0; offset < length; offset += 1) {
+        if (used.has(start + offset)) return false;
+      }
+
+      const phraseTokens = tokens.slice(start, start + length);
+      const lowerPhrase = phraseTokens.map(t => t.lower).join(' ');
+
+      let trimStart = 0;
+      let trimEnd = phraseTokens.length;
+      while (trimStart < trimEnd && stopWords.has(phraseTokens[trimStart].lower)) {
+        trimStart += 1;
+      }
+      while (trimEnd > trimStart && stopWords.has(phraseTokens[trimEnd - 1].lower)) {
+        trimEnd -= 1;
+      }
+
+      const trimmedTokens = phraseTokens.slice(trimStart, trimEnd);
+      const filteredLowerPhrase = trimmedTokens.map(t => t.lower).join(' ');
+
+      const matchedFullPhrase = knownTechnologyTerms.has(lowerPhrase);
+      const matchedTrimmedPhrase = filteredLowerPhrase.length > 0 && knownTechnologyTerms.has(filteredLowerPhrase);
+      const matchedPhrase = matchedFullPhrase || matchedTrimmedPhrase;
+
+      if (!matchedPhrase) {
+        return false;
+      }
+
+      const displaySource = matchedFullPhrase ? phraseTokens : trimmedTokens;
+      const displayWords = displaySource.map(t => t.cleaned).filter(word => word);
+
+      const display = displayWords.join(' ').trim();
+      if (!display) return false;
+
+      for (let offset = 0; offset < length; offset += 1) {
+        used.add(start + offset);
+      }
+
+      addTechnology(display);
+      return true;
+    };
+
+    const processText = (text: string) => {
+      if (!text) return;
+
+      const cleanedText = text.replace(/[\u201c\u201d]/g, '"');
+      const rawTokens = cleanedText
+        .split(/\s+/)
+        .map(token => {
+          const cleanedToken = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+\-\/#!]+$/g, '');
+          return {
+            original: token,
+            cleaned: cleanedToken,
+            lower: cleanedToken.toLowerCase(),
+          };
+        })
+        .filter(token => token.cleaned.length > 0);
+
+      if (rawTokens.length === 0) return;
+
+      const usedIndexes = new Set<number>();
+      const phraseTokens = rawTokens.map(token => ({ cleaned: token.cleaned, lower: token.lower }));
+
+      for (let size = 3; size >= 2; size -= 1) {
+        for (let index = 0; index <= rawTokens.length - size; index += 1) {
+          tryAddPhrase(phraseTokens, index, size, usedIndexes);
+        }
+      }
+
+      rawTokens.forEach((token, index) => {
+        if (usedIndexes.has(index)) return;
+
+        if (isTechnologyToken(token.cleaned)) {
+          const display = token.cleaned;
+          if (display && !stopWords.has(display.toLowerCase())) {
+            addTechnology(display);
+          }
+        }
+      });
+    };
+
     allSubmissions.forEach(submission => {
-      let aggregatedText = '';
+      let structured: Record<string, unknown> | null = null;
 
       try {
-        const structured = JSON.parse(submission.structuredJson);
-        const pieces: string[] = [];
-
-        if (structured.problem_summary) pieces.push(structured.problem_summary);
-        if (structured.impact_summary) pieces.push(structured.impact_summary);
-        if (Array.isArray(structured.action_plan)) pieces.push(structured.action_plan.join(' '));
-        if (Array.isArray(structured.success_checks)) pieces.push(structured.success_checks.join(' '));
-        if (Array.isArray(structured.risks)) pieces.push(structured.risks.join(' '));
-
-        aggregatedText = pieces.join(' ');
-      } catch (e) {
-        // Ignore JSON parsing issues and fallback to solution text
+        structured = JSON.parse(submission.structuredJson);
+      } catch {
+        structured = null;
       }
 
-      if (!aggregatedText) {
-        aggregatedText = submission.solutionText;
-      }
+      const fieldsToCheck = [
+        'problem_summary',
+        'impact_summary',
+        'action_plan',
+        'success_checks',
+        'risks',
+        'integration_points',
+        'security_considerations',
+        'observability_plan',
+        'technologies',
+        'tools',
+        'platforms',
+        'cisco_products',
+        'recommended_tools',
+        'recommended_technologies',
+        'stack'
+      ];
 
-      aggregatedText
-        .replace(/[^a-zA-Z0-9\s]/g, ' ')
-        .split(/\s+/)
-        .forEach(word => {
-          const clean = word.trim();
-          if (!clean) return;
+      if (structured && typeof structured === 'object') {
+        const structuredRecord = structured as Record<string, unknown>;
+        fieldsToCheck.forEach(field => {
+          const value = structuredRecord[field];
+          if (!value) return;
 
-          const lower = clean.toLowerCase();
-          if (clean.length < 3 || stopWords.has(lower)) {
-            return;
+          if (Array.isArray(value)) {
+            value.forEach(item => {
+              if (typeof item === 'string') {
+                processText(item);
+              } else if (item && typeof item === 'object') {
+                const itemRecord = item as Record<string, unknown>;
+                const candidate =
+                  typeof itemRecord.name === 'string'
+                    ? itemRecord.name
+                    : typeof itemRecord.value === 'string'
+                      ? itemRecord.value
+                      : typeof itemRecord.target === 'string'
+                        ? itemRecord.target
+                        : undefined;
+
+                if (candidate) {
+                  processText(candidate);
+                }
+              }
+            });
+          } else if (typeof value === 'string') {
+            processText(value);
           }
-
-          if (!wordData[lower]) {
-            wordData[lower] = {
-              count: 0,
-              properCase: clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase()
-            };
-          }
-
-          wordData[lower].count += 1;
         });
+      }
+
+      processText(submission.solutionText);
     });
 
-    return Object.entries(wordData)
-      .map(([lower, data]) => ({ text: data.properCase, value: data.count }))
+    return Array.from(technologyCounts.entries())
+      .map(([, data]) => ({ text: data.display, value: data.count }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 30);
   },
