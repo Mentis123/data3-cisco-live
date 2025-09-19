@@ -21,7 +21,7 @@ import {
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
-import { expandProblem, quantifyImpact, mapTechnologies, composeSubmission, inferMissingData } from "@/features/sprint/compose";
+import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
 
 function PlayContent() {
@@ -130,13 +130,12 @@ Just describe it naturally - what's the problem that needs solving?`
       setIsSubmitting(true);
 
       // Ensure we have all data
-      const { problem, impact, explore } = inferMissingData(
+      const { problem, impact } = inferMissingData(
         state.problem,
-        state.impact,
-        state.explore
+        state.impact
       );
-      
-      const submission = state.submission || composeSubmission(problem, impact, explore);
+
+      const submission = state.submission || composeSubmission(problem, impact);
 
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
@@ -188,10 +187,6 @@ Just describe it naturally - what's the problem that needs solving?`
       if (lastUserMessage) {
         const impact = quantifyImpact(lastUserMessage.content, state.problem?.userInput);
         dispatch({ type: 'SET_IMPACT', payload: impact });
-        
-        // Also prepare technologies for next step
-        const explore = mapTechnologies(state.problem!, impact);
-        dispatch({ type: 'SET_EXPLORE', payload: explore });
       }
       advanceToNextStep(dispatch, state.step);
     } else if (state.step === 3) {
@@ -199,8 +194,8 @@ Just describe it naturally - what's the problem that needs solving?`
       const lowerContent = content.toLowerCase();
       if (lowerContent.includes('ready to submit') || lowerContent.includes('solution is ready') || lowerContent.includes('proceed with this')) {
         // Prepare submission if not already done
-        if (!state.submission && state.problem && state.impact && state.explore) {
-          const submission = composeSubmission(state.problem, state.impact, state.explore);
+        if (!state.submission && state.problem && state.impact) {
+          const submission = composeSubmission(state.problem, state.impact);
           dispatch({ type: 'SET_SUBMISSION', payload: submission });
         }
       }
@@ -270,28 +265,27 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   const handleSubmitCommand = () => {
     // Infer any missing data
-    const { problem, impact, explore } = inferMissingData(
+    const { problem, impact } = inferMissingData(
       state.problem,
-      state.impact,
-      state.explore
+      state.impact
     );
-    
+
     // Compose submission
-    const submission = composeSubmission(problem, impact, explore);
+    const submission = composeSubmission(problem, impact);
     dispatch({ type: 'SET_SUBMISSION', payload: submission });
-    
+
     // Move to submit step
     goToStep(dispatch, 4);
     setIsTyping(false);
   };
 
   const handleProceedToSubmit = () => {
-    if (!state.problem || !state.impact || !state.explore) {
+    if (!state.problem || !state.impact) {
       handleSubmitCommand();
       return;
     }
-    
-    const submission = composeSubmission(state.problem, state.impact, state.explore);
+
+    const submission = composeSubmission(state.problem, state.impact);
     dispatch({ type: 'SET_SUBMISSION', payload: submission });
     goToStep(dispatch, 4);
     setIsTyping(false);
@@ -301,61 +295,51 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     1: { // SECURE_CONNECTIVITY
       a: {
         problem: "Our company has security issues and people can access things they shouldn't",
-        impact: "It's bad for business and costs money",
-        technologies: "Cisco firewalls, some security software, maybe VPN"
+        impact: "It's bad for business and costs money"
       },
       b: {
         problem: "Remote employees access critical financial systems through legacy VPN with no device verification, creating 47 security incidents monthly averaging 3.2 hours remediation each",
-        impact: "147.4 hours monthly × $180/hour security analyst cost = $26,532 monthly ($318,384 annually). Current system allows lateral movement - one compromised device accessed 12 different systems in October breach",
-        technologies: "Cisco ISE for device compliance and posture assessment with EAP-TLS certificates, Duo MFA with push notifications and biometric verification, Umbrella DNS security blocking 99.7% malicious domains with real-time threat intelligence, ASA 5516-X firewalls with Firepower threat detection providing microsegmentation between network zones"
+        impact: "147.4 hours monthly × $180/hour security analyst cost = $26,532 monthly ($318,384 annually). Current system allows lateral movement - one compromised device accessed 12 different systems in October breach"
       }
     },
     2: { // HYBRID_DC
       a: {
         problem: "Our servers are slow and we need cloud integration",
-        impact: "Takes too long to do things and users complain",
-        technologies: "Cisco servers, cloud connections, some storage"
+        impact: "Takes too long to do things and users complain"
       },
       b: {
         problem: "Three physical data centers running 340 VMs on aging hardware with 23% average CPU utilization, taking 6-8 weeks to provision new services while business demands 48-hour deployment cycles",
-        impact: "Current provisioning: 6 weeks × $150K delayed project revenue × 12 annual requests = $10.8M opportunity cost. Resource waste: 77% unused compute capacity × $2.3M annual infrastructure spend = $1.77M inefficiency",
-        technologies: "UCS X-Series chassis with B200 M6 blade servers providing 40% better performance-per-watt, HyperFlex HX240c nodes creating hyperconverged infrastructure with automated scaling, Intersight cloud operations platform enabling zero-touch provisioning and predictive analytics, ACI fabric with Nexus 9000 switches providing consistent policy across on-premises and AWS environments"
+        impact: "Current provisioning: 6 weeks × $150K delayed project revenue × 12 annual requests = $10.8M opportunity cost. Resource waste: 77% unused compute capacity × $2.3M annual infrastructure spend = $1.77M inefficiency"
       }
     },
     3: { // COLLAB_CX
       a: {
         problem: "Customer calls are handled poorly and meetings don't work well",
-        impact: "Customers are unhappy and productivity is low",
-        technologies: "Webex, contact center software, some phones"
+        impact: "Customers are unhappy and productivity is low"
       },
       b: {
         problem: "Contact center experiences 34% first-call resolution rate with average 8.2-minute handle time, while 73% of customer escalations stem from agent inability to access integrated customer data during calls",
-        impact: "Poor FCR costs: 66% callbacks × 14,200 monthly calls × 8.2 min average × $0.85/min = $67,588 monthly ($811K annually). Agent productivity loss: 73% escalations requiring supervisor intervention averaging 12 additional minutes = $156K annual labor cost",
-        technologies: "Webex Contact Center Enterprise with advanced queueing and skills-based routing algorithms, Finesse desktop integration with Salesforce CRM providing 360-degree customer view with automatic screen pops, Unity Connection voicemail-to-email with transcription reducing callback volume by 40%, Webex Devices (Room Kit Pro) in 15 conference rooms with automatic meeting join and wireless presentation capabilities"
+        impact: "Poor FCR costs: 66% callbacks × 14,200 monthly calls × 8.2 min average × $0.85/min = $67,588 monthly ($811K annually). Agent productivity loss: 73% escalations requiring supervisor intervention averaging 12 additional minutes = $156K annual labor cost"
       }
     },
     4: { // OBSERVABILITY
       a: {
         problem: "Network is sometimes slow and we can't see what's wrong",
-        impact: "Users complain and IT doesn't know how to fix things quickly",
-        technologies: "Some monitoring tools, network devices, basic alerts"
+        impact: "Users complain and IT doesn't know how to fix things quickly"
       },
       b: {
         problem: "Network outages detected reactively after 23-minute average user-reported delays, with root cause analysis taking 4.7 hours across 15 distributed sites using manual troubleshooting methods",
-        impact: "Downtime cost: 23 minutes × 850 users × $95/hour productivity = $30,658 per incident. MTTR reduction opportunity: Current 4.7 hours vs target 45 minutes = 4.25 hours savings × $180/hour NOC analyst × 18 monthly incidents = $41,310 monthly savings",
-        technologies: "ThousandEyes Enterprise agents deployed at all 15 sites providing hop-by-hop network path visibility with 1-minute polling intervals, DNA Center Assurance with AI-powered insights analyzing 200+ network metrics and predictive failure detection, AppDynamics APM monitoring business transactions end-to-end with automatic baseline establishment and anomaly detection, Catalyst 9300 switches with streaming telemetry feeding real-time performance data to centralized analytics platform"
+        impact: "Downtime cost: 23 minutes × 850 users × $95/hour productivity = $30,658 per incident. MTTR reduction opportunity: Current 4.7 hours vs target 45 minutes = 4.25 hours savings × $180/hour NOC analyst × 18 monthly incidents = $41,310 monthly savings"
       }
     },
     5: { // EDGE_IOT
       a: {
         problem: "Factory equipment isn't connected and we need IoT",
-        impact: "Can't monitor things properly and maintenance is reactive",
-        technologies: "IoT sensors, edge computing, wireless networks"
+        impact: "Can't monitor things properly and maintenance is reactive"
       },
       b: {
         problem: "Manufacturing line sensors generate 2.3TB daily data transmitted to cloud for processing, creating 340ms latency causing 12 false-positive shutdown alerts monthly and $47K in unnecessary production stops",
-        impact: "Current cloud processing: 340ms latency × 12 false shutdowns × $3,900 average restart cost = $46,800 monthly waste. Edge processing opportunity: Reduce latency to 15ms enabling real-time decision making, preventing 89% false positives and saving $41,652 monthly ($499,824 annually)",
-        technologies: "IE 3400 Heavy Duty Series switches providing Power-over-Ethernet+ for 48 industrial sensors with -40°C to 75°C operating range, IR1101 Integrated Services Routers with LTE failover and GPS synchronization for remote site connectivity, IOx-enabled edge computing platform running containerized analytics applications with 16GB memory processing sensor data locally, Catalyst 9800 wireless controller managing 60 industrial-grade access points with 802.11ax Wi-Fi 6 supporting 200 connected devices per AP"
+        impact: "Current cloud processing: 340ms latency × 12 false shutdowns × $3,900 average restart cost = $46,800 monthly waste. Edge processing opportunity: Reduce latency to 15ms enabling real-time decision making, preventing 89% false positives and saving $41,652 monthly ($499,824 annually)"
       }
     }
   };
@@ -376,21 +360,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     // Simulate the three-step process with the test data
     const problem = expandProblem(data.problem);
     const impact = quantifyImpact(data.impact, data.problem);
-    const explore = mapTechnologies(problem, impact);
-
-    // Override technologies with test data
-    explore.technologies = data.technologies.split(', ').map((tech, index) => ({
-      name: tech.split(' ')[0] + (index > 0 ? ` ${tech.split(' ')[1] || ''}` : ''),
-      description: `Enterprise solution addressing your specific needs`,
-      relevance: `Directly addresses the identified challenges`
-    }));
 
     // Set all the data and advance to final submission
     dispatch({ type: 'SET_PROBLEM', payload: problem });
     dispatch({ type: 'SET_IMPACT', payload: impact });
-    dispatch({ type: 'SET_EXPLORE', payload: explore });
-
-    const finalSubmission = composeSubmission(problem, impact, explore);
+    const finalSubmission = composeSubmission(problem, impact);
     dispatch({ type: 'SET_SUBMISSION', payload: finalSubmission });
     
     // Add confirmation message
@@ -515,8 +489,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
                       <div>
-                        <p className="font-semibold text-sm">Get Your Solution</p>
-                        <p className="text-xs text-muted-foreground">AI maps perfect Cisco tech + MVS</p>
+                        <p className="font-semibold text-sm">Review & Submit</p>
+                        <p className="text-xs text-muted-foreground">Lock KPIs, confirm the plan, then score instantly</p>
                       </div>
                     </div>
                   </div>
@@ -597,75 +571,93 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   )}
                 </div>
 
-                {/* Impact Metrics */}
+                {/* Impact Summary */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
                     <i className="fas fa-chart-line text-primary mr-2"></i>
-                    Impact & KPIs
+                    Impact Summary
+                  </Label>
+                  {isEditMode ? (
+                    <Textarea
+                      value={currentSubmission.impact_summary}
+                      onChange={(e) => setEditedSubmission({ ...currentSubmission, impact_summary: e.target.value })}
+                      className="text-sm min-h-[60px]"
+                      placeholder="Summarise the quantified impact..."
+                    />
+                  ) : (
+                    <p className="text-sm">{currentSubmission.impact_summary}</p>
+                  )}
+                </div>
+
+                {/* Metrics */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-bullseye text-primary mr-2"></i>
+                    Baseline & Targets
                   </Label>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Current State</p>
-                      {currentSubmission.current_state.baseline_kpis.map((kpi: any, idx: number) => (
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Baseline Metrics</p>
+                      {currentSubmission.baseline_metrics.map((metric: any, idx: number) => (
                         <div key={idx} className="text-sm mb-1">
                           {isEditMode ? (
                             <div className="flex gap-2">
                               <Input
-                                value={kpi.name}
+                                value={metric.name}
                                 onChange={(e) => {
-                                  const newKpis = [...currentSubmission.current_state.baseline_kpis];
-                                  newKpis[idx] = {...kpi, name: e.target.value};
-                                  setEditedSubmission({...currentSubmission, current_state: {...currentSubmission.current_state, baseline_kpis: newKpis}});
+                                  const newMetrics = [...currentSubmission.baseline_metrics];
+                                  newMetrics[idx] = { ...metric, name: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
                                 }}
                                 className="text-sm flex-1"
-                                placeholder="KPI name..."
+                                placeholder="Metric name..."
                               />
                               <Input
-                                value={kpi.value}
+                                value={metric.value}
                                 onChange={(e) => {
-                                  const newKpis = [...currentSubmission.current_state.baseline_kpis];
-                                  newKpis[idx] = {...kpi, value: e.target.value};
-                                  setEditedSubmission({...currentSubmission, current_state: {...currentSubmission.current_state, baseline_kpis: newKpis}});
+                                  const newMetrics = [...currentSubmission.baseline_metrics];
+                                  newMetrics[idx] = { ...metric, value: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
                                 }}
                                 className="text-sm flex-1"
                                 placeholder="Value..."
                               />
                             </div>
                           ) : (
-                            <>{kpi.name}: <strong>{kpi.value}</strong></>
+                            <>{metric.name}: <strong>{metric.value}</strong></>
                           )}
                         </div>
                       ))}
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Target State</p>
-                      {currentSubmission.target_state.kpis.map((kpi: any, idx: number) => (
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Target Metrics</p>
+                      {currentSubmission.target_metrics.map((metric: any, idx: number) => (
                         <div key={idx} className="text-sm mb-1">
                           {isEditMode ? (
                             <div className="flex gap-2">
                               <Input
-                                value={kpi.name}
+                                value={metric.name}
                                 onChange={(e) => {
-                                  const newKpis = [...currentSubmission.target_state.kpis];
-                                  newKpis[idx] = {...kpi, name: e.target.value};
-                                  setEditedSubmission({...currentSubmission, target_state: {...currentSubmission.target_state, kpis: newKpis}});
+                                  const newMetrics = [...currentSubmission.target_metrics];
+                                  newMetrics[idx] = { ...metric, name: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
                                 }}
                                 className="text-sm flex-1"
-                                placeholder="KPI name..."
+                                placeholder="Metric name..."
                               />
                               <Input
-                                value={kpi.target}
+                                value={metric.target}
                                 onChange={(e) => {
-                                  const newKpis = [...currentSubmission.target_state.kpis];
-                                  newKpis[idx] = {...kpi, target: e.target.value};
-                                  setEditedSubmission({...currentSubmission, target_state: {...currentSubmission.target_state, kpis: newKpis}});
+                                  const newMetrics = [...currentSubmission.target_metrics];
+                                  newMetrics[idx] = { ...metric, target: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
                                 }}
                                 className="text-sm flex-1"
                                 placeholder="Target..."
                               />
                             </div>
                           ) : (
-                            <>{kpi.name}: <strong>{kpi.target}</strong></>
+                            <>{metric.name}: <strong>{metric.target}</strong></>
                           )}
                         </div>
                       ))}
@@ -673,32 +665,91 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   </div>
                 </div>
 
-                {/* Cisco Products */}
+                {/* Action Plan */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
                   <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
-                    <i className="fas fa-microchip text-primary mr-2"></i>
-                    Cisco Technologies
+                    <i className="fas fa-list-check text-primary mr-2"></i>
+                    First Moves
                   </Label>
                   {isEditMode ? (
                     <div className="space-y-2">
-                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
-                        <Input
+                      {currentSubmission.action_plan.map((item: string, idx: number) => (
+                        <Textarea
                           key={idx}
-                          value={product}
+                          value={item}
                           onChange={(e) => {
-                            const newProducts = [...currentSubmission.cisco_products];
-                            newProducts[idx] = e.target.value;
-                            setEditedSubmission({...currentSubmission, cisco_products: newProducts});
+                            const updated = [...currentSubmission.action_plan];
+                            updated[idx] = e.target.value;
+                            setEditedSubmission({ ...currentSubmission, action_plan: updated });
                           }}
                           className="text-sm"
-                          placeholder="Cisco product..."
                         />
                       ))}
                     </div>
                   ) : (
                     <ul className="list-disc list-inside space-y-1">
-                      {currentSubmission.cisco_products.map((product: string, idx: number) => (
-                        <li key={idx} className="text-sm">{product}</li>
+                      {currentSubmission.action_plan.map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm">{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Success Checks */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-clipboard-check text-primary mr-2"></i>
+                    Success Checks
+                  </Label>
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      {currentSubmission.success_checks.map((item: string, idx: number) => (
+                        <Textarea
+                          key={idx}
+                          value={item}
+                          onChange={(e) => {
+                            const updated = [...currentSubmission.success_checks];
+                            updated[idx] = e.target.value;
+                            setEditedSubmission({ ...currentSubmission, success_checks: updated });
+                          }}
+                          className="text-sm"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1">
+                      {currentSubmission.success_checks.map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm">{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Risks */}
+                <div className="glass-panel rounded-lg p-3 sm:p-4">
+                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                    <i className="fas fa-triangle-exclamation text-primary mr-2"></i>
+                    Risks & Watch-outs
+                  </Label>
+                  {isEditMode ? (
+                    <div className="space-y-2">
+                      {currentSubmission.risks.map((item: string, idx: number) => (
+                        <Textarea
+                          key={idx}
+                          value={item}
+                          onChange={(e) => {
+                            const updated = [...currentSubmission.risks];
+                            updated[idx] = e.target.value;
+                            setEditedSubmission({ ...currentSubmission, risks: updated });
+                          }}
+                          className="text-sm"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1">
+                      {currentSubmission.risks.map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm">{item}</li>
                       ))}
                     </ul>
                   )}
@@ -735,7 +786,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   ) : (
                     <>
                       <Button
-                        onClick={() => setIsEditMode(true)}
+                        onClick={() => {
+                          setEditedSubmission(currentSubmission);
+                          setIsEditMode(true);
+                        }}
                         variant="outline"
                         className="flex-1"
                         data-testid="button-edit-mode"

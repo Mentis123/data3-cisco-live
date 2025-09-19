@@ -13,11 +13,11 @@ interface SubmissionData {
   totalScore: number;
   rank: number;
   subScores?: {
-    problem_definition: number;
-    impact_quantification: number;
-    technology_alignment: number;
-    implementation_feasibility: number;
-    business_value: number;
+    clarity: number;
+    impact: number;
+    kpi_strength: number;
+    execution: number;
+    confidence: number;
   };
   createdAt: string;
 }
@@ -320,11 +320,11 @@ export function NewSubmissionAnnouncementPage() {
       totalScore: 42,
       rank: 3,
       subScores: {
-        problem_definition: 8,
-        impact_quantification: 9,
-        technology_alignment: 8,
-        implementation_feasibility: 8,
-        business_value: 9
+        clarity: 8,
+        impact: 9,
+        kpi_strength: 8,
+        execution: 8,
+        confidence: 9
       },
       createdAt: new Date().toISOString()
     };

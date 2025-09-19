@@ -1,14 +1,4 @@
-import { ProblemBlock, ImpactBlock, ExploreBlock, SubmissionDraft } from './types';
-
-// Cisco technology mapping based on problem categories
-const CISCO_TECH_MAP = {
-  security: ['Cisco Umbrella', 'Cisco SecureX', 'Cisco Secure Firewall', 'Duo Security'],
-  network: ['Cisco SD-WAN', 'Cisco Catalyst', 'Cisco Meraki', 'Cisco DNA Center'],
-  collaboration: ['Webex', 'Cisco Unified Communications Manager', 'Cisco Contact Center'],
-  observability: ['ThousandEyes', 'AppDynamics', 'Cisco Observability Platform'],
-  edge: ['Cisco Edge Intelligence', 'Cisco IoT Operations', 'Cisco Industrial Ethernet'],
-  automation: ['Cisco Intersight', 'Cisco NSO', 'Cisco DNA Automation']
-};
+import { ProblemBlock, ImpactBlock, SubmissionDraft } from './types';
 
 /**
  * Expands a user's problem statement into a structured problem block
@@ -111,74 +101,28 @@ export function quantifyImpact(userInput: string, problemContext?: string): Impa
 }
 
 /**
- * Maps relevant Cisco technologies based on problem and impact
+ * Infers the leaderboard category based on problem and impact cues
  */
-export function mapTechnologies(problem: ProblemBlock, impact: ImpactBlock): ExploreBlock {
-  const technologies: ExploreBlock['technologies'] = [];
-  const problemText = (problem.expanded || problem.userInput).toLowerCase();
-  
-  // Determine relevant technology categories
-  const relevantCategories: string[] = [];
-  
-  if (problemText.includes('security') || problemText.includes('breach') || problemText.includes('threat')) {
-    relevantCategories.push('security');
+function deriveCategory(problem: ProblemBlock, impact: ImpactBlock): string {
+  const text = `${problem.userInput} ${impact.userInput}`.toLowerCase();
+
+  if (text.includes('security') || text.includes('zero trust') || text.includes('breach') || text.includes('access')) {
+    return 'SECURE_CONNECTIVITY';
   }
-  if (problemText.includes('network') || problemText.includes('connectivity') || problemText.includes('bandwidth')) {
-    relevantCategories.push('network');
+  if (text.includes('data center') || text.includes('infrastructure') || text.includes('server') || text.includes('cloud')) {
+    return 'HYBRID_DC';
   }
-  if (problemText.includes('collaboration') || problemText.includes('meeting') || problemText.includes('communication')) {
-    relevantCategories.push('collaboration');
+  if (text.includes('collaboration') || text.includes('meeting') || text.includes('contact center') || text.includes('customer experience')) {
+    return 'COLLAB_CX';
   }
-  if (problemText.includes('monitor') || problemText.includes('visibility') || problemText.includes('observe')) {
-    relevantCategories.push('observability');
+  if (text.includes('visibility') || text.includes('monitor') || text.includes('performance') || text.includes('analytics')) {
+    return 'OBSERVABILITY';
   }
-  if (problemText.includes('automat') || problemText.includes('manual') || problemText.includes('workflow')) {
-    relevantCategories.push('automation');
+  if (text.includes('factory') || text.includes('sensor') || text.includes('field') || text.includes('iot') || text.includes('edge')) {
+    return 'EDGE_IOT';
   }
 
-  // Default to network and observability if no clear match
-  if (relevantCategories.length === 0) {
-    relevantCategories.push('network', 'observability');
-  }
-
-  // Add top 3 technologies
-  relevantCategories.slice(0, 2).forEach(category => {
-    const techs = CISCO_TECH_MAP[category as keyof typeof CISCO_TECH_MAP] || [];
-    techs.slice(0, 2).forEach(tech => {
-      technologies.push({
-        name: tech,
-        description: `Enterprise-grade solution for ${category} challenges`,
-        relevance: `Directly addresses the ${category} aspects of your problem`
-      });
-    });
-  });
-
-  // Create MVS (Minimal Viable Solution)
-  const mvs: ExploreBlock['mvs'] = {
-    title: 'Quick Win Implementation',
-    description: `Deploy ${technologies[0]?.name || 'Cisco solution'} to address immediate pain points`,
-    implementation: [
-      'Phase 1: Deploy core functionality in pilot area',
-      'Phase 2: Integrate with existing systems',
-      'Phase 3: Scale to full production'
-    ],
-    estimatedTime: '4-6 weeks for initial deployment'
-  };
-
-  // Extended plan
-  const extendedPlan = [
-    'Establish success metrics and baseline measurements',
-    'Complete security review and compliance checks',
-    'Train key users and administrators',
-    'Implement monitoring and alerting',
-    'Document processes and create runbooks'
-  ];
-
-  return {
-    technologies: technologies.slice(0, 3),
-    mvs,
-    extendedPlan
-  };
+  return 'OBSERVABILITY';
 }
 
 /**
@@ -186,77 +130,89 @@ export function mapTechnologies(problem: ProblemBlock, impact: ImpactBlock): Exp
  */
 export function composeSubmission(
   problem: ProblemBlock,
-  impact: ImpactBlock,
-  explore: ExploreBlock
+  impact: ImpactBlock
 ): SubmissionDraft {
-  const baselineKpis = [];
-  const targetKpis = [];
+  const baselineMetrics: SubmissionDraft['baseline_metrics'] = [];
+  const targetMetrics: SubmissionDraft['target_metrics'] = [];
 
-  // Create KPIs from impact metrics
   if (impact.calculatedMetrics?.weeklyHours) {
-    baselineKpis.push({
-      name: 'Weekly Hours Lost',
-      value: `${impact.calculatedMetrics.weeklyHours} hours`
+    const weeklyHours = impact.calculatedMetrics.weeklyHours;
+    baselineMetrics.push({
+      name: 'Weekly hours lost to the issue',
+      value: `${weeklyHours} hours`
     });
-    targetKpis.push({
-      name: 'Weekly Hours Lost',
-      target: `< ${Math.round(impact.calculatedMetrics.weeklyHours * 0.3)} hours`
+    targetMetrics.push({
+      name: 'Weekly hours lost',
+      target: `${Math.max(1, Math.round(weeklyHours * 0.4))} hours or less`
     });
   }
 
   if (impact.calculatedMetrics?.monthlyCost) {
-    baselineKpis.push({
-      name: 'Monthly Cost Impact',
-      value: `$${impact.calculatedMetrics.monthlyCost.toLocaleString()}`
+    const monthlyCost = impact.calculatedMetrics.monthlyCost;
+    baselineMetrics.push({
+      name: 'Estimated monthly cost of disruption',
+      value: `$${monthlyCost.toLocaleString()}`
     });
-    targetKpis.push({
-      name: 'Monthly Cost Impact',
-      target: `< $${Math.round(impact.calculatedMetrics.monthlyCost * 0.3).toLocaleString()}`
+    targetMetrics.push({
+      name: 'Monthly cost impact',
+      target: `$${Math.max(100, Math.round(monthlyCost * 0.4)).toLocaleString()}`
     });
   }
 
-  // Determine category based on technologies
-  let category = 'OBSERVABILITY';
-  const techNames = explore.technologies.map(t => t.name.toLowerCase()).join(' ');
-  if (techNames.includes('secure') || techNames.includes('duo')) {
-    category = 'SECURE_CONNECTIVITY';
-  } else if (techNames.includes('webex') || techNames.includes('contact')) {
-    category = 'COLLAB_CX';
-  } else if (techNames.includes('meraki') || techNames.includes('sd-wan')) {
-    category = 'HYBRID_DC';
-  } else if (techNames.includes('edge') || techNames.includes('iot')) {
-    category = 'EDGE_IOT';
+  if (!baselineMetrics.length) {
+    baselineMetrics.push({
+      name: 'Incidents per month',
+      value: impact.quantified?.frequency || 'Approx. 12 incidents'
+    });
+    targetMetrics.push({
+      name: 'Incidents per month',
+      target: 'Reduce by at least 50%'
+    });
   }
+
+  const impactSummaryParts: string[] = [];
+  if (impact.quantified?.frequency && impact.quantified?.timeLost) {
+    impactSummaryParts.push(`Happens ${impact.quantified.frequency}, costing about ${impact.quantified.timeLost} each time.`);
+  }
+  if (impact.calculatedMetrics?.weeklyHours) {
+    impactSummaryParts.push(`Roughly ${impact.calculatedMetrics.weeklyHours} hours lost per week.`);
+  }
+  if (impact.calculatedMetrics?.monthlyCost) {
+    impactSummaryParts.push(`Approximately $${impact.calculatedMetrics.monthlyCost.toLocaleString()} per month in blended cost.`);
+  }
+  if (impact.quantified?.risk) {
+    impactSummaryParts.push(impact.quantified.risk);
+  }
+
+  const actionPlan: string[] = [];
+  const frictionPoints = problem.frictionPoints || [];
+  if (frictionPoints[0]) {
+    actionPlan.push(`Map current workflow to validate: ${frictionPoints[0]}.`);
+  }
+  actionPlan.push('Run a quick win experiment with one team to prove the improvement.');
+  actionPlan.push('Set up weekly metric tracking and share progress with stakeholders.');
+
+  const successChecks = [
+    'Baseline vs target metrics reviewed weekly',
+    'Stakeholder check-in after pilot to confirm improvements',
+    'Document lessons learned for broader rollout'
+  ];
+
+  const risks = [
+    'Change management or training effort underestimated',
+    'Data for tracking KPIs is incomplete or delayed',
+    'Competing priorities slow down follow-through'
+  ];
 
   return {
     problem_summary: problem.expanded || problem.userInput,
-    chosen_category: category,
-    cisco_products: explore.technologies.map(t => t.name),
-    current_state: {
-      baseline_kpis: baselineKpis,
-      constraints: problem.frictionPoints || ['Process inefficiencies', 'Manual interventions']
-    },
-    target_state: {
-      kpis: targetKpis,
-      persona: ['Operations Team', 'End Users', 'IT Administrators']
-    },
-    integration_points: explore.mvs?.implementation || [],
-    security_considerations: [
-      'Zero-trust architecture implementation',
-      'End-to-end encryption for data in transit',
-      'Role-based access control (RBAC)'
-    ],
-    observability_plan: [
-      'Real-time dashboards for key metrics',
-      'Automated alerting for threshold breaches',
-      'Monthly performance reports'
-    ],
-    rollout_plan: explore.extendedPlan || [],
-    risks: [
-      'User adoption and change management',
-      'Integration complexity with legacy systems',
-      'Initial training requirements'
-    ]
+    impact_summary: impactSummaryParts.join(' '),
+    chosen_category: deriveCategory(problem, impact),
+    baseline_metrics: baselineMetrics,
+    target_metrics: targetMetrics,
+    action_plan: actionPlan,
+    success_checks: successChecks,
+    risks
   };
 }
 
@@ -265,21 +221,16 @@ export function composeSubmission(
  */
 export function inferMissingData(
   problem?: ProblemBlock,
-  impact?: ImpactBlock,
-  explore?: ExploreBlock
-): { problem: ProblemBlock; impact: ImpactBlock; explore: ExploreBlock } {
+  impact?: ImpactBlock
+): { problem: ProblemBlock; impact: ImpactBlock } {
   // Infer problem if missing
   const inferredProblem = problem || expandProblem('Business process optimization needed');
-  
+
   // Infer impact if missing
   const inferredImpact = impact || quantifyImpact('Estimated 10 hours weekly impact', inferredProblem.userInput);
-  
-  // Infer explore if missing
-  const inferredExplore = explore || mapTechnologies(inferredProblem, inferredImpact);
 
   return {
     problem: inferredProblem,
-    impact: inferredImpact,
-    explore: inferredExplore
+    impact: inferredImpact
   };
 }

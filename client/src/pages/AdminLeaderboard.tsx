@@ -19,11 +19,11 @@ interface DetailedEntry {
   category: string;
   totalScore: number;
   subScores: {
-    outcome: number;
-    fit: number;
-    feasibility: number;
+    clarity: number;
     impact: number;
-    observability: number;
+    kpi_strength: number;
+    execution: number;
+    confidence: number;
   };
   evaluationNotes: string | null;
   createdAt: string;
@@ -35,11 +35,11 @@ interface SubmissionDetails {
   category: string;
   totalScore: number;
   subScores: {
-    outcome: number;
-    fit: number;
-    feasibility: number;
+    clarity: number;
     impact: number;
-    observability: number;
+    kpi_strength: number;
+    execution: number;
+    confidence: number;
   };
   solutionText: string;
   structuredJson: any;
@@ -1055,33 +1055,33 @@ export default function AdminLeaderboard() {
                   <h3 className="text-lg font-semibold mb-3">Score Breakdown</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Problem Definition & KPIs</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.outcome)}`}>
-                        {submissionDetails.subScores.outcome}/10
+                      <div className="text-sm text-muted-foreground mb-1">Clarity (Problem Definition)</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.clarity)}`}>
+                        {submissionDetails.subScores.clarity}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Cisco Architecture Fit</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.fit)}`}>
-                        {submissionDetails.subScores.fit}/10
-                      </div>
-                    </div>
-                    <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Feasibility & Security</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.feasibility)}`}>
-                        {submissionDetails.subScores.feasibility}/10
-                      </div>
-                    </div>
-                    <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Business Impact at Scale</div>
+                      <div className="text-sm text-muted-foreground mb-1">Impact (Math &amp; Sizing)</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.impact)}`}>
                         {submissionDetails.subScores.impact}/10
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Observability & Automation</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.observability)}`}>
-                        {submissionDetails.subScores.observability}/10
+                      <div className="text-sm text-muted-foreground mb-1">KPI Strength (Baselines &amp; Targets)</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.kpi_strength)}`}>
+                        {submissionDetails.subScores.kpi_strength}/10
+                      </div>
+                    </div>
+                    <div className="bg-muted rounded-lg p-3">
+                      <div className="text-sm text-muted-foreground mb-1">Execution (Action Plan)</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.execution)}`}>
+                        {submissionDetails.subScores.execution}/10
+                      </div>
+                    </div>
+                    <div className="bg-muted rounded-lg p-3">
+                      <div className="text-sm text-muted-foreground mb-1">Confidence (Risks &amp; Follow-ups)</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.confidence)}`}>
+                        {submissionDetails.subScores.confidence}/10
                       </div>
                     </div>
                     <div className="bg-primary/10 rounded-lg p-3">
@@ -1117,7 +1117,7 @@ export default function AdminLeaderboard() {
                           </div>
                         )}
                         
-                        {/* Category & Cisco Products */}
+                        {/* Category & Impact */}
                         <div className="grid md:grid-cols-2 gap-4">
                           {submissionDetails.structuredJson.chosen_category && (
                             <div className="bg-muted rounded-lg p-4">
@@ -1127,108 +1127,87 @@ export default function AdminLeaderboard() {
                               </Badge>
                             </div>
                           )}
-                          
-                          {submissionDetails.structuredJson.cisco_products && (
+
+                          {submissionDetails.structuredJson.impact_summary && (
                             <div className="bg-muted rounded-lg p-4">
-                              <h4 className="font-semibold text-primary mb-2">Cisco Products</h4>
-                              <div className="flex flex-wrap gap-1">
-                                {submissionDetails.structuredJson.cisco_products.map((product: string, idx: number) => (
-                                  <Badge key={idx} variant="secondary" className="text-xs">
-                                    {product}
-                                  </Badge>
-                                ))}
-                              </div>
+                              <h4 className="font-semibold text-primary mb-2">Impact Summary</h4>
+                              <p className="text-sm whitespace-pre-line">
+                                {submissionDetails.structuredJson.impact_summary}
+                              </p>
                             </div>
                           )}
                         </div>
                         
-                        {/* Current State */}
-                        {submissionDetails.structuredJson.current_state && (
-                          <div className="bg-muted rounded-lg p-4">
-                            <h4 className="font-semibold text-primary mb-2">Current State</h4>
-                            {submissionDetails.structuredJson.current_state.baseline_kpis && (
-                              <div className="mb-2">
-                                <h5 className="text-sm font-medium mb-1">KPIs</h5>
-                                <div className="grid grid-cols-2 gap-2">
-                                  {submissionDetails.structuredJson.current_state.baseline_kpis.map((kpi: any, idx: number) => (
-                                    <div key={idx} className="text-xs">
-                                      <span className="font-medium">{kpi.name}:</span> {kpi.value}
-                                    </div>
-                                  ))}
-                                </div>
+                        {/* Baseline Metrics */}
+                        {Array.isArray(submissionDetails.structuredJson.baseline_metrics) &&
+                          submissionDetails.structuredJson.baseline_metrics.length > 0 && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Baseline Metrics</h4>
+                              <div className="grid sm:grid-cols-2 gap-3">
+                                {submissionDetails.structuredJson.baseline_metrics.map((metric: any, idx: number) => (
+                                  <div key={`${metric?.name || 'baseline'}-${idx}`} className="text-sm">
+                                    <div className="font-medium">{metric?.name || `Metric ${idx + 1}`}</div>
+                                    <div className="text-muted-foreground">{metric?.value || ""}</div>
+                                  </div>
+                                ))}
                               </div>
-                            )}
-                            {submissionDetails.structuredJson.current_state.constraints && (
-                              <div>
-                                <h5 className="text-sm font-medium mb-1">Constraints</h5>
-                                <ul className="list-disc list-inside text-xs space-y-0.5">
-                                  {submissionDetails.structuredJson.current_state.constraints.map((constraint: string, idx: number) => (
-                                    <li key={idx}>{constraint}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Target State */}
-                        {submissionDetails.structuredJson.target_state && (
-                          <div className="bg-muted rounded-lg p-4">
-                            <h4 className="font-semibold text-primary mb-2">Target State</h4>
-                            {submissionDetails.structuredJson.target_state.kpis && (
-                              <div>
-                                <h5 className="text-sm font-medium mb-1">Target KPIs</h5>
-                                <div className="grid grid-cols-2 gap-2">
-                                  {submissionDetails.structuredJson.target_state.kpis.map((kpi: any, idx: number) => (
-                                    <div key={idx} className="text-xs">
-                                      <span className="font-medium">{kpi.name}:</span> {kpi.target}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Rollout Plan */}
-                        {submissionDetails.structuredJson.rollout_plan && (
-                          <div className="bg-muted rounded-lg p-4">
-                            <h4 className="font-semibold text-primary mb-2">Rollout Plan</h4>
-                            <ul className="space-y-2">
-                              {submissionDetails.structuredJson.rollout_plan.map((phase: string, idx: number) => (
-                                <li key={idx} className="text-sm">
-                                  <span className="font-medium">Phase {idx + 1}:</span> {phase}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        
-                        {/* Integration Points */}
-                        {submissionDetails.structuredJson.integration_points && (
-                          <div className="bg-muted rounded-lg p-4">
-                            <h4 className="font-semibold text-primary mb-2">Integration Points</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {submissionDetails.structuredJson.integration_points.map((point: string, idx: number) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {point}
-                                </Badge>
-                              ))}
                             </div>
-                          </div>
-                        )}
-                        
+                          )}
+
+                        {/* Target Metrics */}
+                        {Array.isArray(submissionDetails.structuredJson.target_metrics) &&
+                          submissionDetails.structuredJson.target_metrics.length > 0 && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Target Metrics</h4>
+                              <div className="grid sm:grid-cols-2 gap-3">
+                                {submissionDetails.structuredJson.target_metrics.map((metric: any, idx: number) => (
+                                  <div key={`${metric?.name || 'target'}-${idx}`} className="text-sm">
+                                    <div className="font-medium">{metric?.name || `Metric ${idx + 1}`}</div>
+                                    <div className="text-muted-foreground">{metric?.target || ""}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Action Plan */}
+                        {Array.isArray(submissionDetails.structuredJson.action_plan) &&
+                          submissionDetails.structuredJson.action_plan.length > 0 && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Action Plan</h4>
+                              <ol className="list-decimal list-inside space-y-1 text-sm">
+                                {submissionDetails.structuredJson.action_plan.map((step: string, idx: number) => (
+                                  <li key={`${step}-${idx}`}>{step}</li>
+                                ))}
+                              </ol>
+                            </div>
+                          )}
+
+                        {/* Success Checks */}
+                        {Array.isArray(submissionDetails.structuredJson.success_checks) &&
+                          submissionDetails.structuredJson.success_checks.length > 0 && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Success Checks</h4>
+                              <ul className="list-disc list-inside text-sm space-y-1">
+                                {submissionDetails.structuredJson.success_checks.map((check: string, idx: number) => (
+                                  <li key={`${check}-${idx}`}>{check}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
                         {/* Risks */}
-                        {submissionDetails.structuredJson.risks && (
-                          <div className="bg-muted rounded-lg p-4">
-                            <h4 className="font-semibold text-primary mb-2">Risks</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1">
-                              {submissionDetails.structuredJson.risks.map((risk: string, idx: number) => (
-                                <li key={idx}>{risk}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        {Array.isArray(submissionDetails.structuredJson.risks) &&
+                          submissionDetails.structuredJson.risks.length > 0 && (
+                            <div className="bg-muted rounded-lg p-4">
+                              <h4 className="font-semibold text-primary mb-2">Risks</h4>
+                              <ul className="list-disc list-inside text-sm space-y-1">
+                                {submissionDetails.structuredJson.risks.map((risk: string, idx: number) => (
+                                  <li key={`${risk}-${idx}`}>{risk}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                       </div>
                     </ScrollArea>
                   </div>
