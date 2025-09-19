@@ -27,6 +27,105 @@ const CATEGORIES = [
   { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks" },
 ];
 
+type MetricValueKey = "value" | "target";
+type MetricEntry<K extends MetricValueKey> = { name: string } & Record<K, string>;
+
+function parsePossibleJson(value: unknown): unknown {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return "";
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return value;
+    }
+  }
+
+  return value;
+}
+
+function ensureStringArray(value: unknown): string[] {
+  const parsed = parsePossibleJson(value);
+
+  if (Array.isArray(parsed)) {
+    return parsed
+      .flat()
+      .map((item) => {
+        if (typeof item === "string") {
+          return item.trim();
+        }
+        if (typeof item === "number" || typeof item === "boolean") {
+          return String(item);
+        }
+        return "";
+      })
+      .filter((item): item is string => item.length > 0);
+  }
+
+  if (typeof parsed === "string" || typeof parsed === "number" || typeof parsed === "boolean") {
+    const text = String(parsed).trim();
+    return text ? [text] : [];
+  }
+
+  return [];
+}
+
+function ensureMetricArray<K extends MetricValueKey>(
+  value: unknown,
+  key: K,
+): MetricEntry<K>[] {
+  const parsed = parsePossibleJson(value);
+
+  const normalize = (input: unknown): MetricEntry<K> | null => {
+    if (input == null) {
+      return null;
+    }
+
+    if (typeof input === "string" || typeof input === "number" || typeof input === "boolean") {
+      const text = String(input).trim();
+      if (!text) {
+        return null;
+      }
+      return { name: text, [key]: text } as MetricEntry<K>;
+    }
+
+    if (typeof input === "object" && !Array.isArray(input)) {
+      const record = input as Record<string, unknown>;
+      const name = record.name != null ? String(record.name).trim() : "";
+      const metricValue = record[key] != null ? String(record[key]).trim() : "";
+
+      if (!name && !metricValue) {
+        return null;
+      }
+
+      return {
+        name,
+        [key]: metricValue,
+      } as MetricEntry<K>;
+    }
+
+    return null;
+  };
+
+  if (Array.isArray(parsed)) {
+    const result: MetricEntry<K>[] = [];
+    const flattened = parsed.flat(Infinity) as unknown[];
+    for (const item of flattened) {
+      const normalized = normalize(item);
+      if (normalized) {
+        result.push(normalized);
+      }
+    }
+    return result;
+  }
+
+  const single = normalize(parsed);
+  return single ? [single] : [];
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   setupWebSocket(httpServer);
@@ -110,10 +209,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Pre-process structuredFields to fix array fields before validation
       if (req.body.structuredFields) {
-        const arrayFields = ['action_plan', 'success_checks', 'risks'] as const;
-        for (const field of arrayFields) {
-          if (req.body.structuredFields[field] && typeof req.body.structuredFields[field] === 'string') {
-            req.body.structuredFields[field] = [req.body.structuredFields[field]];
+        if (typeof req.body.structuredFields === "string") {
+          try {
+            req.body.structuredFields = JSON.parse(req.body.structuredFields);
+          } catch {
+            // Leave as-is and let schema validation surface a helpful error message
+          }
+        }
+
+        if (req.body.structuredFields && typeof req.body.structuredFields === "object") {
+          const structured = req.body.structuredFields as Record<string, unknown>;
+
+          const stringFields = ["problem_summary", "impact_summary", "chosen_category"] as const;
+          for (const field of stringFields) {
+            const value = structured[field];
+            if (value == null) {
+              continue;
+            }
+
+            if (typeof value === "string") {
+              structured[field] = value.trim();
+              continue;
+            }
+
+            if (typeof value === "number" || typeof value === "boolean") {
+              structured[field] = String(value);
+              continue;
+            }
+
+            try {
+              structured[field] = JSON.stringify(value);
+            } catch {
+              structured[field] = String(value);
+            }
+          }
+
+          structured["baseline_metrics"] = ensureMetricArray(structured["baseline_metrics"], "value");
+          structured["target_metrics"] = ensureMetricArray(structured["target_metrics"], "target");
+
+          const arrayFields = ["action_plan", "success_checks", "risks"] as const;
+          for (const field of arrayFields) {
+            structured[field] = ensureStringArray(structured[field]);
           }
         }
       }
