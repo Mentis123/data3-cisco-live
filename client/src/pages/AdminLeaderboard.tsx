@@ -1183,31 +1183,6 @@ export default function AdminLeaderboard() {
                             </div>
                           )}
 
-                        {/* Success Checks */}
-                        {Array.isArray(submissionDetails.structuredJson.success_checks) &&
-                          submissionDetails.structuredJson.success_checks.length > 0 && (
-                            <div className="bg-muted rounded-lg p-4">
-                              <h4 className="font-semibold text-primary mb-2">Success Checks</h4>
-                              <ul className="list-disc list-inside text-sm space-y-1">
-                                {submissionDetails.structuredJson.success_checks.map((check: string, idx: number) => (
-                                  <li key={`${check}-${idx}`}>{check}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                        {/* Risks */}
-                        {Array.isArray(submissionDetails.structuredJson.risks) &&
-                          submissionDetails.structuredJson.risks.length > 0 && (
-                            <div className="bg-muted rounded-lg p-4">
-                              <h4 className="font-semibold text-primary mb-2">Risks</h4>
-                              <ul className="list-disc list-inside text-sm space-y-1">
-                                {submissionDetails.structuredJson.risks.map((risk: string, idx: number) => (
-                                  <li key={`${risk}-${idx}`}>{risk}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
                       </div>
                     </ScrollArea>
                   </div>
