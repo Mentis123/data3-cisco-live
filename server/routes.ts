@@ -126,9 +126,21 @@ function ensureMetricArray<K extends MetricValueKey>(
   return single ? [single] : [];
 }
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  const httpServer = createServer(app);
-  setupWebSocket(httpServer);
+export interface RegisterRoutesOptions {
+  server?: Server | null;
+  enableWebSocket?: boolean;
+}
+
+export async function registerRoutes(
+  app: Express,
+  options: RegisterRoutesOptions = {},
+): Promise<Server | null> {
+  const { server = null, enableWebSocket = true } = options;
+  const httpServer = server ?? (enableWebSocket ? createServer(app) : null);
+
+  if (enableWebSocket && httpServer) {
+    setupWebSocket(httpServer);
+  }
 
   // Serve static files
   app.use('/static', (req, res, next) => {
