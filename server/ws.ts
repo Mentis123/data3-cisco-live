@@ -1,12 +1,13 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { Server } from "http";
 
-let wss: WebSocketServer;
+let wss: WebSocketServer | null = null;
 const clients = new Set<WebSocket>();
 
 export function setupWebSocket(server: Server): void {
   wss = new WebSocketServer({ server, path: '/ws' });
-  
+  clients.clear();
+
   wss.on('connection', (ws: WebSocket) => {
     clients.add(ws);
     
@@ -28,11 +29,15 @@ export function broadcastScoreUpdate(entry: {
   targetRank: number;
   finalScore: number;
 }): void {
+  if (!wss) {
+    return;
+  }
+
   const message = JSON.stringify({
     type: "scoreUpdate",
     data: entry
   });
-  
+
   clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
@@ -41,5 +46,5 @@ export function broadcastScoreUpdate(entry: {
 }
 
 export function getClientCount(): number {
-  return clients.size;
+  return wss ? clients.size : 0;
 }

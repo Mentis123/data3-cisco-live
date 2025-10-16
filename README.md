@@ -37,6 +37,25 @@ npm run build
 npm run start
 ```
 
+## Deploying to Vercel
+
+This repository now includes a `vercel.json` configuration that splits the deployment into two parts:
+
+1. **Static client** – `@vercel/static-build` runs `npm run build:client` to generate the Vite bundle in `dist/public`, which Vercel serves as the front-end.
+2. **API routes** – `api/index.ts` wraps the Express application in a serverless handler (WebSockets disabled) so all `/api/*` routes continue to function.
+
+To create a new deployment:
+
+1. Set up a Vercel project that points at this repository.
+2. Configure the following environment variables in the Vercel dashboard:
+   - `DATABASE_URL`
+   - `OPENAI_API_KEY`
+   - `ADMIN_KEY`
+   - (optional) `CHAT_MODEL`, `EVAL_MODEL`
+3. No additional build command is required—the defaults from `vercel.json` will run `npm run build:client`. The SPA fallback and asset routing are also handled there.
+
+WebSockets are disabled in the serverless environment (`VITE_ENABLE_WEBSOCKETS=false` during the build). The leaderboard continues to refresh via the existing 5-second polling interval.
+
 ## Vercel migration status
 
 We are following the staged task list captured in [`docs/CODEBASE_REVIEW.md`](docs/CODEBASE_REVIEW.md). With the dependency cleanup now complete, the next milestones are:

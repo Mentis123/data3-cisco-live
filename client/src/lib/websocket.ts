@@ -8,14 +8,22 @@ export interface WebSocketHook {
 
 export function useWebSocket(onMessage?: (message: any) => void): WebSocketHook {
   const url = '/ws';
+  const isBrowser = typeof window !== 'undefined';
+  const isEnabled = isBrowser && import.meta.env.VITE_ENABLE_WEBSOCKETS !== 'false';
   const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null);
-  const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('connecting');
+  const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>(
+    isEnabled ? 'connecting' : 'disconnected'
+  );
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
   const connect = () => {
+    if (!isEnabled) {
+      return;
+    }
+
     try {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}${url}`;
@@ -63,12 +71,20 @@ export function useWebSocket(onMessage?: (message: any) => void): WebSocketHook 
   };
 
   const sendMessage = (data: string) => {
+    if (!isEnabled) {
+      return;
+    }
+
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(data);
     }
   };
 
   useEffect(() => {
+    if (!isEnabled) {
+      return;
+    }
+
     connect();
 
     return () => {
@@ -79,7 +95,7 @@ export function useWebSocket(onMessage?: (message: any) => void): WebSocketHook 
         ws.current.close();
       }
     };
-  }, []);
+  }, [isEnabled]);
 
   return {
     lastMessage,
