@@ -22,11 +22,11 @@ npm run dev
 
 The development server boots the Express API (from `server/index.ts`) and Vite dev server together. Environment variables are loaded from your shell. Required variables:
 
-- `DATABASE_URL` – Neon/Vercel Postgres connection string.
+- `DATABASE_URL` or one of Vercel's `POSTGRES_URL*` secrets – Neon/Vercel Postgres connection string.
 - `OPENAI_API_KEY` – API key used by the AI orchestration layer.
 - `ADMIN_KEY` – Shared secret that guards the admin HTTP routes.
 
-If `DATABASE_URL` is not provided the API automatically falls back to an in-memory storage layer seeded with demo leaderboard data. This keeps the dashboard usable for local previews, but production deployments **must** supply a real database connection.
+If neither `DATABASE_URL` nor any `POSTGRES_URL*` secret is provided the API automatically falls back to an in-memory storage layer seeded with demo leaderboard data. This keeps the dashboard usable for local previews, but production deployments **must** supply a real database connection.
 
 Optional tuning variables can remain unset (`CHAT_MODEL`, `EVAL_MODEL`, etc.) while working locally.
 
@@ -50,7 +50,7 @@ To create a new deployment:
 
 1. Set up a Vercel project that points at this repository.
 2. Configure the following environment variables in the Vercel dashboard:
-   - `DATABASE_URL`
+   - `DATABASE_URL` (or provide one of the automatically generated `POSTGRES_URL*` secrets when using Vercel Postgres)
    - `OPENAI_API_KEY`
    - `ADMIN_KEY`
    - (optional) `CHAT_MODEL`, `EVAL_MODEL`

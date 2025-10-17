@@ -44,7 +44,7 @@ _Last updated: 2025-10-16_
 - API keys default to `default_key` when missing, masking misconfiguration and risking accidental production exposure.【F:server/openai.ts†L5-L13】
 
 ### Data Layer
-- `server/db.ts` wires Drizzle ORM to a Neon PostgreSQL connection, requiring a persistent `DATABASE_URL`. WebSocket support is patched via Neon config to allow serverless usage.【F:server/db.ts†L1-L15】
+- `server/db.ts` wires Drizzle ORM to a Neon/Postgres connection, requiring a persistent connection string (`DATABASE_URL` or a `POSTGRES_URL*` secret). WebSocket support is patched via Neon config to allow serverless usage.【F:server/db.ts†L1-L25】
 - Drizzle schema defines `participants`, `submissions`, `data3Stats`, and `customCategories`; submissions store JSON blobs (`structuredJson`, `subScores`) as text, implying downstream parsing everywhere.【F:shared/schema.ts†L8-L87】
 - Storage helper is a 600+ line object mixing seed logic, leaderboard queries, word-cloud tokenisation, and admin CRUD—a prime candidate for modularisation.【F:server/storage.ts†L6-L675】
 - Default stats are seeded automatically unless `NODE_ENV === 'production'`, but the guard relies on runtime environment correctness and still executes queries on every cold start.【F:server/storage.ts†L22-L48】
@@ -71,7 +71,7 @@ _Last updated: 2025-10-16_
 - **Runtime Model**: Vercel functions are stateless; Express listeners and WebSockets must be replaced with Next.js route handlers and a managed real-time service (Ably, Pusher, or Vercel's Edge functions + SSE).【F:server/index.ts†L39-L70】【F:server/ws.ts†L1-L37】
 - **Data Persistence**: Continue using Neon/Vercel Postgres but formalise schema migrations (Drizzle `drizzle-kit push`) and add new tables for sessions and rate limiting. Consider storing structured solution data in typed tables for simpler serverless access.【F:server/db.ts†L1-L15】【F:shared/schema.ts†L8-L87】
 - **Asset Hosting**: Move static assets into Next.js `public/` or Vercel Blob storage; stop serving via Express static middleware.【F:server/routes.ts†L133-L141】
-- **Environment Variables**: Replace `default_key` fallbacks and document required env vars (`OPENAI_API_KEY`, `DATABASE_URL`, `ADMIN_KEY`, optional `CHAT_MODEL`/`EVAL_MODEL`).【F:server/openai.ts†L5-L13】
+- **Environment Variables**: Replace `default_key` fallbacks and document required env vars (`OPENAI_API_KEY`, `DATABASE_URL`/`POSTGRES_URL*`, `ADMIN_KEY`, optional `CHAT_MODEL`/`EVAL_MODEL`).【F:server/openai.ts†L5-L13】
 - **Build Process**: Swap Vite + esbuild pipeline for Next.js `next build`, eliminating the need for manual bundling; ensure Tailwind config adapts to Next.js conventions.
 - **Real-time Updates**: Evaluate migrating leaderboard refresh to polling + SSE or integrate Vercel's `@vercel/kv` pub/sub or a third-party Pusher channel; adjust frontend hook accordingly.【F:client/src/lib/websocket.ts†L9-L88】
 

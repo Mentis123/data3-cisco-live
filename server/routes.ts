@@ -15,7 +15,7 @@ import { randomUUID } from "crypto";
 import path from "path";
 
 log(
-  `Using ${storageKind} storage backend${storageKind === "memory" ? " (DATABASE_URL not set)" : ""}`,
+  `Using ${storageKind} storage backend${storageKind === "memory" ? " (no database connection string configured)" : ""}`,
 );
 
 // In-memory session storage (in production, use Redis)
