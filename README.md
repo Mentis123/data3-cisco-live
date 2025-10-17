@@ -26,6 +26,8 @@ The development server boots the Express API (from `server/index.ts`) and Vite d
 - `OPENAI_API_KEY` – API key used by the AI orchestration layer.
 - `ADMIN_KEY` – Shared secret that guards the admin HTTP routes.
 
+If `DATABASE_URL` is not provided the API automatically falls back to an in-memory storage layer seeded with demo leaderboard data. This keeps the dashboard usable for local previews, but production deployments **must** supply a real database connection.
+
 Optional tuning variables can remain unset (`CHAT_MODEL`, `EVAL_MODEL`, etc.) while working locally.
 
 ## Building the project

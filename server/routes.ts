@@ -1,7 +1,8 @@
 
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, storageKind } from "./storage";
+import { log } from "./logging";
 import { setupWebSocket, broadcastScoreUpdate } from "./ws";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai";
 import { 
@@ -12,6 +13,10 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import path from "path";
+
+log(
+  `Using ${storageKind} storage backend${storageKind === "memory" ? " (DATABASE_URL not set)" : ""}`,
+);
 
 // In-memory session storage (in production, use Redis)
 const sessions = new Map<string, { participantId: string; category?: string; messages: any[] }>();
