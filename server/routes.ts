@@ -5,12 +5,12 @@ import { storage, storageKind } from "./storage/index.js";
 import { log } from "./logging.js";
 import { setupWebSocket, broadcastScoreUpdate } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
-import { 
-  acceptTncSchema, 
-  startSessionSchema, 
-  chatSchema, 
-  submitSolutionSchema 
-} from "@shared/schema";
+import {
+  acceptTncSchema,
+  startSessionSchema,
+  chatSchema,
+  submitSolutionSchema,
+} from "../shared/schema.js";
 import { randomUUID } from "crypto";
 import path from "path";
 
