@@ -1,4 +1,4 @@
-import { createApp } from "./createApp";
+import { createApp } from "./createApp.js";
 import { setupVite, serveStatic } from "./vite";
 import { log } from "./logging";
 
