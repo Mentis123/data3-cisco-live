@@ -1,10 +1,11 @@
-import { db } from "./db";
+import type { NeonDatabase } from "drizzle-orm/neon-serverless";
+import * as schema from "@shared/schema";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { participants, submissions, data3Stats, customCategories } from "@shared/schema";
 import type { InsertParticipant, InsertSubmission, Participant, Submission, Data3Stat, InsertCustomCategory, CustomCategory } from "@shared/schema";
 
 // Pre-populate Data#3 stats (using only system categories)
-const defaultData3Stats = [
+export const DEFAULT_DATA3_STATS = [
   { title: "Team Members", value: "1,500+", description: "Across Australia", category: "SCALE", displayOrder: 1 },
   { title: "Years in Business", value: "45+", description: "Trusted technology partner since 1978", category: "SCALE", displayOrder: 2 },
   { title: "Cisco Certifications", value: "500+", description: "Cisco certifications held across our national team", category: "EXPERTISE", displayOrder: 3 },
@@ -20,7 +21,7 @@ const defaultData3Stats = [
 ];
 
 // Initialize stats on startup (development only)
-async function initializeData() {
+async function initializeData(db: NeonDatabase<typeof schema>) {
   // Only initialize default data in development mode
   // Production should maintain its own data
   if (process.env.NODE_ENV === 'production') {
@@ -32,7 +33,7 @@ async function initializeData() {
     // Initialize stats
     const existingStats = await db.select().from(data3Stats);
     if (existingStats.length === 0) {
-      await db.insert(data3Stats).values(defaultData3Stats);
+      await db.insert(data3Stats).values(DEFAULT_DATA3_STATS);
       console.log("Data#3 stats initialized (development mode)");
     }
     
@@ -43,11 +44,8 @@ async function initializeData() {
   }
 }
 
-// Initialize on module load
-initializeData();
-
 // Define system category names that are reserved and cannot be used for custom categories
-const SYSTEM_CATEGORY_NAMES = [
+export const SYSTEM_CATEGORY_NAMES = [
   'GENERAL',
   'SCALE',
   'EXPERTISE',
@@ -58,23 +56,26 @@ const SYSTEM_CATEGORY_NAMES = [
   'EDGE_IOT'
 ] as const;
 
-export const storage = {
-  async createParticipant(data: InsertParticipant): Promise<Participant> {
+export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
+  initializeData(db);
+
+  return {
+    async createParticipant(data: InsertParticipant): Promise<Participant> {
     const [result] = await db.insert(participants).values(data).returning();
     return result;
   },
 
-  async getParticipant(id: string): Promise<Participant | null> {
+    async getParticipant(id: string): Promise<Participant | null> {
     const [result] = await db.select().from(participants).where(eq(participants.id, id));
     return result || null;
   },
 
-  async createSubmission(data: InsertSubmission): Promise<Submission> {
+    async createSubmission(data: InsertSubmission): Promise<Submission> {
     const [result] = await db.insert(submissions).values(data).returning();
     return result;
   },
 
-  async getLeaderboard(limit: number = 100, category?: string): Promise<any[]> {
+    async getLeaderboard(limit: number = 100, category?: string): Promise<any[]> {
     const query = db
       .select({
         id: submissions.id,
@@ -95,7 +96,7 @@ export const storage = {
     return await query;
   },
 
-  async getSubmission(id: string): Promise<any> {
+    async getSubmission(id: string): Promise<any> {
     const [result] = await db
       .select({
         id: submissions.id,
@@ -117,13 +118,13 @@ export const storage = {
     
     // Parse JSON strings for subScores and structuredJson
     return {
-      ...result,
-      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
-      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+        ...result,
+        subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+        structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
     };
   },
 
-  async getAdminLeaderboard(limit: number = 100): Promise<any[]> {
+    async getAdminLeaderboard(limit: number = 100): Promise<any[]> {
     const results = await db
       .select({
         id: submissions.id,
@@ -149,7 +150,7 @@ export const storage = {
     }));
   },
 
-  async getWordCloudData(): Promise<{ text: string; value: number }[]> {
+    async getWordCloudData(): Promise<{ text: string; value: number }[]> {
     const allSubmissions = await db.select().from(submissions);
 
     const stopWords = new Set([
@@ -451,7 +452,7 @@ export const storage = {
       .slice(0, 30);
   },
 
-  async getCategoryStats(): Promise<{ [key: string]: number }> {
+    async getCategoryStats(): Promise<{ [key: string]: number }> {
     const results = await db
       .select({
         category: submissions.category,
@@ -468,7 +469,7 @@ export const storage = {
     return stats;
   },
 
-  async getData3Stats(category?: string): Promise<Data3Stat[]> {
+    async getData3Stats(category?: string): Promise<Data3Stat[]> {
     const query = db.select().from(data3Stats).orderBy(data3Stats.displayOrder);
     
     if (category) {
@@ -478,7 +479,7 @@ export const storage = {
     return await query;
   },
 
-  async getRecentSubmission(): Promise<any> {
+    async getRecentSubmission(): Promise<any> {
     const [result] = await db
       .select({
         id: submissions.id,
@@ -507,7 +508,7 @@ export const storage = {
     };
   },
 
-  async getTopProblemCategory(): Promise<string> {
+    async getTopProblemCategory(): Promise<string> {
     const [result] = await db
       .select({
         category: submissions.category,
@@ -521,38 +522,38 @@ export const storage = {
     return result?.category || "SECURE_CONNECTIVITY";
   },
 
-  async clearDatabase(): Promise<void> {
+    async clearDatabase(): Promise<void> {
     await db.delete(submissions);
     await db.delete(participants);
     // Don't clear data3_stats as they are reference data
   },
 
-  async getSubmissionDetails(id: string): Promise<any> {
+    async getSubmissionDetails(id: string): Promise<any> {
     return await this.getSubmission(id);
   },
 
-  async getDetailedLeaderboard(limit: number = 100): Promise<any[]> {
+    async getDetailedLeaderboard(limit: number = 100): Promise<any[]> {
     return await this.getAdminLeaderboard(limit);
   },
 
-  async deleteSubmission(id: string): Promise<void> {
+    async deleteSubmission(id: string): Promise<void> {
     await db.delete(submissions).where(eq(submissions.id, id));
   },
 
-  async updateData3Stat(id: string, data: Partial<Data3Stat>): Promise<void> {
+    async updateData3Stat(id: string, data: Partial<Data3Stat>): Promise<void> {
     await db.update(data3Stats).set(data).where(eq(data3Stats.id, id));
   },
 
-  async createData3Stat(data: Omit<Data3Stat, 'id' | 'createdAt'>): Promise<Data3Stat> {
+    async createData3Stat(data: Omit<Data3Stat, 'id' | 'createdAt'>): Promise<Data3Stat> {
     const [result] = await db.insert(data3Stats).values(data).returning();
     return result;
   },
 
-  async deleteData3Stat(id: string): Promise<void> {
+    async deleteData3Stat(id: string): Promise<void> {
     await db.delete(data3Stats).where(eq(data3Stats.id, id));
   },
 
-  async getCategories(): Promise<any[]> {
+    async getCategories(): Promise<any[]> {
     // System categories that are always present and protected
     const systemCategories = [
       { id: 'GENERAL', name: 'GENERAL', displayName: 'General', color: 'bg-[#64748b]', isSystemCategory: true },
@@ -594,7 +595,7 @@ export const storage = {
     return [...systemCategories, ...customCategoriesList];
   },
 
-  async createCategory(data: { name: string; displayName: string; color: string }): Promise<any> {
+    async createCategory(data: { name: string; displayName: string; color: string }): Promise<any> {
     // Check if the name collides with a system category (case-insensitive)
     const normalizedName = data.name.toUpperCase();
     if (SYSTEM_CATEGORY_NAMES.includes(normalizedName as any)) {
@@ -631,7 +632,7 @@ export const storage = {
     };
   },
 
-  async updateCategory(id: string, data: { displayName: string; color: string }): Promise<void> {
+    async updateCategory(id: string, data: { displayName: string; color: string }): Promise<void> {
     // Only allow updating custom categories (not system categories)
     const category = await db.select().from(customCategories).where(eq(customCategories.name, id));
     
@@ -647,7 +648,7 @@ export const storage = {
       .where(eq(customCategories.name, id));
   },
 
-  async deleteCategory(id: string): Promise<{ success: boolean; reassignedStats?: number }> {
+    async deleteCategory(id: string): Promise<{ success: boolean; reassignedStats?: number }> {
     // Check if it's a custom category (not a system category)
     const category = await db.select().from(customCategories).where(eq(customCategories.name, id));
     
@@ -673,4 +674,5 @@ export const storage = {
       reassignedStats: stats.length 
     };
   }
-};
+  };
+}
