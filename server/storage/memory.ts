@@ -7,7 +7,7 @@ import type {
   Submission,
   Data3Stat,
   CustomCategory,
-} from "@shared/schema";
+} from "../../shared/schema.js";
 import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.js";
 
 interface MemoryParticipant extends Participant {
