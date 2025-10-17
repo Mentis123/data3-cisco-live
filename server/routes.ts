@@ -1,5 +1,5 @@
 
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage, storageKind } from "./storage/index.js";
 import { log } from "./logging.js";
@@ -17,6 +17,28 @@ import path from "path";
 log(
   `Using ${storageKind} storage backend${storageKind === "memory" ? " (no database connection string configured)" : ""}`,
 );
+
+const DEFAULT_ADMIN_KEY = "cisco-live-melbourne-2025";
+const ADMIN_KEY = process.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
+
+function extractAdminKey(req: Request): string {
+  const header = req.headers["x-admin-key"];
+  if (Array.isArray(header)) {
+    return header[0] ?? "";
+  }
+  return header ?? "";
+}
+
+function ensureAdminAccess(req: Request, res: Response): boolean {
+  const providedKey = extractAdminKey(req);
+
+  if (!providedKey || providedKey !== ADMIN_KEY) {
+    res.status(401).json({ message: "Unauthorized" });
+    return false;
+  }
+
+  return true;
+}
 
 // In-memory session storage (in production, use Redis)
 const sessions = new Map<string, { participantId: string; category?: string; messages: any[] }>();
@@ -432,10 +454,7 @@ export async function registerRoutes(
   // Admin endpoint to get all Data#3 stats
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const stats = await storage.getData3Stats();
       res.json(stats);
@@ -447,10 +466,7 @@ export async function registerRoutes(
   // Admin endpoint to update Data#3 stats
   app.post("/api/admin/stats/:id", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const { title, value, description, category, displayOrder } = req.body;
       const id = req.params.id;
@@ -472,10 +488,7 @@ export async function registerRoutes(
   // Admin endpoint to create new Data#3 stat
   app.post("/api/admin/stats", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const { title, value, description, category, displayOrder } = req.body;
 
@@ -496,10 +509,7 @@ export async function registerRoutes(
   // Admin endpoint to delete Data#3 stat
   app.delete("/api/admin/stats/:id", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       await storage.deleteData3Stat(req.params.id);
       res.json({ success: true });
@@ -511,10 +521,7 @@ export async function registerRoutes(
   // Admin endpoint to get all categories
   app.get("/api/admin/categories", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const categories = await storage.getCategories();
       res.json(categories);
@@ -526,10 +533,7 @@ export async function registerRoutes(
   // Admin endpoint to create new category
   app.post("/api/admin/categories", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const { name, displayName, color } = req.body;
       const category = await storage.createCategory({
@@ -547,10 +551,7 @@ export async function registerRoutes(
   // Admin endpoint to update category
   app.put("/api/admin/categories/:id", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const { displayName, color } = req.body;
       await storage.updateCategory(req.params.id, {
@@ -567,10 +568,7 @@ export async function registerRoutes(
   // Admin endpoint to delete category (reassigns orphaned stats to GENERAL)
   app.delete("/api/admin/categories/:id", async (req, res) => {
     try {
-      const adminKey = req.headers['x-admin-key'];
-      if (adminKey !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!ensureAdminAccess(req, res)) return;
 
       const result = await storage.deleteCategory(req.params.id);
       res.json(result);
@@ -615,10 +613,8 @@ export async function registerRoutes(
   // Admin routes
   app.post("/api/admin/reset", async (req, res) => {
     try {
-      const adminKey = req.query.key as string;
-      const expectedKey = process.env.ADMIN_KEY || "choose-a-strong-string";
-
-      if (!adminKey || adminKey !== expectedKey) {
+      const adminKey = (req.query.key as string) || "";
+      if (!adminKey || adminKey !== ADMIN_KEY) {
         return res.status(403).json({ message: "Invalid admin key" });
       }
 
