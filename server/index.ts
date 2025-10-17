@@ -1,6 +1,6 @@
 import { createApp } from "./createApp.js";
-import { setupVite, serveStatic } from "./vite";
-import { log } from "./logging";
+import { setupVite, serveStatic } from "./vite.js";
+import { log } from "./logging.js";
 
 (async () => {
   const { app, server } = await createApp({ enableWebSocket: true, provideServer: true });

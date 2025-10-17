@@ -8,7 +8,7 @@ import type {
   Data3Stat,
   CustomCategory,
 } from "@shared/schema";
-import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database";
+import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.js";
 
 interface MemoryParticipant extends Participant {
   createdAt: Date | null;
