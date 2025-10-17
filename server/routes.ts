@@ -1,10 +1,10 @@
 
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage, storageKind } from "./storage";
-import { log } from "./logging";
-import { setupWebSocket, broadcastScoreUpdate } from "./ws";
-import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai";
+import { storage, storageKind } from "./storage/index.js";
+import { log } from "./logging.js";
+import { setupWebSocket, broadcastScoreUpdate } from "./ws.js";
+import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
 import { 
   acceptTncSchema, 
   startSessionSchema, 
