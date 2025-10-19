@@ -1,4 +1,4 @@
-import { CheckCircle, Circle, ChevronRight } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type SprintStep = 1 | 2 | 3 | 4;
@@ -31,104 +31,94 @@ export function SprintStepper({
   className
 }: SprintStepperProps) {
   return (
-    <div 
-      className={cn(
-        "w-full bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-40",
-        className
-      )}
-      data-testid="sprint-stepper"
-    >
-      <div className="max-w-4xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
+    <div className={cn("w-full", className)} data-testid="sprint-stepper">
+      <div className="relative">
+        <div className="absolute top-6 left-4 right-4 h-px bg-white/15 sm:top-7 sm:left-8 sm:right-8" />
+
+        <div className="flex items-start justify-between gap-2 sm:gap-4">
           {steps.map((step, index) => {
             const isCompleted = completedSteps.has(step.number);
             const isCurrent = currentStep === step.number;
             const isClickable = onStepClick && (isCompleted || step.number < currentStep);
-            
+
             return (
-              <div key={step.number} className="flex items-center flex-1">
+              <div key={step.number} className="flex-1 flex flex-col items-center text-center">
                 <button
                   onClick={() => isClickable && onStepClick(step.number)}
                   disabled={!isClickable}
                   className={cn(
-                    "flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 rounded-lg transition-all",
-                    "touch-manipulation min-h-[44px]",
-                    isClickable && "cursor-pointer hover:bg-muted/50",
+                    "group relative z-10 flex flex-col items-center gap-2 rounded-xl px-2 py-2 transition",
+                    "touch-manipulation min-h-[64px]",
+                    isClickable && "cursor-pointer hover:bg-white/20",
                     !isClickable && "cursor-default",
-                    isCurrent && "bg-primary/10"
+                    isCurrent && "bg-white/10 shadow-lg shadow-primary/20"
                   )}
                   data-testid={`step-${step.number}`}
                 >
-                  {/* Step indicator */}
-                  <div className="relative">
+                  <div
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-full border-2 text-lg font-semibold",
+                      "backdrop-blur-sm transition-all",
+                      isCompleted
+                        ? "border-white bg-white text-primary"
+                        : isCurrent
+                        ? "border-white/80 bg-white/20 text-white"
+                        : "border-white/40 bg-white/10 text-white/70"
+                    )}
+                  >
                     {isCompleted ? (
-                      <CheckCircle 
-                        className="w-6 h-6 sm:w-7 sm:h-7 text-primary" 
-                        data-testid={`step-${step.number}-completed`}
-                      />
+                      <CheckCircle className="h-6 w-6" data-testid={`step-${step.number}-completed`} />
+                    ) : isCurrent ? (
+                      <ChevronRight className="h-6 w-6" />
                     ) : (
-                      <div 
-                        className={cn(
-                          "w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold",
-                          isCurrent 
-                            ? "border-primary bg-primary text-primary-foreground" 
-                            : "border-muted-foreground text-muted-foreground"
-                        )}
-                      >
-                        {isCurrent ? (
-                          <ChevronRight className="w-4 h-4" />
-                        ) : (
-                          step.number
-                        )}
-                      </div>
+                      step.number
                     )}
                   </div>
-                  
-                  {/* Step label */}
-                  <div className="text-center sm:text-left">
+                  <div className="space-y-1">
                     <span
                       className={cn(
-                        "text-[0.95rem] sm:text-base font-medium block sm:hidden leading-snug",
-                        isCurrent ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
+                        "text-xs font-semibold uppercase tracking-[0.08em] text-white/70",
+                        isCurrent && "text-white"
                       )}
                     >
-                      {step.shortLabel}
+                      Step {step.number}
                     </span>
                     <span
                       className={cn(
-                        "text-[1rem] font-medium hidden sm:block leading-snug",
-                        isCurrent ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
+                        "text-sm sm:text-base font-medium text-white/80 leading-tight",
+                        isCurrent && "text-white",
+                        isCompleted && "text-white"
                       )}
                     >
                       {step.label}
                     </span>
                   </div>
                 </button>
-                
-                {/* Connector line */}
+
                 {index < steps.length - 1 && (
-                  <div 
-                    className={cn(
-                      "hidden sm:flex flex-1 h-[2px] mx-2",
-                      completedSteps.has((step.number + 1) as SprintStep) 
-                        ? "bg-primary" 
-                        : "bg-muted-foreground/30"
-                    )}
-                  />
+                  <div className="mt-2 hidden w-full sm:block">
+                    <div
+                      className={cn(
+                        "mx-auto h-1 w-[calc(100%-1rem)] rounded-full",
+                        completedSteps.has((step.number + 1) as SprintStep)
+                          ? "bg-white"
+                          : "bg-white/20"
+                      )}
+                    />
+                  </div>
                 )}
               </div>
             );
           })}
         </div>
-        
-        {/* Mobile progress bar */}
-        <div className="sm:hidden mt-2">
-          <div className="h-1 bg-muted-foreground/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${(currentStep / 4) * 100}%` }}
-            />
-          </div>
+      </div>
+
+      <div className="mt-4 block sm:hidden">
+        <div className="h-1 rounded-full bg-white/20">
+          <div
+            className="h-full rounded-full bg-white transition-all duration-300"
+            style={{ width: `${(currentStep / 4) * 100}%` }}
+          />
         </div>
       </div>
     </div>
