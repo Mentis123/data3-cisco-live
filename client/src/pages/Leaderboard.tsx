@@ -77,6 +77,42 @@ export default function Leaderboard() {
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const isInitialDataLoad = useRef(true);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const playSubmissionAudio = () => {
+      audioManager.playFlashSound().catch(err => console.warn("Leaderboard flash sound failed:", err));
+      setTimeout(() => {
+        audioManager.playNewChallengerSound().catch(err => console.warn("Leaderboard challenger sound failed:", err));
+      }, 750);
+    };
+
+    audioManager.preload();
+
+    try {
+      const shouldReplayAudio = window.sessionStorage.getItem("playSubmissionAudio");
+      if (shouldReplayAudio) {
+        window.sessionStorage.removeItem("playSubmissionAudio");
+        playSubmissionAudio();
+      }
+    } catch (error) {
+      console.warn("Unable to check submission audio flag:", error);
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        audioManager.preload();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
   // Fetch dashboard data early so dependent callbacks always have refetch available
   const { data, isLoading, refetch } = useQuery<DashboardData>({
     queryKey: ["dashboard-data"],
@@ -356,23 +392,25 @@ export default function Leaderboard() {
 
     const leaderboardNewEntry = data.leaderboard?.find(entry => !knownSubmissionIds.has(entry.id));
     if (leaderboardNewEntry) {
+      const targetRank = computeRank(leaderboardNewEntry.id);
       handleNewSubmission({
         id: leaderboardNewEntry.id,
         name: leaderboardNewEntry.name,
         category: leaderboardNewEntry.category,
         totalScore: leaderboardNewEntry.totalScore,
-        targetRank: computeRank(leaderboardNewEntry.id)
+        targetRank: targetRank ?? undefined
       });
       return;
     }
 
     if (data.recentSubmission && !knownSubmissionIds.has(data.recentSubmission.id)) {
+      const targetRank = computeRank(data.recentSubmission.id);
       handleNewSubmission({
         id: data.recentSubmission.id,
         name: data.recentSubmission.name,
         category: data.recentSubmission.category,
         totalScore: data.recentSubmission.totalScore,
-        targetRank: computeRank(data.recentSubmission.id)
+        targetRank: targetRank ?? undefined
       });
     }
   }, [data, handleNewSubmission, knownSubmissionIds]);
