@@ -752,15 +752,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   // Chat view with stepper
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
       <SprintStepper 
         currentStep={state.step}
         completedSteps={state.completedSteps}
         onStepClick={handleStepClick}
       />
       
-      <div className="flex-1 flex flex-col safe-area-padding">
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4">
+      <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
           <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
             {/* Chat Header */}
             <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground flex-shrink-0">
@@ -851,7 +851,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     state.step === 3 ? "Type 'yes' to proceed or adjust..." :
                     "Type your message..."
                   }
-                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed"
+                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed max-h-[45vh] max-h-[45svh] overflow-y-auto"
                   disabled={isTyping || state.inputsCount >= 6}
                   data-testid="input-chat-message"
                 />
