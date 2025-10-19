@@ -86,17 +86,17 @@ export function SprintStepper({
                   
                   {/* Step label */}
                   <div className="text-center sm:text-left">
-                    <span 
+                    <span
                       className={cn(
-                        "text-xs sm:text-sm font-medium block sm:hidden",
+                        "text-[0.95rem] sm:text-base font-medium block sm:hidden leading-snug",
                         isCurrent ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
                       )}
                     >
                       {step.shortLabel}
                     </span>
-                    <span 
+                    <span
                       className={cn(
-                        "text-sm font-medium hidden sm:block",
+                        "text-[1rem] font-medium hidden sm:block leading-snug",
                         isCurrent ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
                       )}
                     >

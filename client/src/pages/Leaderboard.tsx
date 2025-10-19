@@ -341,14 +341,14 @@ export default function Leaderboard() {
       return;
     }
 
-    const computeRank = (id?: string | null) => {
+    const computeRank = (id?: string | null): number | undefined => {
       if (!id || !data.leaderboard) {
-        return null;
+        return undefined;
       }
 
       const index = data.leaderboard.findIndex(item => item.id === id);
       if (index === -1) {
-        return null;
+        return undefined;
       }
 
       return index + 1;
