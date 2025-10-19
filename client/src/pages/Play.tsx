@@ -539,18 +539,46 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   // Submit/Review view
   if (state.step === 4 && state.submission) {
     const currentSubmission = editedSubmission || state.submission;
-    
+
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <SprintStepper 
-          currentStep={state.step}
-          completedSteps={state.completedSteps}
-          onStepClick={handleStepClick}
-        />
-        
         <div className="flex-1 py-4 sm:py-8 safe-area-padding">
           <div className="max-w-4xl mx-auto px-4">
-            <Card className="glass-panel border-0">
+            <Card className="glass-panel border-0 overflow-hidden">
+              <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
+                <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
+                <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+
+                <div className="relative z-10 p-4 sm:p-6 space-y-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm uppercase tracking-[0.08em] text-white/70">Sprint Coach</p>
+                      <h2 className="text-xl sm:text-2xl font-semibold leading-tight">Final Review &amp; Submit</h2>
+                      <p className="text-sm sm:text-base text-white/80 leading-snug">
+                        Double-check your solution and send it for scoring.
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => goToStep(dispatch, 3)}
+                      className="bg-white/15 text-white hover:bg-white/25"
+                      data-testid="button-back-to-chat"
+                    >
+                      <i className="fas fa-comments mr-2"></i>
+                      Back to Chat
+                    </Button>
+                  </div>
+
+                  <SprintStepper
+                    currentStep={state.step}
+                    completedSteps={state.completedSteps}
+                    onStepClick={handleStepClick}
+                  />
+                </div>
+              </div>
+
               <CardHeader className="pb-4 sm:pb-6">
                 <CardTitle className="text-[1.35rem] sm:text-2xl leading-tight">Final Review & Submit</CardTitle>
                 <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
@@ -713,15 +741,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         Edit
                       </Button>
                       <Button
-                        onClick={() => goToStep(dispatch, 3)}
-                        variant="outline"
-                        className="flex-1"
-                        data-testid="button-back-to-chat"
-                      >
-                        <i className="fas fa-comments mr-2"></i>
-                        Back to Chat
-                      </Button>
-                      <Button
                         onClick={() => submitSolutionMutation.mutate()}
                         disabled={isSubmitting}
                         className="flex-1 btn-primary"
@@ -753,39 +772,50 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   // Chat view with stepper
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
-      <SprintStepper 
-        currentStep={state.step}
-        completedSteps={state.completedSteps}
-        onStepClick={handleStepClick}
-      />
-      
       <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
         <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
           <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
             {/* Chat Header */}
-            <div className="bg-gradient-to-r from-primary to-secondary p-4 sm:p-6 text-primary-foreground flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-lg sm:text-xl"></i>
+            <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground flex-shrink-0">
+              <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+              <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
+              <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+              <div className="relative z-10 p-4 sm:p-6 space-y-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <i className="fas fa-robot text-lg sm:text-2xl"></i>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
+                      <p className="text-sm sm:text-base text-white/80 leading-snug">
+                        You&apos;re on step {state.step} of 4. {6 - state.inputsCount} inputs remaining.
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-[1.1rem] sm:text-xl font-bold truncate">Sprint Coach</h3>
-                    <p className="text-[0.95rem] sm:text-base leading-snug opacity-90">
-                      Step {state.step} of 4 • {6 - state.inputsCount} inputs remaining
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="hidden sm:flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/80">
+                      <i className="fas fa-stopwatch"></i>
+                      Avg completion: 3 replies
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowExitDialog(true)}
+                      className="text-white/90 hover:text-white hover:bg-white/20"
+                      data-testid="button-exit-chat"
+                    >
+                      <i className="fas fa-home mr-2"></i>
+                      Exit
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowExitDialog(true)}
-                  className="text-white/90 hover:text-white hover:bg-white/20"
-                  data-testid="button-exit-chat"
-                >
-                  <i className="fas fa-home mr-2"></i>
-                  Exit
-                </Button>
+
+                <SprintStepper
+                  currentStep={state.step}
+                  completedSteps={state.completedSteps}
+                  onStepClick={handleStepClick}
+                />
               </div>
             </div>
 
