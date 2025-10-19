@@ -155,6 +155,59 @@ export default function Leaderboard() {
     refetch();
   }, [refetch, setLocation, triggerScoreAnimation]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const stored = sessionStorage.getItem("playSubmissionAudio");
+    if (!stored) {
+      return;
+    }
+
+    sessionStorage.removeItem("playSubmissionAudio");
+
+    let timestamp: number | null = null;
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed.timestamp === "number") {
+        timestamp = parsed.timestamp;
+      }
+    } catch {
+      // Ignore JSON parsing issues – assume audio should play immediately
+    }
+
+    const maxAgeMs = 2 * 60 * 1000; // 2 minutes grace period
+    if (timestamp && Date.now() - timestamp > maxAgeMs) {
+      return;
+    }
+
+    const playCelebrationAudio = () => {
+      audioManager.playFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
+      setTimeout(() => {
+        audioManager.playNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
+      }, 750);
+    };
+
+    if (document.visibilityState === "visible") {
+      playCelebrationAudio();
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        playCelebrationAudio();
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
   // Reset timing counters when a new submission occurs
   useEffect(() => {
     if (newSubmissionTime) {
