@@ -188,19 +188,69 @@ export default function Leaderboard() {
     }
   });
 
+  type FullscreenDocument = Document & {
+    webkitExitFullscreen?: () => Promise<void> | void;
+    webkitFullscreenElement?: Element | null;
+    msExitFullscreen?: () => Promise<void> | void;
+    msFullscreenElement?: Element | null;
+  };
+
+  type FullscreenElement = HTMLElement & {
+    webkitRequestFullscreen?: () => Promise<void> | void;
+    msRequestFullscreen?: () => Promise<void> | void;
+  };
+
+  const getFullscreenElement = () => {
+    const doc = document as FullscreenDocument;
+    return doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement || null;
+  };
+
+  const requestFullscreen = async (element: HTMLElement) => {
+    const el = element as FullscreenElement;
+    const request =
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.msRequestFullscreen;
+
+    if (request) {
+      await request.call(el);
+      return true;
+    }
+
+    console.warn('Fullscreen API is not supported in this browser.');
+    return false;
+  };
+
+  const exitFullscreen = async () => {
+    const doc = document as FullscreenDocument;
+    const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (exit) {
+      await exit.call(doc);
+      return true;
+    }
+
+    console.warn('Fullscreen API exit is not supported in this browser.');
+    return false;
+  };
+
   // Fullscreen functionality
   const toggleFullscreen = async () => {
-    if (!document.fullscreenElement) {
+    if (!getFullscreenElement()) {
       try {
-        await document.documentElement.requestFullscreen();
-        setIsFullscreen(true);
+        const entered = await requestFullscreen(document.documentElement);
+        if (entered) {
+          setIsFullscreen(true);
+        }
       } catch (err) {
         console.error('Error attempting to enable fullscreen:', err);
       }
     } else {
       try {
-        await document.exitFullscreen();
-        setIsFullscreen(false);
+        const exited = await exitFullscreen();
+        if (exited) {
+          setIsFullscreen(false);
+        }
       } catch (err) {
         console.error('Error attempting to exit fullscreen:', err);
       }
@@ -210,7 +260,7 @@ export default function Leaderboard() {
   // Listen for fullscreen changes and escape key
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!getFullscreenElement());
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -221,10 +271,14 @@ export default function Leaderboard() {
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange as EventListener);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange as EventListener);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange as EventListener);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange as EventListener);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
@@ -361,7 +415,7 @@ export default function Leaderboard() {
         name: leaderboardNewEntry.name,
         category: leaderboardNewEntry.category,
         totalScore: leaderboardNewEntry.totalScore,
-        targetRank: computeRank(leaderboardNewEntry.id)
+        targetRank: computeRank(leaderboardNewEntry.id) ?? undefined
       });
       return;
     }
@@ -372,7 +426,7 @@ export default function Leaderboard() {
         name: data.recentSubmission.name,
         category: data.recentSubmission.category,
         totalScore: data.recentSubmission.totalScore,
-        targetRank: computeRank(data.recentSubmission.id)
+        targetRank: computeRank(data.recentSubmission.id) ?? undefined
       });
     }
   }, [data, handleNewSubmission, knownSubmissionIds]);
