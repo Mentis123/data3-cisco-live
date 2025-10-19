@@ -422,17 +422,17 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
           
           <Card className="glass-panel border-0 overflow-hidden">
             <div className="relative h-32 sm:h-40">
-              <img 
-                src={headerImage} 
-                alt="Melbourne tech skyline" 
+              <img
+                src={headerImage}
+                alt="Melbourne tech skyline"
                 className="w-full h-full object-cover opacity-60"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <CardTitle className="text-2xl sm:text-3xl text-center mb-2 text-white drop-shadow-lg">
+                <CardTitle className="text-balance text-[clamp(1.6rem,5.5vw,2.25rem)] sm:text-3xl leading-[1.15] text-center mb-2 text-white drop-shadow-lg">
                   Data<sup className="text-primary">#</sup>3 Solution Sprint
                 </CardTitle>
-                <p className="text-center text-white/90 drop-shadow">
+                <p className="text-pretty text-[0.95rem] sm:text-base text-center text-white/90 drop-shadow">
                   Quick Sprint to Your Winning Solution
                 </p>
               </div>
@@ -440,7 +440,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="text-sm sm:text-base mb-1.5">First Name</Label>
+                  <Label htmlFor="firstName" className="text-[0.95rem] sm:text-lg font-medium leading-tight mb-1.5">First Name</Label>
                   <Input
                     id="firstName"
                     value={firstName}
@@ -451,7 +451,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="text-sm sm:text-base mb-1.5">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-[0.95rem] sm:text-lg font-medium leading-tight mb-1.5">Last Name</Label>
                   <Input
                     id="lastName"
                     value={lastName}
@@ -465,7 +465,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
               <Card className="mb-6 bg-primary/5 border-primary/20">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">
+                  <CardTitle className="text-balance text-lg sm:text-xl leading-tight">
                     <i className="fas fa-rocket mr-2 text-primary"></i>
                     Your 3-Reply Sprint
                   </CardTitle>
@@ -475,27 +475,27 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
                       <div>
-                        <p className="font-semibold text-sm">Name the Problem</p>
-                        <p className="text-xs text-muted-foreground">Share your business challenge</p>
+                        <p className="font-semibold text-[1rem] leading-tight">Name the Problem</p>
+                        <p className="text-[0.95rem] text-muted-foreground leading-snug">Share your business challenge</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
                       <div>
-                        <p className="font-semibold text-sm">Quantify Impact</p>
-                        <p className="text-xs text-muted-foreground">Time, cost, or risk estimates</p>
+                        <p className="font-semibold text-[1rem] leading-tight">Quantify Impact</p>
+                        <p className="text-[0.95rem] text-muted-foreground leading-snug">Time, cost, or risk estimates</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
                       <div>
-                        <p className="font-semibold text-sm">Review & Submit</p>
-                        <p className="text-xs text-muted-foreground">Lock KPIs, confirm the plan, then score instantly</p>
+                        <p className="font-semibold text-[1rem] leading-tight">Review & Submit</p>
+                        <p className="text-[0.95rem] text-muted-foreground leading-snug">Lock KPIs, confirm the plan, then score instantly</p>
                       </div>
                     </div>
                   </div>
                   <div className="mt-4 p-3 bg-secondary/10 rounded-lg">
-                    <p className="text-xs text-center">
+                    <p className="text-[0.9rem] text-center leading-snug text-pretty">
                       💡 <strong>Pro tip:</strong> Submit anytime to jump to final review
                     </p>
                   </div>
@@ -521,7 +521,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 )}
               </Button>
 
-              <p className="text-xs text-center text-muted-foreground">
+              <p className="text-sm text-center leading-snug text-muted-foreground">
                 Average completion: 3 replies • Max: 6 inputs
               </p>
             </CardContent>
@@ -547,15 +547,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
           <div className="max-w-4xl mx-auto px-4">
             <Card className="glass-panel border-0">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="text-xl sm:text-2xl">Final Review & Submit</CardTitle>
-                <p className="text-sm sm:text-base text-muted-foreground">
+                <CardTitle className="text-[1.35rem] sm:text-2xl leading-tight">Final Review & Submit</CardTitle>
+                <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
                   {isEditMode ? "Edit your solution details below" : "Your solution is ready! Review and submit for scoring."}
                 </p>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                 {/* Problem Summary */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                  <Label className="font-bold mb-2 flex items-center text-base sm:text-lg leading-tight">
                     <i className="fas fa-lightbulb text-primary mr-2"></i>
                     Problem Summary
                   </Label>
@@ -563,17 +563,17 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <Textarea
                       value={currentSubmission.problem_summary}
                       onChange={(e) => setEditedSubmission({...currentSubmission, problem_summary: e.target.value})}
-                      className="text-sm min-h-[60px]"
+                      className="text-base leading-relaxed min-h-[60px]"
                       placeholder="Describe the problem..."
                     />
                   ) : (
-                    <p className="text-sm">{currentSubmission.problem_summary}</p>
+                    <p className="text-base leading-relaxed">{currentSubmission.problem_summary}</p>
                   )}
                 </div>
 
                 {/* Impact Summary */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                  <Label className="font-bold mb-2 flex items-center text-base sm:text-lg leading-tight">
                     <i className="fas fa-chart-line text-primary mr-2"></i>
                     Impact Summary
                   </Label>
@@ -581,25 +581,25 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <Textarea
                       value={currentSubmission.impact_summary}
                       onChange={(e) => setEditedSubmission({ ...currentSubmission, impact_summary: e.target.value })}
-                      className="text-sm min-h-[60px]"
+                      className="text-base leading-relaxed min-h-[60px]"
                       placeholder="Summarise the quantified impact..."
                     />
                   ) : (
-                    <p className="text-sm">{currentSubmission.impact_summary}</p>
+                    <p className="text-base leading-relaxed">{currentSubmission.impact_summary}</p>
                   )}
                 </div>
 
                 {/* Metrics */}
                 <div className="glass-panel rounded-lg p-3 sm:p-4">
-                  <Label className="font-bold mb-2 flex items-center text-sm sm:text-base">
+                  <Label className="font-bold mb-2 flex items-center text-base sm:text-lg leading-tight">
                     <i className="fas fa-bullseye text-primary mr-2"></i>
                     Baseline & Targets
                   </Label>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Baseline Metrics</p>
+                      <p className="text-sm font-semibold text-muted-foreground mb-1 leading-snug">Baseline Metrics</p>
                       {currentSubmission.baseline_metrics.map((metric: any, idx: number) => (
-                        <div key={idx} className="text-sm mb-1">
+                        <div key={idx} className="text-base leading-snug mb-1">
                           {isEditMode ? (
                             <div className="flex gap-2">
                               <Input
@@ -609,7 +609,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                                   newMetrics[idx] = { ...metric, name: e.target.value };
                                   setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
                                 }}
-                                className="text-sm flex-1"
+                                className="text-base flex-1"
                                 placeholder="Metric name..."
                               />
                               <Input
@@ -619,7 +619,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                                   newMetrics[idx] = { ...metric, value: e.target.value };
                                   setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
                                 }}
-                                className="text-sm flex-1"
+                                className="text-base flex-1"
                                 placeholder="Value..."
                               />
                             </div>
@@ -630,9 +630,9 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       ))}
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Target Metrics</p>
+                      <p className="text-sm font-semibold text-muted-foreground mb-1 leading-snug">Target Metrics</p>
                       {currentSubmission.target_metrics.map((metric: any, idx: number) => (
-                        <div key={idx} className="text-sm mb-1">
+                        <div key={idx} className="text-base leading-snug mb-1">
                           {isEditMode ? (
                             <div className="flex gap-2">
                               <Input
@@ -642,7 +642,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                                   newMetrics[idx] = { ...metric, name: e.target.value };
                                   setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
                                 }}
-                                className="text-sm flex-1"
+                                className="text-base flex-1"
                                 placeholder="Metric name..."
                               />
                               <Input
@@ -652,7 +652,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                                   newMetrics[idx] = { ...metric, target: e.target.value };
                                   setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
                                 }}
-                                className="text-sm flex-1"
+                                className="text-base flex-1"
                                 placeholder="Target..."
                               />
                             </div>
@@ -762,11 +762,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-base sm:text-lg"></i>
+                    <i className="fas fa-robot text-lg sm:text-xl"></i>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-lg sm:text-xl font-bold truncate">Sprint Coach</h3>
-                    <p className="text-xs sm:text-sm opacity-90">
+                    <h3 className="text-[1.1rem] sm:text-xl font-bold truncate">Sprint Coach</h3>
+                    <p className="text-[0.95rem] sm:text-base leading-snug opacity-90">
                       Step {state.step} of 4 • {6 - state.inputsCount} inputs remaining
                     </p>
                   </div>
@@ -795,10 +795,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   {message.role === "assistant" ? (
                     <>
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
+                        <i className="fas fa-robot text-white text-sm sm:text-base"></i>
                       </div>
                       <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words overflow-wrap-anywhere">
+                        <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">
                           {message.content}
                         </div>
                       </div>
@@ -806,10 +806,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   ) : (
                     <>
                       <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-user text-xs sm:text-sm"></i>
+                        <i className="fas fa-user text-sm sm:text-base"></i>
                       </div>
                       <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-sm sm:text-base text-foreground break-words overflow-wrap-anywhere">{message.content}</p>
+                        <p className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">{message.content}</p>
                       </div>
                     </>
                   )}
@@ -819,7 +819,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               {isTyping && (
                 <div className="chat-message flex items-start gap-2 sm:gap-3">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-white text-xs sm:text-sm"></i>
+                    <i className="fas fa-robot text-white text-sm sm:text-base"></i>
                   </div>
                   <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4">
                     <div className="flex space-x-1">
@@ -846,7 +846,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     state.step === 3 ? "Type 'yes' to proceed or adjust..." :
                     "Type your message..."
                   }
-                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-sm sm:text-base"
+                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed"
                   disabled={isTyping || state.inputsCount >= 6}
                   data-testid="input-chat-message"
                 />
@@ -862,7 +862,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               
               {/* Input counter and Submit button */}
               <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
-                <p className="text-xs text-muted-foreground flex-shrink-0">
+                <p className="text-[0.9rem] leading-snug text-muted-foreground flex-shrink-0">
                   Input {state.inputsCount}/6
                 </p>
                 {/* Submit button - show from step 2 onwards */}
@@ -871,10 +871,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     onClick={handleSubmitCommand}
                     variant="outline"
                     size="sm"
-                    className="text-xs px-2 sm:px-3 py-1 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
+                    className="text-[0.9rem] px-2 sm:px-3 py-1.5 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
                     data-testid="button-quick-submit"
                   >
-                    <i className="fas fa-rocket text-xs mr-1.5"></i>
+                    <i className="fas fa-rocket text-sm mr-1.5"></i>
                     Submit
                   </Button>
                 )}
@@ -888,8 +888,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Exit Sprint?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-pretty text-[1.05rem] sm:text-lg font-semibold">Exit Sprint?</AlertDialogTitle>
+            <AlertDialogDescription className="text-pretty text-[0.95rem] sm:text-base leading-relaxed">
               Your progress will be lost if you exit now. Are you sure you want to leave?
             </AlertDialogDescription>
           </AlertDialogHeader>
