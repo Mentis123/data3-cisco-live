@@ -77,6 +77,16 @@ export default function Leaderboard() {
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const isInitialDataLoad = useRef(true);
 
+  // Fetch dashboard data early so dependent callbacks always have refetch available
+  const { data, isLoading, refetch } = useQuery<DashboardData>({
+    queryKey: ["dashboard-data"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/dashboard-data");
+      return response.json();
+    },
+    refetchInterval: 5000
+  });
+
   const triggerScoreAnimation = useCallback((entryId: string, score?: number | null) => {
     if (score === undefined || score === null) {
       return;
@@ -151,16 +161,6 @@ export default function Leaderboard() {
       setViewDisplayCounts({});
     }
   }, [newSubmissionTime]);
-
-  // Fetch dashboard data
-  const { data, isLoading, refetch } = useQuery<DashboardData>({
-    queryKey: ["dashboard-data"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/dashboard-data");
-      return response.json();
-    },
-    refetchInterval: 5000
-  });
 
   // WebSocket for real-time updates
   useWebSocket((message) => {
