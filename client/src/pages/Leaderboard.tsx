@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,6 +75,75 @@ export default function Leaderboard() {
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
   const [newSubmissionTime, setNewSubmissionTime] = useState<number | null>(null);
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
+  const isInitialDataLoad = useRef(true);
+
+  const triggerScoreAnimation = useCallback((entryId: string, score?: number | null) => {
+    if (score === undefined || score === null) {
+      return;
+    }
+
+    setTimeout(() => {
+      const element = document.querySelector(`[data-entry-id="${entryId}"] .score-value`);
+      if (element) {
+        animateScoreCountUp(element as HTMLElement, score);
+      }
+    }, 100);
+  }, []);
+
+  const handleNewSubmission = useCallback((submission: {
+    id: string;
+    name: string;
+    category: string;
+    totalScore?: number;
+    finalScore?: number;
+    targetRank?: number;
+  }) => {
+    console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds...', submission);
+
+    setIsAnnouncementMode(true);
+    setNewSubmissionTime(Date.now());
+
+    setKnownSubmissionIds(prev => {
+      if (prev.has(submission.id)) {
+        return prev;
+      }
+
+      const next = new Set(prev);
+      next.add(submission.id);
+      return next;
+    });
+
+    audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    setTimeout(() => {
+      audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+    }, 750);
+
+    const [firstName, ...rest] = submission.name.split(' ');
+    const lastName = rest.join(' ');
+
+    const submissionData = {
+      id: submission.id,
+      participantName: submission.name,
+      firstName: firstName || submission.name,
+      lastName: lastName,
+      category: submission.category,
+      totalScore: submission.finalScore ?? submission.totalScore ?? 0,
+      rank: submission.targetRank ?? null,
+      createdAt: new Date().toISOString()
+    };
+
+    sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
+
+    setLocation('/announcement');
+
+    setTimeout(() => {
+      setLocation('/leaderboard');
+    }, 10000);
+
+    triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
+
+    refetch();
+  }, [refetch, setLocation, triggerScoreAnimation]);
 
   // Reset timing counters when a new submission occurs
   useEffect(() => {
@@ -100,59 +169,22 @@ export default function Leaderboard() {
       // Check if this is a genuinely new submission
       const submissionId = message.data.id;
       const isNewSubmission = !knownSubmissionIds.has(submissionId);
-      
-      console.log('Score update - New submission?', isNewSubmission, 'ID:', submissionId);
-      
-      if (isNewSubmission) {
-        console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds...');
-        
-        // Mark as announcement mode and record time
-        setIsAnnouncementMode(true);
-        setNewSubmissionTime(Date.now());
-        
-        // Add to known submissions
-        setKnownSubmissionIds(prev => new Set([...Array.from(prev), submissionId]));
-        
-        // Play flash sound immediately, then challenger sound after a brief delay
-        audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
-        setTimeout(() => {
-          audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
-        }, 750); // Wait 750ms so flash sound plays first
-        
-        // Store submission data for announcement page
-        const submissionData = {
-          id: submissionId,
-          participantName: message.data.name,
-          firstName: message.data.name.split(' ')[0],
-          lastName: message.data.name.split(' ')[1] || '',
-          category: message.data.category,
-          totalScore: message.data.finalScore,
-          rank: message.data.targetRank,
-          createdAt: new Date().toISOString()
-        };
-        
-        // Store in sessionStorage for announcement page to retrieve
-        sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
-        
-        // Navigate to announcement page
-        setLocation('/announcement');
-        
-        // Auto-return to leaderboard after 10 seconds
-        setTimeout(() => {
-          setLocation('/leaderboard');
-        }, 10000);
-      }
-      
-      // Trigger animation for score update
-      setTimeout(() => {
-        const element = document.querySelector(`[data-entry-id="${message.data.id}"] .score-value`);
-        if (element) {
-          animateScoreCountUp(element as HTMLElement, message.data.finalScore || message.data.totalScore);
-        }
-      }, 100);
 
-      // Refresh data
-      refetch();
+      console.log('Score update - New submission?', isNewSubmission, 'ID:', submissionId);
+
+      if (isNewSubmission) {
+        handleNewSubmission({
+          id: submissionId,
+          name: message.data.name,
+          category: message.data.category,
+          finalScore: message.data.finalScore,
+          totalScore: message.data.totalScore,
+          targetRank: message.data.targetRank
+        });
+      } else {
+        triggerScoreAnimation(submissionId, message.data.finalScore ?? message.data.totalScore);
+        refetch();
+      }
     }
   });
 
@@ -293,16 +325,57 @@ export default function Leaderboard() {
 
   // Initialize known submission IDs from existing data and update display data
   useEffect(() => {
-    if (data) {
-      setDisplayData(data);
-      
-      // Initialize known submission IDs from existing leaderboard
-      if (data.leaderboard) {
-        const existingIds = new Set(data.leaderboard.map(entry => entry.id));
-        setKnownSubmissionIds(existingIds);
-      }
+    if (!data) {
+      return;
     }
-  }, [data]);
+
+    setDisplayData(data);
+
+    if (isInitialDataLoad.current) {
+      const initialIds = new Set([
+        ...(data.leaderboard?.map(entry => entry.id) || []),
+        ...(data.recentSubmission?.id ? [data.recentSubmission.id] : [])
+      ]);
+      setKnownSubmissionIds(initialIds);
+      isInitialDataLoad.current = false;
+      return;
+    }
+
+    const computeRank = (id?: string | null) => {
+      if (!id || !data.leaderboard) {
+        return null;
+      }
+
+      const index = data.leaderboard.findIndex(item => item.id === id);
+      if (index === -1) {
+        return null;
+      }
+
+      return index + 1;
+    };
+
+    const leaderboardNewEntry = data.leaderboard?.find(entry => !knownSubmissionIds.has(entry.id));
+    if (leaderboardNewEntry) {
+      handleNewSubmission({
+        id: leaderboardNewEntry.id,
+        name: leaderboardNewEntry.name,
+        category: leaderboardNewEntry.category,
+        totalScore: leaderboardNewEntry.totalScore,
+        targetRank: computeRank(leaderboardNewEntry.id)
+      });
+      return;
+    }
+
+    if (data.recentSubmission && !knownSubmissionIds.has(data.recentSubmission.id)) {
+      handleNewSubmission({
+        id: data.recentSubmission.id,
+        name: data.recentSubmission.name,
+        category: data.recentSubmission.category,
+        totalScore: data.recentSubmission.totalScore,
+        targetRank: computeRank(data.recentSubmission.id)
+      });
+    }
+  }, [data, handleNewSubmission, knownSubmissionIds]);
 
   // Clear announcement mode when returning to leaderboard
   useEffect(() => {
