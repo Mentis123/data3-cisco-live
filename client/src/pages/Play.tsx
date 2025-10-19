@@ -151,6 +151,11 @@ Just describe it naturally - what's the problem that needs solving?`
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
 
+      sessionStorage.setItem(
+        "playSubmissionAudio",
+        JSON.stringify({ timestamp: Date.now() })
+      );
+
       setTimeout(() => {
         setLocation("/leaderboard");
       }, 3000);
