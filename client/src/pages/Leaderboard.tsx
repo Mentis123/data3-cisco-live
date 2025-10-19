@@ -82,24 +82,7 @@ export default function Leaderboard() {
       return;
     }
 
-    const playSubmissionAudio = () => {
-      audioManager.playFlashSound().catch(err => console.warn("Leaderboard flash sound failed:", err));
-      setTimeout(() => {
-        audioManager.playNewChallengerSound().catch(err => console.warn("Leaderboard challenger sound failed:", err));
-      }, 750);
-    };
-
     audioManager.preload();
-
-    try {
-      const shouldReplayAudio = window.sessionStorage.getItem("playSubmissionAudio");
-      if (shouldReplayAudio) {
-        window.sessionStorage.removeItem("playSubmissionAudio");
-        playSubmissionAudio();
-      }
-    } catch (error) {
-      console.warn("Unable to check submission audio flag:", error);
-    }
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {

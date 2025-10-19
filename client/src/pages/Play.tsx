@@ -152,15 +152,6 @@ Just describe it naturally - what's the problem that needs solving?`
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
 
-      // Flag that the leaderboard should replay the submission audio for this user
-      if (typeof window !== "undefined") {
-        try {
-          window.sessionStorage.setItem("playSubmissionAudio", "true");
-        } catch (error) {
-          console.warn("Unable to persist submission audio flag:", error);
-        }
-      }
-
       // Play the celebration audio immediately for the submitting participant
       audioManager.playFlashSound().catch(err => console.warn("Submit flash sound failed:", err));
       setTimeout(() => {
