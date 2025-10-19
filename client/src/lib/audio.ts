@@ -6,16 +6,46 @@ export class AudioManager {
   private static instance: AudioManager;
   private challengerAudio: HTMLAudioElement | null = null;
   private flashAudio: HTMLAudioElement | null = null;
+  private isAudioSupported: boolean;
 
   private constructor() {
-    // Initialize audio elements
-    this.challengerAudio = new Audio(newChallengerSound);
-    this.challengerAudio.preload = 'auto';
-    this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+    this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
 
-    this.flashAudio = new Audio(flashSound);
-    this.flashAudio.preload = 'auto';
-    this.flashAudio.volume = 0.9; // Slightly louder for immediate impact
+    if (!this.isAudioSupported) {
+      return;
+    }
+
+    this.initializeAudioElements();
+  }
+
+  private initializeAudioElements() {
+    if (!this.isAudioSupported) {
+      return;
+    }
+
+    if (!this.challengerAudio) {
+      this.challengerAudio = new Audio(newChallengerSound);
+      this.challengerAudio.preload = "auto";
+      this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+    }
+
+    if (!this.flashAudio) {
+      this.flashAudio = new Audio(flashSound);
+      this.flashAudio.preload = "auto";
+      this.flashAudio.volume = 0.9; // Slightly louder for immediate impact
+    }
+  }
+
+  private ensureAudioReady(): boolean {
+    if (!this.isAudioSupported) {
+      return false;
+    }
+
+    if (!this.challengerAudio || !this.flashAudio) {
+      this.initializeAudioElements();
+    }
+
+    return Boolean(this.challengerAudio && this.flashAudio);
   }
 
   public static getInstance(): AudioManager {
@@ -26,12 +56,12 @@ export class AudioManager {
   }
 
   public async playFlashSound(): Promise<void> {
-    if (!this.flashAudio) return;
+    if (!this.ensureAudioReady() || !this.flashAudio) return;
 
     try {
       // Reset to beginning if already playing
       this.flashAudio.currentTime = 0;
-      
+
       // Play the flash sound immediately
       await this.flashAudio.play();
     } catch (error) {
@@ -41,12 +71,12 @@ export class AudioManager {
   }
 
   public async playNewChallengerSound(): Promise<void> {
-    if (!this.challengerAudio) return;
+    if (!this.ensureAudioReady() || !this.challengerAudio) return;
 
     try {
       // Reset to beginning if already playing
       this.challengerAudio.currentTime = 0;
-      
+
       // Play the challenger sound
       await this.challengerAudio.play();
     } catch (error) {
@@ -57,6 +87,10 @@ export class AudioManager {
 
   public setVolume(volume: number): void {
     const normalizedVolume = Math.max(0, Math.min(1, volume));
+    if (!this.ensureAudioReady()) {
+      return;
+    }
+
     if (this.challengerAudio) {
       this.challengerAudio.volume = normalizedVolume;
     }
@@ -66,6 +100,10 @@ export class AudioManager {
   }
 
   public preload(): void {
+    if (!this.ensureAudioReady()) {
+      return;
+    }
+
     if (this.challengerAudio) {
       this.challengerAudio.load();
     }
