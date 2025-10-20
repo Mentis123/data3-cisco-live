@@ -780,30 +780,27 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
               <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
               <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
-              <div className="relative z-10 p-4 sm:p-6 space-y-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowExitDialog(true)}
-                  className="absolute right-4 top-4 sm:right-6 sm:top-6 text-white/90 hover:text-white hover:bg-white/20"
-                  data-testid="button-exit-chat"
-                >
-                  <i className="fas fa-home mr-2"></i>
-                  Exit
-                </Button>
-
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pr-16 sm:pr-0">
+              <div className="relative z-10 p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
                       <i className="fas fa-robot text-lg sm:text-2xl"></i>
                     </div>
                     <div className="space-y-1">
                       <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
-                      <p className="text-sm sm:text-base text-white/80 leading-snug">
-                        You&apos;re on step {state.step} of 4. {6 - state.inputsCount} inputs remaining.
-                      </p>
                     </div>
                   </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowExitDialog(true)}
+                    className="self-start sm:self-center text-white/90 hover:text-white hover:bg-white/20"
+                    data-testid="button-exit-chat"
+                  >
+                    <i className="fas fa-home mr-2"></i>
+                    Exit
+                  </Button>
                 </div>
 
                 <SprintStepper
