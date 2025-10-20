@@ -5,8 +5,8 @@ import express, {
   type NextFunction,
 } from "express";
 import { createServer, type Server } from "http";
-import { registerRoutes } from "./routes.js";
-import { log } from "./logging.js";
+import { registerRoutes } from "./routes.ts";
+import { log } from "./logging.ts";
 
 export interface CreateAppOptions {
   enableWebSocket?: boolean;

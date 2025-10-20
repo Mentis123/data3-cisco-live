@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { SPRINT_PROMPTS, SPRINT_SYSTEM } from "./sprintPrompts.js";
+import { SPRINT_PROMPTS, SPRINT_SYSTEM } from "./sprintPrompts.ts";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
