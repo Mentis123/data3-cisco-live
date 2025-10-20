@@ -23,6 +23,7 @@ import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep, SubmissionDraft } from "@/features/sprint/types";
+import { audioManager } from "@/lib/audio";
 
 function PlayContent() {
   const [, setLocation] = useLocation();
@@ -150,6 +151,11 @@ Just describe it naturally - what's the problem that needs solving?`
         title: "Solution Submitted!",
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
+
+      audioManager.playFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
+      setTimeout(() => {
+        audioManager.playNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
+      }, 750);
 
       sessionStorage.setItem(
         "playSubmissionAudio",
