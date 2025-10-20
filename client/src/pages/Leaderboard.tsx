@@ -507,13 +507,15 @@ export default function Leaderboard() {
   const renderLeaderboard = () => {
     const titleSize = isFullscreen ? 'text-6xl' : 'text-4xl sm:text-5xl';
     const subtitleSize = isFullscreen ? 'text-2xl' : 'text-base sm:text-lg';
-    const rowPadding = isFullscreen ? 'py-6 px-10' : 'py-4 px-6 sm:px-8';
-    const listGap = isFullscreen ? 'space-y-6' : 'space-y-4';
-    const nameSize = isFullscreen ? 'text-3xl' : 'text-xl sm:text-2xl';
-    const metaSize = isFullscreen ? 'text-lg' : 'text-xs sm:text-sm';
-    const scoreSize = isFullscreen ? 'text-6xl' : 'text-3xl sm:text-4xl';
-    const rankSize = isFullscreen ? 'h-16 w-16 text-3xl' : 'h-12 w-12 sm:h-14 sm:w-14 text-lg sm:text-2xl';
-    const scoreLabelSize = isFullscreen ? 'text-lg' : 'text-[0.65rem] sm:text-xs';
+    const rowPadding = isFullscreen ? 'py-6 px-10' : 'py-3 px-4 sm:py-4 sm:px-8';
+    const listGap = isFullscreen ? 'space-y-6' : 'space-y-3 sm:space-y-4';
+    const nameSize = isFullscreen ? 'text-3xl' : 'text-lg sm:text-2xl';
+    const metaSize = isFullscreen ? 'text-lg' : 'text-[0.6rem] sm:text-xs';
+    const scoreSize = isFullscreen ? 'text-6xl' : 'text-2xl sm:text-4xl';
+    const rankSize = isFullscreen ? 'h-16 w-16 text-3xl' : 'h-10 w-10 text-base sm:h-14 sm:w-14 sm:text-2xl';
+    const scoreLabelSize = isFullscreen ? 'text-lg' : 'text-[0.55rem] sm:text-xs';
+    const scoreTracking = isFullscreen ? 'tracking-[0.4em]' : 'tracking-[0.25em] sm:tracking-[0.35em]';
+    const metaTracking = isFullscreen ? 'tracking-[0.35em]' : 'tracking-[0.2em] sm:tracking-[0.3em]';
 
     const leaderboardEntries = displayData.leaderboard.slice(0, 10);
     const rows = Array.from({ length: 10 }, (_, index) => leaderboardEntries[index] || null);
@@ -603,21 +605,21 @@ export default function Leaderboard() {
                   <div
                     key={entry ? entry.id : `placeholder-${index}`}
                     data-entry-id={entry ? entry.id : undefined}
-                    className={`grid grid-cols-[auto,1fr,auto] items-center gap-6 rounded-3xl border backdrop-blur-xl transition-all duration-300 ${rowPadding} ${getRowClasses(index, hasEntry)} ${hasEntry ? 'hover:-translate-y-1' : ''}`}
+                    className={`grid grid-cols-[auto,1fr,auto] items-center gap-4 sm:gap-6 rounded-3xl border backdrop-blur-xl transition-all duration-300 ${rowPadding} ${getRowClasses(index, hasEntry)} ${hasEntry ? 'hover:-translate-y-1' : ''}`}
                   >
                     <div
                       className={`flex items-center justify-center rounded-full font-black tracking-tight ${rankSize} ${getRankClasses(index, hasEntry)}`}
                     >
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-left">
                       <p className={`${nameSize} font-semibold tracking-tight truncate ${hasEntry ? 'text-white' : 'text-cyan-100/60'}`}>
                         {entry ? entry.name : 'Awaiting Challenger'}
                       </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-3 text-cyan-100/80">
+                      <div className="mt-2 flex flex-wrap items-center justify-start gap-2 sm:gap-3 text-cyan-100/80">
                         {entry ? (
                           <span
-                            className={`inline-flex items-center rounded-full px-3 py-1 font-medium uppercase tracking-[0.35em] ${metaSize}`}
+                            className={`inline-flex items-center justify-start rounded-full px-2.5 py-1 font-medium uppercase ${metaTracking} ${metaSize}`}
                             style={{
                               backgroundColor: `${categoryColor}1A`,
                               color: categoryColor,
@@ -627,7 +629,7 @@ export default function Leaderboard() {
                             {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
                           </span>
                         ) : (
-                          <span className={`uppercase tracking-[0.35em] ${metaSize} text-cyan-100/60`}>
+                          <span className={`uppercase ${metaTracking} ${metaSize} text-cyan-100/60`}>
                             Open Slot
                           </span>
                         )}
@@ -637,7 +639,7 @@ export default function Leaderboard() {
                       <p className={`score-value font-black tabular-nums tracking-tight ${scoreSize} ${hasEntry ? 'text-white drop-shadow-[0_10px_25px_rgba(28,200,228,0.35)]' : 'text-white/40'}`}>
                         {entry ? entry.totalScore.toString().padStart(2, '0') : '--'}
                       </p>
-                      <p className={`uppercase tracking-[0.4em] text-cyan-100/60 mt-1 ${scoreLabelSize}`}>
+                      <p className={`uppercase ${scoreTracking} text-cyan-100/60 mt-1 ${scoreLabelSize}`}>
                         pts
                       </p>
                     </div>
