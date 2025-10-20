@@ -29,7 +29,35 @@ export const DEFAULT_DATA3_STATS = [
 ];
 
 // Initialize stats on startup (development only)
+async function ensureData3StatsDisplayOrderColumn(db: NeonDatabase<typeof schema>) {
+  try {
+    const result = await db.execute<{ exists: boolean }>(sql`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'data3_stats'
+          AND column_name = 'display_order'
+      ) as "exists"
+    `);
+
+    const rows = Array.isArray(result)
+      ? (result as unknown as { exists: boolean }[])
+      : ('rows' in result ? result.rows : []);
+
+    const hasColumn = Array.isArray(rows) && rows.length > 0 ? Boolean(rows[0]?.exists) : false;
+
+    if (!hasColumn) {
+      console.warn("[db] Adding missing 'display_order' column to data3_stats table");
+      await db.execute(sql`ALTER TABLE data3_stats ADD COLUMN display_order integer DEFAULT 0`);
+      await db.execute(sql`UPDATE data3_stats SET display_order = 0 WHERE display_order IS NULL`);
+    }
+  } catch (error) {
+    console.error("Error ensuring data3_stats.display_order column:", error);
+  }
+}
+
 async function initializeData(db: NeonDatabase<typeof schema>) {
+  await ensureData3StatsDisplayOrderColumn(db);
   // Only initialize default data in development mode
   // Production should maintain its own data
   if (process.env.NODE_ENV === 'production') {
@@ -549,11 +577,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async updateData3Stat(id: string, data: Partial<Data3Stat>): Promise<void> {
-    await db.update(data3Stats).set(data).where(eq(data3Stats.id, id));
+    const updatePayload: Partial<Data3Stat> = { ...data };
+    if (updatePayload.displayOrder == null) {
+      delete updatePayload.displayOrder;
+    }
+
+    await db.update(data3Stats).set(updatePayload).where(eq(data3Stats.id, id));
   },
 
     async createData3Stat(data: Omit<Data3Stat, 'id' | 'createdAt'>): Promise<Data3Stat> {
-    const [result] = await db.insert(data3Stats).values(data).returning();
+    const insertPayload = {
+      ...data,
+      displayOrder: data.displayOrder ?? 0,
+    };
+
+    const [result] = await db.insert(data3Stats).values(insertPayload).returning();
     return result;
   },
 
