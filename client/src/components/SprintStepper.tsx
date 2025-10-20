@@ -74,15 +74,7 @@ export function SprintStepper({
                       step.number
                     )}
                   </div>
-                  <div className="space-y-1">
-                    <span
-                      className={cn(
-                        "text-xs font-semibold uppercase tracking-[0.08em] text-white/70",
-                        isCurrent && "text-white"
-                      )}
-                    >
-                      Step {step.number}
-                    </span>
+                  <div className="mt-2">
                     <span
                       className={cn(
                         "text-sm sm:text-base font-medium text-white/80 leading-tight",
