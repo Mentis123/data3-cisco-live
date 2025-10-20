@@ -469,13 +469,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </div>
 
               <Card className="mb-6 bg-primary/5 border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-balance text-lg sm:text-xl leading-tight">
-                    <i className="fas fa-rocket mr-2 text-primary"></i>
-                    Your 3-Reply Sprint
+                <CardHeader className="px-4 py-4 sm:px-6 sm:py-5">
+                  <CardTitle className="flex items-center gap-3 text-[clamp(1.05rem,4.4vw,1.35rem)] sm:text-xl leading-tight">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <i className="fas fa-rocket text-sm sm:text-base"></i>
+                    </span>
+                    <span className="whitespace-nowrap sm:whitespace-normal">Your 3-Reply Sprint</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 pb-5 sm:px-6 sm:pb-6">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
