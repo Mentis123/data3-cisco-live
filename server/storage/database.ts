@@ -1,7 +1,7 @@
 import type { NeonDatabase } from "drizzle-orm/neon-serverless";
-import * as schema from "../../shared/schema.js";
+import * as schema from "../../shared/schema.ts";
 import { eq, desc, sql, and } from "drizzle-orm";
-import { participants, submissions, data3Stats, customCategories } from "../../shared/schema.js";
+import { participants, submissions, data3Stats, customCategories } from "../../shared/schema.ts";
 import type {
   InsertParticipant,
   InsertSubmission,
@@ -10,7 +10,7 @@ import type {
   Data3Stat,
   InsertCustomCategory,
   CustomCategory,
-} from "../../shared/schema.js";
+} from "../../shared/schema.ts";
 
 // Pre-populate Data#3 stats (using only system categories)
 export const DEFAULT_DATA3_STATS = [
