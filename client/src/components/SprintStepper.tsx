@@ -12,7 +12,7 @@ interface StepData {
 
 const steps: StepData[] = [
   { number: 1, label: "Name the Problem", shortLabel: "Problem", icon: "lightbulb" },
-  { number: 2, label: "Quantify the Impact", shortLabel: "Impact", icon: "chart-line" },
+  { number: 2, label: "Quantify Impact", shortLabel: "Impact", icon: "chart-line" },
   { number: 3, label: "Review & Confirm", shortLabel: "Review", icon: "checklist" },
   { number: 4, label: "Compete & Win", shortLabel: "Submit", icon: "trophy" }
 ];
