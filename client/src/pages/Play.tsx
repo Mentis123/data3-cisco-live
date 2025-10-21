@@ -22,8 +22,7 @@ import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_17576
 import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
-import type { SprintStep, SubmissionDraft } from "@/features/sprint/types";
-import { audioManager } from "@/lib/audio";
+import type { SprintStep } from "@/features/sprint/types";
 
 function PlayContent() {
   const [, setLocation] = useLocation();
@@ -39,7 +38,7 @@ function PlayContent() {
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editedSubmission, setEditedSubmission] = useState<SubmissionDraft | null>(null);
+  const [editedSubmission, setEditedSubmission] = useState<any>(null);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -151,11 +150,6 @@ Just describe it naturally - what's the problem that needs solving?`
         title: "Solution Submitted!",
         description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
       });
-
-      audioManager.playFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
-      setTimeout(() => {
-        audioManager.playNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
-      }, 750);
 
       sessionStorage.setItem(
         "playSubmissionAudio",
@@ -300,138 +294,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     dispatch({ type: 'SET_SUBMISSION', payload: submission });
     goToStep(dispatch, 4);
     setIsTyping(false);
-  };
-
-  const handleEditField = <K extends 'problem_summary' | 'impact_summary'>(
-    key: K,
-    value: string
-  ) => {
-    setEditedSubmission((prev) => (prev ? { ...prev, [key]: value } : prev));
-  };
-
-  const handleBaselineMetricChange = (
-    index: number,
-    field: 'name' | 'value',
-    value: string
-  ) => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      const metrics = [...prev.baseline_metrics];
-      const existing = metrics[index] ?? { name: '', value: '' };
-      metrics[index] = { ...existing, [field]: value };
-      return { ...prev, baseline_metrics: metrics };
-    });
-  };
-
-  const handleTargetMetricChange = (
-    index: number,
-    field: 'name' | 'target',
-    value: string
-  ) => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      const metrics = [...prev.target_metrics];
-      const existing = metrics[index] ?? { name: '', target: '' };
-      metrics[index] = { ...existing, [field]: value };
-      return { ...prev, target_metrics: metrics };
-    });
-  };
-
-  const handleRemoveBaselineMetric = (index: number) => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      const metrics = prev.baseline_metrics.filter((_, idx) => idx !== index);
-      return { ...prev, baseline_metrics: metrics };
-    });
-  };
-
-  const handleRemoveTargetMetric = (index: number) => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      const metrics = prev.target_metrics.filter((_, idx) => idx !== index);
-      return { ...prev, target_metrics: metrics };
-    });
-  };
-
-  const handleAddBaselineMetric = () => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        baseline_metrics: [...prev.baseline_metrics, { name: '', value: '' }]
-      };
-    });
-  };
-
-  const handleAddTargetMetric = () => {
-    setEditedSubmission((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        target_metrics: [...prev.target_metrics, { name: '', target: '' }]
-      };
-    });
-  };
-
-  const handleEnterEditMode = () => {
-    if (!state.submission) {
-      return;
-    }
-
-    setEditedSubmission({
-      ...state.submission,
-      problem_summary: state.submission.problem_summary,
-      impact_summary: state.submission.impact_summary,
-      baseline_metrics: [...state.submission.baseline_metrics],
-      target_metrics: [...state.submission.target_metrics],
-      action_plan: [...state.submission.action_plan],
-      success_checks: [...state.submission.success_checks],
-      risks: [...state.submission.risks]
-    });
-    setIsEditMode(true);
-  };
-
-  const sanitizeBaselineMetrics = (
-    metrics: Array<{ name: string; value: string }>
-  ) =>
-    metrics
-      .map((metric) => ({
-        name: metric.name.trim(),
-        value: metric.value.trim()
-      }))
-      .filter((metric) => metric.name || metric.value);
-
-  const sanitizeTargetMetrics = (
-    metrics: Array<{ name: string; target: string }>
-  ) =>
-    metrics
-      .map((metric) => ({
-        name: metric.name.trim(),
-        target: metric.target.trim()
-      }))
-      .filter((metric) => metric.name || metric.target);
-
-  const handleSaveEdits = () => {
-    if (!editedSubmission) {
-      return;
-    }
-
-    const sanitizedSubmission: SubmissionDraft = {
-      ...editedSubmission,
-      problem_summary: editedSubmission.problem_summary.trim(),
-      impact_summary: editedSubmission.impact_summary.trim(),
-      baseline_metrics: sanitizeBaselineMetrics(editedSubmission.baseline_metrics),
-      target_metrics: sanitizeTargetMetrics(editedSubmission.target_metrics)
-    };
-
-    dispatch({ type: 'UPDATE_SUBMISSION', payload: sanitizedSubmission });
-    setEditedSubmission(null);
-    setIsEditMode(false);
-  };
-
-  const handleCancelEdits = () => {
-    setEditedSubmission(null);
-    setIsEditMode(false);
   };
 
   const testSubmissions = {
@@ -607,15 +469,13 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </div>
 
               <Card className="mb-6 bg-primary/5 border-primary/20">
-                <CardHeader className="px-4 py-4 sm:px-6 sm:py-5">
-                  <CardTitle className="flex items-center gap-3 text-[clamp(1.05rem,4.4vw,1.35rem)] sm:text-xl leading-tight">
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <i className="fas fa-rocket text-sm sm:text-base"></i>
-                    </span>
-                    <span className="whitespace-nowrap sm:whitespace-normal">Your 3-Reply Sprint</span>
+                <CardHeader>
+                  <CardTitle className="text-balance text-lg sm:text-xl leading-tight">
+                    <i className="fas fa-rocket mr-2 text-primary"></i>
+                    Your 3-Reply Sprint
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-4 pb-5 sm:px-6 sm:pb-6">
+                <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
@@ -678,11 +538,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   // Submit/Review view
   if (state.step === 4 && state.submission) {
-    const currentSubmission = editedSubmission ?? state.submission;
-
-    if (!currentSubmission) {
-      return null;
-    }
+    const currentSubmission = editedSubmission || state.submission;
 
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -739,7 +595,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   {isEditMode ? (
                     <Textarea
                       value={currentSubmission.problem_summary}
-                      onChange={(e) => handleEditField('problem_summary', e.target.value)}
+                      onChange={(e) => setEditedSubmission({...currentSubmission, problem_summary: e.target.value})}
                       className="text-base leading-relaxed min-h-[60px]"
                       placeholder="Describe the problem..."
                     />
@@ -757,14 +613,12 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   {isEditMode ? (
                     <Textarea
                       value={currentSubmission.impact_summary}
-                      onChange={(e) => handleEditField('impact_summary', e.target.value)}
+                      onChange={(e) => setEditedSubmission({ ...currentSubmission, impact_summary: e.target.value })}
                       className="text-base leading-relaxed min-h-[60px]"
                       placeholder="Summarise the quantified impact..."
                     />
-                  ) : currentSubmission.impact_summary ? (
-                    <p className="text-base leading-relaxed">{currentSubmission.impact_summary}</p>
                   ) : (
-                    <p className="text-base text-muted-foreground italic">No impact summary provided yet.</p>
+                    <p className="text-base leading-relaxed">{currentSubmission.impact_summary}</p>
                   )}
                 </div>
 
@@ -777,117 +631,69 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-semibold text-muted-foreground mb-1 leading-snug">Baseline Metrics</p>
-                      {isEditMode ? (
-                        <>
-                          {currentSubmission.baseline_metrics.length === 0 && (
-                            <p className="text-sm text-muted-foreground italic mb-2">
-                              Optional: add baseline KPIs if you have them ready.
-                            </p>
-                          )}
-                          {currentSubmission.baseline_metrics.map((metric, idx) => (
-                            <div key={idx} className="flex gap-2 mb-2">
+                      {currentSubmission.baseline_metrics.map((metric: any, idx: number) => (
+                        <div key={idx} className="text-base leading-snug mb-1">
+                          {isEditMode ? (
+                            <div className="flex gap-2">
                               <Input
                                 value={metric.name}
-                                onChange={(e) => handleBaselineMetricChange(idx, 'name', e.target.value)}
+                                onChange={(e) => {
+                                  const newMetrics = [...currentSubmission.baseline_metrics];
+                                  newMetrics[idx] = { ...metric, name: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
+                                }}
                                 className="text-base flex-1"
                                 placeholder="Metric name..."
                               />
                               <Input
                                 value={metric.value}
-                                onChange={(e) => handleBaselineMetricChange(idx, 'value', e.target.value)}
+                                onChange={(e) => {
+                                  const newMetrics = [...currentSubmission.baseline_metrics];
+                                  newMetrics[idx] = { ...metric, value: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
+                                }}
                                 className="text-base flex-1"
                                 placeholder="Value..."
                               />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="self-center text-muted-foreground"
-                                onClick={() => handleRemoveBaselineMetric(idx)}
-                                aria-label="Remove baseline metric"
-                              >
-                                <i className="fas fa-times"></i>
-                              </Button>
                             </div>
-                          ))}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="mt-1 text-sm"
-                            onClick={handleAddBaselineMetric}
-                          >
-                            <i className="fas fa-plus mr-2" aria-hidden="true"></i>
-                            Add baseline metric
-                          </Button>
-                        </>
-                      ) : currentSubmission.baseline_metrics.length > 0 ? (
-                        currentSubmission.baseline_metrics.map((metric, idx) => (
-                          <div key={idx} className="text-base leading-snug mb-1">
-                            <span className="font-medium">{metric.name || 'Metric'}</span>
-                            {metric.value ? <span>: <strong>{metric.value}</strong></span> : null}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No baseline metrics provided. You can still submit without them.</p>
-                      )}
+                          ) : (
+                            <>{metric.name}: <strong>{metric.value}</strong></>
+                          )}
+                        </div>
+                      ))}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-muted-foreground mb-1 leading-snug">Target Metrics</p>
-                      {isEditMode ? (
-                        <>
-                          {currentSubmission.target_metrics.length === 0 && (
-                            <p className="text-sm text-muted-foreground italic mb-2">
-                              Optional: capture target outcomes if you want to highlight improvements.
-                            </p>
-                          )}
-                          {currentSubmission.target_metrics.map((metric, idx) => (
-                            <div key={idx} className="flex gap-2 mb-2">
+                      {currentSubmission.target_metrics.map((metric: any, idx: number) => (
+                        <div key={idx} className="text-base leading-snug mb-1">
+                          {isEditMode ? (
+                            <div className="flex gap-2">
                               <Input
                                 value={metric.name}
-                                onChange={(e) => handleTargetMetricChange(idx, 'name', e.target.value)}
+                                onChange={(e) => {
+                                  const newMetrics = [...currentSubmission.target_metrics];
+                                  newMetrics[idx] = { ...metric, name: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
+                                }}
                                 className="text-base flex-1"
                                 placeholder="Metric name..."
                               />
                               <Input
                                 value={metric.target}
-                                onChange={(e) => handleTargetMetricChange(idx, 'target', e.target.value)}
+                                onChange={(e) => {
+                                  const newMetrics = [...currentSubmission.target_metrics];
+                                  newMetrics[idx] = { ...metric, target: e.target.value };
+                                  setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
+                                }}
                                 className="text-base flex-1"
                                 placeholder="Target..."
                               />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="self-center text-muted-foreground"
-                                onClick={() => handleRemoveTargetMetric(idx)}
-                                aria-label="Remove target metric"
-                              >
-                                <i className="fas fa-times"></i>
-                              </Button>
                             </div>
-                          ))}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="mt-1 text-sm"
-                            onClick={handleAddTargetMetric}
-                          >
-                            <i className="fas fa-plus mr-2" aria-hidden="true"></i>
-                            Add target metric
-                          </Button>
-                        </>
-                      ) : currentSubmission.target_metrics.length > 0 ? (
-                        currentSubmission.target_metrics.map((metric, idx) => (
-                          <div key={idx} className="text-base leading-snug mb-1">
-                            <span className="font-medium">{metric.name || 'Metric'}</span>
-                            {metric.target ? <span>: <strong>{metric.target}</strong></span> : null}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No target metrics defined yet. Submitting without targets is allowed.</p>
-                      )}
+                          ) : (
+                            <>{metric.name}: <strong>{metric.target}</strong></>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -897,7 +703,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   {isEditMode ? (
                     <>
                       <Button
-                        onClick={handleSaveEdits}
+                        onClick={() => {
+                          dispatch({ type: 'UPDATE_SUBMISSION', payload: currentSubmission });
+                          setIsEditMode(false);
+                        }}
                         className="flex-1"
                         data-testid="button-save-edits"
                       >
@@ -905,7 +714,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         Save Changes
                       </Button>
                       <Button
-                        onClick={handleCancelEdits}
+                        onClick={() => {
+                          setEditedSubmission(null);
+                          setIsEditMode(false);
+                        }}
                         variant="outline"
                         className="flex-1"
                         data-testid="button-cancel-edit"
@@ -917,7 +729,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   ) : (
                     <>
                       <Button
-                        onClick={handleEnterEditMode}
+                        onClick={() => {
+                          setEditedSubmission(currentSubmission);
+                          setIsEditMode(true);
+                        }}
                         variant="outline"
                         className="flex-1"
                         data-testid="button-edit-mode"
