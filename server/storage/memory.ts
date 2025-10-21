@@ -7,8 +7,8 @@ import type {
   Submission,
   Data3Stat,
   CustomCategory,
-} from "../../shared/schema.ts";
-import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.ts";
+} from "../../shared/schema.js";
+import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.js";
 
 interface MemoryParticipant extends Participant {
   createdAt: Date | null;

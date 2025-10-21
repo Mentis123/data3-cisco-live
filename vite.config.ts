@@ -1,23 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [
     react(),
   ],
   resolve: {
     alias: {
-      "@": path.resolve(moduleDir, "client", "src"),
-      "@shared": path.resolve(moduleDir, "shared"),
-      "@assets": path.resolve(moduleDir, "attached_assets"),
+      "@": path.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path.resolve(import.meta.dirname, "shared"),
+      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },
-  root: path.resolve(moduleDir, "client"),
+  root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(moduleDir, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     rollupOptions: {
       output: {

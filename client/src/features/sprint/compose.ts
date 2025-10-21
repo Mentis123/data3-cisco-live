@@ -36,99 +36,68 @@ export function expandProblem(userInput: string): ProblemBlock {
 /**
  * Quantifies impact from user input with assumptions if needed
  */
-export function quantifyImpact(userInput: string, _problemContext?: string): ImpactBlock {
+export function quantifyImpact(userInput: string, problemContext?: string): ImpactBlock {
+  const assumptions: string[] = [];
   const quantified: ImpactBlock['quantified'] = {};
   const calculatedMetrics: ImpactBlock['calculatedMetrics'] = {};
 
-  const timeRegex = /(\d+(?:\.\d+)?)\s*(hours?|hrs?|minutes?|mins?|days?)/i;
-  const frequencyRegex = /(\d+(?:\.\d+)?)\s*(times?|x)?\s*(per|\/|every)?\s*(week|day|month|year)/i;
-  const costRegex = /\$?([\d,]+)\s*(dollars?|usd|cost|expense)?/i;
+  // Extract numbers from user input
+  const timeRegex = /(\d+)\s*(hours?|hrs?|minutes?|mins?|days?)/gi;
+  const frequencyRegex = /(\d+)\s*(times?|x)\s*(per|\/|every)?\s*(week|day|month|year)/gi;
+  const costRegex = /\$?([\d,]+)\s*(dollars?|usd|cost|expense)?/gi;
+  const percentRegex = /(\d+)\s*(%|percent)/gi;
 
+  // Parse time lost
   const timeMatch = userInput.match(timeRegex);
   if (timeMatch) {
-    quantified.timeLost = timeMatch[0].trim();
+    quantified.timeLost = timeMatch[0];
+  } else {
+    quantified.timeLost = '2 hours';
+    assumptions.push('Assumed 2 hours per incident based on industry average');
   }
 
-  const frequencyMatch = userInput.match(frequencyRegex);
-  if (frequencyMatch) {
-    quantified.frequency = frequencyMatch[0].trim();
+  // Parse frequency
+  const freqMatch = userInput.match(frequencyRegex);
+  if (freqMatch) {
+    quantified.frequency = freqMatch[0];
+  } else {
+    quantified.frequency = '3 times per week';
+    assumptions.push('Assumed 3 occurrences per week based on typical patterns');
   }
 
-  const parseTimeToHours = (text: string): number | null => {
-    const match = text.match(/(\d+(?:\.\d+)?)/);
-    if (!match) return null;
-    const value = parseFloat(match[1]);
-    const unitMatch = text.match(/(hours?|hrs?|minutes?|mins?|days?)/i);
-    if (!unitMatch) return null;
-    const unit = unitMatch[1].toLowerCase();
-    if (unit.startsWith('day')) {
-      return value * 24;
-    }
-    if (unit.startsWith('min')) {
-      return value / 60;
-    }
-    return value;
-  };
-
-  const parseFrequencyPerWeek = (text: string): number | null => {
-    const match = text.match(/(\d+(?:\.\d+)?)/);
-    if (!match) return null;
-    const value = parseFloat(match[1]);
-    const periodMatch = text.match(/(week|day|month|year)/i);
-    if (!periodMatch) return null;
-    const period = periodMatch[1].toLowerCase();
-    switch (period) {
-      case 'day':
-        return value * 7;
-      case 'week':
-        return value;
-      case 'month':
-        return value / 4;
-      case 'year':
-        return value / 52;
-      default:
-        return null;
-    }
-  };
-
-  const hoursPerOccurrence = quantified.timeLost ? parseTimeToHours(quantified.timeLost) : null;
-  const occurrencesPerWeek = quantified.frequency ? parseFrequencyPerWeek(quantified.frequency) : null;
-
-  if (hoursPerOccurrence != null && occurrencesPerWeek != null) {
-    const weeklyHours = hoursPerOccurrence * occurrencesPerWeek;
-    if (Number.isFinite(weeklyHours) && weeklyHours > 0) {
-      calculatedMetrics.weeklyHours = Number(weeklyHours.toFixed(2));
-      const hourlyRate = 75;
-      const monthlyCost = weeklyHours * 4 * hourlyRate;
-      calculatedMetrics.monthlyCost = Math.round(monthlyCost);
-      calculatedMetrics.annualImpact = Math.round(monthlyCost * 12);
+  // Calculate weekly hours
+  let weeklyHours = 6; // default
+  if (quantified.timeLost && quantified.frequency) {
+    const hoursMatch = quantified.timeLost.match(/(\d+)/);
+    const freqNumMatch = quantified.frequency.match(/(\d+)/);
+    if (hoursMatch && freqNumMatch) {
+      weeklyHours = parseInt(hoursMatch[1]) * parseInt(freqNumMatch[1]);
     }
   }
+  calculatedMetrics.weeklyHours = weeklyHours;
 
+  // Calculate monthly cost (assuming $75/hour blended rate)
+  const hourlyRate = 75;
+  calculatedMetrics.monthlyCost = weeklyHours * 4 * hourlyRate;
+  calculatedMetrics.annualImpact = calculatedMetrics.monthlyCost * 12;
+
+  // Parse risk or cost if mentioned
   const costMatch = userInput.match(costRegex);
   if (costMatch) {
-    quantified.cost = costMatch[0].trim();
+    quantified.cost = costMatch[0];
   }
 
-  const riskSentence = userInput
-    .split(/[.!?]/)
-    .map((sentence) => sentence.trim())
-    .find((sentence) => /\b(risk|error|incident|outage)\b/i.test(sentence));
-  if (riskSentence) {
-    quantified.risk = riskSentence;
+  // Identify risk factors
+  if (userInput.toLowerCase().includes('error') || userInput.toLowerCase().includes('risk')) {
+    quantified.risk = 'Quality and compliance risks identified';
   }
 
-  const result: ImpactBlock = { userInput };
-
-  if (Object.keys(quantified).length > 0) {
-    result.quantified = quantified;
-  }
-
-  if (Object.keys(calculatedMetrics).length > 0) {
-    result.calculatedMetrics = calculatedMetrics;
-  }
-
-  return result;
+  return {
+    userInput,
+    quantified,
+    assumptions: assumptions.length > 0 ? assumptions : undefined,
+    calculatedMetrics
+  };
 }
 
 /**
@@ -163,10 +132,57 @@ export function composeSubmission(
   problem: ProblemBlock,
   impact: ImpactBlock
 ): SubmissionDraft {
-  const impactSummary = impact.userInput.trim();
-
   const baselineMetrics: SubmissionDraft['baseline_metrics'] = [];
   const targetMetrics: SubmissionDraft['target_metrics'] = [];
+
+  if (impact.calculatedMetrics?.weeklyHours) {
+    const weeklyHours = impact.calculatedMetrics.weeklyHours;
+    baselineMetrics.push({
+      name: 'Weekly hours lost to the issue',
+      value: `${weeklyHours} hours`
+    });
+    targetMetrics.push({
+      name: 'Weekly hours lost',
+      target: `${Math.max(1, Math.round(weeklyHours * 0.4))} hours or less`
+    });
+  }
+
+  if (impact.calculatedMetrics?.monthlyCost) {
+    const monthlyCost = impact.calculatedMetrics.monthlyCost;
+    baselineMetrics.push({
+      name: 'Estimated monthly cost of disruption',
+      value: `$${monthlyCost.toLocaleString()}`
+    });
+    targetMetrics.push({
+      name: 'Monthly cost impact',
+      target: `$${Math.max(100, Math.round(monthlyCost * 0.4)).toLocaleString()}`
+    });
+  }
+
+  if (!baselineMetrics.length) {
+    baselineMetrics.push({
+      name: 'Incidents per month',
+      value: impact.quantified?.frequency || 'Approx. 12 incidents'
+    });
+    targetMetrics.push({
+      name: 'Incidents per month',
+      target: 'Reduce by at least 50%'
+    });
+  }
+
+  const impactSummaryParts: string[] = [];
+  if (impact.quantified?.frequency && impact.quantified?.timeLost) {
+    impactSummaryParts.push(`Happens ${impact.quantified.frequency}, costing about ${impact.quantified.timeLost} each time.`);
+  }
+  if (impact.calculatedMetrics?.weeklyHours) {
+    impactSummaryParts.push(`Roughly ${impact.calculatedMetrics.weeklyHours} hours lost per week.`);
+  }
+  if (impact.calculatedMetrics?.monthlyCost) {
+    impactSummaryParts.push(`Approximately $${impact.calculatedMetrics.monthlyCost.toLocaleString()} per month in blended cost.`);
+  }
+  if (impact.quantified?.risk) {
+    impactSummaryParts.push(impact.quantified.risk);
+  }
 
   const actionPlan: string[] = [];
   const frictionPoints = problem.frictionPoints || [];
@@ -190,7 +206,7 @@ export function composeSubmission(
 
   return {
     problem_summary: problem.expanded || problem.userInput,
-    impact_summary: impactSummary,
+    impact_summary: impactSummaryParts.join(' '),
     chosen_category: deriveCategory(problem, impact),
     baseline_metrics: baselineMetrics,
     target_metrics: targetMetrics,
@@ -208,10 +224,10 @@ export function inferMissingData(
   impact?: ImpactBlock
 ): { problem: ProblemBlock; impact: ImpactBlock } {
   // Infer problem if missing
-  const inferredProblem = problem || { userInput: 'Problem details not provided yet.' };
+  const inferredProblem = problem || expandProblem('Business process optimization needed');
 
   // Infer impact if missing
-  const inferredImpact = impact || { userInput: 'Impact details not provided yet.' };
+  const inferredImpact = impact || quantifyImpact('Estimated 10 hours weekly impact', inferredProblem.userInput);
 
   return {
     problem: inferredProblem,
