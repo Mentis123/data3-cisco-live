@@ -8,6 +8,36 @@ import { createServer, type Server } from "http";
 import { registerRoutes } from "./routes.ts";
 import { log } from "./logging.ts";
 
+function registerGlobalErrorHandlers() {
+  const globalScope = globalThis as {
+    __data3HasErrorHandlers?: boolean;
+  };
+
+  if (globalScope.__data3HasErrorHandlers) {
+    return;
+  }
+
+  process.on("uncaughtException", (error) => {
+    console.error("[server] Uncaught exception:", error);
+
+    if (process.env.NODE_ENV === "development") {
+      process.exit(1);
+    }
+  });
+
+  process.on("unhandledRejection", (reason) => {
+    console.error("[server] Unhandled promise rejection:", reason);
+
+    if (process.env.NODE_ENV === "development") {
+      process.exit(1);
+    }
+  });
+
+  globalScope.__data3HasErrorHandlers = true;
+}
+
+registerGlobalErrorHandlers();
+
 export interface CreateAppOptions {
   enableWebSocket?: boolean;
   provideServer?: boolean;
@@ -77,6 +107,8 @@ export async function createApp(
     if (process.env.NODE_ENV === "development") {
       throw err;
     }
+
+    return;
   });
 
   return {
