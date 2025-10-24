@@ -37,6 +37,13 @@ function Section({ eyebrow, title, description, children }: SectionProps) {
   );
 }
 
+const passCopyTemplate =
+  "You beat the Bot Bar ({{bar}})! Score {{score}}/50 — Raffle entry recorded for {{date}} ✅";
+const failCopyTemplate =
+  "Close! {{score}}/50. Add a number + date on your Case Card to qualify next time.";
+const dailyBannerCopyTemplate =
+  "Today’s draw runs at {{time}}. Winner appears here and receives email instructions.";
+
 const heroStats = [
   {
     value: "6",
@@ -513,12 +520,8 @@ export default function Beta() {
                   Average correct time fuels the Sharp Shooter leaderboard and spot-checks for automation abuse.
                 </p>
                 <Separator className="my-4 bg-white/10" />
-                <p className="text-foreground font-medium">
-                  Pass copy: “You beat the Bot Bar ({{bar}})! Score {{score}}/50 — Raffle entry recorded for {{date}} ✅”
-                </p>
-                <p className="text-foreground font-medium">
-                  Fail copy: “Close! {{score}}/50. Add a number + date on your Case Card to qualify next time.”
-                </p>
+                <p className="text-foreground font-medium">Pass copy: {passCopyTemplate}</p>
+                <p className="text-foreground font-medium">Fail copy: {failCopyTemplate}</p>
               </CardContent>
             </Card>
             <Card className="border-white/10 bg-gradient-to-br from-white/[0.15] via-white/[0.02] to-transparent shadow-[0_30px_120px_-70px_rgba(96,165,250,0.65)] backdrop-blur">
@@ -566,10 +569,7 @@ export default function Beta() {
                 <CardTitle className="text-xl">Raffle flow</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-slate-300">
-                <p>
-                  Daily banner copy keeps players informed: “Today’s draw runs at {{time}}. Winner appears here and receives email
-                  instructions.”
-                </p>
+                <p>Daily banner copy keeps players informed: {dailyBannerCopyTemplate}</p>
                 <ul className="space-y-3">
                   {raffleFlow.map((step) => (
                     <li key={step.stage} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
