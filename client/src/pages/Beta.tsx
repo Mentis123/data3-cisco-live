@@ -1,104 +1,204 @@
+import type { ReactNode } from "react";
 import { Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type SectionProps = {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+};
+
+function Section({ eyebrow, title, description, children }: SectionProps) {
+  return (
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-8 shadow-[0_25px_80px_-30px_rgba(15,23,42,0.75)] sm:p-12">
+      <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" aria-hidden="true" />
+      <div className="relative space-y-6">
+        <div className="space-y-3">
+          <Badge
+            variant="outline"
+            className="border-primary/40 bg-primary/10 text-xs uppercase tracking-[0.3em] text-primary/80"
+          >
+            {eyebrow}
+          </Badge>
+          <h2 className="text-balance text-3xl font-semibold sm:text-4xl">{title}</h2>
+          {description ? (
+            <p className="max-w-3xl text-pretty text-base text-slate-300 sm:text-lg">{description}</p>
+          ) : null}
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+const heroStats = [
+  {
+    value: "6",
+    label: "cards per run",
+    detail: "Drop • hint • lock rhythm keeps everyone moving in sync.",
+  },
+  {
+    value: "5",
+    label: "official entries/day",
+    detail: "One per category with Cisco Live registered emails only.",
+  },
+  {
+    value: "50",
+    label: "points in play",
+    detail: "30 from flash mastery, 20 from the Case Card dials.",
+  },
+];
+
+const dojoHighlights = [
+  {
+    title: "Instant feedback",
+    copy: "Every flash-card reveals the rationale immediately so practice runs double as coaching moments.",
+  },
+  {
+    title: "Unlimited restarts",
+    copy: "Players can grind categories as much as they like before stepping into the Ring.",
+  },
+  {
+    title: "Expo-first UX",
+    copy: "Optimised for kiosks with keyboard shortcuts, large tap targets, and progressive web caching.",
+  },
+];
+
+const ringHighlights = [
+  {
+    title: "Email-verified entries",
+    copy: "Cisco Live registered emails act as the key. Software enforces one official run per category per day.",
+  },
+  {
+    title: "Raffle automation",
+    copy: "Every pass logs a raffle entry with audit-friendly metadata for the daily draw.",
+  },
+  {
+    title: "Elastic Bot Bar",
+    copy: "Rolling performance benchmark keeps the challenge spicy while staying attainable for the floor.",
+  },
+];
 
 const categories = [
   {
     id: "SECURE_CONNECTIVITY",
-    label: "Secure Connectivity",
-    description: "Zero Trust, segmentation, and secure access outcomes.",
-    unitChips: ["% MFA coverage", "% traffic inspected", "# apps protected"],
+    emoji: "🛡️",
+    title: "Secure Connectivity",
+    description: "Zero Trust network access, segmentation and protected applications.",
+    units: ["% MFA coverage", "% traffic inspected", "# apps protected"],
   },
   {
     id: "HYBRID_DC",
-    label: "Hybrid Data Centre",
-    description: "Platform automation, infrastructure coverage, hybrid control.",
-    unitChips: ["$/workload/month", "% IaC", "% platform coverage"],
+    emoji: "☁️",
+    title: "Hybrid Data Centre",
+    description: "Automated infrastructure, hybrid cloud control and platform coverage.",
+    units: ["$/workload/month", "% IaC", "% platform coverage"],
   },
   {
     id: "COLLAB_CX",
-    label: "Collab & CX",
-    description: "Customer experience, agent efficiency, and automation outcomes.",
-    unitChips: ["FCR %", "ACW minutes", "CSAT %"],
+    emoji: "🎧",
+    title: "Collaboration & CX",
+    description: "Agent experience, AI assist, CSAT lift and contact centre velocity.",
+    units: ["FCR %", "ACW minutes", "CSAT %"],
   },
   {
     id: "OBSERVABILITY",
-    label: "Observability",
-    description: "Telemetry quality, incident response, and error budgets.",
-    unitChips: ["p95 ms", "error budget %", "incidents/week"],
+    emoji: "📈",
+    title: "Observability",
+    description: "Telemetry quality, golden signals and mean-time-to-resolution wins.",
+    units: ["p95 ms", "error budget %", "incidents/week"],
   },
   {
     id: "EDGE_IOT",
-    label: "Edge & IoT",
-    description: "Device coverage, firmware hygiene, and latency gains.",
-    unitChips: ["on-device latency ms", "firmware coverage %", "devices updated %"],
+    emoji: "📡",
+    title: "Edge & IoT",
+    description: "Firmware hygiene, device rollouts and latency-sensitive workloads.",
+    units: ["on-device latency ms", "firmware coverage %", "devices updated %"],
+  },
+];
+
+const flashTimeline = [
+  {
+    time: "0–5s",
+    headline: "Drop",
+    copy: "One incorrect choice fades while maintaining focus state for accessibility.",
+  },
+  {
+    time: "6–9s",
+    headline: "Micro hint",
+    copy: "A concise nudge appears beneath the stem to steer without spoiling the answer.",
+  },
+  {
+    time: "10–12s",
+    headline: "Auto lock",
+    copy: "If the player hasn’t locked a response, the card closes and records a miss.",
   },
 ];
 
 const dialScores = [
   {
     title: "Clarity",
-    description:
-      "Single-sentence problem framing with a tangible system or context. " +
-      "Earn the full 4 points by making the pain obvious to a sponsor.",
+    details: ["Single sentence framing", "Concrete system or team impacted", "Sponsor-ready language"],
   },
   {
     title: "Impact",
-    description:
-      "Automatic scoring from the users × minutes × frequency inputs or documented risk reduction bands.",
+    details: ["Users × minutes × frequency math", "Risk reduction acknowledgement", "Auto bands surface coaching"],
   },
   {
     title: "KPI Strength",
-    description:
-      "SMART alignment (Specific, Measurable, Achievable, Relevant, Time-bound) up to 4 points.",
+    details: ["SMART-complete", "Baseline, target and due date required", "Dial lights up at ≥3"],
   },
   {
     title: "Execution",
-    description:
-      "Owner role, milestone, dependency/risk, and action verbs combine for the execution dial.",
+    details: ["Owner role chip", "Milestone and date", "Dependency/risk check", "Action verb present"],
   },
   {
     title: "Confidence",
-    description:
-      "Self-rating plus realism cross-check to keep the commitment grounded in reality.",
+    details: ["Self-rated 0–2", "Realism cross-check by bot", "Signals ready for follow-up"],
   },
 ];
 
 const leaderboards = [
   {
     title: "Top Score (Today)",
-    description: "Highest total score per category. Only the best run per email counts.",
+    copy: "Highest total score per category. Only the best qualifying run per email surfaces.",
   },
   {
     title: "Sharp Shooter",
-    description: "Fastest average time on correct flash-card answers amongst eligible passes.",
+    copy: "Fastest average answer time on correct cards. Rewards confident mastery.",
   },
   {
     title: "Track Champs",
-    description: "Category leaders across the five Cisco Live tracks.",
+    copy: "Category champions so booths can spotlight relevant wins in real-time.",
   },
   {
     title: "Most Precise KPI",
-    description: "Largest KPI dial with impact and speed tie-breakers.",
+    copy: "Top KPI dial, with Impact and time-of-day as tiebreakers for bragging rights.",
   },
 ];
 
-const flashCardTimeline = [
+const raffleFlow = [
   {
-    time: "5s",
-    title: "Drop",
-    description: "One incorrect choice fades automatically. Choices reflow without losing keyboard focus.",
+    stage: "Qualify",
+    detail: "Beat the Bot Bar, complete the KPI triplet and earn a dial score ≥3 to unlock a raffle entry.",
   },
   {
-    time: "9s",
-    title: "Hint",
-    description: "Micro hint appears beneath the stem for gentle guidance in the Ring and Dojo alike.",
+    stage: "Record",
+    detail: "Each entry references the attempt, hashed email, and category for auditability.",
   },
   {
-    time: "12s",
-    title: "Lock",
-    description: "Card auto-submits. No answer recorded counts as incorrect for scoring.",
+    stage: "Draw",
+    detail: "Admin triggers the RNG-backed draw, storing the seed, timestamp and operator id.",
+  },
+  {
+    stage: "Celebrate",
+    detail: "Winner banner refreshes instantly, while SendGrid (or SES) delivers instructions and follow-up.",
   },
 ];
 
@@ -109,297 +209,472 @@ const apiSurface = [
   "POST /api/case-card",
   "POST /api/attempts/score",
   "POST /api/raffle/entry",
-  "POST /api/raffle/draw (admin)",
+  "POST /api/raffle/draw",
   "GET /api/leaderboards?tab=…",
 ];
 
-const antiAbuseSignals = [
-  "Turnstile or equivalent challenge on official runs.",
-  "Paste-vs-type ratio and burst edits tracked for eligibility gating.",
-  "Human check question when behaviour looks automated (20 seconds, paste disabled).",
+const dataHighlights = [
+  {
+    title: "Attempts",
+    copy: "Tracks mode, category, timing, eligibility and Bot Bar snapshot for each run.",
+  },
+  {
+    title: "Answers",
+    copy: "Captures reaction time for anti-abuse and Sharp Shooter calculations.",
+  },
+  {
+    title: "Case Cards",
+    copy: "Stores KPI triplets, optional impact math and dial scoring breakdowns.",
+  },
+  {
+    title: "Raffle tables",
+    copy: "Entries and draws persist with unique indexes to enforce daily limits and auditing.",
+  },
+  {
+    title: "Flash items",
+    copy: "Content bank supports daily rotation with difficulty tags and dropIndex validation.",
+  },
+];
+
+const adminPanels = [
+  {
+    title: "Raffle cockpit",
+    detail: "Shows entries by category, unique players, and the one-click draw workflow.",
+  },
+  {
+    title: "Performance analytics",
+    detail: "Charts median scores, pass rate trends, and answer time distributions.",
+  },
+  {
+    title: "Case Card insights",
+    detail: "Surfaces favourite metrics, annualised impact and completion percentages for follow-up.",
+  },
+  {
+    title: "Content operations",
+    detail: "Manage flash-card banks, activate rotations and review hints/explanations quickly.",
+  },
+];
+
+const qaChecklist = [
+  "Verify 5s/9s/12s triggers across kiosk hardware and laggy Wi-Fi environments.",
+  "Ensure dropIndex always maps to an incorrect option even after shuffling choices.",
+  "Limit Ring mode to a single official run per category per day per email hash.",
+  "Clamp the Elastic Bot Bar between 35 and 42 using the rolling 30-attempt median.",
+  "Confirm marketing consent toggles propagate to email sends with unsubscribe controls.",
 ];
 
 export default function Beta() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="border-b border-border bg-gradient-to-b from-background via-background/80 to-background/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-          <Badge variant="outline" className="mb-4 uppercase tracking-widest">Beta Preview</Badge>
-          <h1 className="text-balance text-4xl sm:text-5xl font-semibold leading-tight mb-4">
-            Beat the Bot — Two-Left Tango
-          </h1>
-          <p className="text-pretty text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-3xl">
-            Practice in the Dojo, then enter the Ring up to five times per day (once per category). Every qualified win drops a
-            raffle entry for the Meta AI Glasses daily draw. This beta spec shows how the next evolution of the Cisco Solution
-            Sprint comes together.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/">
-              <Button variant="secondary">Back to current experience</Button>
-            </Link>
-            <Link href="/play">
-              <Button>Jump into today&apos;s sprint</Button>
-            </Link>
+    <div className="relative min-h-screen overflow-hidden bg-[#050a1a] text-white">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-[-30%] z-0 h-[520px] bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.35),_rgba(5,10,26,0.15)_45%,_rgba(5,10,26,0.9))]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-[-40%] z-0 h-[600px] bg-[radial-gradient(circle_at_bottom,_rgba(59,130,246,0.3),_rgba(5,10,26,0.25)_55%,_rgba(5,10,26,1))]"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 border-b border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <Badge className="w-fit bg-primary/30 text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]">Beta concept</Badge>
+            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
+              Beat the Bot — Two-Left Tango
+            </h1>
+            <p className="max-w-3xl text-pretty text-lg text-slate-300">
+              Practice in the Dojo, then enter the Ring up to five times per day (once per category). Every qualified win drops
+              a raffle entry for the Meta AI Glasses daily draw. This beta preview packages gameplay, scoring, data models and
+              admin ops into a single blueprint.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/">
+                <Button variant="secondary" className="backdrop-blur">
+                  Back to current experience
+                </Button>
+              </Link>
+              <Link href="/play">
+                <Button className="shadow-[0_20px_60px_-35px_rgba(34,197,94,0.9)]">Jump into today&apos;s sprint</Button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {heroStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.12] via-white/[0.05] to-transparent p-6 shadow-[0_35px_120px_-60px_rgba(59,130,246,0.85)] backdrop-blur">
+                <div className="text-4xl font-semibold text-primary sm:text-5xl">{stat.value}</div>
+                <p className="mt-1 text-sm uppercase tracking-[0.2em] text-slate-200/80">{stat.label}</p>
+                <p className="mt-3 text-sm text-slate-200/70">{stat.detail}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-        <section className="grid gap-6 md:grid-cols-2">
-          <Card className="border-muted-foreground/10 bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-2xl">Two game modes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <div>
-                <h3 className="font-semibold text-foreground">Dojo (Practice)</h3>
-                <p>Unlimited runs without email, with instant explanations after each flash-card.</p>
+      <main className="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16 sm:px-6 lg:px-8">
+        <Section
+          eyebrow="Experience"
+          title="Dojo for mastery. Ring for glory."
+          description="Two complementary modes make the activation approachable for new visitors while keeping the competitive energy of the expo floor."
+        >
+          <Tabs defaultValue="ring" className="w-full">
+            <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-full bg-white/5 p-1">
+              <TabsTrigger
+                value="ring"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Enter the Ring
+              </TabsTrigger>
+              <TabsTrigger
+                value="dojo"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Practice in the Dojo
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="ring" className="pt-6">
+              <div className="grid gap-6 lg:grid-cols-3">
+                {ringHighlights.map((highlight) => (
+                  <Card key={highlight.title} className="h-full border-white/10 bg-white/[0.06] shadow-[0_25px_80px_-55px_rgba(59,130,246,0.6)] backdrop-blur">
+                    <CardHeader>
+                      <CardTitle className="text-xl">{highlight.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-slate-300 leading-relaxed">
+                      {highlight.copy}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Ring (Official)</h3>
-                <p>
-                  Requires Cisco Live registered email at submit, limited to one official run per category per day. Qualified
-                  passes deliver a raffle entry.
-                </p>
+            </TabsContent>
+            <TabsContent value="dojo" className="pt-6">
+              <div className="grid gap-6 lg:grid-cols-3">
+                {dojoHighlights.map((highlight) => (
+                  <Card key={highlight.title} className="h-full border-white/10 bg-white/[0.06] shadow-[0_25px_80px_-55px_rgba(59,130,246,0.6)] backdrop-blur">
+                    <CardHeader>
+                      <CardTitle className="text-xl">{highlight.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-slate-300 leading-relaxed">
+                      {highlight.copy}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+          </Tabs>
+        </Section>
 
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Five daily categories</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {categories.map((category) => (
-                <div key={category.id} className="rounded-lg border border-border/60 p-4 bg-background/80">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-semibold text-lg">{category.label}</h3>
-                    <Badge variant="secondary" className="uppercase tracking-wide text-xs">
+        <Section
+          eyebrow="Tracks"
+          title="Five categories — five daily chances"
+          description="Players choose the expertise lane that matches their remit. Units chips remind them how to quantify their wins."
+        >
+          <div className="grid gap-6 md:grid-cols-2">
+            {categories.map((category) => (
+              <Card key={category.id} className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+                <CardHeader className="flex flex-row items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <Badge variant="secondary" className="bg-primary/15 text-primary">
                       {category.id}
                     </Badge>
+                    <CardTitle className="text-2xl font-semibold">
+                      <span className="mr-2 text-2xl" aria-hidden>
+                        {category.emoji}
+                      </span>
+                      {category.title}
+                    </CardTitle>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed mt-1">{category.description}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {category.unitChips.map((chip) => (
-                      <span key={chip} className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                        {chip}
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm text-slate-300">
+                  <p>{category.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {category.units.map((unit) => (
+                      <span
+                        key={unit}
+                        className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-300"
+                      >
+                        {unit}
                       </span>
                     ))}
                   </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </Section>
 
-        <section className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2 border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Flash-card rhythm</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Six cards per run (2 easy, 3 medium, 1 hard) with answer shuffling. Keyboard shortcuts (1/2/3) and Enter keep the
-                pace moving on mobile kiosks.
-              </p>
-              <div className="grid gap-4 sm:grid-cols-3">
-                {flashCardTimeline.map((step) => (
-                  <div key={step.time} className="rounded-lg border border-border/60 p-4 bg-muted/30">
-                    <div className="text-sm font-semibold text-primary mb-2">{step.time}</div>
-                    <h3 className="text-lg font-semibold mb-1">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+        <Section
+          eyebrow="Flash-card arc"
+          title="Tight 12-second cadence with clarity at every beat"
+          description="Six cards per run (2 easy, 3 medium, 1 hard). Answers shuffle but the dropIndex always points to a wrong option even after the shuffle."
+        >
+          <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
+            <Card className="border-white/10 bg-gradient-to-br from-white/[0.14] via-white/[0.03] to-transparent shadow-[0_30px_110px_-70px_rgba(192,132,252,0.6)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Why it works</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm text-slate-300">
+                <p>
+                  Timers run entirely client-side for responsiveness while the API re-validates answer timings on submit.
+                  Keyboard shortcuts (1/2/3), Enter to lock, and Esc to skip keep kiosks snappy.
+                </p>
+                <p>
+                  Dojo shows explanations after each card to reinforce the learning loop. Ring mode withholds explanations until
+                  after the attempt to preserve the challenge.
+                </p>
+              </CardContent>
+            </Card>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {flashTimeline.map((item) => (
+                <Card key={item.time} className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+                  <CardHeader className="space-y-2">
+                    <Badge variant="outline" className="w-fit border-primary/40 text-xs uppercase tracking-[0.35em]">
+                      {item.time}
+                    </Badge>
+                    <CardTitle className="text-xl">{item.headline}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-slate-300 leading-relaxed">{item.copy}</CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          eyebrow="Case Card"
+          title="Five dials lock the plan"
+          description="Players commit to a KPI triplet, owner, and milestone. Optional inputs calculate annualised time/cost impact for sales follow-up."
+        >
+          <div className="grid gap-6 lg:grid-cols-[1.5fr_2fr]">
+            <Card className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Dial scoring (20 points)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {dialScores.map((dial) => (
+                  <div key={dial.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-lg font-semibold text-foreground">{dial.title}</div>
+                    <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                      {dial.details.map((detail) => (
+                        <li key={detail} className="flex items-start gap-2">
+                          <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Case Card capture</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                Players lock a single problem statement, KPI triplet, owner role, and first milestone. Optional impact fields compute
-                annualised time/cost savings automatically.
-              </p>
-              <p className="border-l-2 border-primary/60 pl-3 text-sm">
-                Eligibility reminder: “You’ll see a score, but only complete Baseline, Target & Due Date makes this an official
-                raffle entry.”
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Dial scoring (20 points)</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {dialScores.map((dial) => (
-                <div key={dial.title} className="rounded-lg border border-border/60 p-4 bg-background/80">
-                  <h3 className="font-semibold text-lg mb-1">{dial.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{dial.description}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-white/10 bg-gradient-to-br from-primary/20 via-transparent to-transparent shadow-[0_30px_100px_-60px_rgba(34,197,94,0.8)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Form moments</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm text-slate-300">
+                <p>
+                  Helper chips nudge players toward the right KPI units for each category. Inline copy reminds them that baseline,
+                  target and due date are mandatory for eligibility: “You’ll see a score, but only complete Baseline, Target & Due
+                  Date makes this an official raffle entry.”
+                </p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-foreground font-medium">Optional impact trio</p>
+                  <ul className="mt-2 space-y-1">
+                    <li>• Users affected</li>
+                    <li>• Minutes saved per event</li>
+                    <li>• Frequency per week → auto calculates annualised time & cost</li>
+                  </ul>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-          <Card className="border-muted-foreground/10 bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-2xl">Scoring & Bot Bar</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                Flash-cards contribute up to 30 points based on speed and correctness. The Elastic Bot Bar recalculates every 15
-                minutes as the rolling median of the last 30 Ring totals minus 2 (clamped to 35–42).
-              </p>
-              <p>
-                Pass status requires meeting the Bot Bar, completing the KPI triplet, and landing a KPI dial score of 3 or higher.
-              </p>
-              <p className="text-foreground font-medium">
-                Pass copy: “You beat the Bot Bar ({{bar}})! Score {{score}}/50 — Raffle entry recorded for {{date}} ✅”
-              </p>
-              <p className="text-foreground font-medium">
-                Fail copy: “Close! {{score}}/50. Add a number + date on your Case Card to qualify next time.”
-              </p>
-            </CardContent>
-          </Card>
-        </section>
+                <p>
+                  Anti-abuse telemetry tracks paste ratios, edit bursts and dwell time. Suspicious attempts trigger a 20-second
+                  human check question; failing the check still logs the attempt but marks it ineligible.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </Section>
 
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Raffle engine</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                Each eligible pass (max one per category per day) records a raffle entry. The admin dashboard triggers the daily draw
-                with a stored RNG seed, timestamp, and admin identifier.
-              </p>
-              <p>
-                A draw announcement banner shows “Today’s draw runs at {{time}}. Winner appears here and receives email instructions.”
-              </p>
-            </CardContent>
-          </Card>
+        <Section
+          eyebrow="Scoring"
+          title="Elastic Bot Bar keeps the competition honest"
+          description="Players see a total out of 50. Flash mastery contributes up to 30 points based on timing; the Case Card dials add 20 more."
+        >
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+            <Card className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Flash-card scoring</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-300">
+                <p>
+                  ≤5s correct answers are worth <span className="text-foreground font-semibold">6 points</span> each. 6–9 seconds drop
+                  to 5 points, 10–12 seconds to 4 points. Missed or unanswered cards score zero.
+                </p>
+                <p>
+                  Average correct time fuels the Sharp Shooter leaderboard and spot-checks for automation abuse.
+                </p>
+                <Separator className="my-4 bg-white/10" />
+                <p className="text-foreground font-medium">
+                  Pass copy: “You beat the Bot Bar ({{bar}})! Score {{score}}/50 — Raffle entry recorded for {{date}} ✅”
+                </p>
+                <p className="text-foreground font-medium">
+                  Fail copy: “Close! {{score}}/50. Add a number + date on your Case Card to qualify next time.”
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-white/10 bg-gradient-to-br from-white/[0.15] via-white/[0.02] to-transparent shadow-[0_30px_120px_-70px_rgba(96,165,250,0.65)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Bot Bar math</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-300">
+                <p>
+                  Recomputed every 15 minutes as the rolling median of the last 30 Ring totals minus two points. The result is
+                  clamped between 35 and 42 so the game stays aspirational without feeling out of reach.
+                </p>
+                <p>
+                  Only eligible passes (KPI dial ≥3 with completed triplet) earn raffle entries. The system caps players at five
+                  official attempts per day (one per category).
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </Section>
 
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Leaderboards</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {leaderboards.map((board) => (
-                <div key={board.title} className="rounded-lg border border-border/60 p-4 bg-background/80">
-                  <h3 className="font-semibold text-lg mb-1">{board.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{board.description}</p>
-                </div>
-              ))}
-              <p className="text-sm text-muted-foreground">
-                Leaderboard carousel rotates every 6–8 seconds. Entries surface the first name, last initial, and company when
-                supplied.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
+        <Section
+          eyebrow="Raffle & leaderboards"
+          title="Every pass is a celebration"
+          description="Leaderboards rotate every 6–8 seconds in expo signage while the raffle panel tracks who’s heading for the Meta AI Glasses."
+        >
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Leaderboards</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {leaderboards.map((board) => (
+                  <div key={board.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-lg font-semibold text-foreground">{board.title}</div>
+                    <p className="mt-2 text-sm text-slate-300">{board.copy}</p>
+                  </div>
+                ))}
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">
+                  Display format: first name + last initial + company when provided.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-white/10 bg-gradient-to-br from-primary/20 via-transparent to-transparent shadow-[0_30px_100px_-60px_rgba(34,197,94,0.8)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Raffle flow</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm text-slate-300">
+                <p>
+                  Daily banner copy keeps players informed: “Today’s draw runs at {{time}}. Winner appears here and receives email
+                  instructions.”
+                </p>
+                <ul className="space-y-3">
+                  {raffleFlow.map((step) => (
+                    <li key={step.stage} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                      <div className="text-foreground font-semibold uppercase tracking-[0.2em]">{step.stage}</div>
+                      <p className="mt-1 text-sm text-slate-300">{step.detail}</p>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </Section>
 
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-muted-foreground/10 bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-2xl">API surface area</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              {apiSurface.map((endpoint) => (
-                <div key={endpoint} className="flex items-center gap-3">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-background text-xs font-semibold">
-                    {endpoint.startsWith("GET") ? "GET" : endpoint.startsWith("POST") ? "POST" : "API"}
+        <Section
+          eyebrow="Platform"
+          title="APIs and data model ready for Neon"
+          description="The beta build extends the existing PostgreSQL schema and API conventions."
+        >
+          <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+            <Card className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">REST surface</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3 text-sm text-slate-300">
+                {apiSurface.map((endpoint) => (
+                  <div key={endpoint} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{endpoint.split(" ")[0]}</span>
+                    <span className="font-mono text-xs sm:text-sm">{endpoint}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card className="border-white/10 bg-gradient-to-br from-white/[0.15] via-white/[0.02] to-transparent shadow-[0_30px_120px_-70px_rgba(96,165,250,0.65)] backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-xl">Data building blocks</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-300">
+                {dataHighlights.map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="text-foreground font-semibold">{item.title}</div>
+                    <p className="mt-1">{item.copy}</p>
+                  </div>
+                ))}
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">
+                  SQL migration scripts live in <code className="font-mono">docs/beta-two-left-tango-schema.sql</code>.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </Section>
+
+        <Section
+          eyebrow="Operations"
+          title="Admin & analytics cockpit"
+          description="Extends the current /admin-leaderboard tooling so staff can run the show from a single dashboard."
+        >
+          <div className="grid gap-6 sm:grid-cols-2">
+            {adminPanels.map((panel) => (
+              <Card key={panel.title} className="border-white/10 bg-white/[0.04] shadow-[0_20px_80px_-60px_rgba(148,163,184,0.45)] backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="text-xl">{panel.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-slate-300">{panel.detail}</CardContent>
+              </Card>
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          eyebrow="Launch"
+          title="QA before we go live"
+          description="A tight checklist keeps the showfloor experience bulletproof."
+        >
+          <Card className="border-white/10 bg-gradient-to-br from-primary/20 via-transparent to-transparent shadow-[0_30px_100px_-60px_rgba(34,197,94,0.8)] backdrop-blur">
+            <CardContent className="space-y-3 py-6 text-sm text-slate-300">
+              {qaChecklist.map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-xs font-semibold text-primary">
+                    ✓
                   </span>
-                  <span className="font-mono text-xs sm:text-sm">{endpoint}</span>
+                  <span>{item}</span>
                 </div>
               ))}
             </CardContent>
           </Card>
+        </Section>
 
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Anti-abuse guardrails</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              {antiAbuseSignals.map((item) => (
-                <div key={item} className="flex gap-3">
-                  <span className="mt-1 text-primary">
-                    <i className="fas fa-shield-alt" aria-hidden="true"></i>
-                  </span>
-                  <p className="leading-relaxed">{item}</p>
-                </div>
-              ))}
-              <p className="text-xs text-muted-foreground/80">
-                Failed human checks still log the attempt but mark it ineligible for leaderboards and raffle entries.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section>
-          <Card className="border-muted-foreground/10">
-            <CardHeader>
-              <CardTitle className="text-2xl">Admin & analytics expansion</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                The existing /admin-leaderboard area grows to include raffle metrics, draw controls, category trends, and Case Card
-                insights. Charts reuse the current component library.
-              </p>
-              <ul className="grid gap-3 sm:grid-cols-2 text-sm">
-                <li className="rounded-lg border border-border/60 bg-background/80 p-4">
-                  <span className="font-semibold text-foreground block mb-1">Raffle panel</span>
-                  <span>View total entries, unique emails, per-category counts, and run the daily draw with audit logging.</span>
-                </li>
-                <li className="rounded-lg border border-border/60 bg-background/80 p-4">
-                  <span className="font-semibold text-foreground block mb-1">Performance trends</span>
-                  <span>Track attempts, pass rates, rolling medians, and average flash-card timings.</span>
-                </li>
-                <li className="rounded-lg border border-border/60 bg-background/80 p-4">
-                  <span className="font-semibold text-foreground block mb-1">Case Card insights</span>
-                  <span>Surface completion rates, top metrics, and annualised impact to guide follow-up.</span>
-                </li>
-                <li className="rounded-lg border border-border/60 bg-background/80 p-4">
-                  <span className="font-semibold text-foreground block mb-1">Content operations</span>
-                  <span>Manage flash-item banks (60–100/category) with active flags for daily rotations.</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section>
-          <Card className="border-muted-foreground/10 bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-2xl">Launch checklist highlights</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-muted-foreground">
-              <div className="flex gap-3">
-                <span className="mt-1 text-primary"><i className="fas fa-clock" aria-hidden="true"></i></span>
-                <p>Verify the 5/9/12 second triggers stay precise on kiosk hardware.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="mt-1 text-primary"><i className="fas fa-random" aria-hidden="true"></i></span>
-                <p>Ensure dropIndex maps to the intended wrong answer after shuffling.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="mt-1 text-primary"><i className="fas fa-balance-scale" aria-hidden="true"></i></span>
-                <p>Clamp the Elastic Bot Bar between 35 and 42 and enforce category/day limits per email.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="mt-1 text-primary"><i className="fas fa-envelope-open-text" aria-hidden="true"></i></span>
-                <p>Email the winner with unsubscribe controls when marketing consent is ticked.</p>
-              </div>
-              <div className="flex gap-3">
-                <span className="mt-1 text-primary"><i className="fas fa-qrcode" aria-hidden="true"></i></span>
-                <p>QR codes point to /play with Dojo vs. Ring toggles, ready for expo floor traffic.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+        <Section
+          eyebrow="Ready?"
+          title="Let’s launch the beta together"
+          description="From QR posters pointing at /play to the raffle draw email templates, every touchpoint is mapped out above."
+        >
+          <div className="flex flex-wrap gap-3">
+            <Link href="/play">
+              <Button className="shadow-[0_20px_60px_-35px_rgba(34,197,94,0.9)]">Preview the current sprint</Button>
+            </Link>
+            <Link href="/leaderboard">
+              <Button variant="secondary" className="backdrop-blur">
+                See today&apos;s leaders
+              </Button>
+            </Link>
+          </div>
+        </Section>
       </main>
     </div>
   );
 }
+
