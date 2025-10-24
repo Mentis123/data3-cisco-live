@@ -11,6 +11,7 @@ import HowToPlay from "@/pages/HowToPlay";
 import { NewSubmissionAnnouncementPage } from "@/pages/NewSubmissionAnnouncement";
 import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
+import Beta from "@/pages/Beta";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/stand" component={StandMessaging} />
       <Route path="/how-to-play" component={HowToPlay} />
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
+      <Route path="/beta" component={Beta} />
       <Route component={NotFound} />
     </Switch>
   );
