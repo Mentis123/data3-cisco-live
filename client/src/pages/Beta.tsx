@@ -681,6 +681,11 @@ export default function Beta() {
           description="From QR posters pointing at /play to the raffle draw email templates, every touchpoint is mapped out above."
         >
           <div className="flex flex-wrap gap-3">
+            <Link href="/beta/play">
+              <Button className="bg-emerald-500 text-emerald-950 shadow-[0_20px_60px_-35px_rgba(16,185,129,0.9)] hover:bg-emerald-400">
+                Launch the beta run
+              </Button>
+            </Link>
             <Link href="/play">
               <Button className="shadow-[0_20px_60px_-35px_rgba(34,197,94,0.9)]">Preview the current sprint</Button>
             </Link>
