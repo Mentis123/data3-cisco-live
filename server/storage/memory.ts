@@ -1,5 +1,8 @@
 import { nanoid } from "nanoid";
 import { differenceInMilliseconds } from "date-fns";
+import { createHash } from "crypto";
+import { readFileSync } from "fs";
+import path from "path";
 import type {
   InsertParticipant,
   Participant,
@@ -7,6 +10,11 @@ import type {
   Submission,
   Data3Stat,
   CustomCategory,
+  User,
+  Attempt,
+  Answer,
+  InsertAnswer,
+  FlashItem,
 } from "../../shared/schema.js";
 import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.js";
 
@@ -26,6 +34,63 @@ interface MemoryCustomCategory extends CustomCategory {
   createdAt: Date | null;
 }
 
+interface MemoryUser extends User {
+  createdAt: Date | null;
+}
+
+type FlashMode = "dojo" | "ring";
+
+type FlashCardSnapshot = Array<{
+  itemId: string;
+  choices: string[];
+  correctIndex: number;
+  dropIndex: number;
+}>;
+
+interface MemoryFlashAttempt extends Attempt {
+  startedAt: Date | null;
+  endedAt: Date | null;
+  deckSnapshot: FlashCardSnapshot;
+}
+
+interface MemoryFlashAnswer extends Answer {}
+
+interface FlashCardPayload {
+  id: string;
+  category: string;
+  stem: string;
+  choices: string[];
+  correctIndex: number;
+  dropIndex: number;
+  hint9s: string;
+  difficulty: number;
+  tags: string[];
+  explanation: string | null;
+  version: number;
+}
+
+interface FlashCardSummary extends FlashCardPayload {
+  selectedIndex: number;
+  correct: boolean;
+  points: number;
+  elapsedMs: number;
+}
+
+interface StartFlashAttemptOptions {
+  category: string;
+  mode: FlashMode;
+  email?: string;
+  marketingOptIn?: boolean;
+  playerProfile?: Pick<User, "firstName" | "lastName" | "company" | "role">;
+  deckSize?: number;
+}
+
+interface FlashAnswerInput {
+  itemId: string;
+  choiceIndex: number;
+  elapsedMs: number;
+}
+
 const participantsStore = new Map<string, MemoryParticipant>();
 const submissionsStore: MemorySubmission[] = [];
 const data3StatsStore: MemoryData3Stat[] = DEFAULT_DATA3_STATS.map((stat, index) => ({
@@ -34,6 +99,61 @@ const data3StatsStore: MemoryData3Stat[] = DEFAULT_DATA3_STATS.map((stat, index)
   ...stat,
 }));
 const customCategoriesStore: MemoryCustomCategory[] = [];
+const flashUsersStore = new Map<string, MemoryUser>();
+const flashAttemptsStore: MemoryFlashAttempt[] = [];
+const flashAnswersStore: MemoryFlashAnswer[] = [];
+
+const FLASH_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
+const FLASH_ROUND_SIZE = 5;
+const MAX_FLASH_TIME_MS = 12_000;
+
+function shuffleArray<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function hashEmail(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
+
+function computeAttemptDay(date: Date): string {
+  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  return utc.toISOString().slice(0, 10);
+}
+
+function loadFlashItems(): FlashItem[] {
+  try {
+    const filePath = path.resolve(process.cwd(), "docs", "flash-items-starter.json");
+    const raw = JSON.parse(readFileSync(filePath, "utf-8")) as Array<any>;
+    return raw.map((item) => ({
+      id: item.id,
+      category: item.category,
+      stem: item.stem,
+      choices: [item.choice_a, item.choice_b, item.choice_c].filter(Boolean),
+      correctIndex: item.correct_index,
+      dropIndex: item.drop_index,
+      hint9s: item.hint_9s,
+      difficulty: item.difficulty,
+      tags: typeof item.tags === "string"
+        ? item.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
+        : Array.isArray(item.tags) ? item.tags : [],
+      explanation: item.explanation ?? null,
+      active: true,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } satisfies FlashItem));
+  } catch (error) {
+    console.warn("[memory] Failed to load flash items seed:", error);
+    return [];
+  }
+}
+
+const flashItemsStore: FlashItem[] = loadFlashItems();
 
 const SAMPLE_PARTICIPANTS: Array<Pick<Participant, "firstName" | "lastName">> = [
   { firstName: "Alex", lastName: "Chen" },
@@ -536,7 +656,299 @@ function buildWordCloud(): { text: string; value: number }[] {
 }
 
 export function createMemoryStorage() {
+  const normalizeProfile = (
+    profile: StartFlashAttemptOptions["playerProfile"],
+  ): Partial<User> => {
+    if (!profile) return {};
+    const result: Partial<User> = {};
+    if (profile.firstName) result.firstName = profile.firstName;
+    if (profile.lastName) result.lastName = profile.lastName;
+    if (profile.company) result.company = profile.company;
+    if (profile.role) result.role = profile.role;
+    return result;
+  };
+
+  const ensureUserRecord = (
+    email: string | undefined,
+    profile: StartFlashAttemptOptions["playerProfile"],
+  ): { user: MemoryUser | null; emailHash: string | null } => {
+    if (!email) {
+      return { user: null, emailHash: null };
+    }
+
+    const emailHash = hashEmail(email);
+    const normalizedProfile = normalizeProfile(profile);
+    const existing = flashUsersStore.get(emailHash);
+
+    if (existing) {
+      const updated = { ...existing, ...normalizedProfile } as MemoryUser;
+      flashUsersStore.set(emailHash, updated);
+      return { user: updated, emailHash };
+    }
+
+    const user: MemoryUser = {
+      id: nanoid(),
+      emailHash,
+      createdAt: new Date(),
+      firstName: normalizedProfile.firstName ?? null,
+      lastName: normalizedProfile.lastName ?? null,
+      company: normalizedProfile.company ?? null,
+      role: normalizedProfile.role ?? null,
+    } as MemoryUser;
+
+    flashUsersStore.set(emailHash, user);
+    return { user, emailHash };
+  };
+
+  const buildFlashDeck = (
+    category: string,
+    deckSize: number = FLASH_ROUND_SIZE,
+  ): { cards: FlashCardPayload[]; snapshot: FlashCardSnapshot; maxVersion: number } => {
+    const items = flashItemsStore.filter((item) => item.category === category && item.active !== false);
+    if (!items.length) {
+      throw new Error(`No flash items available for category ${category}`);
+    }
+
+    const byDifficulty = new Map<number, FlashItem[]>();
+    for (const item of items) {
+      const diff = item.difficulty ?? 2;
+      const bucket = byDifficulty.get(diff) ?? [];
+      bucket.push(item);
+      byDifficulty.set(diff, bucket);
+    }
+
+    const selected: FlashItem[] = [];
+    const leftover: FlashItem[] = [];
+
+    for (const [difficulty, target] of Object.entries(FLASH_TARGETS)) {
+      const diff = Number(difficulty);
+      const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
+      const required = target as number;
+      for (let i = 0; i < bucket.length; i++) {
+        if (selected.length < deckSize && i < required) {
+          selected.push(bucket[i]!);
+        } else {
+          leftover.push(bucket[i]!);
+        }
+      }
+    }
+
+    if (selected.length < deckSize) {
+      const filler = shuffleArray(leftover);
+      for (const item of filler) {
+        if (selected.length >= deckSize) break;
+        selected.push(item);
+      }
+    }
+
+    if (selected.length < deckSize) {
+      throw new Error(`Insufficient flash items to build a deck for ${category}`);
+    }
+
+    const deck = shuffleArray(selected.slice(0, deckSize));
+    const cards: FlashCardPayload[] = [];
+    const snapshot: FlashCardSnapshot = [];
+    let maxVersion = 1;
+
+    for (const item of deck) {
+      const baseChoices = Array.isArray(item.choices) ? item.choices : [];
+      if (!baseChoices.length) {
+        continue;
+      }
+
+      const randomized = shuffleArray(
+        baseChoices.map((choice, index) => ({ choice, index })),
+      );
+      const choices = randomized.map((entry) => entry.choice);
+      const correctIndex = randomized.findIndex((entry) => entry.index === item.correctIndex);
+      const dropIndex = randomized.findIndex((entry) => entry.index === item.dropIndex);
+
+      cards.push({
+        id: item.id,
+        category: item.category,
+        stem: item.stem,
+        choices,
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        dropIndex: dropIndex >= 0 ? dropIndex : 0,
+        hint9s: item.hint9s,
+        difficulty: item.difficulty ?? 2,
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        explanation: item.explanation ?? null,
+        version: item.version ?? 1,
+      });
+
+      snapshot.push({
+        itemId: item.id,
+        choices,
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        dropIndex: dropIndex >= 0 ? dropIndex : 0,
+      });
+
+      if (item.version && item.version > maxVersion) {
+        maxVersion = item.version;
+      }
+    }
+
+    if (cards.length < deckSize) {
+      throw new Error(`Failed to construct flash deck for ${category}`);
+    }
+
+    return { cards, snapshot, maxVersion };
+  };
+
   return {
+    async getFlashCategories() {
+      const summary = new Map<
+        string,
+        { category: string; total: number; easy: number; medium: number; hard: number }
+      >();
+
+      for (const item of flashItemsStore) {
+        if (item.active === false) continue;
+        const entry =
+          summary.get(item.category) ?? {
+            category: item.category,
+            total: 0,
+            easy: 0,
+            medium: 0,
+            hard: 0,
+          };
+
+        entry.total += 1;
+        if (item.difficulty === 1) entry.easy += 1;
+        else if (item.difficulty === 2) entry.medium += 1;
+        else entry.hard += 1;
+
+        summary.set(item.category, entry);
+      }
+
+      return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
+    },
+
+    async startFlashAttempt(options: StartFlashAttemptOptions) {
+      const deckSize = options.deckSize ?? FLASH_ROUND_SIZE;
+      const { cards, snapshot, maxVersion } = buildFlashDeck(options.category, deckSize);
+      const { emailHash } = ensureUserRecord(options.email, options.playerProfile);
+      const now = new Date();
+
+      const attempt: MemoryFlashAttempt = {
+        id: nanoid(),
+        emailHash,
+        category: options.category,
+        mode: options.mode,
+        startedAt: now,
+        endedAt: null,
+        totalScore: null,
+        passed: false,
+        eligible: false,
+        avgCorrectTimeMs: null,
+        botBar: null,
+        marketingOptIn: !!options.marketingOptIn,
+        consentCapturedAt: null,
+        attemptDay: computeAttemptDay(now),
+        cardSetVersion: maxVersion,
+        deckSnapshot: snapshot,
+        submissionId: null,
+      } as MemoryFlashAttempt;
+
+      flashAttemptsStore.push(attempt);
+      return { attempt, cards, snapshot };
+    },
+
+    async completeFlashAttempt(options: { attemptId: string; answers: FlashAnswerInput[] }) {
+      const attempt = flashAttemptsStore.find((entry) => entry.id === options.attemptId);
+      if (!attempt) {
+        throw new Error("Flash attempt not found");
+      }
+      if (attempt.endedAt) {
+        throw new Error("Flash attempt already completed");
+      }
+      if (!options.answers.length) {
+        throw new Error("No answers provided for flash attempt completion");
+      }
+
+      const snapshotMap = new Map(attempt.deckSnapshot.map((entry) => [entry.itemId, entry]));
+      const cardMap = new Map(flashItemsStore.map((item) => [item.id, item]));
+
+      const summaries: FlashCardSummary[] = [];
+      const records: MemoryFlashAnswer[] = [];
+      let totalScore = 0;
+      let correctTimeTotal = 0;
+      let correctCount = 0;
+
+      for (const submission of options.answers) {
+        const snapshot = snapshotMap.get(submission.itemId);
+        const item = cardMap.get(submission.itemId);
+        if (!snapshot || !item) {
+          throw new Error(`Invalid flash card ${submission.itemId}`);
+        }
+
+        const selectedIndex = Number.isInteger(submission.choiceIndex) ? submission.choiceIndex : -1;
+        const elapsedMs = Math.max(0, Math.min(MAX_FLASH_TIME_MS, submission.elapsedMs ?? MAX_FLASH_TIME_MS));
+        const correct = selectedIndex === snapshot.correctIndex;
+
+        let points = 0;
+        if (correct) {
+          if (elapsedMs <= 5000) points = 6;
+          else if (elapsedMs <= 9000) points = 5;
+          else if (elapsedMs <= MAX_FLASH_TIME_MS) points = 4;
+        }
+
+        totalScore += points;
+        if (correct) {
+          correctTimeTotal += elapsedMs;
+          correctCount += 1;
+        }
+
+        records.push({
+          id: nanoid(),
+          attemptId: attempt.id,
+          itemId: submission.itemId,
+          choiceIndex: selectedIndex,
+          correct,
+          pointsAwarded: points,
+          tAnswerMs: elapsedMs,
+          createdAt: new Date(),
+        } as MemoryFlashAnswer);
+
+        summaries.push({
+          id: item.id,
+          category: item.category,
+          stem: item.stem,
+          choices: snapshot.choices,
+          correctIndex: snapshot.correctIndex,
+          dropIndex: snapshot.dropIndex,
+          hint9s: item.hint9s,
+          difficulty: item.difficulty ?? 2,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          explanation: item.explanation ?? null,
+          version: item.version ?? 1,
+          selectedIndex,
+          correct,
+          points,
+          elapsedMs,
+        });
+      }
+
+      for (let i = flashAnswersStore.length - 1; i >= 0; i--) {
+        if (flashAnswersStore[i]!.attemptId === attempt.id) {
+          flashAnswersStore.splice(i, 1);
+        }
+      }
+
+      flashAnswersStore.push(...records);
+
+      const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
+      const endedAt = new Date();
+      attempt.totalScore = totalScore;
+      attempt.endedAt = endedAt;
+      attempt.passed = totalScore >= 18;
+      attempt.eligible = attempt.passed && attempt.mode === "ring";
+      attempt.avgCorrectTimeMs = avgCorrect;
+
+      return { attempt, summary: summaries, totalScore };
+    },
+
     async createParticipant(data: InsertParticipant): Promise<Participant> {
       const participant: MemoryParticipant = {
         id: nanoid(),
@@ -567,6 +979,15 @@ export function createMemoryStorage() {
       submissionsStore.push(submission);
       sortSubmissions();
       return submission;
+    },
+
+    async attachSubmissionToFlashAttempt(attemptId: string, submissionId: string): Promise<void> {
+      const attempt = flashAttemptsStore.find((entry) => entry.id === attemptId);
+      if (!attempt) {
+        throw new Error(`Flash attempt ${attemptId} not found`);
+      }
+
+      attempt.submissionId = submissionId;
     },
 
     async getLeaderboard(limit = 100, category?: string): Promise<any[]> {
