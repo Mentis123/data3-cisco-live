@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import BetaHero from "@/components/beta/BetaHero";
+
 type SectionProps = {
   eyebrow: string;
   title: string;
@@ -300,43 +302,7 @@ export default function Beta() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 border-b border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 pb-16 pt-20 sm:px-6 lg:px-8">
-          <div className="space-y-6">
-            <Badge className="w-fit bg-primary/30 text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]">Beta concept</Badge>
-            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-              Beat the Bot — Two-Left Tango
-            </h1>
-            <p className="max-w-3xl text-pretty text-lg text-slate-300">
-              Practice in the Dojo, then enter the Ring up to five times per day (once per category). Every qualified win drops
-              a raffle entry for the Meta AI Glasses daily draw. This beta preview packages gameplay, scoring, data models and
-              admin ops into a single blueprint.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/">
-                <Button variant="secondary" className="backdrop-blur">
-                  Back to current experience
-                </Button>
-              </Link>
-              <Link href="/play">
-                <Button className="shadow-[0_20px_60px_-35px_rgba(34,197,94,0.9)]">Jump into today&apos;s sprint</Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-3">
-            {heroStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.12] via-white/[0.05] to-transparent p-6 shadow-[0_35px_120px_-60px_rgba(59,130,246,0.85)] backdrop-blur">
-                <div className="text-4xl font-semibold text-primary sm:text-5xl">{stat.value}</div>
-                <p className="mt-1 text-sm uppercase tracking-[0.2em] text-slate-200/80">{stat.label}</p>
-                <p className="mt-3 text-sm text-slate-200/70">{stat.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <BetaHero stats={heroStats} />
 
       <main className="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16 sm:px-6 lg:px-8">
         <Section
