@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } fr
 import type { SprintStep } from "@/features/sprint/types";
 import { FlashCardDeck } from "@/components/flashcards/FlashCardDeck";
 import { flashCardDeck } from "@/data/flashCards";
+import { TriviaWarmup } from "@/components/trivia";
 
 type PlayVariant = "classic" | "beta";
 
@@ -47,6 +49,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
 
   const isBeta = variant === "beta";
   const exitDestination = isBeta ? "/beta" : "/";
+  const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isBeta);
   
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -59,6 +62,29 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
+  const flashAttemptId: string | null = null;
+
+  if (isBeta && !hasCompletedTrivia) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-10 space-y-2">
+            <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">Warm-up</Badge>
+            <h1 className="text-4xl font-semibold sm:text-5xl">Trivia briefing</h1>
+            <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+              Before you hit the sprint coach, prove you know the numbers. Answer Data#3 trivia pulled from the live stats deck.
+            </p>
+          </div>
+          <TriviaWarmup
+            mode="ring"
+            exitHref={exitDestination}
+            onContinue={() => setHasCompletedTrivia(true)}
+            className="h-full"
+          />
+        </div>
+      </div>
+    );
+  }
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -734,6 +760,20 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     );
   }
 
+  const flashDeckDialog = (
+    <Dialog open={flashDeckOpen} onOpenChange={setFlashDeckOpen}>
+      <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-semibold text-white">Practice flash cards</DialogTitle>
+          <DialogDescription className="text-sm text-slate-300">
+            Work through each dial with instant rationales before you lock your score.
+          </DialogDescription>
+        </DialogHeader>
+        <FlashCardDeck cards={flashCardDeck} />
+      </DialogContent>
+    </Dialog>
+  );
+
   // Submit/Review view
   if (state.step === 4 && state.submission) {
     const currentSubmission = editedSubmission || state.submission;
@@ -1316,20 +1356,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-
-  const flashDeckDialog = (
-    <Dialog open={flashDeckOpen} onOpenChange={setFlashDeckOpen}>
-      <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl font-semibold text-white">Practice flash cards</DialogTitle>
-          <DialogDescription className="text-sm text-slate-300">
-            Work through each dial with instant rationales before you lock your score.
-          </DialogDescription>
-        </DialogHeader>
-        <FlashCardDeck cards={flashCardDeck} />
-      </DialogContent>
-    </Dialog>
   );
 
   if (isBeta) {

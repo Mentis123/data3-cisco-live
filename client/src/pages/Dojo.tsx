@@ -3,8 +3,7 @@ import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FlashCardDeck } from "@/components/flashcards/FlashCardDeck";
-import { flashCardDeck } from "@/data/flashCards";
+import { TriviaWarmup } from "@/components/trivia";
 import NotFound from "@/pages/not-found";
 
 type DojoExperienceId = "flash-cards" | "case-builder";
@@ -26,12 +25,12 @@ const dojoExperiences: Record<DojoExperienceId, {
     title: "Dojo flash-card drills",
     eyebrow: "Practice",
     description:
-      "Run the live flash-card deck to sharpen each category before your official run. Every card mirrors the ring scoring cues with instant rationales.",
+      "Race the countdown with live Data#3 trivia before your official run. Pick a Cisco architecture tile and lock in the numbers before you enter the ring.",
     status: "Now live",
     highlights: [
-      "Five flagship scenarios covering every dial",
-      "Reveal scoring rationale on demand",
-      "Reset or loop cards for kiosk practice",
+      "Five architecture tracks fed by the current stats deck",
+      "Countdown auto-hides one wrong answer at 10 seconds",
+      "Hints flash at 5 seconds with tiered scoring (6/4/2)",
     ],
   },
   "case-builder": {
@@ -65,17 +64,17 @@ export default function Dojo({ params }: DojoRouteProps) {
             <p className="text-xs uppercase tracking-[0.35em] text-emerald-200/70">{experience.eyebrow}</p>
             <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
             <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-              {experience.description}
+              Choose a technology track, sprint through live Data#3 trivia and lock in the numbers before you face the ring.
             </p>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <Card className="border-white/10 bg-white/[0.04] backdrop-blur">
               <CardHeader className="space-y-3">
-                <CardTitle className="text-2xl">How the drills work</CardTitle>
+                <CardTitle className="text-2xl">How the trivia drills work</CardTitle>
                 <p className="text-sm text-slate-200/80">
-                  Cycle through the deck, reveal the rationale, then jump to the next dial. Every card mirrors the cues the
-                  Sprint Coach is looking for when you enter the ring.
+                  Pick your Cisco architecture tile to load the matching stat deck. Each round pulls the latest numbers so the
+                  correct answer shifts as the Data#3 story evolves.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-slate-200/80">
@@ -87,14 +86,14 @@ export default function Dojo({ params }: DojoRouteProps) {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Pro tip</p>
                   <p className="mt-2 text-sm text-slate-200/80">
-                    Use the arrow keys or tap the on-screen controls to loop the deck. Reset anytime before you hand the kiosk
-                    to the next teammate.
+                    Score 6 points if you answer before the 10-second mark. After 5 seconds a hint appears — use it, but note
+                    that the max points drop with every cue.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <FlashCardDeck cards={flashCardDeck} className="h-full" />
+            <TriviaWarmup mode="dojo" className="h-full" />
           </div>
 
           <div className="flex flex-wrap gap-3">

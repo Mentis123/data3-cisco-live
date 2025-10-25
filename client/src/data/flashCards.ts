@@ -5,6 +5,18 @@ export type FlashCardCategory =
   | "OBSERVABILITY"
   | "EDGE_IOT";
 
+export const flashCardCategories: FlashCardCategory[] = [
+  "SECURE_CONNECTIVITY",
+  "HYBRID_DC",
+  "COLLAB_CX",
+  "OBSERVABILITY",
+  "EDGE_IOT",
+];
+
+export function isFlashCardCategory(value: string): value is FlashCardCategory {
+  return flashCardCategories.includes(value as FlashCardCategory);
+}
+
 export interface FlashCard {
   id: string;
   category: FlashCardCategory;
