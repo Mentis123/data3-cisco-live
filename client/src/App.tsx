@@ -13,6 +13,7 @@ import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
 import Beta from "@/pages/Beta";
 import BetaPlay from "@/pages/BetaPlay";
+import Dojo from "@/pages/Dojo";
 
 function Router() {
   return (
@@ -27,6 +28,8 @@ function Router() {
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
       <Route path="/beta" component={Beta} />
       <Route path="/beta/play" component={BetaPlay} />
+      <Route path="/beta/ring" component={BetaPlay} />
+      <Route path="/dojo/:mode" component={Dojo} />
       <Route component={NotFound} />
     </Switch>
   );
