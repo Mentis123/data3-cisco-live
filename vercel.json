@@ -12,8 +12,11 @@
   ],
   "rewrites": [
     { "source": "/api", "destination": "/api/index.ts" },
-    { "source": "/api/(.*)", "destination": "/api/index.ts" },
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/api/(.*)", "destination": "/api/index.ts" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "build": {
     "env": {
