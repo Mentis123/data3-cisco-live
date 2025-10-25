@@ -37,12 +37,30 @@ function Section({ eyebrow, title, description, children }: SectionProps) {
   );
 }
 
-const passCopyTemplate =
-  "You beat the Bot Bar ({{bar}})! Score {{score}}/50 — Raffle entry recorded for {{date}} ✅";
-const failCopyTemplate =
-  "Close! {{score}}/50. Add a number + date on your Case Card to qualify next time.";
-const dailyBannerCopyTemplate =
-  "Today’s draw runs at {{time}}. Winner appears here and receives email instructions.";
+type TemplatePlaceholderProps = {
+  token: string;
+};
+
+function TemplatePlaceholder({ token }: TemplatePlaceholderProps) {
+  return <code className="font-mono text-primary/90">{`{{${token}}}`}</code>;
+}
+
+const passCopyTemplate = (
+  <>
+    You beat the Bot Bar (<TemplatePlaceholder token="bar" />)! Score <TemplatePlaceholder token="score" />/50 — Raffle entry
+    recorded for <TemplatePlaceholder token="date" /> ✅
+  </>
+);
+const failCopyTemplate = (
+  <>
+    Close! <TemplatePlaceholder token="score" />/50. Add a number + date on your Case Card to qualify next time.
+  </>
+);
+const dailyBannerCopyTemplate = (
+  <>
+    Today’s draw runs at <TemplatePlaceholder token="time" />. Winner appears here and receives email instructions.
+  </>
+);
 
 const heroStats = [
   {
