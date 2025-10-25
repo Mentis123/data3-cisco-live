@@ -1,7 +1,16 @@
 import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "../../shared/schema.js";
-import { eq, desc, sql, and } from "drizzle-orm";
-import { participants, submissions, data3Stats, customCategories } from "../../shared/schema.js";
+import { eq, desc, sql, and, inArray } from "drizzle-orm";
+import {
+  participants,
+  submissions,
+  data3Stats,
+  customCategories,
+  users,
+  attempts,
+  answers,
+  flashItems,
+} from "../../shared/schema.js";
 import type {
   InsertParticipant,
   InsertSubmission,
@@ -10,7 +19,13 @@ import type {
   Data3Stat,
   InsertCustomCategory,
   CustomCategory,
+  User,
+  Attempt,
+  Answer,
+  InsertAnswer,
+  FlashItem,
 } from "../../shared/schema.js";
+import { createHash } from "crypto";
 
 // Pre-populate Data#3 stats (using only system categories)
 export const DEFAULT_DATA3_STATS = [
@@ -27,6 +42,66 @@ export const DEFAULT_DATA3_STATS = [
   { title: "Network Endpoints", value: "1M+", description: "Devices under management", category: "GENERAL", displayOrder: 8 },
   { title: "Annual Revenue", value: "$1.8B+", description: "Sustained growth and investment", category: "SCALE", displayOrder: 10 }
 ];
+
+type FlashMode = "dojo" | "ring";
+
+interface StartFlashAttemptOptions {
+  category: string;
+  mode: FlashMode;
+  email?: string;
+  marketingOptIn?: boolean;
+  playerProfile?: Pick<User, "firstName" | "lastName" | "company" | "role">;
+  deckSize?: number;
+}
+
+interface FlashAnswerInput {
+  itemId: string;
+  choiceIndex: number;
+  elapsedMs: number;
+}
+
+interface CompleteFlashAttemptOptions {
+  attemptId: string;
+  answers: FlashAnswerInput[];
+}
+
+interface FlashCardPayload {
+  id: string;
+  category: string;
+  stem: string;
+  choices: string[];
+  correctIndex: number;
+  dropIndex: number;
+  hint9s: string;
+  difficulty: number;
+  tags: string[];
+  explanation: string | null;
+  version: number;
+}
+
+interface FlashCardSummary extends FlashCardPayload {
+  selectedIndex: number;
+  correct: boolean;
+  points: number;
+  elapsedMs: number;
+}
+
+interface FlashAttemptResult {
+  attempt: Attempt;
+  cards: FlashCardPayload[];
+  snapshot: FlashCardSnapshot;
+}
+
+type FlashCardSnapshot = Array<{
+  itemId: string;
+  choices: string[];
+  correctIndex: number;
+  dropIndex: number;
+}>;
+
+const FLASH_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
+const FLASH_ROUND_SIZE = 5;
+const MAX_FLASH_TIME_MS = 12_000;
 
 // Initialize stats on startup (development only)
 async function initializeData(db: NeonDatabase<typeof schema>) {
@@ -52,6 +127,24 @@ async function initializeData(db: NeonDatabase<typeof schema>) {
   }
 }
 
+function shuffleArray<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function hashEmail(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
+
+function computeAttemptDay(date: Date): string {
+  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  return utc.toISOString().slice(0, 10);
+}
+
 // Define system category names that are reserved and cannot be used for custom categories
 export const SYSTEM_CATEGORY_NAMES = [
   'GENERAL',
@@ -67,7 +160,341 @@ export const SYSTEM_CATEGORY_NAMES = [
 export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   initializeData(db);
 
+  const normalizeProfile = (
+    profile: StartFlashAttemptOptions["playerProfile"],
+  ): Partial<User> => {
+    if (!profile) {
+      return {};
+    }
+
+    const result: Partial<User> = {};
+    if (profile.firstName) result.firstName = profile.firstName;
+    if (profile.lastName) result.lastName = profile.lastName;
+    if (profile.company) result.company = profile.company;
+    if (profile.role) result.role = profile.role;
+    return result;
+  };
+
+  const ensureUserRecord = async (
+    email: string | undefined,
+    profile: StartFlashAttemptOptions["playerProfile"],
+  ): Promise<{ user: User | null; emailHash: string | null }> => {
+    if (!email) {
+      return { user: null, emailHash: null };
+    }
+
+    const normalizedProfile = normalizeProfile(profile);
+    const emailHash = hashEmail(email);
+
+    const [existing] = await db
+      .select()
+      .from(users)
+      .where(eq(users.emailHash, emailHash));
+
+    if (existing) {
+      if (Object.keys(normalizedProfile).length > 0) {
+        await db.update(users).set(normalizedProfile).where(eq(users.emailHash, emailHash));
+        return { user: { ...existing, ...normalizedProfile }, emailHash };
+      }
+      return { user: existing, emailHash };
+    }
+
+    const [created] = await db
+      .insert(users)
+      .values({ emailHash, ...normalizedProfile })
+      .returning();
+    return { user: created, emailHash };
+  };
+
+  const buildFlashDeck = async (
+    category: string,
+    deckSize: number = FLASH_ROUND_SIZE,
+  ): Promise<{ cards: FlashCardPayload[]; snapshot: FlashCardSnapshot; maxVersion: number }> => {
+    const rawItems = await db
+      .select()
+      .from(flashItems)
+      .where(and(eq(flashItems.category, category), eq(flashItems.active, true)));
+
+    if (!rawItems.length) {
+      throw new Error(`No flash items available for category ${category}`);
+    }
+
+    const byDifficulty = new Map<number, FlashItem[]>();
+    for (const item of rawItems) {
+      const diff = item.difficulty ?? 2;
+      const bucket = byDifficulty.get(diff) ?? [];
+      bucket.push(item);
+      byDifficulty.set(diff, bucket);
+    }
+
+    const selected: FlashItem[] = [];
+    const leftover: FlashItem[] = [];
+
+    for (const [difficulty, target] of Object.entries(FLASH_TARGETS)) {
+      const diff = Number(difficulty);
+      const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
+      const required = target as number;
+      for (let i = 0; i < bucket.length; i++) {
+        if (selected.length < deckSize && i < required) {
+          selected.push(bucket[i]!);
+        } else {
+          leftover.push(bucket[i]!);
+        }
+      }
+    }
+
+    if (selected.length < deckSize) {
+      const filler = shuffleArray(leftover);
+      for (const item of filler) {
+        if (selected.length >= deckSize) break;
+        selected.push(item);
+      }
+    }
+
+    if (selected.length < deckSize) {
+      throw new Error(`Insufficient flash items to build a deck for ${category}`);
+    }
+
+    const deck = shuffleArray(selected.slice(0, deckSize));
+
+    const cards: FlashCardPayload[] = [];
+    const snapshot: FlashCardSnapshot = [];
+    let maxVersion = 1;
+
+    for (const item of deck) {
+      const baseChoices = Array.isArray(item.choices) ? item.choices : [];
+      if (baseChoices.length === 0) {
+        continue;
+      }
+
+      const randomized = shuffleArray(
+        baseChoices.map((choice, index) => ({ choice, index })),
+      );
+      const choices = randomized.map((entry) => entry.choice);
+      const correctIndex = randomized.findIndex((entry) => entry.index === item.correctIndex);
+      const dropIndex = randomized.findIndex((entry) => entry.index === item.dropIndex);
+
+      cards.push({
+        id: item.id,
+        category: item.category,
+        stem: item.stem,
+        choices,
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        dropIndex: dropIndex >= 0 ? dropIndex : 0,
+        hint9s: item.hint9s,
+        difficulty: item.difficulty ?? 2,
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        explanation: item.explanation ?? null,
+        version: item.version ?? 1,
+      });
+
+      snapshot.push({
+        itemId: item.id,
+        choices,
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        dropIndex: dropIndex >= 0 ? dropIndex : 0,
+      });
+
+      if (item.version && item.version > maxVersion) {
+        maxVersion = item.version;
+      }
+    }
+
+    if (cards.length < deckSize) {
+      throw new Error(`Failed to construct flash deck for ${category}`);
+    }
+
+    return { cards, snapshot, maxVersion };
+  };
+
   return {
+    async getFlashCategories() {
+      const rows = await db
+        .select({
+          category: flashItems.category,
+          difficulty: flashItems.difficulty,
+          count: sql<number>`count(*)`,
+        })
+        .from(flashItems)
+        .where(eq(flashItems.active, true))
+        .groupBy(flashItems.category, flashItems.difficulty);
+
+      const summary = new Map<
+        string,
+        { category: string; total: number; easy: number; medium: number; hard: number }
+      >();
+
+      for (const row of rows) {
+        const category = row.category;
+        const entry =
+          summary.get(category) ?? {
+            category,
+            total: 0,
+            easy: 0,
+            medium: 0,
+            hard: 0,
+          };
+
+        entry.total += Number(row.count ?? 0);
+        const difficulty = row.difficulty ?? 2;
+        if (difficulty === 1) entry.easy += Number(row.count ?? 0);
+        else if (difficulty === 2) entry.medium += Number(row.count ?? 0);
+        else entry.hard += Number(row.count ?? 0);
+
+        summary.set(category, entry);
+      }
+
+      return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
+    },
+
+    async startFlashAttempt(options: StartFlashAttemptOptions) {
+      const deckSize = options.deckSize ?? FLASH_ROUND_SIZE;
+      const { cards, snapshot, maxVersion } = await buildFlashDeck(options.category, deckSize);
+      const { emailHash } = await ensureUserRecord(options.email, options.playerProfile);
+      const now = new Date();
+
+      const [attempt] = await db
+        .insert(attempts)
+        .values({
+          emailHash,
+          category: options.category,
+          mode: options.mode,
+          marketingOptIn: !!options.marketingOptIn,
+          attemptDay: computeAttemptDay(now),
+          cardSetVersion: maxVersion,
+          deckSnapshot: snapshot,
+        })
+        .returning();
+
+      return { attempt, cards, snapshot } satisfies FlashAttemptResult;
+    },
+
+    async completeFlashAttempt(options: CompleteFlashAttemptOptions) {
+      if (!options.answers.length) {
+        throw new Error("No answers provided for flash attempt completion");
+      }
+
+      return await db.transaction(async (tx) => {
+        const [attempt] = await tx.select().from(attempts).where(eq(attempts.id, options.attemptId));
+
+        if (!attempt) {
+          throw new Error("Flash attempt not found");
+        }
+
+        if (attempt.endedAt) {
+          throw new Error("Flash attempt already completed");
+        }
+
+        const snapshotRaw = Array.isArray(attempt.deckSnapshot)
+          ? (attempt.deckSnapshot as FlashCardSnapshot)
+          : [];
+        const snapshotMap = new Map(snapshotRaw.map((entry) => [entry.itemId, entry]));
+        const cardIds = Array.from(new Set(options.answers.map((answer) => answer.itemId)));
+
+        const cards = cardIds.length
+          ? await tx.select().from(flashItems).where(inArray(flashItems.id, cardIds))
+          : [];
+        const cardMap = new Map(cards.map((item) => [item.id, item]));
+
+        const answerRecords: InsertAnswer[] = [];
+        const summaries: FlashCardSummary[] = [];
+        let totalScore = 0;
+        let correctTimeTotal = 0;
+        let correctCount = 0;
+
+        for (const submission of options.answers) {
+          const snapshot = snapshotMap.get(submission.itemId);
+          const item = cardMap.get(submission.itemId);
+
+          if (!snapshot || !item) {
+            throw new Error(`Invalid flash card ${submission.itemId} for attempt ${options.attemptId}`);
+          }
+
+          const selectedIndex = Number.isInteger(submission.choiceIndex)
+            ? submission.choiceIndex
+            : -1;
+          const elapsedMs = Math.max(
+            0,
+            Math.min(MAX_FLASH_TIME_MS, submission.elapsedMs ?? MAX_FLASH_TIME_MS),
+          );
+          const correct = selectedIndex === snapshot.correctIndex;
+          let points = 0;
+          if (correct) {
+            if (elapsedMs <= 5000) points = 6;
+            else if (elapsedMs <= 9000) points = 5;
+            else if (elapsedMs <= MAX_FLASH_TIME_MS) points = 4;
+          }
+
+          totalScore += points;
+          if (correct) {
+            correctTimeTotal += elapsedMs;
+            correctCount += 1;
+          }
+
+          answerRecords.push({
+            attemptId: options.attemptId,
+            itemId: submission.itemId,
+            choiceIndex: selectedIndex,
+            correct,
+            pointsAwarded: points,
+            tAnswerMs: elapsedMs,
+          });
+
+          summaries.push({
+            id: item.id,
+            category: item.category,
+            stem: item.stem,
+            choices: snapshot.choices,
+            correctIndex: snapshot.correctIndex,
+            dropIndex: snapshot.dropIndex,
+            hint9s: item.hint9s,
+            difficulty: item.difficulty ?? 2,
+            tags: Array.isArray(item.tags) ? item.tags : [],
+            explanation: item.explanation ?? null,
+            version: item.version ?? 1,
+            selectedIndex,
+            correct,
+            points,
+            elapsedMs,
+          });
+        }
+
+        if (answerRecords.length) {
+          await tx.delete(answers).where(eq(answers.attemptId, options.attemptId));
+          await tx.insert(answers).values(answerRecords);
+        }
+
+        const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
+        const endedAt = new Date();
+        const passed = totalScore >= 18;
+        const eligible = passed && attempt.mode === "ring";
+
+        const [updated] = await tx
+          .update(attempts)
+          .set({
+            totalScore,
+            endedAt,
+            passed,
+            eligible,
+            avgCorrectTimeMs: avgCorrect,
+          })
+          .where(eq(attempts.id, options.attemptId))
+          .returning();
+
+        const attemptRecord =
+          updated ?? {
+            ...attempt,
+            totalScore,
+            endedAt,
+            passed,
+            eligible,
+            avgCorrectTimeMs: avgCorrect,
+          };
+
+        return { attempt: attemptRecord, summary: summaries, totalScore };
+      });
+    },
+
     async createParticipant(data: InsertParticipant): Promise<Participant> {
     const [result] = await db.insert(participants).values(data).returning();
     return result;
@@ -81,6 +508,18 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async createSubmission(data: InsertSubmission): Promise<Submission> {
     const [result] = await db.insert(submissions).values(data).returning();
     return result;
+  },
+
+    async attachSubmissionToFlashAttempt(attemptId: string, submissionId: string): Promise<void> {
+    const updated = await db
+      .update(attempts)
+      .set({ submissionId })
+      .where(eq(attempts.id, attemptId))
+      .returning({ id: attempts.id });
+
+    if (!updated.length) {
+      throw new Error(`Flash attempt ${attemptId} not found`);
+    }
   },
 
     async getLeaderboard(limit: number = 100, category?: string): Promise<any[]> {

@@ -160,6 +160,7 @@ Just describe it naturally - what's the problem that needs solving?`
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
         solutionText: state.messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
+        flashAttemptId: flashAttemptId ?? undefined,
         structuredFields: submission,
       });
       return response.json();

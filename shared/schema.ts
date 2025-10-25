@@ -1,6 +1,16 @@
 
 import { sql } from "drizzle-orm";
-import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  integer,
+  timestamp,
+  boolean,
+  smallint,
+  jsonb,
+  date,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -40,6 +50,126 @@ export const customCategories = pgTable("custom_categories", {
   color: text("color").notNull(),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  emailHash: text("email_hash").notNull().unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  company: text("company"),
+  role: text("role"),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const attempts = pgTable("attempts", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  emailHash: text("email_hash").references(() => users.emailHash),
+  category: text("category").notNull(),
+  mode: text("mode").notNull(),
+  startedAt: timestamp("started_at", { withTimezone: true }).default(sql`now()`),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  totalScore: integer("total_score"),
+  passed: boolean("passed").notNull().default(false),
+  eligible: boolean("eligible").notNull().default(false),
+  avgCorrectTimeMs: integer("avg_correct_time_ms"),
+  botBar: integer("bot_bar"),
+  marketingOptIn: boolean("marketing_opt_in").notNull().default(false),
+  consentCapturedAt: timestamp("consent_captured_at", { withTimezone: true }),
+  attemptDay: date("attempt_day"),
+  cardSetVersion: integer("card_set_version").default(1),
+  deckSnapshot: jsonb("deck_snapshot"),
+  submissionId: text("submission_id").references(() => submissions.id, { onDelete: "set null" }),
+});
+
+export const answers = pgTable("answers", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  attemptId: text("attempt_id")
+    .notNull()
+    .references(() => attempts.id, { onDelete: "cascade" }),
+  itemId: text("item_id").notNull(),
+  choiceIndex: smallint("choice_index").notNull(),
+  correct: boolean("correct").notNull(),
+  pointsAwarded: smallint("points_awarded").notNull().default(0),
+  tAnswerMs: integer("t_answer_ms").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const flashItems = pgTable("flash_items", {
+  id: text("id").primaryKey(),
+  category: text("category").notNull(),
+  stem: text("stem").notNull(),
+  choices: text("choices").array().notNull(),
+  correctIndex: smallint("correct_index").notNull(),
+  dropIndex: smallint("drop_index").notNull(),
+  hint9s: text("hint_9s").notNull(),
+  difficulty: smallint("difficulty").notNull(),
+  tags: text("tags").array().default(sql`'{}'::text[]`),
+  explanation: text("explanation"),
+  active: boolean("active").notNull().default(true),
+  version: integer("version").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const caseCards = pgTable("case_cards", {
+  attemptId: text("attempt_id")
+    .primaryKey()
+    .references(() => attempts.id, { onDelete: "cascade" }),
+  problemText: text("problem_text").notNull(),
+  baselineValue: integer("baseline_value"),
+  baselineUnit: text("baseline_unit"),
+  targetValue: integer("target_value"),
+  targetUnit: text("target_unit"),
+  dueDate: date("due_date"),
+  ownerRole: text("owner_role"),
+  milestoneLabel: text("milestone_label"),
+  milestoneDate: date("milestone_date"),
+  usersAffected: integer("users_affected"),
+  minutesSaved: integer("minutes_saved"),
+  frequencyPerWeek: integer("frequency_per_week"),
+  annualTimeHours: integer("annual_time_hours"),
+  annualCostEst: integer("annual_cost_est"),
+  dialClarity: smallint("dial_clarity"),
+  dialImpact: smallint("dial_impact"),
+  dialKpi: smallint("dial_kpi"),
+  dialExecution: smallint("dial_execution"),
+  dialConfidence: smallint("dial_confidence"),
+  processFeatures: jsonb("process_features").default(sql`'{}'::jsonb`),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const raffleEntries = pgTable("raffle_entries", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  raffleDate: date("raffle_date").notNull(),
+  emailHash: text("email_hash").notNull(),
+  category: text("category").notNull(),
+  attemptId: text("attempt_id")
+    .notNull()
+    .references(() => attempts.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const raffleDraws = pgTable("raffle_draws", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  raffleDate: date("raffle_date").notNull().unique(),
+  winnerEntryId: text("winner_entry_id").references(() => raffleEntries.id),
+  rngSeed: text("rng_seed").notNull(),
+  adminUser: text("admin_user").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
+export const leaderboardCache = pgTable(
+  "leaderboard_cache",
+  {
+    cacheDate: date("cache_date").notNull(),
+    tab: text("tab").notNull(),
+    payloadJson: jsonb("payload_json").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.cacheDate, table.tab] }),
+  }),
+);
 
 export const insertParticipantSchema = createInsertSchema(participants).omit({
   id: true,
@@ -83,6 +213,7 @@ export const submitSolutionSchema = z.object({
   sessionToken: z.string(),
   category: z.enum(["SECURE_CONNECTIVITY", "HYBRID_DC", "COLLAB_CX", "OBSERVABILITY", "EDGE_IOT"]).optional(), // Category now auto-assigned
   solutionText: z.string(),
+  flashAttemptId: z.string().optional(),
   structuredFields: z.object({
     problem_summary: z.string(),
     impact_summary: z.string(),
@@ -109,3 +240,11 @@ export type InsertData3Stat = z.infer<typeof insertData3StatSchema>;
 export type Data3Stat = typeof data3Stats.$inferSelect;
 export type InsertCustomCategory = z.infer<typeof insertCustomCategorySchema>;
 export type CustomCategory = typeof customCategories.$inferSelect;
+export type User = typeof users.$inferSelect;
+export type Attempt = typeof attempts.$inferSelect;
+export type Answer = typeof answers.$inferSelect;
+export type InsertAnswer = typeof answers.$inferInsert;
+export type FlashItem = typeof flashItems.$inferSelect;
+export type CaseCard = typeof caseCards.$inferSelect;
+export type RaffleEntry = typeof raffleEntries.$inferSelect;
+export type RaffleDraw = typeof raffleDraws.$inferSelect;

@@ -13,6 +13,7 @@ import {
 } from "../shared/schema.js";
 import { randomUUID } from "crypto";
 import path from "path";
+import { z } from "zod";
 
 log(
   `Using ${storageKind} storage backend${storageKind === "memory" ? " (no database connection string configured)" : ""}`,
@@ -53,6 +54,34 @@ const CATEGORIES = [
   { key: "OBSERVABILITY", name: "Observability & Performance", description: "Network monitoring, analytics, performance management, troubleshooting, visibility tools, automation" },
   { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks" },
 ];
+
+const startFlashAttemptSchema = z.object({
+  category: z.string(),
+  mode: z.enum(["dojo", "ring"]),
+  email: z.string().email().optional(),
+  marketingOptIn: z.boolean().optional(),
+  playerProfile: z
+    .object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      company: z.string().optional(),
+      role: z.string().optional(),
+    })
+    .optional(),
+});
+
+const completeFlashAttemptSchema = z.object({
+  attemptId: z.string(),
+  answers: z
+    .array(
+      z.object({
+        itemId: z.string(),
+        choiceIndex: z.number(),
+        elapsedMs: z.number().min(0).max(60_000),
+      }),
+    )
+    .min(1),
+});
 
 type MetricValueKey = "value" | "target";
 type MetricEntry<K extends MetricValueKey> = { name: string } & Record<K, string>;
@@ -211,6 +240,69 @@ export async function registerRoutes(
     res.json(CATEGORIES);
   });
 
+  app.get("/api/flash/categories", async (req, res) => {
+    try {
+      const categories = await storage.getFlashCategories();
+      res.json({ categories });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch flash categories" });
+    }
+  });
+
+  app.post("/api/flash/attempts", async (req, res) => {
+    try {
+      const payload = startFlashAttemptSchema.parse(req.body);
+      if (payload.mode === "ring" && !payload.email) {
+        return res.status(400).json({ message: "Email is required for ring attempts" });
+      }
+
+      const playerProfile = payload.playerProfile
+        ? {
+            firstName: payload.playerProfile.firstName ?? null,
+            lastName: payload.playerProfile.lastName ?? null,
+            company: payload.playerProfile.company ?? null,
+            role: payload.playerProfile.role ?? null,
+          }
+        : undefined;
+
+      const { attempt, cards } = await storage.startFlashAttempt({
+        ...payload,
+        playerProfile,
+      });
+      res.json({
+        attemptId: attempt.id,
+        category: attempt.category,
+        mode: attempt.mode,
+        cards,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to start flash attempt";
+      res.status(400).json({ message });
+    }
+  });
+
+  app.post("/api/flash/attempts/:attemptId/complete", async (req, res) => {
+    try {
+      const payload = completeFlashAttemptSchema.parse({
+        attemptId: req.params.attemptId,
+        answers: req.body.answers,
+      });
+
+      const result = await storage.completeFlashAttempt(payload);
+      res.json({
+        attemptId: result.attempt.id,
+        totalScore: result.totalScore,
+        passed: result.attempt.passed,
+        eligible: result.attempt.eligible,
+        avgCorrectTimeMs: result.attempt.avgCorrectTimeMs,
+        summary: result.summary,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to complete flash attempt";
+      res.status(400).json({ message });
+    }
+  });
+
   app.post("/api/chat", async (req, res) => {
     try {
       const { sessionToken, messages, sprintStep } = chatSchema.parse(req.body);
@@ -293,7 +385,7 @@ export async function registerRoutes(
         }
       }
 
-      const { sessionToken, solutionText, structuredFields } = submitSolutionSchema.parse(req.body);
+      const { sessionToken, solutionText, structuredFields, flashAttemptId } = submitSolutionSchema.parse(req.body);
       const session = sessions.get(sessionToken);
 
       if (!session) {
@@ -349,6 +441,17 @@ export async function registerRoutes(
         totalScore: evaluation.total,
         evaluationNotes: evaluation.notes_short,
       });
+
+      if (flashAttemptId) {
+        try {
+          await storage.attachSubmissionToFlashAttempt(flashAttemptId, submission.id);
+        } catch (error) {
+          console.warn(
+            `[flash] Failed to associate submission ${submission.id} with flash attempt ${flashAttemptId}:`,
+            error,
+          );
+        }
+      }
 
       // Get current leaderboard to calculate rank
       const leaderboard = await storage.getLeaderboard();
