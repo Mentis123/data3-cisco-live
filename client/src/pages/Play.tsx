@@ -18,11 +18,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
+import { FlashCardDeck } from "@/components/flashcards/FlashCardDeck";
+import { flashCardDeck } from "@/data/flashCards";
 
 type PlayVariant = "classic" | "beta";
 
@@ -45,6 +55,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [flashDeckOpen, setFlashDeckOpen] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
@@ -729,25 +740,38 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     if (isBeta) {
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
+          {flashDeckDialog}
           <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
                 <h2 className="text-2xl font-semibold leading-tight sm:text-3xl">Final review</h2>
                 <p className="text-sm text-slate-300/80">
                   Tighten anything before you lock your score and generate the raffle entry.
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => goToStep(dispatch, 3)}
-                className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                data-testid="button-back-to-chat"
-              >
-                <i className="fas fa-comments mr-2"></i>
-                Back to coach
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white"
+                  >
+                    <i className="fas fa-bolt mr-2"></i>
+                    Practice cards
+                  </Button>
+                </DialogTrigger>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => goToStep(dispatch, 3)}
+                  className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                  data-testid="button-back-to-chat"
+                >
+                  <i className="fas fa-comments mr-2"></i>
+                  Back to coach
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -1026,17 +1050,18 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
-      );
+        );
     }
 
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <div className="flex-1 py-4 sm:py-8 safe-area-padding">
-          <div className="max-w-4xl mx-auto px-4">
-            <Card className="glass-panel border-0 overflow-hidden">
-              <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
+        {flashDeckDialog}
+          <div className="flex-1 py-4 sm:py-8 safe-area-padding">
+            <div className="max-w-4xl mx-auto px-4">
+              <Card className="glass-panel border-0 overflow-hidden">
+                <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
                 <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
                 <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
@@ -1050,16 +1075,28 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         Double-check your solution and send it for scoring.
                       </p>
                     </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => goToStep(dispatch, 3)}
-                      className="bg-white/15 text-white hover:bg-white/25"
-                      data-testid="button-back-to-chat"
-                    >
-                      <i className="fas fa-comments mr-2"></i>
-                      Back to Chat
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border border-white/40 bg-white/10 text-white/90 hover:bg-white/20"
+                        >
+                          <i className="fas fa-bolt mr-2"></i>
+                          Practice cards
+                        </Button>
+                      </DialogTrigger>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => goToStep(dispatch, 3)}
+                        className="bg-white/15 text-white hover:bg-white/25"
+                        data-testid="button-back-to-chat"
+                      >
+                        <i className="fas fa-comments mr-2"></i>
+                        Back to Chat
+                      </Button>
+                    </div>
                   </div>
 
                   <SprintStepper
@@ -1280,6 +1317,20 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     </AlertDialog>
   );
 
+  const flashDeckDialog = (
+    <Dialog open={flashDeckOpen} onOpenChange={setFlashDeckOpen}>
+      <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-semibold text-white">Practice flash cards</DialogTitle>
+          <DialogDescription className="text-sm text-slate-300">
+            Work through each dial with instant rationales before you lock your score.
+          </DialogDescription>
+        </DialogHeader>
+        <FlashCardDeck cards={flashCardDeck} />
+      </DialogContent>
+    </Dialog>
+  );
+
   if (isBeta) {
     const previewSubmission =
       state.submission ||
@@ -1301,6 +1352,16 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <span className="rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
                       Step {state.step}/4
                     </span>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-9 border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white"
+                      >
+                        <i className="fas fa-bolt mr-2"></i>
+                        Practice cards
+                      </Button>
+                    </DialogTrigger>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1524,6 +1585,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
           </div>
         </div>
         {exitDialog}
+        {flashDeckDialog}
       </>
     );
   }
@@ -1539,32 +1601,44 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
                 <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
-                <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-robot text-lg sm:text-2xl"></i>
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
-                      </div>
+              <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <i className="fas fa-robot text-lg sm:text-2xl"></i>
                     </div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
+                    </div>
+                  </div>
 
+                  <div className="ml-auto flex items-center gap-2">
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border border-white/30 bg-white/10 text-white/90 hover:bg-white/20"
+                      >
+                        <i className="fas fa-bolt mr-2"></i>
+                        Practice cards
+                      </Button>
+                    </DialogTrigger>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowExitDialog(true)}
-                      className="ml-auto text-white/90 hover:text-white hover:bg-white/20"
+                      className="text-white/90 hover:text-white hover:bg-white/20"
                       data-testid="button-exit-chat"
                     >
                       <i className="fas fa-home mr-2"></i>
                       Exit
                     </Button>
                   </div>
+                </div>
 
-                  <SprintStepper
-                    currentStep={state.step}
-                    completedSteps={state.completedSteps}
+                <SprintStepper
+                  currentStep={state.step}
+                  completedSteps={state.completedSteps}
                     onStepClick={handleStepClick}
                   />
                 </div>
@@ -1670,6 +1744,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         </div>
       </div>
       {exitDialog}
+      {flashDeckDialog}
     </>
   );
 
