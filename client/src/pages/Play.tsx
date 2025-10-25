@@ -24,10 +24,19 @@ import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
 
-function PlayContent() {
+type PlayVariant = "classic" | "beta";
+
+type PlayContentProps = {
+  variant?: PlayVariant;
+};
+
+export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { state, dispatch } = useSprint();
+
+  const isBeta = variant === "beta";
+  const exitDestination = isBeta ? "/beta" : "/";
   
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -409,6 +418,183 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   // Registration view
   if (!registrationComplete) {
+    if (isBeta) {
+      const betaHighlights = [
+        {
+          title: "Drop → Hint → Lock",
+          copy: "Each flash card reveals the rationale so practice and competition share the same flow.",
+        },
+        {
+          title: "Expo-ready controls",
+          copy: "Large tap targets, keyboard shortcuts and high contrast UI for kiosks and touch tables.",
+        },
+        {
+          title: "One run per day",
+          copy: "We verify badge names so raffle entries stay clean for the daily Meta AI Glasses draw.",
+        },
+        {
+          title: "Live scoring",
+          copy: "Submit anytime to lock KPIs and see where you land on the leaderboard in seconds.",
+        },
+      ];
+
+      return (
+        <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
+          <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[1.25fr_1fr]">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+                Beta Playtest
+              </div>
+              <div className="space-y-4">
+                <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
+                  Launch the Solution Sprint beta run
+                </h1>
+                <p className="max-w-2xl text-pretty text-lg text-slate-200">
+                  Check in with your Cisco Live badge name, then the Sprint Coach guides you through a three-reply rhythm. You&apos;ll lock the problem, quantify the impact and send it for instant scoring.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {betaHighlights.map((item) => (
+                  <Card key={item.title} className="border-white/10 bg-white/5 backdrop-blur-xl">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base font-semibold text-white/90">
+                        {item.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-slate-200/90 leading-snug">
+                      {item.copy}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => setLocation(exitDestination)}
+                  className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i>
+                  Back to beta overview
+                </Button>
+                <Button
+                  onClick={handleStartChat}
+                  disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
+                  size="lg"
+                  className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                  data-testid="button-start-chat"
+                >
+                  {startSessionMutation.isPending ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950" />
+                      Spinning up coach...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-bolt mr-2"></i>
+                      Launch beta run
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <p className="text-sm text-slate-300/80">
+                Tip: Shift + Enter adds a new line. You can also type <code className="rounded bg-white/10 px-1 py-0.5 text-xs">submit</code> to jump straight to final review.
+              </p>
+            </div>
+
+            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+              <CardHeader className="space-y-2">
+                <CardTitle className="text-2xl font-semibold text-white">Badge check-in</CardTitle>
+                <p className="text-sm text-slate-200/80">
+                  Use the name on your Cisco Live badge. Only initials appear on the leaderboard; we use the full name for raffle verification.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-semibold text-white/80">
+                      First name
+                    </Label>
+                    <Input
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="As printed on your badge"
+                      className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
+                      data-testid="input-first-name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-semibold text-white/80">
+                      Last name
+                    </Label>
+                    <Input
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="We show the initial only"
+                      className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
+                      data-testid="input-last-name"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-lg text-emerald-300">
+                      <i className="fas fa-clock"></i>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">Sprint rhythm</p>
+                      <p className="text-xs text-slate-300/90">3 guided replies • 6 input maximum • Instant score</p>
+                    </div>
+                  </div>
+                  <ol className="space-y-2 text-sm leading-snug text-slate-200/80">
+                    <li>
+                      <span className="font-semibold text-emerald-300">1.</span> Name the problem – what&apos;s breaking flow?
+                    </li>
+                    <li>
+                      <span className="font-semibold text-emerald-300">2.</span> Quantify impact – time, cost or risk in play.
+                    </li>
+                    <li>
+                      <span className="font-semibold text-emerald-300">3.</span> Review &amp; submit – lock targets then compete.
+                    </li>
+                  </ol>
+                </div>
+
+                <Button
+                  onClick={handleStartChat}
+                  disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
+                  className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                  data-testid="button-start-chat"
+                >
+                  {startSessionMutation.isPending ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950" />
+                      Checking badge...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-play mr-2"></i>
+                      Enter the ring
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-center text-slate-400">
+                  Average run time under 3 minutes. Need help? Flag down a Sprint Captain.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-background text-foreground py-4 sm:py-8 safe-area-padding">
         <div className="max-w-2xl mx-auto px-4">
@@ -416,7 +602,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation(exitDestination)}
               className="text-muted-foreground hover:text-foreground"
               data-testid="button-home-registration"
             >
@@ -424,7 +610,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               Back to Home
             </Button>
           </div>
-          
+
           <Card className="glass-panel border-0 overflow-hidden">
             <div className="relative h-32 sm:h-40">
               <img
@@ -516,7 +702,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 {startSessionMutation.isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Starting Sprint...
+                    Checking In...
                   </>
                 ) : (
                   <>
@@ -539,6 +725,311 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   // Submit/Review view
   if (state.step === 4 && state.submission) {
     const currentSubmission = editedSubmission || state.submission;
+
+    if (isBeta) {
+      return (
+        <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
+          <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
+                <h2 className="text-2xl font-semibold leading-tight sm:text-3xl">Final review</h2>
+                <p className="text-sm text-slate-300/80">
+                  Tighten anything before you lock your score and generate the raffle entry.
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => goToStep(dispatch, 3)}
+                className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                data-testid="button-back-to-chat"
+              >
+                <i className="fas fa-comments mr-2"></i>
+                Back to coach
+              </Button>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+              <Card className="border-white/10 bg-slate-900/70 backdrop-blur-xl">
+                <CardHeader className="space-y-4 pb-2">
+                  <div className="space-y-2">
+                    <CardTitle className="text-xl font-semibold text-white sm:text-2xl">
+                      Lock your solution
+                    </CardTitle>
+                    <p className="text-sm text-slate-300/90">
+                      Update the story or metrics below. Everything syncs instantly with the leaderboard.
+                    </p>
+                  </div>
+                  <SprintStepper
+                    currentStep={state.step}
+                    completedSteps={state.completedSteps}
+                    onStepClick={handleStepClick}
+                    className="hidden lg:block"
+                  />
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                      <i className="fas fa-lightbulb"></i>
+                      Problem summary
+                    </Label>
+                    {isEditMode ? (
+                      <Textarea
+                        value={currentSubmission.problem_summary}
+                        onChange={(e) => setEditedSubmission({ ...currentSubmission, problem_summary: e.target.value })}
+                        className="min-h-[80px] border-white/10 bg-slate-950/60 text-base text-white placeholder:text-slate-400"
+                        placeholder="Describe the problem..."
+                      />
+                    ) : (
+                      <p className="text-base leading-relaxed text-slate-100/90">{currentSubmission.problem_summary}</p>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                      <i className="fas fa-chart-line"></i>
+                      Impact summary
+                    </Label>
+                    {isEditMode ? (
+                      <Textarea
+                        value={currentSubmission.impact_summary}
+                        onChange={(e) => setEditedSubmission({ ...currentSubmission, impact_summary: e.target.value })}
+                        className="min-h-[80px] border-white/10 bg-slate-950/60 text-base text-white placeholder:text-slate-400"
+                        placeholder="Summarise the quantified impact..."
+                      />
+                    ) : (
+                      <p className="text-base leading-relaxed text-slate-100/90">{currentSubmission.impact_summary}</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-6">
+                <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-semibold text-white">Performance metrics</CardTitle>
+                    <p className="text-sm text-slate-300/80">Baseline vs target goals that feed the scorecard.</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Baseline</p>
+                        {currentSubmission.baseline_metrics.map((metric: any, idx: number) => (
+                          <div key={idx} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                            {isEditMode ? (
+                              <div className="space-y-2">
+                                <Input
+                                  value={metric.name}
+                                  onChange={(e) => {
+                                    const newMetrics = [...currentSubmission.baseline_metrics];
+                                    newMetrics[idx] = { ...metric, name: e.target.value };
+                                    setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
+                                  }}
+                                  className="border-white/10 bg-slate-950/60 text-sm text-white placeholder:text-slate-400"
+                                  placeholder="Metric name..."
+                                />
+                                <Input
+                                  value={metric.value}
+                                  onChange={(e) => {
+                                    const newMetrics = [...currentSubmission.baseline_metrics];
+                                    newMetrics[idx] = { ...metric, value: e.target.value };
+                                    setEditedSubmission({ ...currentSubmission, baseline_metrics: newMetrics });
+                                  }}
+                                  className="border-white/10 bg-slate-950/60 text-sm text-white placeholder:text-slate-400"
+                                  placeholder="Value..."
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="text-sm font-medium text-white/90">{metric.name}</p>
+                                <p className="text-sm text-slate-300/90">{metric.value}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Targets</p>
+                        {currentSubmission.target_metrics.map((metric: any, idx: number) => (
+                          <div key={idx} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                            {isEditMode ? (
+                              <div className="space-y-2">
+                                <Input
+                                  value={metric.name}
+                                  onChange={(e) => {
+                                    const newMetrics = [...currentSubmission.target_metrics];
+                                    newMetrics[idx] = { ...metric, name: e.target.value };
+                                    setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
+                                  }}
+                                  className="border-white/10 bg-slate-950/60 text-sm text-white placeholder:text-slate-400"
+                                  placeholder="Metric name..."
+                                />
+                                <Input
+                                  value={metric.target}
+                                  onChange={(e) => {
+                                    const newMetrics = [...currentSubmission.target_metrics];
+                                    newMetrics[idx] = { ...metric, target: e.target.value };
+                                    setEditedSubmission({ ...currentSubmission, target_metrics: newMetrics });
+                                  }}
+                                  className="border-white/10 bg-slate-950/60 text-sm text-white placeholder:text-slate-400"
+                                  placeholder="Target..."
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="text-sm font-medium text-white/90">{metric.name}</p>
+                                <p className="text-sm text-emerald-300">{metric.target}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-semibold text-white">Execution checklist</CardTitle>
+                    <p className="text-sm text-slate-300/80">Share this with your Sprint Captain after you submit.</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4 text-sm text-slate-200/90">
+                    {currentSubmission.action_plan?.length ? (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Action plan</p>
+                        <ul className="space-y-2">
+                          {currentSubmission.action_plan.map((item: string, idx: number) => (
+                            <li key={idx} className="flex gap-2">
+                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-xs text-emerald-200">
+                                {idx + 1}
+                              </span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {currentSubmission.success_checks?.length ? (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Success checks</p>
+                        <ul className="space-y-1">
+                          {currentSubmission.success_checks.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <i className="fas fa-check text-emerald-300"></i>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {currentSubmission.risks?.length ? (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Risks</p>
+                        <ul className="space-y-1 text-amber-200/90">
+                          {currentSubmission.risks.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <i className="fas fa-exclamation-triangle"></i>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-semibold text-white">Run stats</CardTitle>
+                    <p className="text-sm text-slate-300/80">Quick snapshot before you lock the run.</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm text-slate-200/90">
+                    <div className="flex items-center justify-between">
+                      <span className="uppercase tracking-[0.25em] text-xs text-slate-400">Category</span>
+                      <span className="font-semibold text-emerald-300">{currentSubmission.chosen_category}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="uppercase tracking-[0.25em] text-xs text-slate-400">Inputs used</span>
+                      <span className="font-semibold">{state.inputsCount}/6</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="uppercase tracking-[0.25em] text-xs text-slate-400">Session</span>
+                      <span className="font-mono text-xs text-slate-300/80">{sessionToken.slice(0, 8)}…</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {isEditMode ? (
+                    <>
+                      <Button
+                        onClick={() => {
+                          dispatch({ type: 'UPDATE_SUBMISSION', payload: currentSubmission });
+                          setIsEditMode(false);
+                        }}
+                        className="flex-1 bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                        data-testid="button-save-edits"
+                      >
+                        <i className="fas fa-save mr-2"></i>
+                        Save changes
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setEditedSubmission(null);
+                          setIsEditMode(false);
+                        }}
+                        variant="outline"
+                        className="flex-1 border-white/20 bg-transparent text-white/80 hover:text-white"
+                        data-testid="button-cancel-edit"
+                      >
+                        <i className="fas fa-times mr-2"></i>
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setEditedSubmission(currentSubmission);
+                          setIsEditMode(true);
+                        }}
+                        variant="outline"
+                        className="flex-1 border-white/20 bg-transparent text-white/80 hover:text-white"
+                        data-testid="button-edit-mode"
+                      >
+                        <i className="fas fa-edit mr-2"></i>
+                        Tweak details
+                      </Button>
+                      <Button
+                        onClick={() => submitSolutionMutation.mutate()}
+                        disabled={isSubmitting}
+                        className="flex-1 bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                        data-testid="button-submit-solution"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950"></div>
+                            Submitting…
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-trophy mr-2"></i>
+                            Submit & compete
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -770,166 +1261,418 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   }
 
   // Chat view with stepper
-  return (
-    <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
-      <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
-        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
-          <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
-            {/* Chat Header */}
-            <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground flex-shrink-0">
-              <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
-              <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
-              <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
-              <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                      <i className="fas fa-robot text-lg sm:text-2xl"></i>
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
-                    </div>
+  const exitDialog = (
+    <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-pretty text-[1.05rem] sm:text-lg font-semibold">Exit Sprint?</AlertDialogTitle>
+          <AlertDialogDescription className="text-pretty text-[0.95rem] sm:text-base leading-relaxed">
+            Your progress will be lost if you exit now. Are you sure you want to leave?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
+          <AlertDialogAction onClick={() => setLocation(exitDestination)}>
+            {isBeta ? 'Exit to beta overview' : 'Exit to Home'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  if (isBeta) {
+    const previewSubmission =
+      state.submission ||
+      (state.problem && state.impact ? composeSubmission(state.problem, state.impact) : null);
+
+    return (
+      <>
+        <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
+            <section className="order-1 flex min-h-[60vh] flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
+              <div className="relative border-b border-white/10 bg-gradient-to-r from-emerald-500/30 via-slate-900/40 to-emerald-400/20 p-4 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Sprint Coach</p>
+                    <h2 className="text-xl font-semibold sm:text-2xl">Beta ring</h2>
+                    <p className="text-sm text-slate-200/80">Follow the prompts — 3 replies max.</p>
                   </div>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowExitDialog(true)}
-                    className="ml-auto text-white/90 hover:text-white hover:bg-white/20"
-                    data-testid="button-exit-chat"
-                  >
-                    <i className="fas fa-home mr-2"></i>
-                    Exit
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
+                      Step {state.step}/4
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowExitDialog(true)}
+                      className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:text-white"
+                      data-testid="button-exit-chat"
+                    >
+                      <i className="fas fa-door-open mr-2"></i>
+                      Exit
+                    </Button>
+                  </div>
                 </div>
-
-                <SprintStepper
-                  currentStep={state.step}
-                  completedSteps={state.completedSteps}
-                  onStepClick={handleStepClick}
-                />
               </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div 
-              ref={chatContainerRef} 
-              className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch" 
-              data-testid="chat-messages"
-            >
-              {state.messages.map((message, index) => (
-                <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
-                  {message.role === "assistant" ? (
-                    <>
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-robot text-white text-sm sm:text-base"></i>
-                      </div>
-                      <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                        <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">
+              <div
+                ref={chatContainerRef}
+                className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-6"
+                data-testid="chat-messages"
+              >
+                {state.messages.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-slate-300/80">
+                    Kick off with the business problem. The coach replies instantly.
+                  </div>
+                ) : null}
+                {state.messages.map((message, index) => {
+                  if (message.role === 'assistant') {
+                    return (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                          <i className="fas fa-robot"></i>
+                        </div>
+                        <div className="max-w-[75%] rounded-2xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-100/90 whitespace-pre-wrap break-words">
                           {message.content}
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                        <i className="fas fa-user text-sm sm:text-base"></i>
-                      </div>
-                      <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                        <p className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">{message.content}</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+                    );
+                  }
 
-              {isTyping && (
-                <div className="chat-message flex items-start gap-2 sm:gap-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-robot text-white text-sm sm:text-base"></i>
-                  </div>
-                  <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+                  return (
+                    <div key={index} className="ml-auto flex items-start gap-3">
+                      <div className="max-w-[75%] rounded-2xl border border-emerald-400/50 bg-emerald-500/10 p-3 text-sm leading-relaxed text-emerald-100 whitespace-pre-wrap break-words">
+                        {message.content}
+                      </div>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                        <i className="fas fa-user"></i>
+                      </div>
+                    </div>
+                  );
+                })}
+                {isTyping && (
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                      <i className="fas fa-robot"></i>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <div className="flex gap-1">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300 [animation-delay:150ms]"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300 [animation-delay:300ms]"></span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Chat Input */}
-            <div className="p-2 sm:p-6 border-t border-border flex-shrink-0 bg-background">
-              <div className="flex gap-2 sm:gap-3 w-full">
-                <Textarea
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={
-                    state.step === 1 ? "Describe your business problem..." :
-                    state.step === 2 ? "How often? Time lost? Cost impact?" :
-                    state.step === 3 ? "Type 'yes' to proceed or adjust..." :
-                    "Type your message..."
-                  }
-                  className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed max-h-[45vh] max-h-[45svh] overflow-y-auto"
-                  disabled={isTyping || state.inputsCount >= 6}
-                  data-testid="input-chat-message"
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                  className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] px-2.5 sm:px-3 touch-manipulation"
-                  data-testid="button-send-message"
-                >
-                  <i className="fas fa-paper-plane"></i>
-                </Button>
+                )}
+                <div ref={messagesEndRef} />
               </div>
-              
-              {/* Input counter and Submit button */}
-              <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
-                <p className="text-[0.9rem] leading-snug text-muted-foreground flex-shrink-0">
-                  Input {state.inputsCount}/6
-                </p>
-                {/* Submit button - show from step 2 onwards */}
-                {state.step >= 2 && (
+              <div className="border-t border-white/10 bg-slate-950/60 p-4 sm:p-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <Textarea
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      state.step === 1
+                        ? 'Drop the core problem…'
+                        : state.step === 2
+                        ? 'Quantify the impact — time, cost, risk…'
+                        : state.step === 3
+                        ? 'Confirm you’re ready to submit or fine tune…'
+                        : 'Type your message…'
+                    }
+                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-emerald-400/60 focus-visible:ring-0"
+                    disabled={isTyping || state.inputsCount >= 6}
+                    data-testid="input-chat-message"
+                  />
+                  <div className="flex gap-2 sm:flex-none">
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
+                      className="h-12 min-w-[52px] rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                      data-testid="button-send-message"
+                    >
+                      <i className="fas fa-paper-plane"></i>
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-300/80">
+                  <span>Inputs {state.inputsCount}/6</span>
+                  {state.step >= 2 ? (
+                    <Button
+                      onClick={handleSubmitCommand}
+                      variant="outline"
+                      className="rounded-xl border-white/20 bg-transparent px-4 text-white/80 hover:text-white"
+                      data-testid="button-quick-submit"
+                    >
+                      <i className="fas fa-gauge mr-2"></i>
+                      Jump to review
+                    </Button>
+                  ) : (
+                    <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Finish Step 1 to unlock review</span>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <aside className="order-2 space-y-4 lg:order-1">
+              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-white">Sprint map</CardTitle>
+                  <p className="text-xs text-slate-300/80">Four beats to the leaderboard.</p>
+                </CardHeader>
+                <CardContent>
+                  <SprintStepper
+                    currentStep={state.step}
+                    completedSteps={state.completedSteps}
+                    onStepClick={handleStepClick}
+                  />
+                </CardContent>
+              </Card>
+              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-white">Coach shortcuts</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm text-slate-200/90">
+                  <p><code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">cat</code> show categories &amp; test runs</p>
+                  <p><code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">submit</code> jump straight to review</p>
+                  <p>Shift + Enter for a new line</p>
+                </CardContent>
+              </Card>
+            </aside>
+
+            <aside className="order-3 space-y-4">
+              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-white">Solution snapshot</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-slate-200/90">
+                  {state.problem ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Problem</p>
+                      <p className="mt-1 text-pretty leading-snug text-white/90">{state.problem.userInput}</p>
+                    </div>
+                  ) : (
+                    <p className="text-slate-400">Complete Step 1 to populate the snapshot.</p>
+                  )}
+                  {state.impact ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Impact cues</p>
+                      <p className="mt-1 text-pretty leading-snug text-white/90">{state.impact.userInput}</p>
+                    </div>
+                  ) : null}
+                  {previewSubmission ? (
+                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                      <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Category</span>
+                      <span className="font-semibold text-emerald-300">{previewSubmission.chosen_category}</span>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+
+              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-white">Metric targets</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-slate-200/90">
+                  {previewSubmission ? (
+                    <>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Baseline</p>
+                        <ul className="mt-2 space-y-2">
+                          {previewSubmission.baseline_metrics.map((metric: any, idx: number) => (
+                            <li key={idx} className="flex items-start justify-between gap-3">
+                              <span className="text-slate-300/90">{metric.name}</span>
+                              <span className="font-semibold text-white">{metric.value}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Target</p>
+                        <ul className="mt-2 space-y-2">
+                          {previewSubmission.target_metrics.map((metric: any, idx: number) => (
+                            <li key={idx} className="flex items-start justify-between gap-3">
+                              <span className="text-slate-300/90">{metric.name}</span>
+                              <span className="font-semibold text-emerald-300">{metric.target}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-slate-400">Quantify the impact to generate baselines and targets.</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold text-white">Ready to lock it?</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-slate-200/90">
+                  <p>Finish the impact step to jump into the final review screen and submit for scoring.</p>
                   <Button
                     onClick={handleSubmitCommand}
-                    variant="outline"
-                    size="sm"
-                    className="text-[0.9rem] px-2 sm:px-3 py-1.5 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
-                    data-testid="button-quick-submit"
+                    disabled={state.step < 2}
+                    className="w-full rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-500"
                   >
-                    <i className="fas fa-rocket text-sm mr-1.5"></i>
-                    Submit
+                    Review &amp; submit
                   </Button>
-                )}
+                </CardContent>
+              </Card>
+            </aside>
+          </div>
+        </div>
+        {exitDialog}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
+        <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
+          <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
+            <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
+              {/* Chat Header */}
+              <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground flex-shrink-0">
+                <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
+                <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+                <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <i className="fas fa-robot text-lg sm:text-2xl"></i>
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowExitDialog(true)}
+                      className="ml-auto text-white/90 hover:text-white hover:bg-white/20"
+                      data-testid="button-exit-chat"
+                    >
+                      <i className="fas fa-home mr-2"></i>
+                      Exit
+                    </Button>
+                  </div>
+
+                  <SprintStepper
+                    currentStep={state.step}
+                    completedSteps={state.completedSteps}
+                    onStepClick={handleStepClick}
+                  />
+                </div>
               </div>
-            </div>
-          </Card>
+
+              {/* Chat Messages */}
+              <div
+                ref={chatContainerRef}
+                className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch"
+                data-testid="chat-messages"
+              >
+                {state.messages.map((message, index) => (
+                  <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
+                    {message.role === 'assistant' ? (
+                      <>
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                          <i className="fas fa-robot text-white text-sm sm:text-base"></i>
+                        </div>
+                        <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
+                          <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">
+                            {message.content}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                          <i className="fas fa-user text-sm sm:text-base"></i>
+                        </div>
+                        <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
+                          <p className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">{message.content}</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+
+                {isTyping && (
+                  <div className="chat-message flex items-start gap-2 sm:gap-3">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                      <i className="fas fa-robot text-white text-sm sm:text-base"></i>
+                    </div>
+                    <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Input */}
+              <div className="p-2 sm:p-6 border-t border-border flex-shrink-0 bg-background">
+                <div className="flex gap-2 sm:gap-3 w-full">
+                  <Textarea
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      state.step === 1 ? 'Describe your business problem...' :
+                      state.step === 2 ? 'How often? Time lost? Cost impact?' :
+                      state.step === 3 ? "Type 'yes' to proceed or adjust..." :
+                      'Type your message...'
+                    }
+                    className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed max-h-[45vh] max-h-[45svh] overflow-y-auto"
+                    disabled={isTyping || state.inputsCount >= 6}
+                    data-testid="input-chat-message"
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
+                    className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] px-2.5 sm:px-3 touch-manipulation"
+                    data-testid="button-send-message"
+                  >
+                    <i className="fas fa-paper-plane"></i>
+                  </Button>
+                </div>
+
+                {/* Input counter and Submit button */}
+                <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
+                  <p className="text-[0.9rem] leading-snug text-muted-foreground flex-shrink-0">
+                    Input {state.inputsCount}/6
+                  </p>
+                  {state.step >= 2 && (
+                    <Button
+                      onClick={handleSubmitCommand}
+                      variant="outline"
+                      size="sm"
+                      className="text-[0.9rem] px-2 sm:px-3 py-1.5 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
+                      data-testid="button-quick-submit"
+                    >
+                      <i className="fas fa-rocket text-sm mr-1.5"></i>
+                      Submit
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
-
-      {/* Exit Dialog */}
-      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-pretty text-[1.05rem] sm:text-lg font-semibold">Exit Sprint?</AlertDialogTitle>
-            <AlertDialogDescription className="text-pretty text-[0.95rem] sm:text-base leading-relaxed">
-              Your progress will be lost if you exit now. Are you sure you want to leave?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setLocation("/")}>
-              Exit to Home
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      {exitDialog}
+    </>
   );
+
 }
 
 export default function Play() {
