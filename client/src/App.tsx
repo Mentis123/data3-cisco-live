@@ -29,7 +29,7 @@ function Router() {
       <Route path="/beta" component={Beta} />
       <Route path="/beta/play" component={BetaPlay} />
       <Route path="/beta/ring" component={BetaPlay} />
-      <Route path="/dojo/:mode" component={Dojo} />
+      <Route path="/beta/dojo/:mode" component={Dojo} />
       <Route component={NotFound} />
     </Switch>
   );
