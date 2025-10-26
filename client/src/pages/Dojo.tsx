@@ -60,43 +60,16 @@ export default function Dojo({ params }: DojoRouteProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <RotateTip />
-        <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
-            <p className="text-xs uppercase tracking-[0.35em] text-emerald-200/70">{experience.eyebrow}</p>
             <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
             <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-              Choose a technology track, sprint through live Data#3 trivia and lock in the numbers before you face the ring.
+              Choose a technology track and test your knowledge. Answer fast to maximize your score.
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <Card className="border-white/10 bg-white/[0.04] backdrop-blur">
-              <CardHeader className="space-y-3">
-                <CardTitle className="text-2xl">How the trivia drills work</CardTitle>
-                <p className="text-sm text-slate-200/80">
-                  Pick your Cisco architecture tile to load the matching stat deck. Each round pulls the latest numbers so the
-                  correct answer shifts as the Data#3 story evolves.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm text-slate-200/80">
-                <ul className="list-disc space-y-2 pl-6">
-                  {experience.highlights.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Pro tip</p>
-                  <p className="mt-2 text-sm text-slate-200/80">
-                    Score 6 points if you answer within 5 seconds. Between 5-10s you get 4 points, and in the final 5 seconds
-                    you score 2 points. The hint appears at 5s remaining to help, but answering earlier maximizes your score!
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <TriviaWarmup mode="dojo" className="h-full" />
-          </div>
+          <TriviaWarmup mode="dojo" className="h-full" />
 
           <div className="flex flex-wrap gap-3">
             <Link href="/beta">

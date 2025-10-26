@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { triviaCardCategoryMeta, isTriviaCardCategory, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
 
-import { TriviaGame } from "./TriviaGame";
+import { TriviaOverlay } from "./TriviaOverlay";
 import {
   practiceCardToQuestion,
   type TriviaPracticeCard,
@@ -74,6 +74,7 @@ function isPracticeCard(value: unknown): value is TriviaPracticeCard {
 
 export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring", exitHref = "/beta", onContinue }: TriviaWarmupProps) {
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -184,6 +185,13 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
     () => (practiceDeck ? practiceDeck.map(practiceCardToQuestion) : []),
     [practiceDeck],
   );
+
+  // Open overlay when deck is loaded
+  useMemo(() => {
+    if (selectedTrack && practiceDeck && practiceDeck.length > 0 && !isDeckLoading) {
+      setShowOverlay(true);
+    }
+  }, [selectedTrack, practiceDeck, isDeckLoading]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -335,50 +343,41 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
   }
 
   return (
-    <TriviaGame
-      className={className}
-      questions={questions}
-      track={selectedTrack}
-      mode={mode}
-      onComplete={(score) => {
-        // Score is captured but attempt tracking not yet implemented
-        // TODO: In ring mode, submit attempt completion to API
-        console.log(`[TriviaWarmup] Completed with score: ${score}`);
-      }}
-      completionRender={({ score, restart }) => (
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {mode === "ring" && onContinue && (
-            <Button onClick={() => onContinue(score)} className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]">
-              {continueLabel}
-            </Button>
-          )}
-          <Button variant="secondary" onClick={restart}>
-            {mode === "ring" ? "Replay warm-up" : "Restart track"}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              void refetchDeck();
-            }}
-            disabled={isDeckFetching}
-          >
-            {isDeckFetching ? "Loading new deck…" : "Load new deck"}
-          </Button>
-          <Button variant="outline" onClick={() => setSelectedTrack(null)}>
-            Choose different track
-          </Button>
-          {mode === "dojo" ? (
-            <Link href={exitHref}>
-              <Button variant="ghost">Exit to beta home</Button>
-            </Link>
-          ) : (
-            <Link href={exitHref}>
-              <Button variant="ghost">Return to beta overview</Button>
-            </Link>
-          )}
-        </div>
+    <>
+      {showOverlay && selectedTrack && questions.length > 0 && (
+        <TriviaOverlay
+          questions={questions}
+          track={selectedTrack}
+          mode={mode}
+          onExit={() => {
+            setShowOverlay(false);
+            setSelectedTrack(null);
+          }}
+          onComplete={(score) => {
+            // Score is captured but attempt tracking not yet implemented
+            // TODO: In ring mode, submit attempt completion to API
+            console.log(`[TriviaWarmup] Completed with score: ${score}`);
+          }}
+          continueLabel={continueLabel}
+          onContinue={(score?: number) => {
+            setShowOverlay(false);
+            if (onContinue) {
+              onContinue(score);
+            }
+          }}
+        />
       )}
-    />
+
+      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+        <CardHeader className="space-y-2">
+          <Badge className="w-fit bg-white/10 text-xs uppercase tracking-[0.3em] text-slate-200">Warm-up</Badge>
+          <CardTitle className="text-2xl font-semibold">Pick your trivia track</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1">
+          {renderSelection()}
+        </CardContent>
+      </Card>
+    </>
   );
 }
 
