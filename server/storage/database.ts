@@ -25,7 +25,7 @@ import type {
   InsertAnswer,
   TriviaItem,
 } from "../../shared/schema.js";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 // Pre-populate Data#3 stats (using only system categories)
 export const DEFAULT_DATA3_STATS = [
@@ -1122,10 +1122,169 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Delete the custom category
     await db.delete(customCategories).where(eq(customCategories.name, id));
     
-    return { 
-      success: true, 
-      reassignedStats: stats.length 
+    return {
+      success: true,
+      reassignedStats: stats.length
     };
-  }
+  },
+
+    // Beta Admin Methods
+    async getBetaAdminOverview() {
+      const [attemptStats] = await db
+        .select({
+          totalAttempts: sql<number>`count(*)`,
+          passedAttempts: sql<number>`sum(case when ${attempts.passed} then 1 else 0 end)`,
+          avgScore: sql<number>`avg(${attempts.totalScore})`,
+          ringAttempts: sql<number>`sum(case when ${attempts.mode} = 'ring' then 1 else 0 end)`,
+          dojoAttempts: sql<number>`sum(case when ${attempts.mode} = 'dojo' then 1 else 0 end)`,
+        })
+        .from(attempts);
+
+      const [raffleCount] = await db
+        .select({
+          total: sql<number>`count(*)`,
+        })
+        .from(schema.raffleEntries);
+
+      const recentAttempts = await db
+        .select({
+          id: attempts.id,
+          category: attempts.category,
+          mode: attempts.mode,
+          totalScore: attempts.totalScore,
+          passed: attempts.passed,
+          eligible: attempts.eligible,
+          startedAt: attempts.startedAt,
+          endedAt: attempts.endedAt,
+          emailHash: attempts.emailHash,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          company: users.company,
+        })
+        .from(attempts)
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .orderBy(desc(attempts.startedAt))
+        .limit(20);
+
+      return {
+        stats: {
+          totalAttempts: Number(attemptStats?.totalAttempts ?? 0),
+          passedAttempts: Number(attemptStats?.passedAttempts ?? 0),
+          avgScore: Number(attemptStats?.avgScore ?? 0),
+          passRate: attemptStats?.totalAttempts
+            ? Number(((attemptStats.passedAttempts / attemptStats.totalAttempts) * 100).toFixed(1))
+            : 0,
+          ringAttempts: Number(attemptStats?.ringAttempts ?? 0),
+          dojoAttempts: Number(attemptStats?.dojoAttempts ?? 0),
+          raffleEntries: Number(raffleCount?.total ?? 0),
+        },
+        recentAttempts,
+      };
+    },
+
+    async getBetaAdminTriviaItems() {
+      const items = await db
+        .select()
+        .from(triviaItems)
+        .orderBy(triviaItems.category, triviaItems.difficulty);
+
+      // Get usage stats for each item
+      const usageStats = await db
+        .select({
+          itemId: answers.itemId,
+          timesShown: sql<number>`count(*)`,
+          timesCorrect: sql<number>`sum(case when ${answers.correct} then 1 else 0 end)`,
+        })
+        .from(answers)
+        .groupBy(answers.itemId);
+
+      const statsMap = new Map(
+        usageStats.map((stat) => [
+          stat.itemId,
+          {
+            timesShown: Number(stat.timesShown),
+            timesCorrect: Number(stat.timesCorrect),
+            correctRate:
+              stat.timesShown > 0
+                ? Number(((stat.timesCorrect / stat.timesShown) * 100).toFixed(1))
+                : 0,
+          },
+        ])
+      );
+
+      return items.map((item) => ({
+        ...item,
+        stats: statsMap.get(item.id) ?? { timesShown: 0, timesCorrect: 0, correctRate: 0 },
+      }));
+    },
+
+    async createTriviaItem(data: {
+      category: string;
+      stem: string;
+      choices: string[];
+      correctIndex: number;
+      dropIndex: number;
+      hint9s: string;
+      difficulty: number;
+      tags: string[];
+      explanation: string | null;
+      active: boolean;
+      version: number;
+    }) {
+      const [item] = await db.insert(triviaItems).values({
+        id: randomUUID(),
+        ...data,
+      }).returning();
+      return item;
+    },
+
+    async updateTriviaItem(
+      id: string,
+      data: {
+        category?: string;
+        stem?: string;
+        choices?: string[];
+        correctIndex?: number;
+        dropIndex?: number;
+        hint9s?: string;
+        difficulty?: number;
+        tags?: string[];
+        explanation?: string | null;
+        active?: boolean;
+        version?: number;
+      }
+    ) {
+      await db.update(triviaItems).set(data).where(eq(triviaItems.id, id));
+    },
+
+    async deleteTriviaItem(id: string) {
+      // Soft delete - set active to false
+      await db.update(triviaItems).set({ active: false }).where(eq(triviaItems.id, id));
+    },
+
+    async getBetaAdminRaffleEntries() {
+      const entries = await db
+        .select({
+          id: schema.raffleEntries.id,
+          raffleDate: schema.raffleEntries.raffleDate,
+          category: schema.raffleEntries.category,
+          emailHash: schema.raffleEntries.emailHash,
+          attemptId: schema.raffleEntries.attemptId,
+          createdAt: schema.raffleEntries.createdAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          company: users.company,
+          role: users.role,
+          totalScore: attempts.totalScore,
+          passed: attempts.passed,
+          eligible: attempts.eligible,
+        })
+        .from(schema.raffleEntries)
+        .leftJoin(users, eq(schema.raffleEntries.emailHash, users.emailHash))
+        .leftJoin(attempts, eq(schema.raffleEntries.attemptId, attempts.id))
+        .orderBy(desc(schema.raffleEntries.createdAt));
+
+      return entries;
+    },
   };
 }

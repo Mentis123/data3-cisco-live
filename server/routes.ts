@@ -748,5 +748,102 @@ export async function registerRoutes(
     }
   });
 
+  // Beta Admin routes
+  app.get("/api/beta-admin/overview", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const data = await storage.getBetaAdminOverview();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get beta admin overview" });
+    }
+  });
+
+  app.get("/api/beta-admin/trivia-items", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const items = await storage.getBetaAdminTriviaItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get trivia items" });
+    }
+  });
+
+  app.post("/api/beta-admin/trivia-items", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { category, stem, choices, correctIndex, dropIndex, hint9s, difficulty, tags, explanation, active, version } = req.body;
+
+      const item = await storage.createTriviaItem({
+        category,
+        stem,
+        choices,
+        correctIndex,
+        dropIndex,
+        hint9s,
+        difficulty,
+        tags,
+        explanation: explanation || null,
+        active: active ?? true,
+        version: version ?? 1,
+      });
+
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create trivia item" });
+    }
+  });
+
+  app.put("/api/beta-admin/trivia-items/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { category, stem, choices, correctIndex, dropIndex, hint9s, difficulty, tags, explanation, active, version } = req.body;
+
+      await storage.updateTriviaItem(req.params.id, {
+        category,
+        stem,
+        choices,
+        correctIndex,
+        dropIndex,
+        hint9s,
+        difficulty,
+        tags,
+        explanation,
+        active,
+        version,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update trivia item" });
+    }
+  });
+
+  app.delete("/api/beta-admin/trivia-items/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      await storage.deleteTriviaItem(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete trivia item" });
+    }
+  });
+
+  app.get("/api/beta-admin/raffle-entries", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const entries = await storage.getBetaAdminRaffleEntries();
+      res.json(entries);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get raffle entries" });
+    }
+  });
+
   return httpServer;
 }
