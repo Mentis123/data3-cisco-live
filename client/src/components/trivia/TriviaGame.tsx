@@ -368,45 +368,49 @@ export function TriviaGame({
         className,
       )}
     >
-      <CardHeader className="flex-shrink-0 border-b border-white/10 px-4 py-2.5 max-[480px]:px-3 max-[480px]:py-2">
-        <div className="mx-auto w-full max-w-[800px] space-y-2 max-[480px]:space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Badge
-              className={cn(
-                "rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-950",
-                "max-[480px]:px-2.5 max-[480px]:py-0.5 max-[480px]:text-[0.6rem]",
-                track.accentClass,
-              )}
-            >
-              {track.name}
-            </Badge>
-            <div className="text-xs font-medium text-slate-300/90 max-[480px]:text-[0.65rem]">
-              <span className="font-bold">{progress}</span> / {questions.length}
+      <CardHeader className="flex-shrink-0 border-b border-white/10 px-4 py-2 max-[480px]:px-3 max-[480px]:py-1.5">
+        <div className="mx-auto w-full max-w-[800px]">
+          <div className="flex flex-wrap items-center gap-2 max-[600px]:gap-1.5">
+            <div className="flex items-center gap-2 max-[600px]:w-full max-[600px]:justify-between">
+              <Badge
+                className={cn(
+                  "rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-950",
+                  "max-[480px]:px-2.5 max-[480px]:py-0.5 max-[480px]:text-[0.6rem]",
+                  track.accentClass,
+                )}
+              >
+                {track.name}
+              </Badge>
+              <div className="text-xs font-medium text-slate-300/90 max-[480px]:text-[0.65rem]">
+                <span className="font-bold">{progress}</span> / {questions.length}
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 max-[480px]:gap-1.5">
-            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Score</p>
-              <p className="mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none text-white">{score}</p>
-            </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Time</p>
-              <p className={cn(
-                "mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none",
-                timeLeft <= 5 ? "animate-pulse text-orange-400" : timeLeft <= 10 ? "text-yellow-400" : "text-cyan-300"
-              )}>
-                {Math.ceil(timeLeft)}s
-              </p>
-            </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Points</p>
-              <p className="mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none text-emerald-300">{tierPoints}</p>
+            <div className="flex flex-1 justify-end gap-2 max-[600px]:w-full max-[600px]:justify-between max-[480px]:gap-1.5">
+              <div className="flex min-w-[96px] flex-1 flex-col items-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center backdrop-blur-sm max-[600px]:flex-none max-[600px]:basis-1/3 max-[480px]:px-2 max-[480px]:py-1">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Score</p>
+                <p className="mt-0.5 text-[clamp(1.15rem,2.8vh,1.4rem)] font-bold leading-none text-white">{score}</p>
+              </div>
+              <div className="flex min-w-[96px] flex-1 flex-col items-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center backdrop-blur-sm max-[600px]:flex-none max-[600px]:basis-1/3 max-[480px]:px-2 max-[480px]:py-1">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Time</p>
+                <p
+                  className={cn(
+                    "mt-0.5 text-[clamp(1.15rem,2.8vh,1.4rem)] font-bold leading-none",
+                    timeLeft <= 5 ? "animate-pulse text-orange-400" : timeLeft <= 10 ? "text-yellow-400" : "text-cyan-300",
+                  )}
+                >
+                  {Math.ceil(timeLeft)}s
+                </p>
+              </div>
+              <div className="flex min-w-[96px] flex-1 flex-col items-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center backdrop-blur-sm max-[600px]:flex-none max-[600px]:basis-1/3 max-[480px]:px-2 max-[480px]:py-1">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Points</p>
+                <p className="mt-0.5 text-[clamp(1.15rem,2.8vh,1.4rem)] font-bold leading-none text-emerald-300">{tierPoints}</p>
+              </div>
             </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 py-4 max-[480px]:px-3 max-[480px]:py-3">
+      <CardContent className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 py-3 max-[480px]:px-3 max-[480px]:py-2.5">
         {currentQuestion ? (
           <div className="mx-auto flex w-full max-w-[800px] flex-1 flex-col">
             {phase !== "complete" && (
