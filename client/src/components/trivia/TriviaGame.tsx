@@ -330,7 +330,8 @@ export function TriviaGame({
     <Card
       className={cn(
         "relative flex h-full w-full flex-col border-white/10 bg-slate-900/70 text-white backdrop-blur",
-        "landscape:h-screen landscape:max-h-screen landscape:overflow-hidden",
+        "landscape:h-[100svh] landscape:max-h-[100svh] landscape:overflow-y-auto landscape:overscroll-contain",
+        "supports-[height:100dvh]:landscape:h-[100dvh] supports-[height:100dvh]:landscape:max-h-[100dvh]",
         className,
       )}
     >
@@ -350,48 +351,48 @@ export function TriviaGame({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col px-4 py-6 sm:px-8 sm:py-8">
+      <CardContent className="flex flex-1 flex-col px-4 py-4 sm:px-8 sm:py-8">
         {currentQuestion ? (
-          <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 sm:gap-8">
-            <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_45px_120px_-70px_rgba(56,189,248,0.55)] sm:grid-cols-3">
-              <div className="space-y-1 text-center sm:text-left">
-                <p className="text-[0.7rem] uppercase tracking-[0.32em] text-slate-300/70">Score</p>
-                <p className="text-2xl font-semibold text-white sm:text-3xl">{score}</p>
+          <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 sm:gap-8">
+            <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_45px_120px_-70px_rgba(56,189,248,0.55)] landscape:gap-2 landscape:p-3 sm:grid-cols-3">
+              <div className="space-y-1 text-center landscape:text-left sm:text-left">
+                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.6rem]">Score</p>
+                <p className="text-2xl font-semibold text-white landscape:text-xl sm:text-3xl">{score}</p>
               </div>
-              <div className="space-y-1 text-center sm:text-left">
-                <p className="text-[0.7rem] uppercase tracking-[0.32em] text-slate-300/70">Time left</p>
-                <p className="text-2xl font-semibold text-cyan-300 sm:text-3xl">{Math.ceil(timeLeft)}</p>
+              <div className="space-y-1 text-center landscape:text-left sm:text-left">
+                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.6rem]">Time left</p>
+                <p className="text-2xl font-semibold text-cyan-300 landscape:text-xl sm:text-3xl">{Math.ceil(timeLeft)}</p>
               </div>
-              <div className="space-y-1 text-center sm:text-left">
-                <p className="text-[0.7rem] uppercase tracking-[0.32em] text-slate-300/70">Points at stake</p>
-                <p className="text-2xl font-semibold text-emerald-300 sm:text-3xl">{tierPoints}</p>
+              <div className="space-y-1 text-center landscape:text-left sm:text-left">
+                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.6rem]">Points at stake</p>
+                <p className="text-2xl font-semibold text-emerald-300 landscape:text-xl sm:text-3xl">{tierPoints}</p>
               </div>
             </div>
 
             <div
               className={cn(
-                "flex flex-1 flex-col gap-6",
+                "flex flex-1 flex-col gap-5",
                 phase === "feedback" &&
                   "lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start lg:gap-10",
               )}
             >
               <div className="flex flex-col gap-5">
                 {phase !== "complete" && (
-                  <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 px-6 py-7 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:px-8">
-                    <h2 className="text-pretty text-xl font-semibold leading-tight text-white sm:text-2xl lg:text-3xl">
+                  <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 px-5 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] landscape:px-4 landscape:py-5 sm:px-8">
+                    <h2 className="text-pretty text-xl font-semibold leading-tight text-white landscape:text-lg landscape:leading-snug sm:text-2xl lg:text-3xl">
                       {currentQuestion.prompt}
                     </h2>
                     {showHint && (
-                      <div className="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-left text-sm text-cyan-50/90">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">Hint</p>
-                        <p className="mt-2 text-pretty leading-relaxed">{currentQuestion.hint}</p>
+                      <div className="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-left text-sm text-cyan-50/90 landscape:p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200 landscape:text-[0.65rem]">Hint</p>
+                        <p className="mt-2 text-pretty leading-relaxed landscape:text-sm landscape:leading-snug">{currentQuestion.hint}</p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {phase !== "complete" && (
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 landscape:gap-2 sm:grid-cols-2">
                     {currentQuestion.choices.map((choice, index) => {
                       const isHidden = hiddenChoiceIndex === index && !answered;
                       const isCorrect = index === currentQuestion.correctIndex;
@@ -406,6 +407,7 @@ export function TriviaGame({
                           disabled={phase !== "playing" || answered || isHidden}
                           className={cn(
                             "group relative flex h-full w-full items-stretch overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-left text-sm font-medium transition",
+                            "landscape:p-3 landscape:text-[0.92rem]",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400",
                             isHidden && "pointer-events-none opacity-20",
                             !isHidden && phase === "playing" && "hover:bg-white/10",
@@ -414,10 +416,12 @@ export function TriviaGame({
                           )}
                         >
                           <span className="flex w-full items-start gap-3">
-                            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-sm font-semibold">
+                            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-sm font-semibold landscape:h-8 landscape:w-8 landscape:text-xs">
                               {String.fromCharCode(65 + index)}
                             </span>
-                            <span className="text-pretty text-base leading-snug text-slate-100">{choice}</span>
+                            <span className="text-pretty text-base leading-snug text-slate-100 landscape:text-[0.95rem] landscape:leading-snug">
+                              {choice}
+                            </span>
                           </span>
                         </button>
                       );
