@@ -20,11 +20,13 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/beta/leaderboard" component={Leaderboard} />
       <Route path="/play" component={Play} />
       <Route path="/admin-leaderboard" component={AdminLeaderboard} />
       <Route path="/admin" component={AdminLeaderboard} />
       <Route path="/stand" component={StandMessaging} />
       <Route path="/how-to-play" component={HowToPlay} />
+      <Route path="/beta/how-to-play" component={HowToPlay} />
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
       <Route path="/beta" component={Beta} />
       <Route path="/beta/play" component={BetaPlay} />
