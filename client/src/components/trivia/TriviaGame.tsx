@@ -285,29 +285,59 @@ export function TriviaGame({
 
   const feedbackContent =
     currentQuestion && (
-      <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100/90 shadow-[0_30px_80px_-60px_rgba(14,165,233,0.65)] landscape:space-y-1.5 landscape:rounded-xl landscape:p-2 sm:p-5 max-[520px]:space-y-3 max-[520px]:p-3">
-        <p
-          className={cn(
-            "text-base font-semibold landscape:text-xs landscape:leading-tight",
-            earnedPoints > 0 ? "text-emerald-300" : "text-rose-300",
-          )}
-        >
-          {earnedPoints > 0
-            ? `Correct! +${earnedPoints} points`
-            : `Tough break. The correct answer was ${currentQuestion.choices[currentQuestion.correctIndex]}`}
-        </p>
-        {currentQuestion.explanation && (
-          <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-left text-sm text-slate-100/85 landscape:space-y-1 landscape:rounded-lg landscape:p-2 landscape:text-[0.7rem] max-[520px]:space-y-1.5 max-[520px]:p-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-200/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.7rem]">
-              Why it works
+      <div className={cn(
+        "mt-6 rounded-2xl p-8 shadow-lg transition-all duration-300",
+        "max-[480px]:mt-4 max-[480px]:p-5 md:p-8",
+        earnedPoints > 0
+          ? "border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10"
+          : "border-2 border-rose-400/40 bg-gradient-to-br from-rose-500/20 to-rose-600/10"
+      )}>
+        <div className="flex items-start gap-4 max-[480px]:gap-3">
+          <div className={cn(
+            "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-2xl",
+            "max-[480px]:h-10 max-[480px]:w-10 max-[480px]:text-xl",
+            earnedPoints > 0 ? "bg-emerald-500/30 text-emerald-300" : "bg-rose-500/30 text-rose-300"
+          )}>
+            {earnedPoints > 0 ? "✓" : "✗"}
+          </div>
+          <div className="flex-1">
+            <p className={cn(
+              "text-2xl font-bold leading-tight",
+              "max-[480px]:text-xl md:text-2xl",
+              earnedPoints > 0 ? "text-emerald-200" : "text-rose-200"
+            )}>
+              {earnedPoints > 0
+                ? `Correct! +${earnedPoints} points`
+                : "Incorrect"}
             </p>
-            <p className="text-pretty leading-relaxed landscape:text-[0.7rem] landscape:leading-tight max-[520px]:text-[0.92rem] max-[520px]:leading-snug">{currentQuestion.explanation}</p>
+            {earnedPoints === 0 && (
+              <p className="mt-2 text-base text-rose-100/80 max-[480px]:text-sm">
+                The correct answer was <span className="font-semibold">{currentQuestion.choices[currentQuestion.correctIndex]}</span>
+              </p>
+            )}
+          </div>
+        </div>
+        {currentQuestion.explanation && (
+          <div className="mt-6 space-y-2 max-[480px]:mt-4">
+            <p className="text-base font-semibold text-slate-100 max-[480px]:text-sm">
+              Why it works:
+            </p>
+            <p className="text-base leading-relaxed text-slate-100/85 max-[480px]:text-sm">
+              {currentQuestion.explanation}
+            </p>
           </div>
         )}
         {mode === "dojo" && continueAvailable && (
-          <div className="flex justify-end">
-            <Button onClick={handleContinue} variant="secondary" className="px-4 landscape:px-3 landscape:py-1 landscape:text-xs">
-              {isLastQuestion ? "View results" : "Next question"}
+          <div className="mt-8 flex justify-center max-[480px]:mt-6">
+            <Button
+              onClick={handleContinue}
+              className={cn(
+                "h-14 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 px-12 text-lg font-semibold text-white shadow-lg transition-all duration-200",
+                "hover:scale-105 hover:shadow-xl active:scale-95",
+                "max-[480px]:h-12 max-[480px]:px-8 max-[480px]:text-base"
+              )}
+            >
+              {isLastQuestion ? "View Results" : "Next Question"}
             </Button>
           </div>
         )}
@@ -315,12 +345,16 @@ export function TriviaGame({
     );
 
   const completionContent = (
-    <div className="space-y-5 rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center text-slate-50 shadow-[0_40px_120px_-70px_rgba(16,185,129,0.75)] landscape:space-y-3 landscape:rounded-xl landscape:p-3 max-[520px]:space-y-4 max-[520px]:p-4">
+    <div className="w-full max-w-md space-y-6 rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-8 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-5 max-[480px]:p-6">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/30 text-4xl text-emerald-300 mx-auto max-[480px]:h-16 max-[480px]:w-16 max-[480px]:text-3xl">
+        🎉
+      </div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 landscape:text-[0.6rem] max-[520px]:text-[0.7rem]">
-          Complete!
+        <p className="text-sm font-semibold uppercase tracking-wider text-emerald-200 max-[480px]:text-xs">
+          Quiz Complete!
         </p>
-        <p className="mt-2 text-4xl font-semibold text-white landscape:mt-1 landscape:text-2xl max-[520px]:text-3xl">{score} pts</p>
+        <p className="mt-3 text-5xl font-bold text-white max-[480px]:text-4xl">{score}</p>
+        <p className="mt-1 text-lg text-emerald-100 max-[480px]:text-base">points earned</p>
       </div>
       {completionRender?.({ score, restart })}
     </div>
@@ -336,115 +370,119 @@ export function TriviaGame({
         className,
       )}
     >
-      <CardHeader className="border-b border-white/10 px-5 py-3 landscape:px-3 landscape:py-1.5 max-[520px]:px-4 max-[520px]:py-2.5">
-        <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 landscape:gap-2 max-[520px]:gap-2">
-          <Badge
-            className={cn(
-              "rounded-full px-4 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.32em] text-slate-950 sm:text-xs",
-              "landscape:px-2.5 landscape:py-0.5 landscape:text-[0.55rem]",
-              "max-[520px]:px-3 max-[520px]:py-[0.35rem] max-[520px]:text-[0.6rem]",
-              track.accentClass,
-            )}
-          >
-            {track.name}
-          </Badge>
-          <div className="text-xs font-semibold uppercase tracking-[0.32em] text-slate-300/80 landscape:text-[0.6rem] sm:text-[0.7rem] max-[520px]:text-[0.65rem]">
-            {progress} / {questions.length}
+      <CardHeader className="border-b border-white/10 px-5 py-4 max-[480px]:px-4 max-[480px]:py-3">
+        <div className="mx-auto w-full max-w-[800px] space-y-3 max-[480px]:space-y-2">
+          <div className="flex items-center justify-between">
+            <Badge
+              className={cn(
+                "rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-slate-950",
+                "max-[480px]:px-3 max-[480px]:py-1 max-[480px]:text-[0.65rem]",
+                track.accentClass,
+              )}
+            >
+              {track.name}
+            </Badge>
+            <div className="text-sm font-medium text-slate-300/90 max-[480px]:text-xs">
+              <span className="font-bold">{progress}</span> / {questions.length}
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 max-[480px]:gap-2">
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Score</p>
+              <p className="mt-1 text-2xl font-bold text-white max-[480px]:text-xl">{score}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Time</p>
+              <p className={cn(
+                "mt-1 text-2xl font-bold max-[480px]:text-xl",
+                timeLeft <= 5 ? "animate-pulse text-orange-400" : timeLeft <= 10 ? "text-yellow-400" : "text-cyan-300"
+              )}>
+                {Math.ceil(timeLeft)}s
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Points</p>
+              <p className="mt-1 text-2xl font-bold text-emerald-300 max-[480px]:text-xl">{tierPoints}</p>
+            </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 min-h-0 flex-col overflow-hidden px-4 py-4 landscape:px-2.5 landscape:py-2 sm:px-8 sm:py-8 max-[520px]:px-3 max-[520px]:py-3">
+      <CardContent className="flex flex-1 min-h-0 flex-col overflow-auto px-4 py-8 max-[480px]:px-4 max-[480px]:py-6 md:px-10">
         {currentQuestion ? (
-          <div className="mx-auto flex w-full max-w-4xl flex-1 min-h-0 flex-col gap-5 landscape:gap-1.5 sm:gap-8 max-[520px]:gap-4">
-            <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_45px_120px_-70px_rgba(56,189,248,0.55)] landscape:gap-1.5 landscape:rounded-xl landscape:p-2 sm:grid-cols-3 max-[520px]:gap-2 max-[520px]:p-3">
-              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
-                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Score</p>
-                <p className="text-xl font-semibold text-white landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{score}</p>
-              </div>
-              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
-                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Time left</p>
-                <p className="text-xl font-semibold text-cyan-300 landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{Math.ceil(timeLeft)}</p>
-              </div>
-              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
-                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Points at stake</p>
-                <p className="text-xl font-semibold text-emerald-300 landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{tierPoints}</p>
-              </div>
-            </div>
-
-            <div
-              className={cn(
-                "flex flex-1 min-h-0 flex-col gap-5 landscape:gap-1.5",
-                phase === "feedback" &&
-                  "lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start lg:gap-10",
-              )}
-            >
-              <div className="flex min-h-0 flex-col gap-5 landscape:gap-1.5 max-[520px]:gap-4">
-                {phase !== "complete" && (
-                  <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 px-5 py-6 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] landscape:space-y-1.5 landscape:rounded-xl landscape:px-3 landscape:py-2.5 sm:px-8 max-[520px]:space-y-3 max-[520px]:px-4 max-[520px]:py-4">
-                    <h2 className="text-pretty text-2xl font-semibold leading-snug text-white landscape:text-lg landscape:leading-snug sm:text-3xl lg:text-4xl max-[520px]:text-xl">
-                      {currentQuestion.prompt}
-                    </h2>
-                    {showHint && (
-                      <div className="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-left text-sm text-cyan-50/90 landscape:rounded-lg landscape:p-2 max-[520px]:p-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.7rem]">
-                          Hint
-                        </p>
-                        <p className="mt-2 text-pretty leading-relaxed landscape:mt-1 landscape:text-[0.7rem] landscape:leading-tight max-[520px]:mt-1 max-[520px]:text-[0.9rem] max-[520px]:leading-snug">
-                          {currentQuestion.hint}
-                        </p>
-                      </div>
-                    )}
+          <div className="mx-auto flex w-full max-w-[800px] flex-1 flex-col">
+            {phase !== "complete" && (
+              <div className="mb-10 max-[480px]:mb-8">
+                <h2 className="text-pretty text-left text-[clamp(1.5rem,4vw,2rem)] font-bold leading-[1.4] text-white">
+                  {currentQuestion.prompt}
+                </h2>
+                {showHint && (
+                  <div className="mt-6 rounded-xl border-2 border-cyan-400/30 bg-cyan-500/10 p-5 text-left max-[480px]:mt-4 max-[480px]:p-4">
+                    <p className="text-sm font-semibold text-cyan-200 max-[480px]:text-xs">
+                      💡 Hint
+                    </p>
+                    <p className="mt-2 text-base leading-relaxed text-cyan-50/90 max-[480px]:text-sm">
+                      {currentQuestion.hint}
+                    </p>
                   </div>
                 )}
-
-                {phase !== "complete" && (
-                  <div className="grid gap-3 landscape:gap-1.5 sm:grid-cols-2 max-[520px]:gap-2">
-                    {currentQuestion.choices.map((choice, index) => {
-                      const isHidden = hiddenChoiceIndex === index && !answered;
-                      const isCorrect = index === currentQuestion.correctIndex;
-                      const isSelected = selectedIndex === index;
-                      const showState = phase === "feedback";
-
-                      return (
-                        <button
-                          key={choice + index}
-                          type="button"
-                          onClick={() => handleChoice(index)}
-                          disabled={phase !== "playing" || answered || isHidden}
-                          className={cn(
-                            "group relative flex h-full w-full items-stretch overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-left text-sm font-medium transition",
-                            "landscape:rounded-lg landscape:p-2 landscape:text-[0.75rem]",
-                            "max-[520px]:p-3 max-[520px]:text-[0.95rem]",
-                            "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400",
-                            isHidden && "pointer-events-none opacity-20",
-                            !isHidden && phase === "playing" && "hover:bg-white/10",
-                            showState && isCorrect && "border-emerald-300/60 bg-emerald-500/10",
-                            showState && isSelected && !isCorrect && "border-rose-400/60 bg-rose-500/10",
-                          )}
-                        >
-                          <span className="flex w-full items-start gap-3 landscape:gap-1.5 max-[520px]:gap-2.5">
-                            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-sm font-semibold landscape:h-6 landscape:w-6 landscape:text-[0.65rem] max-[520px]:h-8 max-[520px]:w-8 max-[520px]:text-xs">
-                              {String.fromCharCode(65 + index)}
-                            </span>
-                            <span className="text-pretty text-base leading-snug text-slate-100 landscape:text-[0.75rem] landscape:leading-tight max-[520px]:text-[0.95rem] max-[520px]:leading-snug">
-                              {choice}
-                            </span>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {phase === "feedback" && <div className="lg:hidden">{feedbackContent}</div>}
-                {phase === "complete" && <div className="flex justify-center">{completionContent}</div>}
               </div>
+            )}
 
-              {phase === "feedback" && feedbackContent && (
-                <div className="hidden min-h-full flex-col gap-4 lg:flex">{feedbackContent}</div>
-              )}
-            </div>
+            {phase !== "complete" && (
+              <div className="space-y-4 max-[480px]:space-y-3">
+                {currentQuestion.choices.map((choice, index) => {
+                  const isHidden = hiddenChoiceIndex === index && !answered;
+                  const isCorrect = index === currentQuestion.correctIndex;
+                  const isSelected = selectedIndex === index;
+                  const showState = phase === "feedback";
+
+                  return (
+                    <button
+                      key={choice + index}
+                      type="button"
+                      onClick={() => handleChoice(index)}
+                      disabled={phase !== "playing" || answered || isHidden}
+                      className={cn(
+                        "group relative flex w-full items-center gap-4 rounded-xl border-2 px-7 py-6 text-left transition-all duration-200",
+                        "min-h-[80px] max-[480px]:min-h-[70px] max-[480px]:gap-3 max-[480px]:px-5 max-[480px]:py-4",
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
+                        isHidden && "pointer-events-none opacity-20",
+                        !isHidden && !showState && "border-white/10 bg-slate-800/40 hover:scale-[1.02] hover:border-cyan-400/50 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-[0.98]",
+                        showState && isCorrect && "scale-[1.02] border-emerald-400/60 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 shadow-lg shadow-emerald-500/30",
+                        showState && isSelected && !isCorrect && "border-rose-400/60 bg-gradient-to-br from-rose-500/20 to-rose-600/10",
+                        !showState && isSelected && "border-cyan-400/60 bg-slate-800/60 shadow-lg shadow-cyan-500/20",
+                      )}
+                    >
+                      <span className={cn(
+                        "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 text-lg font-bold transition-all",
+                        "max-[480px]:h-10 max-[480px]:w-10 max-[480px]:text-base",
+                        !showState && "border-white/20 bg-white/10 text-white group-hover:border-cyan-400/50 group-hover:bg-cyan-400/20 group-hover:text-cyan-300",
+                        showState && isCorrect && "border-emerald-400/60 bg-emerald-500/30 text-emerald-300",
+                        showState && isSelected && !isCorrect && "border-rose-400/60 bg-rose-500/30 text-rose-300",
+                      )}>
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                      <span className="flex-1 text-pretty text-lg leading-[1.5] text-slate-100 max-[480px]:text-base">
+                        {choice}
+                      </span>
+                      {showState && isCorrect && (
+                        <span className="flex-shrink-0 text-2xl text-emerald-400 max-[480px]:text-xl">✓</span>
+                      )}
+                      {showState && isSelected && !isCorrect && (
+                        <span className="flex-shrink-0 text-2xl text-rose-400 max-[480px]:text-xl">✗</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {phase === "feedback" && feedbackContent}
+
+            {phase === "complete" && (
+              <div className="flex justify-center">{completionContent}</div>
+            )}
           </div>
         ) : (
           <div className="flex flex-1 items-center justify-center text-sm text-slate-200/70">
@@ -454,8 +492,10 @@ export function TriviaGame({
       </CardContent>
 
       {(phase === "ready" || phase === "go") && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/60 text-5xl font-bold text-white landscape:text-2xl">
-          {phase === "ready" ? "Ready" : "Go!"}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="animate-pulse text-6xl font-bold text-white max-[480px]:text-5xl md:text-7xl">
+            {phase === "ready" ? "Ready" : "Go!"}
+          </div>
         </div>
       )}
     </Card>
