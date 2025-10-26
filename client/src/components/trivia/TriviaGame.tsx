@@ -238,12 +238,6 @@ export function TriviaGame({
   }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints]);
 
   useEffect(() => {
-    if (phase === "ready") {
-      setSelectedIndex(null);
-    }
-  }, [phase]);
-
-  useEffect(() => {
     if (phase === "complete" && !completionAnnounced) {
       setCompletionAnnounced(true);
       onComplete?.(score);
