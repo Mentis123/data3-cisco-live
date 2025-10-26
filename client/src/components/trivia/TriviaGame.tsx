@@ -286,24 +286,24 @@ export function TriviaGame({
   const feedbackContent =
     currentQuestion && (
       <div className={cn(
-        "mt-6 rounded-2xl p-8 shadow-lg transition-all duration-300",
-        "max-[480px]:mt-4 max-[480px]:p-5 md:p-8",
+        "mt-3 flex-shrink-0 rounded-xl p-4 shadow-lg transition-all duration-300",
+        "max-[480px]:mt-2.5 max-[480px]:p-3",
         earnedPoints > 0
           ? "border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10"
           : "border-2 border-rose-400/40 bg-gradient-to-br from-rose-500/20 to-rose-600/10"
       )}>
-        <div className="flex items-start gap-4 max-[480px]:gap-3">
+        <div className="flex items-start gap-3 max-[480px]:gap-2.5">
           <div className={cn(
-            "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-2xl",
-            "max-[480px]:h-10 max-[480px]:w-10 max-[480px]:text-xl",
+            "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xl",
+            "max-[480px]:h-8 max-[480px]:w-8 max-[480px]:text-lg",
             earnedPoints > 0 ? "bg-emerald-500/30 text-emerald-300" : "bg-rose-500/30 text-rose-300"
           )}>
             {earnedPoints > 0 ? "✓" : "✗"}
           </div>
           <div className="flex-1">
             <p className={cn(
-              "text-2xl font-bold leading-tight",
-              "max-[480px]:text-xl md:text-2xl",
+              "text-lg font-bold leading-tight",
+              "max-[480px]:text-base",
               earnedPoints > 0 ? "text-emerald-200" : "text-rose-200"
             )}>
               {earnedPoints > 0
@@ -311,30 +311,30 @@ export function TriviaGame({
                 : "Incorrect"}
             </p>
             {earnedPoints === 0 && (
-              <p className="mt-2 text-base text-rose-100/80 max-[480px]:text-sm">
+              <p className="mt-1.5 text-sm text-rose-100/80 max-[480px]:text-xs">
                 The correct answer was <span className="font-semibold">{currentQuestion.choices[currentQuestion.correctIndex]}</span>
               </p>
             )}
           </div>
         </div>
         {currentQuestion.explanation && (
-          <div className="mt-6 space-y-2 max-[480px]:mt-4">
-            <p className="text-base font-semibold text-slate-100 max-[480px]:text-sm">
+          <div className="mt-3 space-y-1.5 max-[480px]:mt-2.5">
+            <p className="text-sm font-semibold text-slate-100 max-[480px]:text-xs">
               Why it works:
             </p>
-            <p className="text-base leading-relaxed text-slate-100/85 max-[480px]:text-sm">
+            <p className="text-sm leading-snug text-slate-100/85 max-[480px]:text-xs">
               {currentQuestion.explanation}
             </p>
           </div>
         )}
         {mode === "dojo" && continueAvailable && (
-          <div className="mt-8 flex justify-center max-[480px]:mt-6">
+          <div className="mt-4 flex justify-center max-[480px]:mt-3">
             <Button
               onClick={handleContinue}
               className={cn(
-                "h-14 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 px-12 text-lg font-semibold text-white shadow-lg transition-all duration-200",
+                "h-11 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 px-8 text-base font-semibold text-white shadow-lg transition-all duration-200",
                 "hover:scale-105 hover:shadow-xl active:scale-95",
-                "max-[480px]:h-12 max-[480px]:px-8 max-[480px]:text-base"
+                "max-[480px]:h-10 max-[480px]:px-6 max-[480px]:text-sm"
               )}
             >
               {isLastQuestion ? "View Results" : "Next Question"}
@@ -345,16 +345,16 @@ export function TriviaGame({
     );
 
   const completionContent = (
-    <div className="w-full max-w-md space-y-6 rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-8 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-5 max-[480px]:p-6">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/30 text-4xl text-emerald-300 mx-auto max-[480px]:h-16 max-[480px]:w-16 max-[480px]:text-3xl">
+    <div className="w-full max-w-md space-y-4 rounded-xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-3 max-[480px]:p-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/30 text-3xl text-emerald-300 mx-auto max-[480px]:h-14 max-[480px]:w-14 max-[480px]:text-2xl">
         🎉
       </div>
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-emerald-200 max-[480px]:text-xs">
+        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-200 max-[480px]:text-[0.65rem]">
           Quiz Complete!
         </p>
-        <p className="mt-3 text-5xl font-bold text-white max-[480px]:text-4xl">{score}</p>
-        <p className="mt-1 text-lg text-emerald-100 max-[480px]:text-base">points earned</p>
+        <p className="mt-2 text-4xl font-bold text-white max-[480px]:text-3xl">{score}</p>
+        <p className="mt-1 text-base text-emerald-100 max-[480px]:text-sm">points earned</p>
       </div>
       {completionRender?.({ score, restart })}
     </div>
@@ -363,65 +363,63 @@ export function TriviaGame({
   return (
     <Card
       className={cn(
-        "relative flex h-full w-full min-h-0 flex-col border-white/10 bg-slate-900/70 text-white backdrop-blur",
-        "landscape:h-[100svh] landscape:max-h-[100svh] landscape:overflow-hidden",
-        "supports-[height:100dvh]:landscape:h-[100dvh] supports-[height:100dvh]:landscape:max-h-[100dvh]",
+        "relative flex h-full w-full flex-col overflow-hidden border-white/10 bg-slate-900/70 text-white backdrop-blur",
         "max-[520px]:rounded-2xl",
         className,
       )}
     >
-      <CardHeader className="border-b border-white/10 px-5 py-4 max-[480px]:px-4 max-[480px]:py-3">
-        <div className="mx-auto w-full max-w-[800px] space-y-3 max-[480px]:space-y-2">
+      <CardHeader className="flex-shrink-0 border-b border-white/10 px-4 py-2.5 max-[480px]:px-3 max-[480px]:py-2">
+        <div className="mx-auto w-full max-w-[800px] space-y-2 max-[480px]:space-y-1.5">
           <div className="flex items-center justify-between">
             <Badge
               className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-slate-950",
-                "max-[480px]:px-3 max-[480px]:py-1 max-[480px]:text-[0.65rem]",
+                "rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-950",
+                "max-[480px]:px-2.5 max-[480px]:py-0.5 max-[480px]:text-[0.6rem]",
                 track.accentClass,
               )}
             >
               {track.name}
             </Badge>
-            <div className="text-sm font-medium text-slate-300/90 max-[480px]:text-xs">
+            <div className="text-xs font-medium text-slate-300/90 max-[480px]:text-[0.65rem]">
               <span className="font-bold">{progress}</span> / {questions.length}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 max-[480px]:gap-2">
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Score</p>
-              <p className="mt-1 text-2xl font-bold text-white max-[480px]:text-xl">{score}</p>
+          <div className="grid grid-cols-3 gap-2 max-[480px]:gap-1.5">
+            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
+              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Score</p>
+              <p className="mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none text-white">{score}</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Time</p>
+            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
+              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Time</p>
               <p className={cn(
-                "mt-1 text-2xl font-bold max-[480px]:text-xl",
+                "mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none",
                 timeLeft <= 5 ? "animate-pulse text-orange-400" : timeLeft <= 10 ? "text-yellow-400" : "text-cyan-300"
               )}>
                 {Math.ceil(timeLeft)}s
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-sm max-[480px]:px-3 max-[480px]:py-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.65rem]">Points</p>
-              <p className="mt-1 text-2xl font-bold text-emerald-300 max-[480px]:text-xl">{tierPoints}</p>
+            <div className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-center backdrop-blur-sm max-[480px]:px-2 max-[480px]:py-1.5">
+              <p className="text-[0.65rem] font-medium uppercase tracking-wider text-slate-300/70 max-[480px]:text-[0.6rem]">Points</p>
+              <p className="mt-0.5 text-[clamp(1.25rem,3vh,1.5rem)] font-bold leading-none text-emerald-300">{tierPoints}</p>
             </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 min-h-0 flex-col overflow-auto px-4 py-8 max-[480px]:px-4 max-[480px]:py-6 md:px-10">
+      <CardContent className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 py-4 max-[480px]:px-3 max-[480px]:py-3">
         {currentQuestion ? (
           <div className="mx-auto flex w-full max-w-[800px] flex-1 flex-col">
             {phase !== "complete" && (
-              <div className="mb-10 max-[480px]:mb-8">
-                <h2 className="text-pretty text-left text-[clamp(1.5rem,4vw,2rem)] font-bold leading-[1.4] text-white">
+              <div className="mb-4 max-[480px]:mb-3">
+                <h2 className="text-pretty text-left text-[clamp(1.125rem,3.5vh,1.5rem)] font-bold leading-[1.3] text-white">
                   {currentQuestion.prompt}
                 </h2>
                 {showHint && (
-                  <div className="mt-6 rounded-xl border-2 border-cyan-400/30 bg-cyan-500/10 p-5 text-left max-[480px]:mt-4 max-[480px]:p-4">
-                    <p className="text-sm font-semibold text-cyan-200 max-[480px]:text-xs">
+                  <div className="mt-3 rounded-lg border-2 border-cyan-400/30 bg-cyan-500/10 p-3 text-left max-[480px]:mt-2 max-[480px]:p-2.5">
+                    <p className="text-xs font-semibold text-cyan-200 max-[480px]:text-[0.65rem]">
                       💡 Hint
                     </p>
-                    <p className="mt-2 text-base leading-relaxed text-cyan-50/90 max-[480px]:text-sm">
+                    <p className="mt-1.5 text-sm leading-snug text-cyan-50/90 max-[480px]:text-xs">
                       {currentQuestion.hint}
                     </p>
                   </div>
@@ -430,7 +428,7 @@ export function TriviaGame({
             )}
 
             {phase !== "complete" && (
-              <div className="space-y-4 max-[480px]:space-y-3">
+              <div className="space-y-2.5 max-[480px]:space-y-2">
                 {currentQuestion.choices.map((choice, index) => {
                   const isHidden = hiddenChoiceIndex === index && !answered;
                   const isCorrect = index === currentQuestion.correctIndex;
@@ -444,33 +442,33 @@ export function TriviaGame({
                       onClick={() => handleChoice(index)}
                       disabled={phase !== "playing" || answered || isHidden}
                       className={cn(
-                        "group relative flex w-full items-center gap-4 rounded-xl border-2 px-7 py-6 text-left transition-all duration-200",
-                        "min-h-[80px] max-[480px]:min-h-[70px] max-[480px]:gap-3 max-[480px]:px-5 max-[480px]:py-4",
+                        "group relative flex w-full items-center gap-3 rounded-lg border-2 px-4 py-3 text-left transition-all duration-200",
+                        "min-h-[56px] max-[480px]:min-h-[52px] max-[480px]:gap-2.5 max-[480px]:px-3 max-[480px]:py-2.5",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
                         isHidden && "pointer-events-none opacity-20",
-                        !isHidden && !showState && "border-white/10 bg-slate-800/40 hover:scale-[1.02] hover:border-cyan-400/50 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-[0.98]",
-                        showState && isCorrect && "scale-[1.02] border-emerald-400/60 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 shadow-lg shadow-emerald-500/30",
+                        !isHidden && !showState && "border-white/10 bg-slate-800/40 hover:scale-[1.01] hover:border-cyan-400/50 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-[0.99]",
+                        showState && isCorrect && "scale-[1.01] border-emerald-400/60 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 shadow-lg shadow-emerald-500/30",
                         showState && isSelected && !isCorrect && "border-rose-400/60 bg-gradient-to-br from-rose-500/20 to-rose-600/10",
                         !showState && isSelected && "border-cyan-400/60 bg-slate-800/60 shadow-lg shadow-cyan-500/20",
                       )}
                     >
                       <span className={cn(
-                        "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 text-lg font-bold transition-all",
-                        "max-[480px]:h-10 max-[480px]:w-10 max-[480px]:text-base",
+                        "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border-2 text-base font-bold transition-all",
+                        "max-[480px]:h-8 max-[480px]:w-8 max-[480px]:text-sm",
                         !showState && "border-white/20 bg-white/10 text-white group-hover:border-cyan-400/50 group-hover:bg-cyan-400/20 group-hover:text-cyan-300",
                         showState && isCorrect && "border-emerald-400/60 bg-emerald-500/30 text-emerald-300",
                         showState && isSelected && !isCorrect && "border-rose-400/60 bg-rose-500/30 text-rose-300",
                       )}>
                         {String.fromCharCode(65 + index)}
                       </span>
-                      <span className="flex-1 text-pretty text-lg leading-[1.5] text-slate-100 max-[480px]:text-base">
+                      <span className="flex-1 text-pretty text-[clamp(0.875rem,2.2vh,1rem)] leading-[1.4] text-slate-100">
                         {choice}
                       </span>
                       {showState && isCorrect && (
-                        <span className="flex-shrink-0 text-2xl text-emerald-400 max-[480px]:text-xl">✓</span>
+                        <span className="flex-shrink-0 text-xl text-emerald-400 max-[480px]:text-lg">✓</span>
                       )}
                       {showState && isSelected && !isCorrect && (
-                        <span className="flex-shrink-0 text-2xl text-rose-400 max-[480px]:text-xl">✗</span>
+                        <span className="flex-shrink-0 text-xl text-rose-400 max-[480px]:text-lg">✗</span>
                       )}
                     </button>
                   );
@@ -493,7 +491,7 @@ export function TriviaGame({
 
       {(phase === "ready" || phase === "go") && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="animate-pulse text-6xl font-bold text-white max-[480px]:text-5xl md:text-7xl">
+          <div className="animate-pulse text-5xl font-bold text-white max-[480px]:text-4xl">
             {phase === "ready" ? "Ready" : "Go!"}
           </div>
         </div>
