@@ -99,7 +99,7 @@ const microFaq = [
 export default function Beta() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-16 sm:px-6 lg:px-8">
         <section className="space-y-6 text-center sm:text-left">
           <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta</Badge>
           <div className="space-y-4">
