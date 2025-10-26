@@ -24,6 +24,8 @@ interface TriviaOverlayProps {
   onComplete?: (score: number) => void;
   continueLabel?: string;
   onContinue?: (score?: number) => void;
+  onShuffle?: () => Promise<void> | void;
+  isShuffling?: boolean;
 }
 
 export function TriviaOverlay({
@@ -34,6 +36,8 @@ export function TriviaOverlay({
   onComplete,
   continueLabel,
   onContinue,
+  onShuffle,
+  isShuffling,
 }: TriviaOverlayProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
@@ -72,19 +76,30 @@ export function TriviaOverlay({
               onComplete?.(score);
             }}
             completionRender={({ score, restart }) => (
-              <div className="flex flex-wrap items-center justify-center gap-3">
+              <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">
+                {mode === "dojo" && onShuffle && (
+                  <Button
+                    onClick={() => {
+                      void onShuffle();
+                    }}
+                    disabled={isShuffling}
+                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-6 font-semibold text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] transition-all hover:scale-105 hover:shadow-[0_25px_80px_-45px_rgba(34,197,94,0.85)] active:scale-95 max-[480px]:w-full max-[480px]:text-sm"
+                  >
+                    {isShuffling ? "Shuffling…" : "Shuffle deck"}
+                  </Button>
+                )}
                 {mode === "ring" && onContinue && (
                   <Button
                     onClick={() => onContinue(score)}
-                    className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]"
+                    className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
                   >
                     {continueLabel || "Enter the ring"}
                   </Button>
                 )}
-                <Button variant="secondary" onClick={restart}>
+                <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
                   {mode === "ring" ? "Replay warm-up" : "Restart track"}
                 </Button>
-                <Button variant="outline" onClick={handleExitClick}>
+                <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
                   Exit trivia
                 </Button>
               </div>

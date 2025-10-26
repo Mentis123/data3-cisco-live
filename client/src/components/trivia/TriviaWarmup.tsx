@@ -75,6 +75,7 @@ function isPracticeCard(value: unknown): value is TriviaPracticeCard {
 export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring", exitHref = "/beta", onContinue }: TriviaWarmupProps) {
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [isShuffleRequested, setIsShuffleRequested] = useState(false);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -365,6 +366,19 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
               onContinue(score);
             }
           }}
+          onShuffle={async () => {
+            if (isShuffleRequested || isDeckFetching || !selectedTrack) {
+              return;
+            }
+
+            setIsShuffleRequested(true);
+            try {
+              await refetchDeck({ throwOnError: false });
+            } finally {
+              setIsShuffleRequested(false);
+            }
+          }}
+          isShuffling={isShuffleRequested}
         />
       )}
 
