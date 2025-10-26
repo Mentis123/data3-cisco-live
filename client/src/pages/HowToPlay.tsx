@@ -1,223 +1,244 @@
-import { useState, useEffect, useRef } from "react";
-import {
-  Trophy,
-  Target,
-  Lightbulb,
-  Zap,
-  QrCode,
-  MessageSquare,
-  BrainCircuit,
-  Sparkles,
-  Gift
-} from "lucide-react";
-import QRCode from "qrcode";
+import { Link } from "wouter";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+const categories = [
+  "Secure Connectivity",
+  "Hybrid DC",
+  "Collab & CX",
+  "Observability",
+  "Edge & IoT",
+];
+
+const triviaTimeline = [
+  {
+    label: "T−15s → T−10s",
+    description: "All 3 options visible (max points window).",
+  },
+  {
+    label: "T−10s",
+    description: "One wrong option drops (2 options remain).",
+  },
+  {
+    label: "T−5s",
+    description: "A micro-hint appears under the question.",
+  },
+  {
+    label: "T−0s",
+    description: "Question locks; no answer = wrong.",
+  },
+];
+
+const scoringTiers = [
+  { label: "Answer before T−10s", value: "+6" },
+  { label: "Answer T−10s to T−5s", value: "+4" },
+  { label: "Answer T−5s to 0s", value: "+2" },
+  { label: "Wrong / no answer", value: "+0" },
+];
+
+const leaderboardBadges = [
+  "Top Score",
+  "Sharp Shooter (fastest accurate answers)",
+  "Track Champs (per category)",
+  "Most Precise KPI",
+];
+
+const eligibility = [
+  "Cisco Live registered email used on submit.",
+  "KPI triplet complete (Baseline, Target, Due date).",
+  "Total meets or exceeds the Bot Bar.",
+];
+
+const accessibilityTips = [
+  "Keyboard: 1/2/3 to answer; Enter to confirm.",
+  "Answer early for more points; wait for the T−5s hint if unsure.",
+  "Keep your problem statement concrete and include a date — it boosts your Case Card score.",
+];
 
 export default function HowToPlay() {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const appUrl = "https://data3-cisco-live.replit.app";
-
-  // Update clock every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Generate QR code on mount
-  useEffect(() => {
-    if (canvasRef.current) {
-      QRCode.toCanvas(canvasRef.current, appUrl, {
-        width: 200,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
-        }
-      }, (error) => {
-        if (error) console.error('QR Code generation error:', error);
-      });
-    }
-  }, []);
-
-  const experienceMoments = [
-    {
-      title: "Scan the QR code",
-      description: "Launch the Data#3 Solution Sprint on your device in seconds.",
-      icon: QrCode,
-      gradient: "from-cyan-500/30 to-blue-500/30"
-    },
-    {
-      title: "Share your biggest frustration",
-      description: "Tell us the business challenge slowing your team down right now.",
-      icon: MessageSquare,
-      gradient: "from-blue-500/30 to-indigo-500/30"
-    },
-    {
-      title: "Coach your AI solver",
-      description: "Walk through KPIs, impact math, and action plans with our guided prompts.",
-      icon: BrainCircuit,
-      gradient: "from-violet-500/30 to-purple-500/30"
-    },
-    {
-      title: "Submit for instant scoring",
-      description: "Our AI judge scores clarity, impact, KPI strength, execution and confidence.",
-      icon: Sparkles,
-      gradient: "from-amber-500/30 to-orange-500/30"
-    },
-    {
-      title: "More points, more entries",
-      description: "Every 10 points unlocks another chance in the onsite prize draw.",
-      icon: Gift,
-      gradient: "from-emerald-500/30 to-teal-500/30"
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white flex flex-col p-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Data<sup className="text-3xl text-[#00d5eb]">#</sup>3 Solution Sprint Challenge
-          </h1>
-        </div>
-        <p className="text-xl text-cyan-200">Cisco Live Melbourne 2025 • AI-Powered Innovation</p>
-        <p className="text-sm text-blue-200 mt-2">{currentTime.toLocaleTimeString()}</p>
-      </div>
-      {/* Main Content Grid */}
-      <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-8">
-        {/* Left Column - QR Code & Prize */}
-        <div className="col-span-1 xl:col-span-3 flex flex-col items-center">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 className="text-2xl font-bold text-center mb-4 text-cyan-300">
-              <Trophy className="inline-block w-8 h-8 mr-2 text-yellow-400" />
-              Scan to Play
-            </h2>
-            <div className="bg-white p-4 rounded-xl shadow-inner flex items-center justify-center" style={{ width: '232px', height: '232px' }}>
-              <canvas
-                ref={canvasRef}
-                className="max-w-full h-auto"
-              />
-            </div>
-            <div className="mt-4 text-center">
-              <p className="text-3xl font-bold text-yellow-400">Win Prizes!</p>
-              <p className="text-lg text-cyan-200 mt-2">Earn up to 50 points per run</p>
-              <p className="text-sm text-blue-200 mt-1">More points, more entries.</p>
-              <p className="text-sm text-blue-200 mt-1">3-reply sprint format.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Middle Column - Process */}
-        <div className="col-span-1 xl:col-span-6 flex flex-col">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl flex-1">
-            <h2 className="text-3xl font-bold mb-8 text-center text-cyan-300">
-              Your Solution Sprint Playbook
-            </h2>
-
-            <div className="space-y-5">
-              {experienceMoments.map((moment, index) => {
-                const Icon = moment.icon;
-                return (
-                  <div
-                    key={moment.title}
-                    className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white/5 rounded-2xl p-5 border border-white/10 shadow-lg"
-                  >
-                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${moment.gradient} flex items-center justify-center border border-white/20 shadow-md mx-auto sm:mx-0`}>
-                      <Icon className="w-8 h-8 text-white" aria-hidden="true" />
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-                        <span className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-full border border-cyan-400/60 text-sm font-semibold text-cyan-200">
-                          {index + 1}
-                        </span>
-                        <h3 className="text-2xl font-bold text-white">{moment.title}</h3>
-                      </div>
-                      <p className="text-base text-blue-100 max-w-2xl">{moment.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column - Scoring */}
-        <div className="col-span-1 xl:col-span-3">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
-            <h2 className="text-2xl font-bold text-center mb-6 text-cyan-300">
-              <Target className="inline-block w-8 h-8 mr-2" />
-              AI Scoring System
-            </h2>
-            
-              <div className="space-y-4">
-                <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-4 border border-yellow-400/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg">🎯 Clarity</span>
-                    <span className="text-xl font-bold text-yellow-400">10pts</span>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg p-4 border border-cyan-400/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg">📊 Impact</span>
-                    <span className="text-xl font-bold text-cyan-400">10pts</span>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-4 border border-green-400/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg">📌 KPI Strength</span>
-                    <span className="text-xl font-bold text-green-400">10pts</span>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-4 border border-purple-400/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg">🚀 Execution</span>
-                    <span className="text-xl font-bold text-purple-400">10pts</span>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-lg p-4 border border-orange-400/30">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg">🧭 Confidence</span>
-                    <span className="text-xl font-bold text-orange-400">10pts</span>
-                  </div>
-                </div>
-              </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                50 Points Total
-              </p>
-              <p className="text-sm text-blue-200 mt-2">Every 10 points adds another prize entry.</p>
-              <p className="text-sm text-blue-200 mt-1">Leaderboard updates live throughout the event.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Edison Quote */}
-      <div className="mt-10">
-        <div className="max-w-5xl mx-auto bg-gradient-to-r from-slate-900/80 via-blue-900/70 to-slate-900/80 border border-cyan-400/40 rounded-3xl px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <Sparkles className="w-10 h-10 text-cyan-300" aria-hidden="true" />
-            <p className="text-2xl font-semibold italic text-blue-100 max-w-3xl">
-              "Opportunity is missed by most people because it is dressed in overalls and looks like work."
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="mx-auto flex max-w-5xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+        <section className="space-y-4 text-center sm:text-left">
+          <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta/how-to-play</Badge>
+          <div className="space-y-3">
+            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">How to Play — Two-Left Tango</h1>
+            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
+              Five categories. Five trivia questions. One Case Card. Beat the Bot and earn today’s raffle entry.
             </p>
-            <p className="text-sm tracking-[0.35em] uppercase text-cyan-200/80">Thomas Edison</p>
           </div>
-        </div>
-      </div>
-      {/* Footer */}
-      <div className="mt-8 text-center">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full px-8 py-4 border border-cyan-400/30">
-          <Lightbulb className="w-6 h-6 text-yellow-400" />
-          <p className="text-lg font-semibold">Pro Tip: Be specific with baselines, targets, owners and next steps for higher scores!</p>
-          <Zap className="w-6 h-6 text-cyan-400" />
-        </div>
+        </section>
+
+        <section className="grid gap-6 sm:grid-cols-2">
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <Badge variant="outline" className="w-fit border-white/20 text-xs uppercase tracking-[0.3em] text-white/80">
+                Dojo vs Ring
+              </Badge>
+              <CardTitle className="text-2xl">Dojo (practice)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              <p>Unlimited plays, no email. Explanations after each trivia question.</p>
+            </CardContent>
+          </Card>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <Badge variant="outline" className="w-fit border-white/20 text-xs uppercase tracking-[0.3em] text-white/80">
+                Dojo vs Ring
+              </Badge>
+              <CardTitle className="text-2xl">Ring (official)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              <p>Cisco Live email required on submit. 1 run/day per category (max 5/day). Each pass = 1 raffle entry.</p>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="space-y-8">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.3em] text-primary/70">Step-by-step</p>
+            <h2 className="text-3xl font-semibold">From scan to raffle entry</h2>
+          </div>
+          <div className="space-y-8">
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-2xl">1) Pick a category</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2 text-sm text-slate-200/85">
+                {categories.map((category) => (
+                  <span key={category} className="rounded-full border border-white/20 px-3 py-1">
+                    {category}
+                  </span>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardHeader className="space-y-2">
+                <CardTitle className="text-2xl">2) Trivia round (×5)</CardTitle>
+                <p className="text-sm text-slate-200/80">Each question has 3 answer buttons (A/B/C).</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Timer model (countdown from 15s):</p>
+                  <ul className="space-y-2 text-sm text-slate-200/85">
+                    {triviaTimeline.map((item) => (
+                      <li key={item.label} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <span className="font-semibold text-white/90">{item.label}</span>
+                        <span>{item.description}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Separator className="bg-white/10" />
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Scoring per question:</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {scoringTiers.map((tier) => (
+                      <div key={tier.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200/85">
+                        <p className="font-semibold text-white">{tier.label}</p>
+                        <p>{tier.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Separator className="bg-white/10" />
+                <p className="text-sm text-slate-200/80">Dojo only: show a short explanation after each question.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-2xl">3) Case Card (your mini pitch)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-200/85">
+                <ul className="list-disc space-y-2 pl-6">
+                  <li>Problem one-liner (120 chars).</li>
+                  <li>KPI Triplet: Baseline value+unit, Target value+unit, Due date.</li>
+                  <li>Owner & first milestone (chips + date).</li>
+                  <li>(Optional) users affected, minutes saved, frequency — we compute annualised impact.</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-2xl">4) Score & Bot Bar</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-slate-200/85">
+                <p>Trivia /30 + Case Card /20 = Total /50.</p>
+                <p>Beat today’s Bot Bar to win the round and record a raffle entry.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl">Raffle & Prizes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              <p>Every win (per category) = 1 raffle entry for the daily draw.</p>
+              <p>Up to 5 entries/day (one per category).</p>
+              <p>The winner is picked randomly by the system from that day’s entries.</p>
+              <p>Prize: Meta AI Glasses (one pair per day).</p>
+            </CardContent>
+          </Card>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl">Leaderboards</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              {leaderboardBadges.map((item) => (
+                <p key={item}>{item}</p>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl">Eligibility checklist</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              <ul className="list-disc space-y-2 pl-6">
+                {eligibility.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl">Accessibility & tips</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-slate-200/85">
+              <ul className="list-disc space-y-2 pl-6">
+                {accessibilityTips.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <Link href="/beta/play">
+            <Button size="lg" className="w-full sm:w-auto">
+              Enter the Ring
+            </Button>
+          </Link>
+          <Link href="/beta/dojo/trivia-cards">
+            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary sm:w-auto">
+              Practice in Dojo
+            </Button>
+          </Link>
+        </section>
       </div>
     </div>
   );

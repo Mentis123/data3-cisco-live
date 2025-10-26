@@ -14,7 +14,7 @@ import type {
   Attempt,
   Answer,
   InsertAnswer,
-  FlashItem,
+  TriviaItem,
 } from "../../shared/schema.js";
 import { DEFAULT_DATA3_STATS, SYSTEM_CATEGORY_NAMES } from "./database.js";
 
@@ -38,24 +38,24 @@ interface MemoryUser extends User {
   createdAt: Date | null;
 }
 
-type FlashMode = "dojo" | "ring";
+type TriviaMode = "dojo" | "ring";
 
-type FlashCardSnapshot = Array<{
+type TriviaCardSnapshot = Array<{
   itemId: string;
   choices: string[];
   correctIndex: number;
   dropIndex: number;
 }>;
 
-interface MemoryFlashAttempt extends Attempt {
+interface MemoryTriviaAttempt extends Attempt {
   startedAt: Date | null;
   endedAt: Date | null;
-  deckSnapshot: FlashCardSnapshot;
+  deckSnapshot: TriviaCardSnapshot;
 }
 
-interface MemoryFlashAnswer extends Answer {}
+interface MemoryTriviaAnswer extends Answer {}
 
-interface FlashCardPayload {
+interface TriviaCardPayload {
   id: string;
   category: string;
   stem: string;
@@ -69,23 +69,23 @@ interface FlashCardPayload {
   version: number;
 }
 
-interface FlashCardSummary extends FlashCardPayload {
+interface TriviaCardSummary extends TriviaCardPayload {
   selectedIndex: number;
   correct: boolean;
   points: number;
   elapsedMs: number;
 }
 
-interface StartFlashAttemptOptions {
+interface StartTriviaAttemptOptions {
   category: string;
-  mode: FlashMode;
+  mode: TriviaMode;
   email?: string;
   marketingOptIn?: boolean;
   playerProfile?: Pick<User, "firstName" | "lastName" | "company" | "role">;
   deckSize?: number;
 }
 
-interface FlashAnswerInput {
+interface TriviaAnswerInput {
   itemId: string;
   choiceIndex: number;
   elapsedMs: number;
@@ -99,13 +99,13 @@ const data3StatsStore: MemoryData3Stat[] = DEFAULT_DATA3_STATS.map((stat, index)
   ...stat,
 }));
 const customCategoriesStore: MemoryCustomCategory[] = [];
-const flashUsersStore = new Map<string, MemoryUser>();
-const flashAttemptsStore: MemoryFlashAttempt[] = [];
-const flashAnswersStore: MemoryFlashAnswer[] = [];
+const triviaUsersStore = new Map<string, MemoryUser>();
+const triviaAttemptsStore: MemoryTriviaAttempt[] = [];
+const triviaAnswersStore: MemoryTriviaAnswer[] = [];
 
-const FLASH_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
-const FLASH_ROUND_SIZE = 5;
-const MAX_FLASH_TIME_MS = 12_000;
+const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
+const TRIVIA_ROUND_SIZE = 5;
+const MAX_TRIVIA_TIME_MS = 12_000;
 
 function shuffleArray<T>(items: T[]): T[] {
   const copy = [...items];
@@ -125,9 +125,9 @@ function computeAttemptDay(date: Date): string {
   return utc.toISOString().slice(0, 10);
 }
 
-function loadFlashItems(): FlashItem[] {
+function loadTriviaItems(): TriviaItem[] {
   try {
-    const filePath = path.resolve(process.cwd(), "docs", "flash-items-starter.json");
+    const filePath = path.resolve(process.cwd(), "docs", "trivia-items-starter.json");
     const raw = JSON.parse(readFileSync(filePath, "utf-8")) as Array<any>;
     return raw.map((item) => ({
       id: item.id,
@@ -146,14 +146,14 @@ function loadFlashItems(): FlashItem[] {
       version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } satisfies FlashItem));
+    } satisfies TriviaItem));
   } catch (error) {
-    console.warn("[memory] Failed to load flash items seed:", error);
+    console.warn("[memory] Failed to load trivia items seed:", error);
     return [];
   }
 }
 
-const flashItemsStore: FlashItem[] = loadFlashItems();
+const triviaItemsStore: TriviaItem[] = loadTriviaItems();
 
 const SAMPLE_PARTICIPANTS: Array<Pick<Participant, "firstName" | "lastName">> = [
   { firstName: "Alex", lastName: "Chen" },
@@ -657,7 +657,7 @@ function buildWordCloud(): { text: string; value: number }[] {
 
 export function createMemoryStorage() {
   const normalizeProfile = (
-    profile: StartFlashAttemptOptions["playerProfile"],
+    profile: StartTriviaAttemptOptions["playerProfile"],
   ): Partial<User> => {
     if (!profile) return {};
     const result: Partial<User> = {};
@@ -670,7 +670,7 @@ export function createMemoryStorage() {
 
   const ensureUserRecord = (
     email: string | undefined,
-    profile: StartFlashAttemptOptions["playerProfile"],
+    profile: StartTriviaAttemptOptions["playerProfile"],
   ): { user: MemoryUser | null; emailHash: string | null } => {
     if (!email) {
       return { user: null, emailHash: null };
@@ -678,11 +678,11 @@ export function createMemoryStorage() {
 
     const emailHash = hashEmail(email);
     const normalizedProfile = normalizeProfile(profile);
-    const existing = flashUsersStore.get(emailHash);
+    const existing = triviaUsersStore.get(emailHash);
 
     if (existing) {
       const updated = { ...existing, ...normalizedProfile } as MemoryUser;
-      flashUsersStore.set(emailHash, updated);
+      triviaUsersStore.set(emailHash, updated);
       return { user: updated, emailHash };
     }
 
@@ -696,20 +696,20 @@ export function createMemoryStorage() {
       role: normalizedProfile.role ?? null,
     } as MemoryUser;
 
-    flashUsersStore.set(emailHash, user);
+    triviaUsersStore.set(emailHash, user);
     return { user, emailHash };
   };
 
-  const buildFlashDeck = (
+  const buildTriviaDeck = (
     category: string,
-    deckSize: number = FLASH_ROUND_SIZE,
-  ): { cards: FlashCardPayload[]; snapshot: FlashCardSnapshot; maxVersion: number } => {
-    const items = flashItemsStore.filter((item) => item.category === category && item.active !== false);
+    deckSize: number = TRIVIA_ROUND_SIZE,
+  ): { cards: TriviaCardPayload[]; snapshot: TriviaCardSnapshot; maxVersion: number } => {
+    const items = triviaItemsStore.filter((item) => item.category === category && item.active !== false);
     if (!items.length) {
-      throw new Error(`No flash items available for category ${category}`);
+      throw new Error(`No trivia items available for category ${category}`);
     }
 
-    const byDifficulty = new Map<number, FlashItem[]>();
+    const byDifficulty = new Map<number, TriviaItem[]>();
     for (const item of items) {
       const diff = item.difficulty ?? 2;
       const bucket = byDifficulty.get(diff) ?? [];
@@ -717,10 +717,10 @@ export function createMemoryStorage() {
       byDifficulty.set(diff, bucket);
     }
 
-    const selected: FlashItem[] = [];
-    const leftover: FlashItem[] = [];
+    const selected: TriviaItem[] = [];
+    const leftover: TriviaItem[] = [];
 
-    for (const [difficulty, target] of Object.entries(FLASH_TARGETS)) {
+    for (const [difficulty, target] of Object.entries(TRIVIA_TARGETS)) {
       const diff = Number(difficulty);
       const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
       const required = target as number;
@@ -742,12 +742,12 @@ export function createMemoryStorage() {
     }
 
     if (selected.length < deckSize) {
-      throw new Error(`Insufficient flash items to build a deck for ${category}`);
+      throw new Error(`Insufficient trivia items to build a deck for ${category}`);
     }
 
     const deck = shuffleArray(selected.slice(0, deckSize));
-    const cards: FlashCardPayload[] = [];
-    const snapshot: FlashCardSnapshot = [];
+    const cards: TriviaCardPayload[] = [];
+    const snapshot: TriviaCardSnapshot = [];
     let maxVersion = 1;
 
     for (const item of deck) {
@@ -790,20 +790,20 @@ export function createMemoryStorage() {
     }
 
     if (cards.length < deckSize) {
-      throw new Error(`Failed to construct flash deck for ${category}`);
+      throw new Error(`Failed to construct trivia deck for ${category}`);
     }
 
     return { cards, snapshot, maxVersion };
   };
 
   return {
-    async getFlashCategories() {
+    async getTriviaCategories() {
       const summary = new Map<
         string,
         { category: string; total: number; easy: number; medium: number; hard: number }
       >();
 
-      for (const item of flashItemsStore) {
+      for (const item of triviaItemsStore) {
         if (item.active === false) continue;
         const entry =
           summary.get(item.category) ?? {
@@ -825,13 +825,13 @@ export function createMemoryStorage() {
       return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
     },
 
-    async startFlashAttempt(options: StartFlashAttemptOptions) {
-      const deckSize = options.deckSize ?? FLASH_ROUND_SIZE;
-      const { cards, snapshot, maxVersion } = buildFlashDeck(options.category, deckSize);
+    async startTriviaAttempt(options: StartTriviaAttemptOptions) {
+      const deckSize = options.deckSize ?? TRIVIA_ROUND_SIZE;
+      const { cards, snapshot, maxVersion } = buildTriviaDeck(options.category, deckSize);
       const { emailHash } = ensureUserRecord(options.email, options.playerProfile);
       const now = new Date();
 
-      const attempt: MemoryFlashAttempt = {
+      const attempt: MemoryTriviaAttempt = {
         id: nanoid(),
         emailHash,
         category: options.category,
@@ -849,29 +849,29 @@ export function createMemoryStorage() {
         cardSetVersion: maxVersion,
         deckSnapshot: snapshot,
         submissionId: null,
-      } as MemoryFlashAttempt;
+      } as MemoryTriviaAttempt;
 
-      flashAttemptsStore.push(attempt);
+      triviaAttemptsStore.push(attempt);
       return { attempt, cards, snapshot };
     },
 
-    async completeFlashAttempt(options: { attemptId: string; answers: FlashAnswerInput[] }) {
-      const attempt = flashAttemptsStore.find((entry) => entry.id === options.attemptId);
+    async completeTriviaAttempt(options: { attemptId: string; answers: TriviaAnswerInput[] }) {
+      const attempt = triviaAttemptsStore.find((entry) => entry.id === options.attemptId);
       if (!attempt) {
-        throw new Error("Flash attempt not found");
+        throw new Error("Trivia attempt not found");
       }
       if (attempt.endedAt) {
-        throw new Error("Flash attempt already completed");
+        throw new Error("Trivia attempt already completed");
       }
       if (!options.answers.length) {
-        throw new Error("No answers provided for flash attempt completion");
+        throw new Error("No answers provided for trivia attempt completion");
       }
 
       const snapshotMap = new Map(attempt.deckSnapshot.map((entry) => [entry.itemId, entry]));
-      const cardMap = new Map(flashItemsStore.map((item) => [item.id, item]));
+      const cardMap = new Map(triviaItemsStore.map((item) => [item.id, item]));
 
-      const summaries: FlashCardSummary[] = [];
-      const records: MemoryFlashAnswer[] = [];
+      const summaries: TriviaCardSummary[] = [];
+      const records: MemoryTriviaAnswer[] = [];
       let totalScore = 0;
       let correctTimeTotal = 0;
       let correctCount = 0;
@@ -880,18 +880,18 @@ export function createMemoryStorage() {
         const snapshot = snapshotMap.get(submission.itemId);
         const item = cardMap.get(submission.itemId);
         if (!snapshot || !item) {
-          throw new Error(`Invalid flash card ${submission.itemId}`);
+          throw new Error(`Invalid trivia card ${submission.itemId}`);
         }
 
         const selectedIndex = Number.isInteger(submission.choiceIndex) ? submission.choiceIndex : -1;
-        const elapsedMs = Math.max(0, Math.min(MAX_FLASH_TIME_MS, submission.elapsedMs ?? MAX_FLASH_TIME_MS));
+        const elapsedMs = Math.max(0, Math.min(MAX_TRIVIA_TIME_MS, submission.elapsedMs ?? MAX_TRIVIA_TIME_MS));
         const correct = selectedIndex === snapshot.correctIndex;
 
         let points = 0;
         if (correct) {
           if (elapsedMs <= 5000) points = 6;
           else if (elapsedMs <= 9000) points = 5;
-          else if (elapsedMs <= MAX_FLASH_TIME_MS) points = 4;
+          else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
         }
 
         totalScore += points;
@@ -909,7 +909,7 @@ export function createMemoryStorage() {
           pointsAwarded: points,
           tAnswerMs: elapsedMs,
           createdAt: new Date(),
-        } as MemoryFlashAnswer);
+        } as MemoryTriviaAnswer);
 
         summaries.push({
           id: item.id,
@@ -930,13 +930,13 @@ export function createMemoryStorage() {
         });
       }
 
-      for (let i = flashAnswersStore.length - 1; i >= 0; i--) {
-        if (flashAnswersStore[i]!.attemptId === attempt.id) {
-          flashAnswersStore.splice(i, 1);
+      for (let i = triviaAnswersStore.length - 1; i >= 0; i--) {
+        if (triviaAnswersStore[i]!.attemptId === attempt.id) {
+          triviaAnswersStore.splice(i, 1);
         }
       }
 
-      flashAnswersStore.push(...records);
+      triviaAnswersStore.push(...records);
 
       const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
       const endedAt = new Date();
@@ -981,10 +981,10 @@ export function createMemoryStorage() {
       return submission;
     },
 
-    async attachSubmissionToFlashAttempt(attemptId: string, submissionId: string): Promise<void> {
-      const attempt = flashAttemptsStore.find((entry) => entry.id === attemptId);
+    async attachSubmissionToTriviaAttempt(attemptId: string, submissionId: string): Promise<void> {
+      const attempt = triviaAttemptsStore.find((entry) => entry.id === attemptId);
       if (!attempt) {
-        throw new Error(`Flash attempt ${attemptId} not found`);
+        throw new Error(`Trivia attempt ${attemptId} not found`);
       }
 
       attempt.submissionId = submissionId;

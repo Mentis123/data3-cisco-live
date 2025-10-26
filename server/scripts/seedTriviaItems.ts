@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { sql } from "drizzle-orm";
 import * as schema from "../../shared/schema.js";
 
-interface RawFlashRow {
+interface RawTriviaRow {
   id: string;
   category: string;
   stem: string;
@@ -22,13 +22,13 @@ interface RawFlashRow {
   explanation?: string | null;
 }
 
-function parseChoices(row: RawFlashRow): string[] {
+function parseChoices(row: RawTriviaRow): string[] {
   const choices = [row.choice_a, row.choice_b, row.choice_c]
     .map((choice) => (typeof choice === "string" ? choice.trim() : ""))
     .filter((choice) => choice.length > 0);
 
   if (choices.length !== 3) {
-    throw new Error(`Flash card ${row.id} expected 3 choices but found ${choices.length}`);
+    throw new Error(`Trivia card ${row.id} expected 3 choices but found ${choices.length}`);
   }
 
   return choices;
@@ -39,7 +39,7 @@ function parseNumber(value: number | string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function parseTags(value: RawFlashRow["tags"]): string[] {
+function parseTags(value: RawTriviaRow["tags"]): string[] {
   if (!value) {
     return [];
   }
@@ -54,15 +54,15 @@ function parseTags(value: RawFlashRow["tags"]): string[] {
     .filter((tag) => tag.length > 0);
 }
 
-async function loadSeedRows(datasetPath: string): Promise<RawFlashRow[]> {
+async function loadSeedRows(datasetPath: string): Promise<RawTriviaRow[]> {
   const raw = await readFile(datasetPath, "utf-8");
   const parsed = JSON.parse(raw);
 
   if (!Array.isArray(parsed)) {
-    throw new Error("Flash seed file must contain an array of rows");
+    throw new Error("Trivia seed file must contain an array of rows");
   }
 
-  return parsed as RawFlashRow[];
+  return parsed as RawTriviaRow[];
 }
 
 async function main() {
@@ -75,14 +75,14 @@ async function main() {
 
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL (or a POSTGRES_URL variant) must be provided to seed flash items.",
+      "DATABASE_URL (or a POSTGRES_URL variant) must be provided to seed trivia items.",
     );
   }
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const projectRoot = path.resolve(__dirname, "../..", "");
-  const datasetPath = path.resolve(projectRoot, "docs", "flash-items-starter.json");
+  const datasetPath = path.resolve(projectRoot, "docs", "trivia-items-starter.json");
 
   const rows = await loadSeedRows(datasetPath);
   const timestamp = new Date();
@@ -93,11 +93,11 @@ async function main() {
     const dropIndex = parseNumber(row.drop_index, 0);
 
     if (correctIndex < 0 || correctIndex >= choices.length) {
-      throw new Error(`Flash card ${row.id} has invalid correct_index ${correctIndex}`);
+      throw new Error(`Trivia card ${row.id} has invalid correct_index ${correctIndex}`);
     }
 
     if (dropIndex < 0 || dropIndex >= choices.length) {
-      throw new Error(`Flash card ${row.id} has invalid drop_index ${dropIndex}`);
+      throw new Error(`Trivia card ${row.id} has invalid drop_index ${dropIndex}`);
     }
 
     const difficulty = parseNumber(row.difficulty ?? 2, 2);
@@ -117,7 +117,7 @@ async function main() {
       version: 1,
       createdAt: timestamp,
       updatedAt: timestamp,
-    } satisfies typeof schema.flashItems.$inferInsert;
+    } satisfies typeof schema.triviaItems.$inferInsert;
   });
 
   const pool = new Pool({ connectionString });
@@ -125,10 +125,10 @@ async function main() {
 
   try {
     await db
-      .insert(schema.flashItems)
+      .insert(schema.triviaItems)
       .values(records)
       .onConflictDoUpdate({
-        target: schema.flashItems.id,
+        target: schema.triviaItems.id,
         set: {
           category: sql`excluded.category`,
           stem: sql`excluded.stem`,
@@ -145,7 +145,7 @@ async function main() {
         },
       });
 
-    console.log(`Seeded ${records.length} flash items from ${path.basename(datasetPath)}`);
+    console.log(`Seeded ${records.length} trivia items from ${path.basename(datasetPath)}`);
   } finally {
     await pool.end();
   }
@@ -157,7 +157,7 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   main().catch((error) => {
-    console.error("Failed to seed flash items:", error);
+    console.error("Failed to seed trivia items:", error);
     process.exit(1);
   });
 }

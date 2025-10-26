@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { FlashCard, flashCardCategoryMeta } from "@/data/flashCards";
+import { TriviaCard, triviaCardCategoryMeta } from "@/data/triviaCards";
 
-interface FlashCardDeckProps {
-  cards: FlashCard[];
+interface TriviaCardDeckProps {
+  cards: TriviaCard[];
   variant?: "full" | "compact";
   className?: string;
 }
 
-export function FlashCardDeck({ cards, variant = "full", className }: FlashCardDeckProps) {
+export function TriviaCardDeck({ cards, variant = "full", className }: TriviaCardDeckProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [seenCards, setSeenCards] = useState<Set<string>>(() =>
@@ -45,13 +45,13 @@ export function FlashCardDeck({ cards, variant = "full", className }: FlashCardD
     return (
       <Card className={cn("border-dashed border-white/20 bg-transparent text-slate-300", className)}>
         <CardContent className="flex h-40 items-center justify-center text-sm">
-          No flash cards available yet.
+          No trivia cards available yet.
         </CardContent>
       </Card>
     );
   }
 
-  const categoryMeta = flashCardCategoryMeta[currentCard.category];
+  const categoryMeta = triviaCardCategoryMeta[currentCard.category];
   const isCompact = variant === "compact";
 
   const handleAdvance = useCallback(

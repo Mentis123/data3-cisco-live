@@ -9,7 +9,7 @@ import {
   users,
   attempts,
   answers,
-  flashItems,
+  triviaItems,
 } from "../../shared/schema.js";
 import type {
   InsertParticipant,
@@ -23,7 +23,7 @@ import type {
   Attempt,
   Answer,
   InsertAnswer,
-  FlashItem,
+  TriviaItem,
 } from "../../shared/schema.js";
 import { createHash } from "crypto";
 
@@ -43,29 +43,29 @@ export const DEFAULT_DATA3_STATS = [
   { title: "Annual Revenue", value: "$1.8B+", description: "Sustained growth and investment", category: "SCALE", displayOrder: 10 }
 ];
 
-type FlashMode = "dojo" | "ring";
+type TriviaMode = "dojo" | "ring";
 
-interface StartFlashAttemptOptions {
+interface StartTriviaAttemptOptions {
   category: string;
-  mode: FlashMode;
+  mode: TriviaMode;
   email?: string;
   marketingOptIn?: boolean;
   playerProfile?: Pick<User, "firstName" | "lastName" | "company" | "role">;
   deckSize?: number;
 }
 
-interface FlashAnswerInput {
+interface TriviaAnswerInput {
   itemId: string;
   choiceIndex: number;
   elapsedMs: number;
 }
 
-interface CompleteFlashAttemptOptions {
+interface CompleteTriviaAttemptOptions {
   attemptId: string;
-  answers: FlashAnswerInput[];
+  answers: TriviaAnswerInput[];
 }
 
-interface FlashCardPayload {
+interface TriviaCardPayload {
   id: string;
   category: string;
   stem: string;
@@ -79,29 +79,29 @@ interface FlashCardPayload {
   version: number;
 }
 
-interface FlashCardSummary extends FlashCardPayload {
+interface TriviaCardSummary extends TriviaCardPayload {
   selectedIndex: number;
   correct: boolean;
   points: number;
   elapsedMs: number;
 }
 
-interface FlashAttemptResult {
+interface TriviaAttemptResult {
   attempt: Attempt;
-  cards: FlashCardPayload[];
-  snapshot: FlashCardSnapshot;
+  cards: TriviaCardPayload[];
+  snapshot: TriviaCardSnapshot;
 }
 
-type FlashCardSnapshot = Array<{
+type TriviaCardSnapshot = Array<{
   itemId: string;
   choices: string[];
   correctIndex: number;
   dropIndex: number;
 }>;
 
-const FLASH_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
-const FLASH_ROUND_SIZE = 5;
-const MAX_FLASH_TIME_MS = 12_000;
+const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
+const TRIVIA_ROUND_SIZE = 5;
+const MAX_TRIVIA_TIME_MS = 12_000;
 
 // Initialize stats on startup (development only)
 async function initializeData(db: NeonDatabase<typeof schema>) {
@@ -161,7 +161,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   initializeData(db);
 
   const normalizeProfile = (
-    profile: StartFlashAttemptOptions["playerProfile"],
+    profile: StartTriviaAttemptOptions["playerProfile"],
   ): Partial<User> => {
     if (!profile) {
       return {};
@@ -177,7 +177,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
   const ensureUserRecord = async (
     email: string | undefined,
-    profile: StartFlashAttemptOptions["playerProfile"],
+    profile: StartTriviaAttemptOptions["playerProfile"],
   ): Promise<{ user: User | null; emailHash: string | null }> => {
     if (!email) {
       return { user: null, emailHash: null };
@@ -206,20 +206,20 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     return { user: created, emailHash };
   };
 
-  const buildFlashDeck = async (
+  const buildTriviaDeck = async (
     category: string,
-    deckSize: number = FLASH_ROUND_SIZE,
-  ): Promise<{ cards: FlashCardPayload[]; snapshot: FlashCardSnapshot; maxVersion: number }> => {
+    deckSize: number = TRIVIA_ROUND_SIZE,
+  ): Promise<{ cards: TriviaCardPayload[]; snapshot: TriviaCardSnapshot; maxVersion: number }> => {
     const rawItems = await db
       .select()
-      .from(flashItems)
-      .where(and(eq(flashItems.category, category), eq(flashItems.active, true)));
+      .from(triviaItems)
+      .where(and(eq(triviaItems.category, category), eq(triviaItems.active, true)));
 
     if (!rawItems.length) {
-      throw new Error(`No flash items available for category ${category}`);
+      throw new Error(`No trivia items available for category ${category}`);
     }
 
-    const byDifficulty = new Map<number, FlashItem[]>();
+    const byDifficulty = new Map<number, TriviaItem[]>();
     for (const item of rawItems) {
       const diff = item.difficulty ?? 2;
       const bucket = byDifficulty.get(diff) ?? [];
@@ -227,10 +227,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       byDifficulty.set(diff, bucket);
     }
 
-    const selected: FlashItem[] = [];
-    const leftover: FlashItem[] = [];
+    const selected: TriviaItem[] = [];
+    const leftover: TriviaItem[] = [];
 
-    for (const [difficulty, target] of Object.entries(FLASH_TARGETS)) {
+    for (const [difficulty, target] of Object.entries(TRIVIA_TARGETS)) {
       const diff = Number(difficulty);
       const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
       const required = target as number;
@@ -252,13 +252,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
 
     if (selected.length < deckSize) {
-      throw new Error(`Insufficient flash items to build a deck for ${category}`);
+      throw new Error(`Insufficient trivia items to build a deck for ${category}`);
     }
 
     const deck = shuffleArray(selected.slice(0, deckSize));
 
-    const cards: FlashCardPayload[] = [];
-    const snapshot: FlashCardSnapshot = [];
+    const cards: TriviaCardPayload[] = [];
+    const snapshot: TriviaCardSnapshot = [];
     let maxVersion = 1;
 
     for (const item of deck) {
@@ -301,23 +301,23 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
 
     if (cards.length < deckSize) {
-      throw new Error(`Failed to construct flash deck for ${category}`);
+      throw new Error(`Failed to construct trivia deck for ${category}`);
     }
 
     return { cards, snapshot, maxVersion };
   };
 
   return {
-    async getFlashCategories() {
+    async getTriviaCategories() {
       const rows = await db
         .select({
-          category: flashItems.category,
-          difficulty: flashItems.difficulty,
+          category: triviaItems.category,
+          difficulty: triviaItems.difficulty,
           count: sql<number>`count(*)`,
         })
-        .from(flashItems)
-        .where(eq(flashItems.active, true))
-        .groupBy(flashItems.category, flashItems.difficulty);
+        .from(triviaItems)
+        .where(eq(triviaItems.active, true))
+        .groupBy(triviaItems.category, triviaItems.difficulty);
 
       const summary = new Map<
         string,
@@ -347,9 +347,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
     },
 
-    async startFlashAttempt(options: StartFlashAttemptOptions) {
-      const deckSize = options.deckSize ?? FLASH_ROUND_SIZE;
-      const { cards, snapshot, maxVersion } = await buildFlashDeck(options.category, deckSize);
+    async startTriviaAttempt(options: StartTriviaAttemptOptions) {
+      const deckSize = options.deckSize ?? TRIVIA_ROUND_SIZE;
+      const { cards, snapshot, maxVersion } = await buildTriviaDeck(options.category, deckSize);
       const { emailHash } = await ensureUserRecord(options.email, options.playerProfile);
       const now = new Date();
 
@@ -366,38 +366,38 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         })
         .returning();
 
-      return { attempt, cards, snapshot } satisfies FlashAttemptResult;
+      return { attempt, cards, snapshot } satisfies TriviaAttemptResult;
     },
 
-    async completeFlashAttempt(options: CompleteFlashAttemptOptions) {
+    async completeTriviaAttempt(options: CompleteTriviaAttemptOptions) {
       if (!options.answers.length) {
-        throw new Error("No answers provided for flash attempt completion");
+        throw new Error("No answers provided for trivia attempt completion");
       }
 
       return await db.transaction(async (tx) => {
         const [attempt] = await tx.select().from(attempts).where(eq(attempts.id, options.attemptId));
 
         if (!attempt) {
-          throw new Error("Flash attempt not found");
+          throw new Error("Trivia attempt not found");
         }
 
         if (attempt.endedAt) {
-          throw new Error("Flash attempt already completed");
+          throw new Error("Trivia attempt already completed");
         }
 
         const snapshotRaw = Array.isArray(attempt.deckSnapshot)
-          ? (attempt.deckSnapshot as FlashCardSnapshot)
+          ? (attempt.deckSnapshot as TriviaCardSnapshot)
           : [];
         const snapshotMap = new Map(snapshotRaw.map((entry) => [entry.itemId, entry]));
         const cardIds = Array.from(new Set(options.answers.map((answer) => answer.itemId)));
 
         const cards = cardIds.length
-          ? await tx.select().from(flashItems).where(inArray(flashItems.id, cardIds))
+          ? await tx.select().from(triviaItems).where(inArray(triviaItems.id, cardIds))
           : [];
         const cardMap = new Map(cards.map((item) => [item.id, item]));
 
         const answerRecords: InsertAnswer[] = [];
-        const summaries: FlashCardSummary[] = [];
+        const summaries: TriviaCardSummary[] = [];
         let totalScore = 0;
         let correctTimeTotal = 0;
         let correctCount = 0;
@@ -407,7 +407,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           const item = cardMap.get(submission.itemId);
 
           if (!snapshot || !item) {
-            throw new Error(`Invalid flash card ${submission.itemId} for attempt ${options.attemptId}`);
+            throw new Error(`Invalid trivia card ${submission.itemId} for attempt ${options.attemptId}`);
           }
 
           const selectedIndex = Number.isInteger(submission.choiceIndex)
@@ -415,14 +415,14 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             : -1;
           const elapsedMs = Math.max(
             0,
-            Math.min(MAX_FLASH_TIME_MS, submission.elapsedMs ?? MAX_FLASH_TIME_MS),
+            Math.min(MAX_TRIVIA_TIME_MS, submission.elapsedMs ?? MAX_TRIVIA_TIME_MS),
           );
           const correct = selectedIndex === snapshot.correctIndex;
           let points = 0;
           if (correct) {
             if (elapsedMs <= 5000) points = 6;
             else if (elapsedMs <= 9000) points = 5;
-            else if (elapsedMs <= MAX_FLASH_TIME_MS) points = 4;
+            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
           }
 
           totalScore += points;
@@ -510,7 +510,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     return result;
   },
 
-    async attachSubmissionToFlashAttempt(attemptId: string, submissionId: string): Promise<void> {
+    async attachSubmissionToTriviaAttempt(attemptId: string, submissionId: string): Promise<void> {
     const updated = await db
       .update(attempts)
       .set({ submissionId })
@@ -518,7 +518,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       .returning({ id: attempts.id });
 
     if (!updated.length) {
-      throw new Error(`Flash attempt ${attemptId} not found`);
+      throw new Error(`Trivia attempt ${attemptId} not found`);
     }
   },
 

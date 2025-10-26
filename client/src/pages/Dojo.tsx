@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
 import NotFound from "@/pages/not-found";
 
-type DojoExperienceId = "flash-cards" | "case-builder";
+type DojoExperienceId = "trivia-cards" | "case-builder";
 
 type DojoRouteProps = {
   params: {
@@ -21,8 +21,8 @@ const dojoExperiences: Record<DojoExperienceId, {
   status: string;
   highlights: string[];
 }> = {
-  "flash-cards": {
-    title: "Dojo flash-card drills",
+  "trivia-cards": {
+    title: "Dojo trivia-card drills",
     eyebrow: "Practice",
     description:
       "Race the countdown with live Data#3 trivia before your official run. Pick a Cisco architecture tile and lock in the numbers before you enter the ring.",
@@ -30,7 +30,7 @@ const dojoExperiences: Record<DojoExperienceId, {
     highlights: [
       "Five architecture tracks fed by the current stats deck",
       "Countdown auto-hides one wrong answer at 10 seconds",
-      "Hints flash at 5 seconds with tiered scoring (6/4/2)",
+      "Hints land at 5 seconds with tiered scoring (6/4/2)",
     ],
   },
   "case-builder": {
@@ -55,7 +55,7 @@ export default function Dojo({ params }: DojoRouteProps) {
     return <NotFound />;
   }
 
-  if (mode === "flash-cards") {
+  if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
@@ -134,7 +134,7 @@ export default function Dojo({ params }: DojoRouteProps) {
           <CardContent className="space-y-3 text-slate-200/80">
             <p>
               We are rolling these dojo paths out alongside the beta ring experience. Until the dedicated flows go
-              live, you can still enter the ring to run the full flash-card round and submit a case card today.
+              live, you can still enter the ring to run the full trivia-card round and submit a case card today.
             </p>
             <ul className="list-disc space-y-2 pl-6 text-sm">
               {experience.highlights.map((item) => (

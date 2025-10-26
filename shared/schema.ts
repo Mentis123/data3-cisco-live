@@ -94,7 +94,7 @@ export const answers = pgTable("answers", {
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
 });
 
-export const flashItems = pgTable("flash_items", {
+export const triviaItems = pgTable("trivia_items", {
   id: text("id").primaryKey(),
   category: text("category").notNull(),
   stem: text("stem").notNull(),
@@ -213,7 +213,7 @@ export const submitSolutionSchema = z.object({
   sessionToken: z.string(),
   category: z.enum(["SECURE_CONNECTIVITY", "HYBRID_DC", "COLLAB_CX", "OBSERVABILITY", "EDGE_IOT"]).optional(), // Category now auto-assigned
   solutionText: z.string(),
-  flashAttemptId: z.string().optional(),
+  triviaAttemptId: z.string().optional(),
   structuredFields: z.object({
     problem_summary: z.string(),
     impact_summary: z.string(),
@@ -244,7 +244,7 @@ export type User = typeof users.$inferSelect;
 export type Attempt = typeof attempts.$inferSelect;
 export type Answer = typeof answers.$inferSelect;
 export type InsertAnswer = typeof answers.$inferInsert;
-export type FlashItem = typeof flashItems.$inferSelect;
+export type TriviaItem = typeof triviaItems.$inferSelect;
 export type CaseCard = typeof caseCards.$inferSelect;
 export type RaffleEntry = typeof raffleEntries.$inferSelect;
 export type RaffleDraw = typeof raffleDraws.$inferSelect;
