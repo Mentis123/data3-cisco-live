@@ -92,9 +92,20 @@ export default function Beta() {
         <section className="space-y-6 text-center sm:text-left">
           <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta</Badge>
           <div className="space-y-4">
-            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-              Beat the Bot — Two-Left Tango
-            </h1>
+            <div className="flex items-center gap-1">
+              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
+                Beat the Bot — Two-Left Tango
+              </h1>
+              <Link href="/admin-leaderboard">
+                <button
+                  className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
+                  aria-label="Admin"
+                  data-testid="button-secret-admin"
+                >
+                  •
+                </button>
+              </Link>
+            </div>
             <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
               Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today’s Meta AI Glasses.
             </p>
