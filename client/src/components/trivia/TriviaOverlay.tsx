@@ -49,7 +49,9 @@ export function TriviaOverlay({
   return (
     <>
       {/* Full screen overlay backdrop */}
-      <div className="fixed inset-0 z-50 flex min-h-[100dvh] items-center justify-center bg-slate-950/95 px-4 py-6 backdrop-blur-md sm:px-6">
+      <div
+        className="fixed inset-0 z-50 flex min-h-[100svh] items-center justify-center bg-slate-950/95 px-4 pt-[max(env(safe-area-inset-top),1.25rem)] pb-[max(env(safe-area-inset-bottom),1.25rem)] backdrop-blur-md sm:px-6"
+      >
         {/* Exit button */}
         <button
           onClick={handleExitClick}
@@ -62,7 +64,7 @@ export function TriviaOverlay({
         {/* Trivia game container */}
         <div className="relative flex h-full w-full max-w-5xl items-center justify-center">
           <TriviaGame
-            className="h-full w-full max-h-[min(760px,calc(100dvh-6rem))] rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10"
+            className="h-full w-full max-h-[min(760px,calc(100svh-2.75rem))] rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10"
             questions={questions}
             track={track}
             mode={mode}
