@@ -297,42 +297,42 @@ export function TriviaGame({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col justify-between gap-6 landscape:gap-2 landscape:overflow-hidden landscape:pb-3">
+      <CardContent className="flex flex-1 flex-col justify-between gap-5 landscape:gap-2 landscape:overflow-hidden landscape:pb-3">
         {currentQuestion ? (
           <>
             {/* Portrait layout - original vertical stacking */}
-            <div className="portrait:space-y-6 portrait:flex portrait:flex-col portrait:flex-1 portrait:justify-between">
+            <div className="portrait:space-y-5 portrait:flex portrait:flex-col portrait:flex-1 portrait:justify-between sm:portrait:space-y-6">
               {/* Stats bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 portrait:rounded-2xl landscape:rounded-lg landscape:gap-2 landscape:p-2">
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 portrait:rounded-2xl landscape:rounded-lg landscape:gap-2 landscape:p-2 sm:p-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70 landscape:text-[0.5rem]">Score</p>
-                  <p className="text-2xl font-semibold text-white landscape:text-base">{score}</p>
+                  <p className="text-xl font-semibold text-white landscape:text-base sm:text-2xl">{score}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70 landscape:text-[0.5rem]">Time left</p>
-                  <p className="text-2xl font-semibold text-cyan-300 landscape:text-base">{Math.ceil(timeLeft)}</p>
+                  <p className="text-xl font-semibold text-cyan-300 landscape:text-base sm:text-2xl">{Math.ceil(timeLeft)}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70 landscape:text-[0.5rem]">Points at stake</p>
-                  <p className="text-2xl font-semibold text-emerald-300 landscape:text-base">{tierPoints}</p>
+                  <p className="text-xl font-semibold text-emerald-300 landscape:text-base sm:text-2xl">{tierPoints}</p>
                 </div>
               </div>
 
               {/* Question */}
               <div className="space-y-2 landscape:space-y-1 landscape:mt-2">
-                <h2 className="text-pretty text-xl font-semibold text-white sm:text-2xl landscape:text-base landscape:leading-snug">{currentQuestion.prompt}</h2>
+                <h2 className="text-pretty text-lg font-semibold text-white sm:text-2xl landscape:text-base landscape:leading-snug">{currentQuestion.prompt}</h2>
               </div>
 
               {/* Hint - shown inline in landscape for compact viewing */}
               {showHint && (
-                <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-sm text-cyan-100 landscape:rounded-lg landscape:p-2 landscape:text-[0.65rem]">
+                <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 p-3 text-sm text-cyan-100 landscape:rounded-lg landscape:p-2 landscape:text-[0.65rem] sm:p-4">
                   <p className="font-semibold uppercase tracking-[0.2em] text-cyan-200 landscape:text-[0.55rem]">Hint</p>
                   <p className="mt-2 text-pretty leading-relaxed text-cyan-50/90 landscape:mt-1 landscape:leading-tight">{currentQuestion.hint}</p>
                 </div>
               )}
 
               {/* Answer buttons - stack vertically in portrait */}
-              <div className="portrait:flex portrait:flex-col portrait:gap-3">
+              <div className="portrait:flex portrait:flex-col portrait:gap-2 sm:portrait:gap-3">
                 <div className="hidden landscape:grid landscape:grid-cols-3 landscape:gap-2">
                   {currentQuestion.choices.map((choice, index) => {
                     const isHidden = hiddenChoiceIndex === index && !answered;
@@ -380,7 +380,7 @@ export function TriviaGame({
                         onClick={() => handleChoice(index)}
                         disabled={phase !== "playing" || answered || isHidden}
                         className={cn(
-                          "relative w-full rounded-xl border border-white/10 bg-white/5 px-4 py-4 text-left text-base font-medium transition",
+                          "relative w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-base font-medium transition sm:py-4",
                           "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400",
                           isHidden && "pointer-events-none opacity-25",
                           !isHidden && phase === "playing" && "hover:bg-white/10",
@@ -403,7 +403,7 @@ export function TriviaGame({
 
             {phase === "feedback" && (
               <div className="space-y-3 landscape:space-y-2 landscape:mt-2">
-                <div className="rounded-xl border border-white/10 bg-white/10 p-4 text-sm landscape:rounded-lg landscape:p-2 landscape:text-[0.7rem]">
+                <div className="rounded-xl border border-white/10 bg-white/10 p-3 text-sm landscape:rounded-lg landscape:p-2 landscape:text-[0.7rem] sm:p-4">
                   <p
                     className={cn(
                       "font-semibold",
@@ -416,7 +416,7 @@ export function TriviaGame({
                   </p>
                 </div>
                 {currentQuestion.explanation && (
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100/85 landscape:rounded-lg landscape:p-2 landscape:text-[0.65rem]">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-100/85 landscape:rounded-lg landscape:p-2 landscape:text-[0.65rem] sm:p-4">
                     <p className="font-semibold uppercase tracking-[0.2em] text-slate-200/70 landscape:text-[0.55rem]">Why it works</p>
                     <p className="mt-2 text-pretty leading-relaxed landscape:mt-1 landscape:leading-tight">{currentQuestion.explanation}</p>
                   </div>
@@ -433,7 +433,7 @@ export function TriviaGame({
 
             {phase === "complete" && (
               <div className="space-y-4 landscape:space-y-2 landscape:py-4">
-                <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center landscape:rounded-lg landscape:p-4">
+                <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-5 text-center landscape:rounded-lg landscape:p-4">
                   <p className="text-sm uppercase tracking-[0.3em] text-emerald-200 landscape:text-[0.6rem]">Complete!</p>
                   <p className="mt-2 text-4xl font-semibold text-white landscape:mt-1 landscape:text-2xl">{score} pts</p>
                 </div>
