@@ -358,17 +358,17 @@ export function TriviaGame({
         {currentQuestion ? (
           <div className="mx-auto flex w-full max-w-4xl flex-1 min-h-0 flex-col gap-5 landscape:gap-1.5 sm:gap-8 max-[520px]:gap-4">
             <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_45px_120px_-70px_rgba(56,189,248,0.55)] landscape:gap-1.5 landscape:rounded-xl landscape:p-2 sm:grid-cols-3 max-[520px]:gap-2 max-[520px]:p-3">
-              <div className="space-y-1 text-center landscape:space-y-0 landscape:text-left sm:text-left max-[520px]:space-y-0.5">
-                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.62rem]">Score</p>
-                <p className="text-2xl font-semibold text-white landscape:text-base landscape:leading-none sm:text-3xl max-[520px]:text-xl">{score}</p>
+              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
+                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Score</p>
+                <p className="text-xl font-semibold text-white landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{score}</p>
               </div>
-              <div className="space-y-1 text-center landscape:space-y-0 landscape:text-left sm:text-left max-[520px]:space-y-0.5">
-                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.62rem]">Time left</p>
-                <p className="text-2xl font-semibold text-cyan-300 landscape:text-base landscape:leading-none sm:text-3xl max-[520px]:text-xl">{Math.ceil(timeLeft)}</p>
+              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
+                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Time left</p>
+                <p className="text-xl font-semibold text-cyan-300 landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{Math.ceil(timeLeft)}</p>
               </div>
-              <div className="space-y-1 text-center landscape:space-y-0 landscape:text-left sm:text-left max-[520px]:space-y-0.5">
-                <p className="text-[0.68rem] uppercase tracking-[0.32em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.62rem]">Points at stake</p>
-                <p className="text-2xl font-semibold text-emerald-300 landscape:text-base landscape:leading-none sm:text-3xl max-[520px]:text-xl">{tierPoints}</p>
+              <div className="space-y-1 text-center text-sm landscape:space-y-0 landscape:text-left sm:text-left sm:text-xs max-[520px]:space-y-0.5">
+                <p className="text-[0.65rem] uppercase tracking-[0.28em] text-slate-300/70 landscape:text-[0.5rem] landscape:leading-tight max-[520px]:text-[0.6rem]">Points at stake</p>
+                <p className="text-xl font-semibold text-emerald-300 landscape:text-base landscape:leading-none sm:text-2xl max-[520px]:text-lg">{tierPoints}</p>
               </div>
             </div>
 
@@ -381,8 +381,8 @@ export function TriviaGame({
             >
               <div className="flex min-h-0 flex-col gap-5 landscape:gap-1.5 max-[520px]:gap-4">
                 {phase !== "complete" && (
-                  <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 px-5 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] landscape:space-y-1.5 landscape:rounded-xl landscape:px-3 landscape:py-2.5 sm:px-8 max-[520px]:space-y-3 max-[520px]:px-4 max-[520px]:py-4">
-                    <h2 className="text-pretty text-xl font-semibold leading-tight text-white landscape:text-sm landscape:leading-tight sm:text-2xl lg:text-3xl max-[520px]:text-lg max-[520px]:leading-snug">
+                  <div className="space-y-4 rounded-3xl border border-white/10 bg-slate-950/40 px-5 py-6 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] landscape:space-y-1.5 landscape:rounded-xl landscape:px-3 landscape:py-2.5 sm:px-8 max-[520px]:space-y-3 max-[520px]:px-4 max-[520px]:py-4">
+                    <h2 className="text-pretty text-2xl font-semibold leading-snug text-white landscape:text-lg landscape:leading-snug sm:text-3xl lg:text-4xl max-[520px]:text-xl">
                       {currentQuestion.prompt}
                     </h2>
                     {showHint && (
