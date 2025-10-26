@@ -13,6 +13,7 @@ import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
 import Beta from "@/pages/Beta";
 import BetaPlay from "@/pages/BetaPlay";
+import BetaAdmin from "@/pages/BetaAdmin";
 import Dojo from "@/pages/Dojo";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/beta" component={Beta} />
       <Route path="/beta/play" component={BetaPlay} />
       <Route path="/beta/ring" component={BetaPlay} />
+      <Route path="/beta/admin" component={BetaAdmin} />
       <Route path="/beta/dojo/:mode" component={Dojo} />
       <Route component={NotFound} />
     </Switch>

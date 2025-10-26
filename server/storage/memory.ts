@@ -1202,5 +1202,41 @@ export function createMemoryStorage() {
       customCategoriesStore.splice(index, 1);
       return { success: true, reassignedStats };
     },
+
+    // Beta Admin Methods - Stub implementations for memory storage
+    async getBetaAdminOverview() {
+      return {
+        stats: {
+          totalAttempts: 0,
+          passedAttempts: 0,
+          avgScore: 0,
+          passRate: 0,
+          ringAttempts: 0,
+          dojoAttempts: 0,
+          raffleEntries: 0,
+        },
+        recentAttempts: [],
+      };
+    },
+
+    async getBetaAdminTriviaItems() {
+      return [];
+    },
+
+    async createTriviaItem() {
+      throw new Error("Beta admin features require database storage");
+    },
+
+    async updateTriviaItem() {
+      throw new Error("Beta admin features require database storage");
+    },
+
+    async deleteTriviaItem() {
+      throw new Error("Beta admin features require database storage");
+    },
+
+    async getBetaAdminRaffleEntries() {
+      return [];
+    },
   };
 }
