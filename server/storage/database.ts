@@ -101,7 +101,7 @@ type TriviaCardSnapshot = Array<{
 
 const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
-const MAX_TRIVIA_TIME_MS = 12_000;
+const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
 
 // Initialize stats on startup (development only)
 async function initializeData(db: NeonDatabase<typeof schema>) {
@@ -425,9 +425,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           const correct = selectedIndex === snapshot.correctIndex;
           let points = 0;
           if (correct) {
+            // Aligned with frontend: 0-5s=6pts, 5-10s=4pts, 10-15s=2pts
             if (elapsedMs <= 5000) points = 6;
-            else if (elapsedMs <= 9000) points = 5;
-            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
+            else if (elapsedMs <= 10000) points = 4;
+            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 2;
           }
 
           totalScore += points;
