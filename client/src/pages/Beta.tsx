@@ -3,29 +3,18 @@ import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
+import { cn } from "@/lib/utils";
 
-const categories = [
-  {
-    title: "Secure Connectivity",
-    copy: "Zero Trust access, segmentation, and posture controls that keep workflows moving.",
-  },
-  {
-    title: "Hybrid DC",
-    copy: "Hybrid cloud, elastic capacity, and automation across on-prem and hosted estates.",
-  },
-  {
-    title: "Collab & CX",
-    copy: "Agent experience, AI assist, contact centre velocity, and CSAT lift.",
-  },
-  {
-    title: "Observability",
-    copy: "Telemetry quality, golden signals, incident response, and automation plays.",
-  },
-  {
-    title: "Edge & IoT",
-    copy: "Edge analytics, ruggedised compute, real-time control loops, and uptime wins.",
-  },
-];
+const categories = (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
+  const meta = triviaCardCategoryMeta[key];
+  return {
+    id: key,
+    title: meta.name,
+    copy: meta.blurb,
+    accentClass: meta.accent,
+  };
+});
 
 const howItWorks = [
   {
@@ -141,11 +130,19 @@ export default function Beta() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((category) => (
-              <Card key={category.title} className="border-white/10 bg-white/5 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-xl text-white">{category.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-slate-200/80">{category.copy}</CardContent>
+              <Card key={category.id} className="border-white/10 bg-white/5 p-5 backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full",
+                      category.accentClass,
+                    )}
+                  />
+                  <div>
+                    <p className="text-base font-semibold text-white">{category.title}</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-slate-200/80">{category.copy}</p>
               </Card>
             ))}
           </div>

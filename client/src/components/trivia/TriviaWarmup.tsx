@@ -229,12 +229,10 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
                 <div className="flex items-center gap-3">
                   <span
                     className={cn(
-                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-slate-950",
+                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full",
                       track.accentClass,
                     )}
-                  >
-                    {track.name.split(" ")[0]}
-                  </span>
+                  />
                   <div>
                     <p className="text-base font-semibold text-white">{track.name}</p>
                     <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">Trivia warm-up</p>
