@@ -72,6 +72,27 @@ function isPracticeCard(value: unknown): value is TriviaPracticeCard {
   );
 }
 
+function areDecksEquivalent(
+  nextDeck: TriviaPracticeCard[] | undefined | null,
+  previousDeck: TriviaPracticeCard[] | undefined | null,
+) {
+  if (!nextDeck || !previousDeck) {
+    return false;
+  }
+
+  if (nextDeck.length !== previousDeck.length) {
+    return false;
+  }
+
+  const normalize = (cards: TriviaPracticeCard[]) =>
+    [...cards].map((card) => card.id).sort((a, b) => a.localeCompare(b));
+
+  const nextIds = normalize(nextDeck);
+  const prevIds = normalize(previousDeck);
+
+  return nextIds.every((id, index) => id === prevIds[index]);
+}
+
 export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring", exitHref = "/beta", onContinue }: TriviaWarmupProps) {
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -299,7 +320,7 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
           </div>
           <CardTitle className="text-2xl font-semibold">Building your warm-up</CardTitle>
           <p className="text-sm text-slate-300/80">
-            Pulling a fresh question set for {selectedTrack.name}. This only takes a moment.
+            Pulling a new random mix of questions for {selectedTrack.name}. This only takes a moment.
           </p>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-center gap-4">
@@ -373,7 +394,20 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
 
             setIsShuffleRequested(true);
             try {
-              await refetchDeck({ throwOnError: false });
+              const previousDeck = practiceDeck;
+              const MAX_SHUFFLE_ATTEMPTS = 2;
+              let attempts = 0;
+              let result = await refetchDeck({ throwOnError: false });
+
+              while (
+                previousDeck &&
+                result.data &&
+                areDecksEquivalent(result.data, previousDeck) &&
+                attempts < MAX_SHUFFLE_ATTEMPTS
+              ) {
+                attempts += 1;
+                result = await refetchDeck({ throwOnError: false });
+              }
             } finally {
               setIsShuffleRequested(false);
             }
