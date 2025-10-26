@@ -49,49 +49,45 @@ export function TriviaOverlay({
   return (
     <>
       {/* Full screen overlay backdrop */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex min-h-[100dvh] items-center justify-center bg-slate-950/95 px-4 py-6 backdrop-blur-md sm:px-6">
         {/* Exit button */}
         <button
           onClick={handleExitClick}
-          className="fixed right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 hover:border-white/30"
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-white/40 hover:bg-white/20 sm:right-6 sm:top-6"
           aria-label="Exit trivia"
         >
           <X className="h-5 w-5" />
         </button>
 
         {/* Trivia game container */}
-        <div className="h-full w-full max-w-4xl overflow-auto p-4 sm:p-6">
-          <div className="mx-auto h-full">
-            <TriviaGame
-              questions={questions}
-              track={track}
-              mode={mode}
-              onComplete={(score) => {
-                onComplete?.(score);
-              }}
-              completionRender={({ score, restart }) => (
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  {mode === "ring" && onContinue && (
-                    <Button
-                      onClick={() => onContinue(score)}
-                      className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]"
-                    >
-                      {continueLabel || "Enter the ring"}
-                    </Button>
-                  )}
-                  <Button variant="secondary" onClick={restart}>
-                    {mode === "ring" ? "Replay warm-up" : "Restart track"}
-                  </Button>
+        <div className="relative flex h-full w-full max-w-5xl items-center justify-center">
+          <TriviaGame
+            className="h-full w-full max-h-[min(760px,calc(100dvh-6rem))] rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10"
+            questions={questions}
+            track={track}
+            mode={mode}
+            onComplete={(score) => {
+              onComplete?.(score);
+            }}
+            completionRender={({ score, restart }) => (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {mode === "ring" && onContinue && (
                   <Button
-                    variant="outline"
-                    onClick={handleExitClick}
+                    onClick={() => onContinue(score)}
+                    className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]"
                   >
-                    Exit trivia
+                    {continueLabel || "Enter the ring"}
                   </Button>
-                </div>
-              )}
-            />
-          </div>
+                )}
+                <Button variant="secondary" onClick={restart}>
+                  {mode === "ring" ? "Replay warm-up" : "Restart track"}
+                </Button>
+                <Button variant="outline" onClick={handleExitClick}>
+                  Exit trivia
+                </Button>
+              </div>
+            )}
+          />
         </div>
       </div>
 
