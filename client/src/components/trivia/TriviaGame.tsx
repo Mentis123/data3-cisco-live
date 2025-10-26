@@ -238,6 +238,12 @@ export function TriviaGame({
   }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints]);
 
   useEffect(() => {
+    if (phase === "ready") {
+      setSelectedIndex(null);
+    }
+  }, [phase]);
+
+  useEffect(() => {
     if (phase === "complete" && !completionAnnounced) {
       setCompletionAnnounced(true);
       onComplete?.(score);
@@ -345,16 +351,18 @@ export function TriviaGame({
     );
 
   const completionContent = (
-    <div className="w-full max-w-md space-y-4 rounded-xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-3 max-[480px]:p-4">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/30 text-3xl text-emerald-300 mx-auto max-[480px]:h-14 max-[480px]:w-14 max-[480px]:text-2xl">
+    <div className="w-full max-w-sm space-y-3.5 rounded-xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-5 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-3 max-[480px]:p-4">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/30 text-2xl text-emerald-300 max-[480px]:h-12 max-[480px]:w-12 max-[480px]:text-xl">
         🎉
       </div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-200 max-[480px]:text-[0.65rem]">
+        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-emerald-200 max-[480px]:text-[0.6rem]">
           Quiz Complete!
         </p>
-        <p className="mt-2 text-4xl font-bold text-white max-[480px]:text-3xl">{score}</p>
-        <p className="mt-1 text-base text-emerald-100 max-[480px]:text-sm">points earned</p>
+        <p className="mt-1.5 text-[clamp(2.25rem,6vh,2.75rem)] font-bold leading-tight text-white max-[480px]:text-[clamp(2rem,6vh,2.25rem)]">
+          {score}
+        </p>
+        <p className="mt-1 text-sm text-emerald-100 max-[480px]:text-xs">points earned</p>
       </div>
       {completionRender?.({ score, restart })}
     </div>
