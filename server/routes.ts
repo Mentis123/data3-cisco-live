@@ -548,7 +548,11 @@ export async function registerRoutes(
   });
 
   app.get("/api/health", (req, res) => {
-    res.json({ ok: true });
+    res.json({
+      ok: true,
+      storage: storageKind,
+      database: storageKind === "database" ? "connected" : "using JSON fallback"
+    });
   });
 
   // Public endpoint to get Data#3 stats (read-only)

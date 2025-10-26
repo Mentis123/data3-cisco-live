@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,11 +97,31 @@ const microFaq = [
 ];
 
 export default function Beta() {
+  const { data: health } = useQuery({
+    queryKey: ["/api/health"],
+    queryFn: async () => {
+      const response = await fetch("/api/health");
+      if (!response.ok) throw new Error("Failed to fetch health");
+      return response.json();
+    },
+    refetchInterval: 30000, // Check every 30 seconds
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-16 sm:px-6 lg:px-8">
         <section className="space-y-6 text-center sm:text-left">
-          <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta</Badge>
+          <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+            <Badge className="w-fit bg-primary/30 text-white">/beta</Badge>
+            {health && (
+              <Badge
+                variant={health.storage === "database" ? "default" : "secondary"}
+                className={health.storage === "database" ? "bg-green-600/80" : "bg-amber-600/80"}
+              >
+                {health.storage === "database" ? "🗄️ DB Connected" : "📄 JSON Mode"}
+              </Badge>
+            )}
+          </div>
           <div className="space-y-4">
             <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
               Beat the Bot — Two-Left Tango
