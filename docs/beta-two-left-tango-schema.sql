@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS attempts (
   bot_bar integer,
   marketing_opt_in boolean NOT NULL DEFAULT false,
   consent_captured_at timestamptz,
-  attempt_day date GENERATED ALWAYS AS (started_at::date) STORED,
+  attempt_day date GENERATED ALWAYS AS (DATE(started_at AT TIME ZONE 'UTC')) STORED,
   CONSTRAINT attempts_email_required CHECK ((mode = 'dojo' AND email_hash IS NULL) OR (mode = 'ring' AND email_hash IS NOT NULL)),
   CONSTRAINT attempts_end_after_start CHECK (ended_at IS NULL OR ended_at >= started_at)
 );
