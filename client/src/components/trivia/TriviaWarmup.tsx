@@ -341,6 +341,7 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
       className={className}
       questions={questions}
       track={selectedTrack}
+      mode={mode}
       onComplete={() => {
         // handled via completionRender actions
       }}

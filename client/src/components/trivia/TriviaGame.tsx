@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -8,12 +9,15 @@ import type { TriviaQuestion, TriviaTrackMeta } from "./utils";
 
 type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete";
 
+type TriviaMode = "dojo" | "ring";
+
 interface TriviaGameProps {
   questions: TriviaQuestion[];
   track: TriviaTrackMeta;
   className?: string;
   onComplete?: (score: number) => void;
   completionRender?: (context: { score: number; restart: () => void }) => React.ReactNode;
+  mode?: TriviaMode;
 }
 
 const QUESTION_TIME = 15;
@@ -25,7 +29,14 @@ function getTierPoints(timeRemaining: number): number {
   return 0;
 }
 
-export function TriviaGame({ questions, track, className, onComplete, completionRender }: TriviaGameProps) {
+export function TriviaGame({
+  questions,
+  track,
+  className,
+  onComplete,
+  completionRender,
+  mode = "ring",
+}: TriviaGameProps) {
   const [phase, setPhase] = useState<TriviaPhase>("idle");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
@@ -36,6 +47,7 @@ export function TriviaGame({ questions, track, className, onComplete, completion
   const [answered, setAnswered] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [completionAnnounced, setCompletionAnnounced] = useState(false);
+  const [continueAvailable, setContinueAvailable] = useState(false);
 
   const frameRef = useRef<number | null>(null);
 
@@ -50,6 +62,7 @@ export function TriviaGame({ questions, track, className, onComplete, completion
     setEarnedPoints(0);
     setSelectedIndex(null);
     setPhase("ready");
+    setContinueAvailable(false);
   };
 
   const resetGame = () => {
@@ -155,6 +168,20 @@ export function TriviaGame({ questions, track, className, onComplete, completion
       return;
     }
 
+    if (mode === "dojo") {
+      const hasExplanation = Boolean(currentQuestion?.explanation);
+      const requiresDelay = hasExplanation && earnedPoints < 6;
+
+      if (requiresDelay) {
+        setContinueAvailable(false);
+        const timer = setTimeout(() => setContinueAvailable(true), 2000);
+        return () => clearTimeout(timer);
+      }
+
+      setContinueAvailable(true);
+      return undefined;
+    }
+
     const timer = setTimeout(() => {
       const nextIndex = questionIndex + 1;
       if (nextIndex >= questions.length) {
@@ -165,7 +192,7 @@ export function TriviaGame({ questions, track, className, onComplete, completion
     }, 1400);
 
     return () => clearTimeout(timer);
-  }, [phase, questionIndex, questions.length]);
+  }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints]);
 
   useEffect(() => {
     if (phase === "complete" && !completionAnnounced) {
@@ -194,8 +221,22 @@ export function TriviaGame({ questions, track, className, onComplete, completion
     resetGame();
   };
 
+  const handleContinue = () => {
+    if (mode !== "dojo" || phase !== "feedback" || !continueAvailable) {
+      return;
+    }
+
+    const nextIndex = questionIndex + 1;
+    if (nextIndex >= questions.length) {
+      setPhase("complete");
+    } else {
+      resetForQuestion(nextIndex);
+    }
+  };
+
   const tierPoints = getTierPoints(timeLeft);
   const progress = questions.length ? questionIndex + 1 : 0;
+  const isLastQuestion = progress >= questions.length;
 
   return (
     <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
@@ -295,6 +336,13 @@ export function TriviaGame({ questions, track, className, onComplete, completion
                   <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100/85">
                     <p className="font-semibold uppercase tracking-[0.2em] text-slate-200/70">Why it works</p>
                     <p className="mt-2 text-pretty leading-relaxed">{currentQuestion.explanation}</p>
+                  </div>
+                )}
+                {mode === "dojo" && continueAvailable && (
+                  <div className="flex justify-end">
+                    <Button onClick={handleContinue} variant="secondary">
+                      {isLastQuestion ? "View results" : "Next question"}
+                    </Button>
                   </div>
                 )}
               </div>
