@@ -1,3 +1,4 @@
 export { TriviaGame } from "./TriviaGame";
 export { TriviaWarmup } from "./TriviaWarmup";
-export type { TriviaQuestion, TriviaTrackMeta, Data3Stat } from "./utils";
+export type { TriviaQuestion, TriviaTrackMeta, TriviaPracticeCard } from "./utils";
+export { practiceCardToQuestion } from "./utils";

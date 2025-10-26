@@ -249,6 +249,23 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/trivia/practice", async (req, res) => {
+    const category = typeof req.query.category === "string" ? req.query.category : undefined;
+    const deckSizeParam = typeof req.query.deckSize === "string" ? Number.parseInt(req.query.deckSize, 10) : undefined;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    try {
+      const { cards } = await storage.getPracticeTriviaDeck(category, Number.isFinite(deckSizeParam) ? deckSizeParam : undefined);
+      res.json({ cards });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to fetch practice trivia deck";
+      res.status(400).json({ message });
+    }
+  });
+
   app.post("/api/trivia/attempts", async (req, res) => {
     try {
       const payload = startTriviaAttemptSchema.parse(req.body);

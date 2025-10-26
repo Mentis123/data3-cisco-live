@@ -347,6 +347,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
     },
 
+    async getPracticeTriviaDeck(category: string, deckSize?: number) {
+      const { cards } = await buildTriviaDeck(category, deckSize);
+      return { cards } satisfies { cards: TriviaCardPayload[] };
+    },
+
     async startTriviaAttempt(options: StartTriviaAttemptOptions) {
       const deckSize = options.deckSize ?? TRIVIA_ROUND_SIZE;
       const { cards, snapshot, maxVersion } = await buildTriviaDeck(options.category, deckSize);
