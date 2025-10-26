@@ -21,6 +21,19 @@ export function RotateTip() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    const previousPadding = document.body.style.paddingBottom;
+    document.body.style.paddingBottom = "7rem";
+
+    return () => {
+      document.body.style.paddingBottom = previousPadding;
+    };
+  }, [visible]);
+
   if (!visible) {
     return null;
   }
