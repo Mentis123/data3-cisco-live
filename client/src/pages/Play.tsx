@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RotateTip } from "@/components/RotateTip";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -67,6 +68,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   if (isBeta && !hasCompletedTrivia) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+        <RotateTip />
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-10 space-y-2">
             <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">Warm-up</Badge>
@@ -1619,6 +1621,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   return (
     <>
+      {isBeta ? <RotateTip /> : null}
       <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
         <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
           <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">

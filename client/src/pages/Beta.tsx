@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
@@ -109,49 +108,9 @@ const microFaq = [
   },
 ];
 
-function RotateTip() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-    const handleVisibility = () => {
-      const isPortrait = window.innerHeight >= window.innerWidth;
-      setVisible(mediaQuery.matches && isPortrait);
-    };
-
-    handleVisibility();
-    window.addEventListener("resize", handleVisibility);
-    screen.orientation?.addEventListener?.("change", handleVisibility);
-
-    return () => {
-      window.removeEventListener("resize", handleVisibility);
-      screen.orientation?.removeEventListener?.("change", handleVisibility);
-    };
-  }, []);
-
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 sm:hidden">
-      <div className="w-full max-w-md rounded-2xl bg-white/10 p-4 text-center shadow-lg backdrop-blur">
-        <div className="text-base font-semibold text-white">
-          For the best experience, rotate to <strong>landscape</strong> 📱↔️
-        </div>
-        <div className="mt-1 text-sm text-white/80">
-          You can still play in portrait — this is just a recommendation.
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Beta() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      <RotateTip />
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
         <section className="space-y-6 text-center sm:text-left">
           <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta</Badge>
