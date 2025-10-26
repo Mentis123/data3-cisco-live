@@ -118,12 +118,24 @@ export function TriviaGame({ questions, track, className, onComplete, completion
     }
 
     if (timeLeft <= 10 && hiddenChoiceIndex === null && currentQuestion) {
-      const wrongIndices = currentQuestion.choices
-        .map((_, index) => index)
-        .filter((index) => index !== currentQuestion.correctIndex);
-      if (wrongIndices.length) {
-        const pick = wrongIndices[Math.floor(Math.random() * wrongIndices.length)];
-        setHiddenChoiceIndex(pick);
+      const configuredDrop =
+        typeof currentQuestion.dropIndex === "number" ? currentQuestion.dropIndex : null;
+
+      if (
+        configuredDrop !== null &&
+        configuredDrop >= 0 &&
+        configuredDrop < currentQuestion.choices.length &&
+        configuredDrop !== currentQuestion.correctIndex
+      ) {
+        setHiddenChoiceIndex(configuredDrop);
+      } else {
+        const wrongIndices = currentQuestion.choices
+          .map((_, index) => index)
+          .filter((index) => index !== currentQuestion.correctIndex);
+        if (wrongIndices.length) {
+          const pick = wrongIndices[Math.floor(Math.random() * wrongIndices.length)];
+          setHiddenChoiceIndex(pick);
+        }
       }
     }
 
@@ -266,17 +278,25 @@ export function TriviaGame({ questions, track, className, onComplete, completion
             </div>
 
             {phase === "feedback" && (
-              <div className="rounded-xl border border-white/10 bg-white/10 p-4 text-sm">
-                <p
-                  className={cn(
-                    "font-semibold",
-                    earnedPoints > 0 ? "text-emerald-300" : "text-rose-300",
-                  )}
-                >
-                  {earnedPoints > 0
-                    ? `Correct! +${earnedPoints} points`
-                    : `Tough break. The correct answer was ${currentQuestion.choices[currentQuestion.correctIndex]}`}
-                </p>
+              <div className="space-y-3">
+                <div className="rounded-xl border border-white/10 bg-white/10 p-4 text-sm">
+                  <p
+                    className={cn(
+                      "font-semibold",
+                      earnedPoints > 0 ? "text-emerald-300" : "text-rose-300",
+                    )}
+                  >
+                    {earnedPoints > 0
+                      ? `Correct! +${earnedPoints} points`
+                      : `Tough break. The correct answer was ${currentQuestion.choices[currentQuestion.correctIndex]}`}
+                  </p>
+                </div>
+                {currentQuestion.explanation && (
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100/85">
+                    <p className="font-semibold uppercase tracking-[0.2em] text-slate-200/70">Why it works</p>
+                    <p className="mt-2 text-pretty leading-relaxed">{currentQuestion.explanation}</p>
+                  </div>
+                )}
               </div>
             )}
 

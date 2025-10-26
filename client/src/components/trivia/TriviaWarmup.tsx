@@ -12,9 +12,8 @@ import { cn } from "@/lib/utils";
 
 import { TriviaGame } from "./TriviaGame";
 import {
-  buildTriviaDeck,
-  type CategorisedData3Stat,
-  type Data3Stat,
+  practiceCardToQuestion,
+  type TriviaPracticeCard,
   type TriviaTrackMeta,
 } from "./utils";
 
@@ -51,22 +50,30 @@ const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; descri
   },
 };
 
-const queryKey = ["public", "stats"] as const;
+type TriviaCategorySummary = {
+  category: string;
+  total: number;
+  easy: number;
+  medium: number;
+  hard: number;
+};
+
+function isPracticeCard(value: unknown): value is TriviaPracticeCard {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const card = value as Partial<TriviaPracticeCard>;
+  return (
+    typeof card.id === "string" &&
+    typeof card.stem === "string" &&
+    Array.isArray(card.choices) &&
+    typeof card.correctIndex === "number"
+  );
+}
 
 export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring", exitHref = "/beta", onContinue }: TriviaWarmupProps) {
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
-
-  const { data, isLoading, isError } = useQuery<Data3Stat[]>({
-    queryKey,
-    queryFn: async () => {
-      const response = await fetch("/api/public/stats", { credentials: "include" });
-      if (!response.ok) {
-        throw new Error("Failed to load stats");
-      }
-      return response.json();
-    },
-    staleTime: 1000 * 60,
-  });
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -82,95 +89,178 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
     });
   }, []);
 
-  const ciscoStats = useMemo<CategorisedData3Stat[]>(
-    () =>
-      (data ?? []).filter((stat): stat is CategorisedData3Stat =>
-        isTriviaCardCategory(stat.category),
-      ),
-    [data],
-  );
+  const {
+    data: categorySummaries,
+    isLoading: isLoadingCategories,
+    isError: isCategoriesError,
+    error: categoriesError,
+  } = useQuery<TriviaCategorySummary[]>({
+    queryKey: ["trivia", "categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/trivia/categories", { credentials: "include" });
+      let payload: unknown = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
 
-  const availableTracks = useMemo(() => {
-    if (!ciscoStats.length) {
-      return [];
+      if (!response.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? String((payload as { message?: string }).message)
+            : "Failed to load trivia categories";
+        throw new Error(message);
+      }
+
+      if (
+        payload &&
+        typeof payload === "object" &&
+        Array.isArray((payload as { categories?: unknown }).categories)
+      ) {
+        return (payload as { categories: TriviaCategorySummary[] }).categories;
+      }
+
+      return Array.isArray(payload) ? (payload as TriviaCategorySummary[]) : [];
+    },
+    staleTime: 60_000,
+  });
+
+  const categoryMap = useMemo(() => {
+    const map = new Map<TriviaCardCategory, TriviaCategorySummary>();
+    for (const entry of categorySummaries ?? []) {
+      if (entry && typeof entry.category === "string" && isTriviaCardCategory(entry.category)) {
+        map.set(entry.category, entry);
+      }
     }
-    const categoriesWithStats = new Set(ciscoStats.map((stat) => stat.category));
-    return tracks.filter((track) => categoriesWithStats.has(track.id));
-  }, [tracks, ciscoStats]);
+    return map;
+  }, [categorySummaries]);
+
+  const {
+    data: practiceDeck,
+    isLoading: isDeckLoading,
+    isError: isDeckError,
+    error: deckError,
+    refetch: refetchDeck,
+    isFetching: isDeckFetching,
+  } = useQuery<TriviaPracticeCard[]>({
+    queryKey: ["trivia", "practice", selectedTrack?.id],
+    enabled: !!selectedTrack,
+    queryFn: async () => {
+      if (!selectedTrack) {
+        return [];
+      }
+
+      const params = new URLSearchParams({ category: selectedTrack.id });
+      const response = await fetch(`/api/trivia/practice?${params.toString()}`, {
+        credentials: "include",
+      });
+
+      let payload: unknown = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? String((payload as { message?: string }).message)
+            : "Failed to load trivia deck";
+        throw new Error(message);
+      }
+
+      if (payload && typeof payload === "object" && Array.isArray((payload as { cards?: unknown }).cards)) {
+        return ((payload as { cards: unknown[] }).cards).filter(isPracticeCard);
+      }
+
+      return [];
+    },
+    gcTime: 0,
+  });
 
   const questions = useMemo(
-    () => buildTriviaDeck(ciscoStats, selectedTrack?.id ?? null),
-    [ciscoStats, selectedTrack],
+    () => (practiceDeck ? practiceDeck.map(practiceCardToQuestion) : []),
+    [practiceDeck],
   );
 
-  const renderSelection = () => {
-    const selectableTracks = availableTracks.length ? availableTracks : tracks;
+  const categoriesErrorMessage =
+    categoriesError instanceof Error ? categoriesError.message : null;
+  const deckErrorMessage =
+    deckError instanceof Error ? deckError.message : "Failed to load trivia deck";
 
+  const renderSelection = () => {
     return (
       <div className="space-y-6">
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-slate-300/70">Choose your track</p>
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
-            Pick the architecture you want to drill. Each warm-up pulls live stats so the correct answer is always current.
+            Pick the architecture you want to drill. Each warm-up pulls curated Data#3 trivia from the live question set for
+            that track.
           </p>
+          {isCategoriesError && (
+            <p className="text-xs text-amber-300/80">
+              We couldn&apos;t confirm deck counts right now{categoriesErrorMessage ? ` (${categoriesErrorMessage})` : ""}, but every
+              track remains open for practice.
+            </p>
+          )}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {selectableTracks.map((track) => (
-            <button
-              key={track.id}
-              type="button"
-              onClick={() => setSelectedTrack(track)}
-              className="group h-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition hover:border-white/30 hover:bg-white/10"
-            >
-              <div className="flex items-center gap-3">
-                <span className={cn("inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-slate-950", track.accentClass)}>
-                  {track.name.split(" ")[0]}
-                </span>
-                <div>
-                  <p className="text-base font-semibold text-white">{track.name}</p>
-                  <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">Trivia warm-up</p>
+          {tracks.map((track) => {
+            const summary = categoryMap.get(track.id);
+            const total = summary?.total ?? 0;
+            const status = summary
+              ? `${total} question${total === 1 ? "" : "s"} ready`
+              : isCategoriesError
+              ? "Deck counts unavailable — jump in"
+              : isLoadingCategories
+              ? "Loading question counts…"
+              : "Warm-up deck ready";
+
+            return (
+              <button
+                key={track.id}
+                type="button"
+                onClick={() => setSelectedTrack(track)}
+                className="group h-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition hover:border-white/30 hover:bg-white/10"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-slate-950",
+                      track.accentClass,
+                    )}
+                  >
+                    {track.name.split(" ")[0]}
+                  </span>
+                  <div>
+                    <p className="text-base font-semibold text-white">{track.name}</p>
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">Trivia warm-up</p>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-4 text-sm text-slate-200/80">{track.description}</p>
-            </button>
-          ))}
+                <p className="mt-4 text-sm text-slate-200/80">{track.description}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.25em] text-slate-300/60">{status}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
   };
 
-  if (isLoading) {
+  if (isLoadingCategories) {
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-3">
-          <CardTitle className="text-2xl font-semibold">Loading warm-up…</CardTitle>
-          <p className="text-sm text-slate-300/80">Pulling the latest stats deck.</p>
+          <CardTitle className="text-2xl font-semibold">Loading warm-up decks…</CardTitle>
+          <p className="text-sm text-slate-300/80">Gathering the latest trivia tracks from the question set.</p>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-center gap-4">
           <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
           <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
           <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isError || !ciscoStats.length) {
-    return (
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">Cisco stats not available</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-1 flex-col justify-between gap-6">
-          <p className="text-sm text-slate-300/80">
-            We could not load any of the Cisco architecture metrics right now. Try again shortly or jump back to the beta overview.
-          </p>
-          <Link href={exitHref}>
-            <Button variant="secondary" className="self-start">
-              Back to beta overview
-            </Button>
-          </Link>
         </CardContent>
       </Card>
     );
@@ -190,19 +280,57 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
     );
   }
 
-  if (!questions.length) {
+  if (selectedTrack && isDeckLoading) {
+    return (
+      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+        <CardHeader className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-950", selectedTrack.accentClass)}>
+              {selectedTrack.name}
+            </Badge>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Loading deck</p>
+          </div>
+          <CardTitle className="text-2xl font-semibold">Building your warm-up</CardTitle>
+          <p className="text-sm text-slate-300/80">
+            Pulling a fresh question set for {selectedTrack.name}. This only takes a moment.
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-1 flex-col justify-center gap-4">
+          <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
+          <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
+          <Skeleton className="h-16 w-full rounded-xl bg-white/10" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (selectedTrack && (isDeckError || (!isDeckLoading && !questions.length))) {
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl font-semibold">No trivia cards yet</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Trivia deck unavailable</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-between gap-6">
           <p className="text-sm text-slate-300/80">
-            This track does not have Data#3 stats assigned right now. Choose a different technology to keep the warm-up rolling.
+            {isDeckError
+              ? deckErrorMessage
+              : `We couldn’t load a trivia deck for ${selectedTrack.name} right now. Try again or select a different track.`}
           </p>
-          <Button variant="secondary" className="self-start" onClick={() => setSelectedTrack(null)}>
-            Choose another track
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="secondary"
+              className="self-start"
+              onClick={() => {
+                void refetchDeck();
+              }}
+              disabled={isDeckFetching}
+            >
+              {isDeckFetching ? "Retrying…" : "Try this track again"}
+            </Button>
+            <Button variant="outline" className="self-start" onClick={() => setSelectedTrack(null)}>
+              Choose another track
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -225,6 +353,15 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
           )}
           <Button variant="secondary" onClick={restart}>
             {mode === "ring" ? "Replay warm-up" : "Restart track"}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              void refetchDeck();
+            }}
+            disabled={isDeckFetching}
+          >
+            {isDeckFetching ? "Loading new deck…" : "Load new deck"}
           </Button>
           <Button variant="outline" onClick={() => setSelectedTrack(null)}>
             Choose different track

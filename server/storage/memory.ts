@@ -825,6 +825,11 @@ export function createMemoryStorage() {
       return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
     },
 
+    async getPracticeTriviaDeck(category: string, deckSize?: number) {
+      const { cards } = buildTriviaDeck(category, deckSize);
+      return { cards } satisfies { cards: TriviaCardPayload[] };
+    },
+
     async startTriviaAttempt(options: StartTriviaAttemptOptions) {
       const deckSize = options.deckSize ?? TRIVIA_ROUND_SIZE;
       const { cards, snapshot, maxVersion } = buildTriviaDeck(options.category, deckSize);
