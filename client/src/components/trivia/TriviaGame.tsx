@@ -285,18 +285,16 @@ export function TriviaGame({
 
   return (
     <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur landscape:h-screen landscape:max-h-screen landscape:overflow-hidden", className)}>
-      {/* Compact header for landscape mode */}
-      <CardHeader className="space-y-3 landscape:space-y-0 landscape:py-2">
+      {/* Minimal header */}
+      <CardHeader className="space-y-2 landscape:space-y-0 landscape:py-2">
         <div className="flex flex-wrap items-center justify-between gap-3 landscape:gap-2">
           <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-950 landscape:px-2 landscape:py-0.5 landscape:text-[0.5rem]", track.accentClass)}>
             {track.name}
           </Badge>
           <div className="text-xs font-medium uppercase tracking-[0.25em] text-slate-300/80 landscape:text-[0.5rem]">
-            Question {progress} / {questions.length}
+            {progress} / {questions.length}
           </div>
         </div>
-        <CardTitle className="text-balance text-2xl font-semibold leading-tight sm:text-3xl landscape:hidden">{track.summary}</CardTitle>
-        <p className="text-sm text-slate-200/80 sm:text-base landscape:hidden">{track.description}</p>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col justify-between gap-6 landscape:gap-2 landscape:overflow-hidden landscape:pb-3">
@@ -321,8 +319,7 @@ export function TriviaGame({
               </div>
 
               {/* Question */}
-              <div className="space-y-3 landscape:space-y-1 landscape:mt-2">
-                <p className="text-sm uppercase tracking-[0.2em] text-cyan-200/80 landscape:text-[0.6rem]">Data#3 Trivia</p>
+              <div className="space-y-2 landscape:space-y-1 landscape:mt-2">
                 <h2 className="text-pretty text-xl font-semibold text-white sm:text-2xl landscape:text-base landscape:leading-snug">{currentQuestion.prompt}</h2>
               </div>
 
@@ -436,10 +433,9 @@ export function TriviaGame({
 
             {phase === "complete" && (
               <div className="space-y-4 landscape:space-y-2 landscape:py-4">
-                <div className="rounded-2xl border border-white/10 bg-white/10 p-6 text-center landscape:rounded-lg landscape:p-4">
-                  <p className="text-sm uppercase tracking-[0.3em] text-emerald-200/80 landscape:text-[0.6rem]">Warm-up complete</p>
-                  <p className="mt-2 text-4xl font-semibold text-white landscape:mt-1 landscape:text-2xl">Final score: {score}</p>
-                  <p className="mt-3 text-base text-slate-200/80 landscape:mt-1 landscape:text-xs">Ready to take those stats into the next round.</p>
+                <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center landscape:rounded-lg landscape:p-4">
+                  <p className="text-sm uppercase tracking-[0.3em] text-emerald-200 landscape:text-[0.6rem]">Complete!</p>
+                  <p className="mt-2 text-4xl font-semibold text-white landscape:mt-1 landscape:text-2xl">{score} pts</p>
                 </div>
                 {completionRender?.({ score, restart })}
               </div>
