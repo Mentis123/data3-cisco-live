@@ -4,7 +4,6 @@ import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 const categories = [
   {
@@ -81,17 +80,6 @@ const quickRules = [
     title: "Prize",
     copy: "Every win = 1 raffle entry for today’s random draw (software-picked).",
   },
-  {
-    title: "Leaderboards",
-    copy: "Top Score • Sharp Shooter • Track Champs • Most Precise KPI.",
-  },
-];
-
-const leaderboards = [
-  "Top Score",
-  "Sharp Shooter",
-  "Track Champs",
-  "Most Precise KPI",
 ];
 
 const microFaq = [
@@ -163,15 +151,25 @@ export default function Beta() {
               Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today’s Meta AI Glasses.
             </p>
           </div>
-          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+          <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-2">
             <Link href="/beta/play">
-              <Button size="lg" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full">
                 Enter the Ring
               </Button>
             </Link>
             <Link href="/beta/dojo/trivia-cards">
-              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary">
                 Practice in Dojo
+              </Button>
+            </Link>
+            <Link href="/beta/leaderboard">
+              <Button size="lg" variant="secondary" className="w-full">
+                View Leaderboard
+              </Button>
+            </Link>
+            <Link href="/beta/how-to-play">
+              <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                How it works
               </Button>
             </Link>
           </div>
@@ -252,22 +250,7 @@ export default function Beta() {
           </Card>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-white/10 bg-white/5 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">What you’ll walk away with</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-200/85">
-              <p>
-                Your Case Card emailed (with impact math), a shot at the Meta AI Glasses, and bragging rights.
-              </p>
-              <Separator className="bg-white/10" />
-              <div>
-                <p className="font-semibold text-white">Leaderboards</p>
-                <p>{leaderboards.join(" • ")}</p>
-              </div>
-            </CardContent>
-          </Card>
+        <section>
           <Card className="border-white/10 bg-white/5 backdrop-blur">
             <CardHeader>
               <CardTitle className="text-2xl text-white">Micro-FAQ</CardTitle>
@@ -283,15 +266,25 @@ export default function Beta() {
           </Card>
         </section>
 
-        <section className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <section className="grid w-full max-w-2xl gap-3 self-center sm:grid-cols-2">
           <Link href="/beta/play">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full">
               Enter the Ring
             </Button>
           </Link>
           <Link href="/beta/dojo/trivia-cards">
-            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary sm:w-auto">
+            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary">
               Practice in Dojo
+            </Button>
+          </Link>
+          <Link href="/beta/leaderboard">
+            <Button size="lg" variant="secondary" className="w-full">
+              View Leaderboard
+            </Button>
+          </Link>
+          <Link href="/beta/how-to-play">
+            <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10">
+              How it works
             </Button>
           </Link>
         </section>

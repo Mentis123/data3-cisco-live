@@ -227,15 +227,25 @@ export default function HowToPlay() {
           </Card>
         </section>
 
-        <section className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <section className="grid w-full max-w-2xl gap-3 self-center sm:grid-cols-2">
           <Link href="/beta/play">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full">
               Enter the Ring
             </Button>
           </Link>
           <Link href="/beta/dojo/trivia-cards">
-            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary sm:w-auto">
+            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary">
               Practice in Dojo
+            </Button>
+          </Link>
+          <Link href="/beta/leaderboard">
+            <Button size="lg" variant="secondary" className="w-full">
+              View Leaderboard
+            </Button>
+          </Link>
+          <Link href="/beta">
+            <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10">
+              Back to beta home
             </Button>
           </Link>
         </section>

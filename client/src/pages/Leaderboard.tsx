@@ -71,11 +71,15 @@ export default function Leaderboard() {
   const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
   
   // New submission detection and announcement state
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
   const [newSubmissionTime, setNewSubmissionTime] = useState<number | null>(null);
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const isInitialDataLoad = useRef(true);
+
+  const isBetaRoute = location?.startsWith("/beta");
+  const homeHref = isBetaRoute ? "/beta" : "/";
+  const leaderboardPath = isBetaRoute ? "/beta/leaderboard" : "/leaderboard";
 
   // Fetch dashboard data early so dependent callbacks always have refetch available
   const { data, isLoading, refetch } = useQuery<DashboardData>({
@@ -147,13 +151,13 @@ export default function Leaderboard() {
     setLocation('/announcement');
 
     setTimeout(() => {
-      setLocation('/leaderboard');
+      setLocation(leaderboardPath);
     }, 10000);
 
     triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
 
     refetch();
-  }, [refetch, setLocation, triggerScoreAnimation]);
+  }, [leaderboardPath, refetch, setLocation, triggerScoreAnimation]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -1097,7 +1101,7 @@ export default function Leaderboard() {
         <div className="mb-6">
           {!isFullscreen && (
             <div className="flex gap-2 mb-4">
-              <Link href="/">
+              <Link href={homeHref}>
                 <Button variant="outline" size="sm">
                   <i className="fas fa-home mr-2"></i>
                   Home
