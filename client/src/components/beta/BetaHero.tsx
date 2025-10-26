@@ -6,11 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const entryPoints = [
   {
-    id: "flash-cards",
+    id: "trivia-cards",
     eyebrow: "Dojo",
-    title: "Practice flash cards",
+    title: "Practice trivia cards",
     description: "Drill the daily decks with instant rationale reveals and unlimited restarts.",
-    href: "/beta/dojo/flash-cards",
+    href: "/beta/dojo/trivia-cards",
     action: "Start practicing",
     variant: "outline" as const,
   },
@@ -28,7 +28,7 @@ const entryPoints = [
     eyebrow: "Ring",
     title: "Enter the ring",
     description:
-      "Run the full experience — flash mastery, case submission, scoring and leaderboard glory.",
+      "Run the full experience — trivia mastery, case submission, scoring and leaderboard glory.",
     href: "/beta/ring",
     action: "Launch full run",
     variant: "default" as const,
@@ -113,7 +113,7 @@ export function BetaHero({ stats }: BetaHeroProps) {
               <ul className="space-y-2 text-left">
                 <li className="flex items-start gap-2">
                   <span aria-hidden="true">🏁</span>
-                  <span>Timed flash-card round with instant feedback for each decision.</span>
+                  <span>Timed trivia-card round with instant feedback for each decision.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span aria-hidden="true">🧮</span>

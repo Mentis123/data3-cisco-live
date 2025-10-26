@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { flashCardCategoryMeta, isFlashCardCategory, type FlashCardCategory } from "@/data/flashCards";
+import { triviaCardCategoryMeta, isTriviaCardCategory, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
 
 import { TriviaGame } from "./TriviaGame";
@@ -28,7 +28,7 @@ interface TriviaWarmupProps {
   onContinue?: () => void;
 }
 
-const TRIVIA_TRACK_DETAILS: Record<FlashCardCategory, { summary: string; description: string }> = {
+const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; description: string }> = {
   SECURE_CONNECTIVITY: {
     summary: "Secure connectivity quick-fire",
     description: "Can you recall the zero-trust stats before the countdown hits zero?",
@@ -69,8 +69,8 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
   });
 
   const tracks = useMemo(() => {
-    return (Object.keys(flashCardCategoryMeta) as FlashCardCategory[]).map((key) => {
-      const meta = flashCardCategoryMeta[key];
+    return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
+      const meta = triviaCardCategoryMeta[key];
       const detail = TRIVIA_TRACK_DETAILS[key];
       return {
         id: key,
@@ -85,7 +85,7 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
   const ciscoStats = useMemo<CategorisedData3Stat[]>(
     () =>
       (data ?? []).filter((stat): stat is CategorisedData3Stat =>
-        isFlashCardCategory(stat.category),
+        isTriviaCardCategory(stat.category),
       ),
     [data],
   );

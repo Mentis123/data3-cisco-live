@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS leaderboard_cache (
   PRIMARY KEY (cache_date, tab)
 );
 
--- Flash-card content bank used by the game engine.
-CREATE TABLE IF NOT EXISTS flash_items (
+-- Trivia-card content bank used by the game engine.
+CREATE TABLE IF NOT EXISTS trivia_items (
   id text PRIMARY KEY,
   category text NOT NULL,
   stem text NOT NULL,
@@ -132,6 +132,6 @@ CREATE TABLE IF NOT EXISTS flash_items (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX IF NOT EXISTS idx_flash_items_category ON flash_items (category) WHERE active = true;
+CREATE INDEX IF NOT EXISTS idx_trivia_items_category ON trivia_items (category) WHERE active = true;
 
 COMMIT;

@@ -32,8 +32,8 @@ import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
-import { FlashCardDeck } from "@/components/flashcards/FlashCardDeck";
-import { flashCardDeck } from "@/data/flashCards";
+import { TriviaCardDeck } from "@/components/trivia-cards/TriviaCardDeck";
+import { triviaCardDeck } from "@/data/triviaCards";
 import { TriviaWarmup } from "@/components/trivia";
 
 type PlayVariant = "classic" | "beta";
@@ -58,11 +58,11 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
-  const [flashDeckOpen, setFlashDeckOpen] = useState(false);
+  const [triviaDeckOpen, setTriviaDeckOpen] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
-  const flashAttemptId: string | null = null;
+  const triviaAttemptId: string | null = null;
 
   if (isBeta && !hasCompletedTrivia) {
     return (
@@ -186,7 +186,7 @@ Just describe it naturally - what's the problem that needs solving?`
       const response = await apiRequest("POST", "/api/submit", {
         sessionToken,
         solutionText: state.messages.map(m => `${m.role}: ${m.content}`).join("\n\n"),
-        flashAttemptId: flashAttemptId ?? undefined,
+        triviaAttemptId: triviaAttemptId ?? undefined,
         structuredFields: submission,
       });
       return response.json();
@@ -460,7 +460,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       const betaHighlights = [
         {
           title: "Drop → Hint → Lock",
-          copy: "Each flash card reveals the rationale so practice and competition share the same flow.",
+          copy: "Each trivia card reveals the rationale so practice and competition share the same flow.",
         },
         {
           title: "Expo-ready controls",
@@ -760,16 +760,16 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     );
   }
 
-  const flashDeckDialog = (
-    <Dialog open={flashDeckOpen} onOpenChange={setFlashDeckOpen}>
+  const triviaDeckDialog = (
+    <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
       <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
         <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl font-semibold text-white">Practice flash cards</DialogTitle>
+        <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
           <DialogDescription className="text-sm text-slate-300">
             Work through each dial with instant rationales before you lock your score.
           </DialogDescription>
         </DialogHeader>
-        <FlashCardDeck cards={flashCardDeck} />
+        <TriviaCardDeck cards={triviaCardDeck} />
       </DialogContent>
     </Dialog>
   );
@@ -781,7 +781,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     if (isBeta) {
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
-          {flashDeckDialog}
+          {triviaDeckDialog}
           <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -1098,7 +1098,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        {flashDeckDialog}
+        {triviaDeckDialog}
           <div className="flex-1 py-4 sm:py-8 safe-area-padding">
             <div className="max-w-4xl mx-auto px-4">
               <Card className="glass-panel border-0 overflow-hidden">
@@ -1612,7 +1612,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
           </div>
         </div>
         {exitDialog}
-        {flashDeckDialog}
+        {triviaDeckDialog}
       </>
     );
   }
@@ -1771,7 +1771,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         </div>
       </div>
       {exitDialog}
-      {flashDeckDialog}
+      {triviaDeckDialog}
     </>
   );
 

@@ -55,7 +55,7 @@ const CATEGORIES = [
   { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks" },
 ];
 
-const startFlashAttemptSchema = z.object({
+const startTriviaAttemptSchema = z.object({
   category: z.string(),
   mode: z.enum(["dojo", "ring"]),
   email: z.string().email().optional(),
@@ -70,7 +70,7 @@ const startFlashAttemptSchema = z.object({
     .optional(),
 });
 
-const completeFlashAttemptSchema = z.object({
+const completeTriviaAttemptSchema = z.object({
   attemptId: z.string(),
   answers: z
     .array(
@@ -240,18 +240,18 @@ export async function registerRoutes(
     res.json(CATEGORIES);
   });
 
-  app.get("/api/flash/categories", async (req, res) => {
+  app.get("/api/trivia/categories", async (req, res) => {
     try {
-      const categories = await storage.getFlashCategories();
+      const categories = await storage.getTriviaCategories();
       res.json({ categories });
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch flash categories" });
+      res.status(500).json({ message: "Failed to fetch trivia categories" });
     }
   });
 
-  app.post("/api/flash/attempts", async (req, res) => {
+  app.post("/api/trivia/attempts", async (req, res) => {
     try {
-      const payload = startFlashAttemptSchema.parse(req.body);
+      const payload = startTriviaAttemptSchema.parse(req.body);
       if (payload.mode === "ring" && !payload.email) {
         return res.status(400).json({ message: "Email is required for ring attempts" });
       }
@@ -265,7 +265,7 @@ export async function registerRoutes(
           }
         : undefined;
 
-      const { attempt, cards } = await storage.startFlashAttempt({
+      const { attempt, cards } = await storage.startTriviaAttempt({
         ...payload,
         playerProfile,
       });
@@ -276,19 +276,19 @@ export async function registerRoutes(
         cards,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to start flash attempt";
+      const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
       res.status(400).json({ message });
     }
   });
 
-  app.post("/api/flash/attempts/:attemptId/complete", async (req, res) => {
+  app.post("/api/trivia/attempts/:attemptId/complete", async (req, res) => {
     try {
-      const payload = completeFlashAttemptSchema.parse({
+      const payload = completeTriviaAttemptSchema.parse({
         attemptId: req.params.attemptId,
         answers: req.body.answers,
       });
 
-      const result = await storage.completeFlashAttempt(payload);
+      const result = await storage.completeTriviaAttempt(payload);
       res.json({
         attemptId: result.attempt.id,
         totalScore: result.totalScore,
@@ -298,7 +298,7 @@ export async function registerRoutes(
         summary: result.summary,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to complete flash attempt";
+      const message = error instanceof Error ? error.message : "Failed to complete trivia attempt";
       res.status(400).json({ message });
     }
   });
@@ -385,7 +385,7 @@ export async function registerRoutes(
         }
       }
 
-      const { sessionToken, solutionText, structuredFields, flashAttemptId } = submitSolutionSchema.parse(req.body);
+      const { sessionToken, solutionText, structuredFields, triviaAttemptId } = submitSolutionSchema.parse(req.body);
       const session = sessions.get(sessionToken);
 
       if (!session) {
@@ -442,12 +442,12 @@ export async function registerRoutes(
         evaluationNotes: evaluation.notes_short,
       });
 
-      if (flashAttemptId) {
+      if (triviaAttemptId) {
         try {
-          await storage.attachSubmissionToFlashAttempt(flashAttemptId, submission.id);
+          await storage.attachSubmissionToTriviaAttempt(triviaAttemptId, submission.id);
         } catch (error) {
           console.warn(
-            `[flash] Failed to associate submission ${submission.id} with flash attempt ${flashAttemptId}:`,
+            `[trivia] Failed to associate submission ${submission.id} with trivia attempt ${triviaAttemptId}:`,
             error,
           );
         }

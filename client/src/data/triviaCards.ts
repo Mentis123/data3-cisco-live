@@ -1,11 +1,11 @@
-export type FlashCardCategory =
+export type TriviaCardCategory =
   | "SECURE_CONNECTIVITY"
   | "HYBRID_DC"
   | "COLLAB_CX"
   | "OBSERVABILITY"
   | "EDGE_IOT";
 
-export const flashCardCategories: FlashCardCategory[] = [
+export const triviaCardCategories: TriviaCardCategory[] = [
   "SECURE_CONNECTIVITY",
   "HYBRID_DC",
   "COLLAB_CX",
@@ -13,13 +13,13 @@ export const flashCardCategories: FlashCardCategory[] = [
   "EDGE_IOT",
 ];
 
-export function isFlashCardCategory(value: string): value is FlashCardCategory {
-  return flashCardCategories.includes(value as FlashCardCategory);
+export function isTriviaCardCategory(value: string): value is TriviaCardCategory {
+  return triviaCardCategories.includes(value as TriviaCardCategory);
 }
 
-export interface FlashCard {
+export interface TriviaCard {
   id: string;
-  category: FlashCardCategory;
+  category: TriviaCardCategory;
   title: string;
   scenario: string;
   prompt: string;
@@ -28,7 +28,7 @@ export interface FlashCard {
   scoringSignals: string[];
 }
 
-export const flashCardCategoryMeta: Record<FlashCardCategory, { name: string; accent: string; blurb: string }> = {
+export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; accent: string; blurb: string }> = {
   SECURE_CONNECTIVITY: {
     name: "Zero Trust & Secure Connectivity",
     accent: "bg-[#00BCF2]",
@@ -56,7 +56,7 @@ export const flashCardCategoryMeta: Record<FlashCardCategory, { name: string; ac
   },
 };
 
-export const flashCardDeck: FlashCard[] = [
+export const triviaCardDeck: TriviaCard[] = [
   {
     id: "secure-vpn-zero-trust",
     category: "SECURE_CONNECTIVITY",

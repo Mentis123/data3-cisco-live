@@ -1,4 +1,4 @@
-import type { FlashCardCategory } from "@/data/flashCards";
+import type { TriviaCardCategory } from "@/data/triviaCards";
 
 export interface Data3Stat {
   id: string;
@@ -17,7 +17,7 @@ export interface TriviaQuestion {
 }
 
 export interface TriviaTrackMeta {
-  id: FlashCardCategory;
+  id: TriviaCardCategory;
   name: string;
   accentClass: string;
   summary: string;
@@ -94,11 +94,11 @@ function buildChoices(correctValue: string, distractorPool: string[]): { choices
   return { choices, correctIndex: correctIndex === -1 ? 0 : correctIndex };
 }
 
-export type CategorisedData3Stat = Data3Stat & { category: FlashCardCategory };
+export type CategorisedData3Stat = Data3Stat & { category: TriviaCardCategory };
 
 export function buildTriviaDeck(
   stats: CategorisedData3Stat[] | undefined,
-  trackId: FlashCardCategory | null,
+  trackId: TriviaCardCategory | null,
 ): TriviaQuestion[] {
   if (!stats || !trackId) {
     return [];
