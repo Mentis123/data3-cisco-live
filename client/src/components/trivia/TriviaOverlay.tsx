@@ -64,7 +64,7 @@ export function TriviaOverlay({
         {/* Trivia game container */}
         <div className="relative flex h-full w-full max-w-5xl items-center justify-center">
           <TriviaGame
-            className="h-full w-full max-h-[min(760px,calc(100svh-2.75rem))] rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10"
+            className="h-[calc(100svh-2.5rem)] w-full rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10 supports-[height:100dvh]:h-[calc(100dvh-2.5rem)]"
             questions={questions}
             track={track}
             mode={mode}
