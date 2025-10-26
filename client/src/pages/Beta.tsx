@@ -31,9 +31,9 @@ const howItWorks = [
   {
     title: "Answer 5 trivia questions in your chosen category.",
     bullets: [
-      "15s per question.",
-      "T−10s: one wrong option drops.",
-      "T−5s: a hint appears.",
+      "15 seconds per question.",
+      "After 5 seconds (at 10s remaining): one wrong option drops.",
+      "After 10 seconds (at 5s remaining): a hint appears.",
     ],
   },
   {
@@ -52,9 +52,9 @@ const howItWorks = [
 ];
 
 const scoringTiers = [
-  { label: "Answer before T−10s", value: "+6" },
-  { label: "Answer between T−10s and T−5s", value: "+4" },
-  { label: "Answer between T−5s and 0s", value: "+2" },
+  { label: "Answer within first 5 seconds", value: "+6" },
+  { label: "Answer between 5 and 10 seconds", value: "+4" },
+  { label: "Answer in final 5 seconds (10-15s)", value: "+2" },
   { label: "Wrong or time-out", value: "+0" },
 ];
 

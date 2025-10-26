@@ -30,8 +30,8 @@ const dojoExperiences: Record<DojoExperienceId, {
     status: "Now live",
     highlights: [
       "Five architecture tracks fed by the current stats deck",
-      "Countdown auto-hides one wrong answer at 10 seconds",
-      "Hints land at 5 seconds with tiered scoring (6/4/2)",
+      "One wrong answer drops at 10 seconds remaining",
+      "Hints appear at 5 seconds remaining with tiered scoring (6/4/2 pts)",
     ],
   },
   "case-builder": {
@@ -88,8 +88,8 @@ export default function Dojo({ params }: DojoRouteProps) {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Pro tip</p>
                   <p className="mt-2 text-sm text-slate-200/80">
-                    Score 6 points if you answer before the 10-second mark. After 5 seconds a hint appears — use it, but note
-                    that the max points drop with every cue.
+                    Score 6 points if you answer within 5 seconds. Between 5-10s you get 4 points, and in the final 5 seconds
+                    you score 2 points. The hint appears at 5s remaining to help, but answering earlier maximizes your score!
                   </p>
                 </div>
               </CardContent>

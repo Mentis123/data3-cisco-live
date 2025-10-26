@@ -7,10 +7,28 @@ import { cn } from "@/lib/utils";
 
 import type { TriviaQuestion, TriviaTrackMeta } from "./utils";
 
+/**
+ * TriviaGame phases flow through a state machine:
+ * idle → ready (1s) → go (1s) → playing (15s timer) → feedback → complete
+ */
 type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete";
 
+/**
+ * TriviaMode determines UI behavior:
+ * - "dojo": Practice mode with manual "Continue" button between questions
+ * - "ring": Official mode with auto-advance (1.4s delay)
+ */
 type TriviaMode = "dojo" | "ring";
 
+/**
+ * Props for the TriviaGame component
+ * @param questions - Array of trivia questions to display (typically 5)
+ * @param track - Category metadata (name, colors, descriptions)
+ * @param className - Optional CSS classes for styling
+ * @param onComplete - Callback fired when all questions are answered, receives final score
+ * @param completionRender - Custom render function for completion screen
+ * @param mode - "dojo" (practice) or "ring" (official) mode
+ */
 interface TriviaGameProps {
   questions: TriviaQuestion[];
   track: TriviaTrackMeta;
@@ -22,13 +40,38 @@ interface TriviaGameProps {
 
 const QUESTION_TIME = 15;
 
-function getTierPoints(timeRemaining: number): number {
-  if (timeRemaining > 10) return 6;
-  if (timeRemaining > 5) return 4;
-  if (timeRemaining > 0) return 2;
+/**
+ * Calculate points based on time elapsed (not remaining)
+ * Scoring tiers:
+ * - 0-5s elapsed: 6 points (answered within first 5 seconds)
+ * - 5-10s elapsed: 4 points (answered between 5 and 10 seconds)
+ * - 10-15s elapsed: 2 points (answered in final 5 seconds)
+ * - Timeout/wrong: 0 points
+ */
+function getTierPoints(timeElapsed: number): number {
+  if (timeElapsed <= 5) return 6;
+  if (timeElapsed <= 10) return 4;
+  if (timeElapsed <= 15) return 2;
   return 0;
 }
 
+/**
+ * TriviaGame - Core trivia gameplay component with countdown timer and scoring
+ *
+ * Features:
+ * - 15-second countdown per question using requestAnimationFrame for smooth updates
+ * - Tiered scoring: 6pts (0-5s), 4pts (5-10s), 2pts (10-15s)
+ * - At 10s remaining: one wrong answer is hidden
+ * - At 5s remaining: hint appears
+ * - Supports both Dojo (practice) and Ring (official) modes
+ *
+ * Game Flow:
+ * 1. Ready countdown (1s)
+ * 2. Go countdown (1s)
+ * 3. Playing phase (15s per question)
+ * 4. Feedback phase (shows correct/incorrect)
+ * 5. Complete phase (shows final score)
+ */
 export function TriviaGame({
   questions,
   track,
@@ -207,7 +250,8 @@ export function TriviaGame({
     }
 
     const correct = index === currentQuestion.correctIndex;
-    const tierPoints = getTierPoints(timeLeft);
+    const timeElapsed = QUESTION_TIME - timeLeft;
+    const tierPoints = getTierPoints(timeElapsed);
     const earned = correct ? tierPoints : 0;
 
     setScore((prev) => prev + earned);
@@ -234,7 +278,8 @@ export function TriviaGame({
     }
   };
 
-  const tierPoints = getTierPoints(timeLeft);
+  const timeElapsed = QUESTION_TIME - timeLeft;
+  const tierPoints = getTierPoints(timeElapsed);
   const progress = questions.length ? questionIndex + 1 : 0;
   const isLastQuestion = progress >= questions.length;
 

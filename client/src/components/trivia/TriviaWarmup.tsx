@@ -24,7 +24,7 @@ interface TriviaWarmupProps {
   className?: string;
   continueLabel?: string;
   exitHref?: string;
-  onContinue?: () => void;
+  onContinue?: (score?: number) => void;
 }
 
 const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; description: string }> = {
@@ -342,13 +342,15 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
       questions={questions}
       track={selectedTrack}
       mode={mode}
-      onComplete={() => {
-        // handled via completionRender actions
+      onComplete={(score) => {
+        // Score is captured but attempt tracking not yet implemented
+        // TODO: In ring mode, submit attempt completion to API
+        console.log(`[TriviaWarmup] Completed with score: ${score}`);
       }}
-      completionRender={({ restart }) => (
+      completionRender={({ score, restart }) => (
         <div className="flex flex-wrap items-center justify-center gap-3">
           {mode === "ring" && onContinue && (
-            <Button onClick={onContinue} className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]">
+            <Button onClick={() => onContinue(score)} className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)]">
               {continueLabel}
             </Button>
           )}

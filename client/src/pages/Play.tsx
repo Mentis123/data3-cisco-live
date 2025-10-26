@@ -63,6 +63,13 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
+  const [triviaScore, setTriviaScore] = useState<number | null>(null);
+
+  // TODO: Implement full Ring mode with attempt tracking
+  // Currently, trivia runs in practice mode (no attempt record created)
+  // Future enhancement: Create attempt via POST /api/trivia/attempts,
+  // track answers during gameplay, and submit via POST /api/trivia/attempts/:id/complete
+  // For now, we capture the score for display purposes
   const triviaAttemptId: string | null = null;
 
   if (isBeta && !hasCompletedTrivia) {
@@ -80,7 +87,12 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
           <TriviaWarmup
             mode="ring"
             exitHref={exitDestination}
-            onContinue={() => setHasCompletedTrivia(true)}
+            onContinue={(score?: number) => {
+              setHasCompletedTrivia(true);
+              if (score !== undefined) {
+                setTriviaScore(score);
+              }
+            }}
             className="h-full"
           />
         </div>
@@ -482,9 +494,17 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[1.25fr_1fr]">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
-                <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-                Beta Playtest
+              <div className="flex flex-wrap gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
+                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+                  Beta Playtest
+                </div>
+                {triviaScore !== null && (
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
+                    <i className="fas fa-check-circle"></i>
+                    Trivia: {triviaScore}/30
+                  </div>
+                )}
               </div>
               <div className="space-y-4">
                 <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
