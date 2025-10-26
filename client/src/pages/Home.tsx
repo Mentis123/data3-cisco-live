@@ -47,6 +47,12 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Link href="/beta">
+                <Button variant="default" size="sm" className="min-h-[44px] px-3 sm:px-4" data-testid="button-beta">
+                  <i className="fas fa-flask sm:mr-2"></i>
+                  <span className="hidden sm:inline">Beta</span>
+                </Button>
+              </Link>
               <Link href="/leaderboard">
                 <Button variant="secondary" size="sm" className="min-h-[44px] px-3 sm:px-4" data-testid="button-leaderboard">
                   <i className="fas fa-trophy sm:mr-2"></i>
@@ -54,8 +60,8 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/how-to-play">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="min-h-[44px] px-3 sm:px-4"
                   data-testid="button-how-to-play"
