@@ -85,7 +85,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
             />
             <div className="flex-1 space-y-2 text-center sm:text-left">
               <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Trivia challenge</h1>
+              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the bot</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
                 This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
               </p>
