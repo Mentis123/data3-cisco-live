@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RotateTip } from "@/components/RotateTip";
 import { TriviaWarmup } from "@/components/trivia";
 import NotFound from "@/pages/not-found";
 
@@ -59,7 +58,6 @@ export default function Dojo({ params }: DojoRouteProps) {
   if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-        <RotateTip />
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
@@ -90,7 +88,6 @@ export default function Dojo({ params }: DojoRouteProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      <RotateTip />
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <Badge className="w-fit bg-primary/20 text-primary">{experience.status}</Badge>
