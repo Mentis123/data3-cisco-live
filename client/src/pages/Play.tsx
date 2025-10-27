@@ -680,7 +680,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     </li>
                     <li className="flex items-start gap-3">
                       <span aria-hidden="true" className="text-emerald-300">⏱️</span>
-                      <span>Your one official attempt per day</span>
+                      <span>One official attempt per category</span>
                     </li>
                   </ul>
                   <p className="pt-2 text-sm text-slate-300/80">
