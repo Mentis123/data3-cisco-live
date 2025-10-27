@@ -93,7 +93,7 @@ export function TriviaOverlay({
                     onClick={() => onContinue(score)}
                     className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
                   >
-                    {continueLabel || "Enter the ring"}
+                    {continueLabel || "Pitch your project"}
                   </Button>
                 )}
                 {mode === "dojo" && (
@@ -102,7 +102,7 @@ export function TriviaOverlay({
                   </Button>
                 )}
                 <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
-                  Finish Session
+                  Abandon attempt
                 </Button>
               </div>
             )}
@@ -118,7 +118,9 @@ export function TriviaOverlay({
               Exit trivia session?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300/80">
-              Your progress in this trivia session will be lost. Are you sure you want to exit?
+              {mode === "ring"
+                ? "Your progress in this trivia session will be lost, and you'll lose your chance to enter for that category for the day. Are you sure you want to exit?"
+                : "Your progress in this trivia session will be lost. Are you sure you want to exit?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
