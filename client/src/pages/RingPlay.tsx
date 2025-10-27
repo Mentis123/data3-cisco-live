@@ -1,10 +1,10 @@
 import { SprintProvider } from "@/features/sprint/context";
 import { PlayContent } from "./Play";
 
-export default function BetaPlay() {
+export default function RingPlay() {
   return (
     <SprintProvider>
-      <PlayContent variant="beta" />
+      <PlayContent variant="ring" />
     </SprintProvider>
   );
 }

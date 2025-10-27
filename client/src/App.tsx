@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
-import BetaPlay from "@/pages/BetaPlay";
+import RingPlay from "@/pages/RingPlay";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
 import { NewSubmissionAnnouncementPage } from "@/pages/NewSubmissionAnnouncement";
@@ -21,8 +21,8 @@ function Router() {
     <Switch>
       {/* Main App (was /beta) */}
       <Route path="/" component={Home} />
-      <Route path="/play" component={BetaPlay} />
-      <Route path="/ring" component={BetaPlay} />
+      <Route path="/play" component={RingPlay} />
+      <Route path="/ring" component={RingPlay} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/admin" component={Admin} />
       <Route path="/dojo/:mode" component={Dojo} />
@@ -43,8 +43,8 @@ function Router() {
 
       {/* Backward compatibility - redirect /beta routes to root */}
       <Route path="/beta" component={Home} />
-      <Route path="/beta/play" component={BetaPlay} />
-      <Route path="/beta/ring" component={BetaPlay} />
+      <Route path="/beta/play" component={RingPlay} />
+      <Route path="/beta/ring" component={RingPlay} />
       <Route path="/beta/leaderboard" component={Leaderboard} />
       <Route path="/beta/admin" component={Admin} />
       <Route path="/beta/dojo/:mode" component={Dojo} />
