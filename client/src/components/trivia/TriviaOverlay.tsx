@@ -85,7 +85,7 @@ export function TriviaOverlay({
                     disabled={isShuffling}
                     className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-6 font-semibold text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] transition-all hover:scale-105 hover:shadow-[0_25px_80px_-45px_rgba(34,197,94,0.85)] active:scale-95 max-[480px]:w-full max-[480px]:text-sm"
                   >
-                    {isShuffling ? "Shuffling…" : "Shuffle deck"}
+                    {isShuffling ? "Shuffling…" : "Mix It Up"}
                   </Button>
                 )}
                 {mode === "ring" && onContinue && (
@@ -97,10 +97,10 @@ export function TriviaOverlay({
                   </Button>
                 )}
                 <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
-                  {mode === "ring" ? "Replay warm-up" : "Restart deck"}
+                  {mode === "ring" ? "Replay warm-up" : "Try Again"}
                 </Button>
                 <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
-                  Exit track
+                  Finish Session
                 </Button>
               </div>
             )}
