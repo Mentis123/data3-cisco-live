@@ -224,11 +224,32 @@ export function TriviaGame({
 
     if (mode === "dojo") {
       const hasExplanation = Boolean(currentQuestion?.explanation);
-      const requiresDelay = hasExplanation && earnedPoints < 6;
+
+      // Calculate delay based on performance:
+      // - 6 points (full score): 0s delay
+      // - 4 points: 1s delay
+      // - 2 points: 2s delay
+      // - Timeout (no answer): 3s delay
+      // - Wrong answer: 4s delay
+      let delayMs = 0;
+
+      if (earnedPoints === 6) {
+        delayMs = 0; // Full score - show immediately
+      } else if (earnedPoints === 4) {
+        delayMs = 1000; // 1 second delay
+      } else if (earnedPoints === 2) {
+        delayMs = 2000; // 2 second delay
+      } else if (earnedPoints === 0) {
+        // Distinguish between timeout and wrong answer
+        const isWrongAnswer = selectedIndex !== null && selectedIndex !== currentQuestion?.correctIndex;
+        delayMs = isWrongAnswer ? 4000 : 3000; // 4s for wrong, 3s for timeout
+      }
+
+      const requiresDelay = hasExplanation && delayMs > 0;
 
       if (requiresDelay) {
         setContinueAvailable(false);
-        const timer = setTimeout(() => setContinueAvailable(true), 2000);
+        const timer = setTimeout(() => setContinueAvailable(true), delayMs);
         return () => clearTimeout(timer);
       }
 
@@ -246,7 +267,7 @@ export function TriviaGame({
     }, 1400);
 
     return () => clearTimeout(timer);
-  }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints]);
+  }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints, selectedIndex]);
 
   useEffect(() => {
     if (phase === "complete" && !completionAnnounced) {
