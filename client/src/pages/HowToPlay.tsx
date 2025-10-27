@@ -44,19 +44,18 @@ const leaderboardBadges = [
   "Top Score",
   "Sharp Shooter (fastest accurate answers)",
   "Track Champs (per category)",
-  "Most Precise KPI",
 ];
 
 const eligibility = [
   "Cisco Live registered email used on submit.",
-  "KPI triplet complete (Baseline, Target, Due date).",
-  "Total meets or exceeds the Bot Bar.",
+  "Complete all three Project Pitch steps (Problem, Impact, Solution).",
+  "Total score meets or exceeds the Bot Bar.",
 ];
 
 const accessibilityTips = [
   "Keyboard: 1/2/3 to answer; Enter to confirm.",
   "Answer early for more points; wait for the T−5s hint if unsure.",
-  "Keep your problem statement concrete and include a date — it boosts your Case Card score.",
+  "Be specific in your pitch: quantify impact with numbers (time, cost, people) and clearly connect your Cisco solution to the category.",
 ];
 
 export default function HowToPlay() {
@@ -160,15 +159,18 @@ export default function HowToPlay() {
 
             <Card className="border-white/10 bg-white/5 backdrop-blur">
               <CardHeader>
-                <CardTitle className="text-2xl">3) Case Card (your mini pitch)</CardTitle>
+                <CardTitle className="text-2xl">3) Project Pitch (your mini proposal)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-slate-200/85">
+                <p>After trivia, you'll pitch your business problem through a guided 3-step conversation:</p>
                 <ul className="list-disc space-y-2 pl-6">
-                  <li>Problem one-liner (120 chars).</li>
-                  <li>KPI Triplet: Baseline value+unit, Target value+unit, Due date.</li>
-                  <li>Owner & first milestone (chips + date).</li>
-                  <li>(Optional) users affected, minutes saved, frequency — we compute annualised impact.</li>
+                  <li><strong>Problem:</strong> What challenge are you facing? Be specific about the pain point.</li>
+                  <li><strong>Impact:</strong> Quantify the consequences (time, cost, people affected, frequency).</li>
+                  <li><strong>Solution:</strong> Propose a Cisco technology solution that fits your selected category.</li>
                 </ul>
+                <p className="pt-2 text-xs text-slate-300/70">
+                  Your pitch is evaluated on 5 criteria: Problem Clarity, Impact Quantification, Technology Fit, Feasibility, and Business Value.
+                </p>
               </CardContent>
             </Card>
 
