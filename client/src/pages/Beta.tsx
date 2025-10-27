@@ -98,7 +98,7 @@ export default function Beta() {
           <div className="space-y-4">
             <div className="flex items-center gap-1">
               <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-                Beat the Bot — Two-Left Tango
+                Beat the Bot
               </h1>
               <Link href="/admin-leaderboard">
                 <button

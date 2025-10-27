@@ -1,4 +1,4 @@
--- Beta release data model for "Beat the Bot: Two-Left Tango"
+-- Beta release data model for "Beat the Bot"
 -- Run inside the Neon project backing https://data3-cisco-live.vercel.app/
 -- Review existing tables before executing; adjust names to avoid clashes if they already exist.
 

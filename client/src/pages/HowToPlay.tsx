@@ -72,7 +72,7 @@ export default function HowToPlay() {
           <div className="flex-1 space-y-4 text-center sm:text-left">
             <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta/how-to-play</Badge>
             <div className="space-y-3">
-              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">How to Play — Two-Left Tango</h1>
+              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">How to Play — Beat the Bot</h1>
               <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
                 Five categories. Five trivia questions. One Case Card. Beat the Bot and earn today's raffle entry.
               </p>
