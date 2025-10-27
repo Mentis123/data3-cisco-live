@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import howitworksFullImage from "@assets/howitworksfull.jpg";
 
 const categories = [
   "Secure Connectivity",
@@ -62,13 +63,20 @@ export default function HowToPlay() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="mx-auto flex max-w-5xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        <section className="space-y-4 text-center sm:text-left">
-          <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta/how-to-play</Badge>
-          <div className="space-y-3">
-            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">How to Play — Two-Left Tango</h1>
-            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
-              Five categories. Five trivia questions. One Case Card. Beat the Bot and earn today’s raffle entry.
-            </p>
+        <section className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+          <img
+            src={howitworksFullImage}
+            alt="How to Play"
+            className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
+          />
+          <div className="flex-1 space-y-4 text-center sm:text-left">
+            <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta/how-to-play</Badge>
+            <div className="space-y-3">
+              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">How to Play — Two-Left Tango</h1>
+              <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
+                Five categories. Five trivia questions. One Case Card. Beat the Bot and earn today's raffle entry.
+              </p>
+            </div>
           </div>
         </section>
 

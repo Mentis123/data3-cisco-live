@@ -28,6 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
+import ringFullImage from "@assets/ringfull.jpg";
 import { SprintStepper } from "@/components/SprintStepper";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
@@ -75,12 +76,19 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-10 space-y-2">
-            <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">Warm-up</Badge>
-            <h1 className="text-4xl font-semibold sm:text-5xl">Trivia briefing</h1>
-            <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-              Before you hit the sprint coach, prove you know the numbers. Answer Data#3 trivia pulled from the live stats deck.
-            </p>
+          <div className="mb-10 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <img
+              src={ringFullImage}
+              alt="Ring"
+              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40"
+            />
+            <div className="flex-1 space-y-2 text-center sm:text-left">
+              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">Warm-up</Badge>
+              <h1 className="text-4xl font-semibold sm:text-5xl">Trivia briefing</h1>
+              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+                Before you hit the sprint coach, prove you know the numbers. Answer Data#3 trivia pulled from the live stats deck.
+              </p>
+            </div>
           </div>
           <TriviaWarmup
             mode="ring"
