@@ -103,13 +103,15 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     onSuccess: (data) => {
       setSessionToken(data.sessionToken);
       setRegistrationComplete(true);
-      
-      // Add initial assistant message for Step 1
-      dispatch({
-        type: 'ADD_MESSAGE',
-        payload: {
-          role: "assistant",
-          content: `Hi ${firstName}! Let's create a winning solution together. I'll guide you through 3 quick steps.
+
+      // For ring mode, don't add the initial message yet - wait until after trivia
+      // For classic mode, add the initial message immediately
+      if (!isRing) {
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            role: "assistant",
+            content: `Hi ${firstName}! Let's create a winning solution together. I'll guide you through 3 quick steps.
 
 **Step 1: Name the Problem** 🎯
 
@@ -120,8 +122,9 @@ Tell me about a specific business challenge that:
 • Impacts productivity
 
 Just describe it naturally - what's the problem that needs solving?`
-        }
-      });
+          }
+        });
+      }
     },
     onError: (error) => {
       toast({
@@ -868,6 +871,29 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               if (attemptId) {
                 setTriviaAttemptId(attemptId);
               }
+
+              // Initialize the pitcher project chat conversation after trivia completion
+              dispatch({
+                type: 'ADD_MESSAGE',
+                payload: {
+                  role: "assistant",
+                  content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
+
+Now let's move to your **Project Pitch** — the core of your Beat the Bot entry.
+
+I'll guide you through 3 quick steps to craft a winning business case:
+
+**Step 1: Name the Problem** 🎯
+
+Tell me about a specific business challenge that:
+• Wastes time or resources
+• Creates friction for users
+• Causes errors or delays
+• Impacts productivity
+
+Just describe it naturally - what's the problem that needs solving?`
+                }
+              });
             }}
             className="h-full"
           />
