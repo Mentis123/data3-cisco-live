@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
@@ -93,10 +92,10 @@ export default function Beta() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-16 sm:px-6 lg:px-8">
-        <section className="space-y-6 text-center sm:text-left">
-          <Badge className="mx-auto w-fit bg-primary/30 text-white sm:mx-0">/beta</Badge>
+          <section className="space-y-6 text-center">
+            <Badge className="mx-auto w-fit bg-primary/30 text-white">/beta</Badge>
           <div className="space-y-4">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-center gap-1">
               <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
                 Beat the Bot
               </h1>
@@ -110,35 +109,63 @@ export default function Beta() {
                 </button>
               </Link>
             </div>
-            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
+            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 text-center">
               Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today’s Meta AI Glasses.
             </p>
           </div>
-          <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-2">
-            <Link href="/beta/play">
-              <Button size="lg" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${ringImage})` }}>
-                <span className="relative z-10">Enter the Ring</span>
-              </Button>
+          <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 sm:gap-6 mx-auto">
+            <Link href="/beta/play" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square">
+                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-slate-950/40" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Play</span>
+                    <span className="text-xl font-semibold text-white">Enter the Ring</span>
+                  </div>
+                </div>
+              </div>
             </Link>
-            <Link href="/beta/dojo/trivia-cards">
-              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
-                <span className="relative z-10">Practice in Dojo</span>
-              </Button>
+            <Link href="/beta/dojo/trivia-cards" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square">
+                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-slate-950/40" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Practice</span>
+                    <span className="text-xl font-semibold text-white">Practice in Dojo</span>
+                  </div>
+                </div>
+              </div>
             </Link>
-            <Link href="/beta/leaderboard">
-              <Button size="lg" variant="secondary" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${leaderboardImage})` }}>
-                <span className="relative z-10">View Leaderboard</span>
-              </Button>
+            <Link href="/beta/leaderboard" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square">
+                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-slate-950/40" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
+                    <span className="text-xl font-semibold text-white">View Leaderboard</span>
+                  </div>
+                </div>
+              </div>
             </Link>
-            <Link href="/beta/how-to-play">
-              <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${howitworksImage})` }}>
-                <span className="relative z-10">How it works</span>
-              </Button>
+            <Link href="/beta/how-to-play" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square">
+                  <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-slate-950/40" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Learn</span>
+                    <span className="text-xl font-semibold text-white">How it works</span>
+                  </div>
+                </div>
+              </div>
             </Link>
           </div>
         </section>
 
-        <section className="space-y-6">
+        <section className="space-y-6 text-center">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.3em] text-primary/70">Categories (5-up)</p>
             <h2 className="text-3xl font-semibold">Pick your arena</h2>
