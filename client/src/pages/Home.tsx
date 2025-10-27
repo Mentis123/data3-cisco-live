@@ -1,210 +1,272 @@
-import { useState } from "react";
 import { Link } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
+import { cn } from "@/lib/utils";
+import ringImage from "@assets/ring.jpg";
+import dojoImage from "@assets/dojo.jpg";
+import leaderboardImage from "@assets/leaderboard.jpg";
+import howitworksImage from "@assets/howitworks.jpg";
+
+const categories = (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
+  const meta = triviaCardCategoryMeta[key];
+  return {
+    id: key,
+    title: meta.name,
+    copy: meta.blurb,
+    accentClass: meta.accent,
+  };
+});
+
+const howItWorks = [
+  {
+    title: "Answer 5 trivia questions in your chosen category",
+    bullets: [
+      "15 seconds per question",
+      "After 5 seconds (at 10s remaining): one wrong option drops",
+      "After 10 seconds (at 5s remaining): a hint appears",
+    ],
+  },
+  {
+    title: "Submit your Case Card",
+    bullets: [
+      "One-line problem",
+      "Baseline / Target / Due date + Owner & first milestone",
+    ],
+  },
+  {
+    title: "Beat the Bot → Earn a raffle entry",
+    bullets: [
+      "If your Total /50 clears today's Bot Bar, we record a raffle entry for today's draw",
+    ],
+  },
+];
+
+const scoringTiers = [
+  { label: "Answer within first 5 seconds", value: "+6" },
+  { label: "Answer between 5 and 10 seconds", value: "+4" },
+  { label: "Answer in final 5 seconds (10-15s)", value: "+2" },
+  { label: "Wrong or time-out", value: "+0" },
+];
+
+const quickRules = [
+  {
+    title: "Dojo",
+    copy: "Unlimited practice; no email; explanations shown.",
+  },
+  {
+    title: "Ring",
+    copy: "Cisco Live email required on submit. 1 official run/day per category (max 5/day).",
+  },
+  {
+    title: "Scoring",
+    copy: "Trivia (0–30) + Case Card (0–20) = Total (0–50).",
+  },
+  {
+    title: "Bot Bar",
+    copy: "Dynamic daily bar; clear it to win the round.",
+  },
+  {
+    title: "Prize",
+    copy: "Every win = 1 raffle entry for today's random draw (software-picked).",
+  },
+];
+
+const microFaq = [
+  {
+    question: "How many times can I play?",
+    answer: "Up to 5 official entries/day (one per category). Practice is unlimited.",
+  },
+  {
+    question: "Eligibility?",
+    answer: "Use your Cisco Live registered email, complete the KPI triplet, and beat the Bot Bar.",
+  },
+  {
+    question: "Queues?",
+    answer: "Nope. Scan the QR and play on your phone.",
+  },
+];
 
 export default function Home() {
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [showTermsError, setShowTermsError] = useState(false);
-
   return (
-    <div className="min-h-screen bg-background text-foreground safe-area-padding">
-      {/* Navigation Header */}
-      <header className="mobile-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center flex-shrink-0">
-                <i className="fas fa-network-wired text-background text-lg sm:text-xl"></i>
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center">
-                  <h1 className="text-[1.1rem] sm:text-xl font-semibold leading-tight truncate">Cisco Solution Sprint</h1>
-                  <div className="ml-1 flex items-center">
-                    <Link href="/admin-leaderboard">
-                      <button
-                        className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
-                        aria-label="Admin"
-                        data-testid="button-secret-admin"
-                      >
-                        •
-                      </button>
-                    </Link>
-                    <Link href="/stand">
-                      <button
-                        className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
-                        aria-label="Stand signage"
-                        data-testid="button-secret-stand"
-                      >
-                        ·
-                      </button>
-                    </Link>
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-16 sm:px-6 lg:px-8">
+        <section className="space-y-6 text-center sm:text-left">
+          <div className="space-y-4">
+            <div className="flex items-center gap-1">
+              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
+                Beat the Bot — Two-Left Tango
+              </h1>
+              <Link href="/admin">
+                <button
+                  className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
+                  aria-label="Admin"
+                  data-testid="button-secret-admin"
+                >
+                  •
+                </button>
+              </Link>
+              <Link href="/old">
+                <button
+                  className="px-2 py-1 text-xs text-slate-500 transition-colors hover:text-slate-400"
+                  aria-label="Classic version"
+                  data-testid="button-classic-version"
+                >
+                  /old
+                </button>
+              </Link>
+            </div>
+            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
+              Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
+            </p>
+          </div>
+          <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-2">
+            <Link href="/play">
+              <Button size="lg" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${ringImage})` }}>
+                <span className="relative z-10">Enter the Ring</span>
+              </Button>
+            </Link>
+            <Link href="/dojo/trivia-cards">
+              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
+                <span className="relative z-10">Practice in Dojo</span>
+              </Button>
+            </Link>
+            <Link href="/leaderboard">
+              <Button size="lg" variant="secondary" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${leaderboardImage})` }}>
+                <span className="relative z-10">View Leaderboard</span>
+              </Button>
+            </Link>
+            <Link href="/how-to-play">
+              <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${howitworksImage})` }}>
+                <span className="relative z-10">How it works</span>
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-primary/70">Categories (5-up)</p>
+            <h2 className="text-3xl font-semibold">Pick your arena</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => (
+              <Card key={category.id} className="border-white/10 bg-white/5 p-5 backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full",
+                      category.accentClass,
+                    )}
+                  />
+                  <div>
+                    <p className="text-base font-semibold text-white">{category.title}</p>
                   </div>
                 </div>
-                <p className="text-[0.825rem] sm:text-sm text-muted-foreground hidden sm:block tracking-wide">Data<sup className="text-primary">#</sup>3 | Cisco Live Melbourne</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href="/beta">
-                <Button variant="default" size="sm" className="min-h-[44px] px-3 sm:px-4" data-testid="button-beta">
-                  <i className="fas fa-flask sm:mr-2"></i>
-                  <span className="hidden sm:inline">Beta</span>
-                </Button>
-              </Link>
-              <Link href="/leaderboard">
-                <Button variant="secondary" size="sm" className="min-h-[44px] px-3 sm:px-4" data-testid="button-leaderboard">
-                  <i className="fas fa-trophy sm:mr-2"></i>
-                  <span className="hidden sm:inline">Leaderboard</span>
-                </Button>
-              </Link>
-              <Link href="/how-to-play">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-h-[44px] px-3 sm:px-4"
-                  data-testid="button-how-to-play"
-                >
-                  <i className="fas fa-question-circle sm:mr-2"></i>
-                  <span className="hidden sm:inline">How to Play</span>
-                </Button>
-              </Link>
-            </div>
+                <p className="mt-4 text-sm text-slate-200/80">{category.copy}</p>
+              </Card>
+            ))}
           </div>
-        </div>
-      </header>
+        </section>
 
-      <div className="max-w-4xl mx-auto px-4 py-4 sm:py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="relative h-48 sm:h-64 mb-6 sm:mb-8 rounded-xl sm:rounded-2xl overflow-hidden glass-panel">
-            <img 
-              src={headerImage} 
-              alt="Melbourne tech skyline" 
-              className="w-full h-full object-cover opacity-70"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-            <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
-              <h2 className="text-balance text-[clamp(1.65rem,5.8vw,2.25rem)] sm:text-4xl font-bold leading-[1.15] sm:leading-tight mb-1 sm:mb-2 text-white">
-                Can you beat the bot?
-              </h2>
-              <p className="text-pretty text-[0.975rem] sm:text-xl leading-relaxed text-white/90">
-                Bring the frustration that&apos;s slowing your team, size the impact, and see if our AI puts you on the board.
-              </p>
-            </div>
+        <section className="space-y-8">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-primary/70">How it works</p>
+            <h2 className="text-3xl font-semibold">Three moves to log your entry</h2>
           </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {howItWorks.map((step, index) => (
+              <Card key={step.title} className="border-white/10 bg-white/5 backdrop-blur">
+                <CardHeader>
+                  <Badge variant="outline" className="w-fit border-white/20 text-xs uppercase tracking-[0.3em] text-white/80">
+                    Step {index + 1}
+                  </Badge>
+                  <CardTitle className="text-xl text-white">{step.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-slate-200/80">
+                    {step.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
 
-          <Card className="glass-panel border-0 mb-6 sm:mb-8">
-            <CardContent className="p-4 sm:p-8">
-              <h3 className="text-balance text-[1.25rem] sm:text-2xl font-bold leading-tight mb-3 sm:mb-4">This is your sprint</h3>
-              <p className="text-pretty text-[0.975rem] sm:text-lg leading-relaxed text-muted-foreground mb-4 sm:mb-6">
-                Tell us the business headache that&apos;s burning time or trust, show the stakes, and let our AI coach and judge
-                decide if you really can beat the bot.
-              </p>
-
-              {/* How it works section */}
-              <div className="mb-6 sm:mb-8">
-                <h4 className="text-balance text-lg sm:text-xl font-bold leading-tight mb-4 sm:mb-5 text-center">Three moves to make</h4>
-                <ul className="space-y-3 sm:space-y-4 text-left text-[0.975rem] sm:text-base leading-relaxed text-muted-foreground max-w-2xl mx-auto text-pretty">
-                  <li className="flex items-start gap-3">
-                    <i className="fas fa-comment-dots text-primary text-lg sm:text-xl mt-1"></i>
-                    <span>
-                      <span className="font-semibold text-foreground">Share the frustration.</span> Tell us what&apos;s grinding your
-                      team to a halt.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <i className="fas fa-chart-line text-primary text-lg sm:text-xl mt-1"></i>
-                    <span>
-                      <span className="font-semibold text-foreground">Estimate the impact.</span> Put numbers around the time,
-                      cost, or customer hit.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <i className="fas fa-robot text-primary text-lg sm:text-xl mt-1"></i>
-                    <span>
-                      <span className="font-semibold text-foreground">Let the bot decide.</span> The AI coach scores your pitch and
-                      drops you straight onto the live leaderboard.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Terms & Conditions */}
-              <div className={`bg-muted/20 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
-                <h4 className="text-lg sm:text-xl font-semibold leading-tight mb-3 flex items-center">
-                  <i className="fas fa-shield-alt text-primary mr-2"></i>
-                  Terms & Conditions
-                </h4>
-                <ul className="text-left space-y-1.5 sm:space-y-2 text-[0.95rem] sm:text-base leading-relaxed text-muted-foreground mb-3 sm:mb-4 list-disc list-inside text-pretty">
-                  <li>Playing means you accept the Data<sup className="text-primary">#</sup>3 privacy notice and Cisco Live terms.</li>
-                  <li>The leaderboard only shows your first name and last initial.</li>
-                  <li>An AI judge scores every submission, and Data<sup className="text-primary">#</sup>3 may reuse standout entries for demonstrations.</li>
-                  <li>Data<sup className="text-primary">#</sup>3 employees and their families are not eligible for prizes.</li>
-                </ul>
-
-                <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">
-                  <Checkbox
-                    checked={acceptedTerms}
-                    onCheckedChange={(checked) => {
-                      setAcceptedTerms(!!checked);
-                      if (checked) setShowTermsError(false);
-                    }}
-                    className={`flex-shrink-0 mt-0.5 ${showTermsError ? 'ring-2 ring-destructive' : ''}`}
-                    data-testid="checkbox-accept-terms"
-                  />
-                  <span className={`text-[0.95rem] sm:text-base leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : ''}`}>
-                    I accept these terms, including the privacy notice, and confirm my entry matches my Cisco Live badge details.
-                  </span>
-                </label>
-                {showTermsError && (
-                  <p className="text-destructive text-[0.95rem] sm:text-base mt-2 flex items-center">
-                    <i className="fas fa-exclamation-circle mr-1"></i>
-                    Please accept the Terms & Conditions to proceed
-                  </p>
-                )}
-              </div>
-
-              {/* Main Action Buttons */}
-              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                <Button 
-                  onClick={() => {
-                    if (!acceptedTerms) {
-                      setShowTermsError(true);
-                      setTimeout(() => setShowTermsError(false), 3000);
-                    } else {
-                      window.location.href = "/play";
-                    }
-                  }}
-                  className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation"
-                  data-testid="button-solve-problem"
-                >
-                  <i className="fas fa-lightbulb mr-2 sm:mr-3 text-lg sm:text-xl"></i>
-                  <div className="text-left">
-                    <div className="font-bold">Beat the Bot</div>
-                    <div className="text-[0.95rem] sm:text-base leading-snug opacity-90">Pitch your frustration and see if you score.</div>
-                  </div>
-                </Button>
-
-                <Link href="/leaderboard">
-                  <Button variant="secondary" className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation" data-testid="button-view-leaderboard">
-                    <i className="fas fa-trophy mr-2 sm:mr-3 text-lg sm:text-xl"></i>
-                    <div className="text-left">
-                      <div className="font-bold">See the Leaderboard</div>
-                      <div className="text-[0.95rem] sm:text-base leading-snug opacity-90">Track who the bot is crowning right now.</div>
-                    </div>
-                  </Button>
-                </Link>
-              </div>
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <Badge variant="outline" className="w-fit border-primary/40 text-xs uppercase tracking-[0.3em] text-primary/80">
+                Scoring (per trivia question)
+              </Badge>
+              <CardTitle className="text-2xl text-white">Lock points before the hint lands</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {scoringTiers.map((tier) => (
+                <div key={tier.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200/85">
+                  <span>{tier.label}</span>
+                  <span className="font-semibold text-primary">{tier.value}</span>
+                </div>
+              ))}
             </CardContent>
           </Card>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Quick rules</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-slate-200/85">
+              {quickRules.map((rule) => (
+                <div key={rule.title}>
+                  <p className="font-semibold text-white">{rule.title}</p>
+                  <p>{rule.copy}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
 
-          {/* Auto-categorization message */}
-          <p className="text-[0.9rem] text-center leading-snug text-muted-foreground text-pretty">
-            Your challenge will be automatically categorized for the live leaderboard
-          </p>
-        </div>
+        <section>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Micro-FAQ</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-slate-200/85">
+              {microFaq.map((item) => (
+                <div key={item.question}>
+                  <p className="font-semibold text-white">{item.question}</p>
+                  <p>{item.answer}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="grid w-full max-w-2xl gap-3 self-center sm:grid-cols-2">
+          <Link href="/play">
+            <Button size="lg" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${ringImage})` }}>
+              <span className="relative z-10">Enter the Ring</span>
+            </Button>
+          </Link>
+          <Link href="/dojo/trivia-cards">
+            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
+              <span className="relative z-10">Practice in Dojo</span>
+            </Button>
+          </Link>
+          <Link href="/leaderboard">
+            <Button size="lg" variant="secondary" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${leaderboardImage})` }}>
+              <span className="relative z-10">View Leaderboard</span>
+            </Button>
+          </Link>
+          <Link href="/how-to-play">
+            <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${howitworksImage})` }}>
+              <span className="relative z-10">How it works</span>
+            </Button>
+          </Link>
+        </section>
       </div>
     </div>
   );

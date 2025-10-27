@@ -49,7 +49,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const { state, dispatch } = useSprint();
 
   const isBeta = variant === "beta";
-  const exitDestination = isBeta ? "/beta" : "/";
+  const exitDestination = isBeta ? "/" : "/old";
   const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isBeta);
   
   const [firstName, setFirstName] = useState("");
@@ -225,7 +225,7 @@ Just describe it naturally - what's the problem that needs solving?`
       );
 
       setTimeout(() => {
-        setLocation("/leaderboard");
+        setLocation(isBeta ? "/leaderboard" : "/old/leaderboard");
       }, 3000);
     },
     onError: (error) => {

@@ -78,9 +78,9 @@ export default function Leaderboard() {
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const isInitialDataLoad = useRef(true);
 
-  const isBetaRoute = location?.startsWith("/beta");
-  const homeHref = isBetaRoute ? "/beta" : "/";
-  const leaderboardPath = isBetaRoute ? "/beta/leaderboard" : "/leaderboard";
+  const isOldRoute = location?.startsWith("/old");
+  const homeHref = isOldRoute ? "/old" : "/";
+  const leaderboardPath = isOldRoute ? "/old/leaderboard" : "/leaderboard";
 
   // Fetch dashboard data early so dependent callbacks always have refetch available
   const { data, isLoading, refetch } = useQuery<DashboardData>({
