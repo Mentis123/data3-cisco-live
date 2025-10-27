@@ -39,15 +39,15 @@ const howItWorks = [
   {
     title: "Beat the Bot → Earn a raffle entry",
     bullets: [
-      "If your Total /50 clears today’s Bot Bar, we record a raffle entry for today’s draw.",
+      "If your Total /100 clears today's Bot Bar, we record a raffle entry for today's draw.",
     ],
   },
 ];
 
 const scoringTiers = [
-  { label: "Answer within first 5 seconds", value: "+6" },
-  { label: "Answer between 5 and 10 seconds", value: "+4" },
-  { label: "Answer in final 5 seconds (10-15s)", value: "+2" },
+  { label: "Answer within first 5 seconds", value: "+12" },
+  { label: "Answer between 5 and 10 seconds", value: "+8" },
+  { label: "Answer in final 5 seconds (10-15s)", value: "+4" },
   { label: "Wrong or time-out", value: "+0" },
 ];
 
@@ -62,7 +62,7 @@ const quickRules = [
   },
   {
     title: "Scoring",
-    copy: "Trivia (0–30) + Case Card (0–20) = Total (0–50).",
+    copy: "Trivia (0–60) + Project Pitch (0–40) = Total (0–100).",
   },
   {
     title: "Bot Bar",

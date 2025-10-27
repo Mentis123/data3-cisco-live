@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,10 @@ interface TriviaWarmupProps {
   className?: string;
   continueLabel?: string;
   exitHref?: string;
-  onContinue?: (score?: number) => void;
+  onContinue?: (score?: number, category?: string, attemptId?: string) => void;
+  email?: string; // Required for ring mode to create attempt
+  firstName?: string;
+  lastName?: string;
 }
 
 const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; description: string }> = {
@@ -93,10 +97,20 @@ function areDecksEquivalent(
   return nextIds.every((id, index) => id === prevIds[index]);
 }
 
-export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring", exitHref = "/beta", onContinue }: TriviaWarmupProps) {
+export function TriviaWarmup({
+  mode,
+  className,
+  continueLabel = "Enter the ring",
+  exitHref = "/beta",
+  onContinue,
+  email,
+  firstName,
+  lastName
+}: TriviaWarmupProps) {
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -212,8 +226,32 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
   useMemo(() => {
     if (selectedTrack && practiceDeck && practiceDeck.length > 0 && !isDeckLoading) {
       setShowOverlay(true);
+
+      // Create attempt record for ring mode
+      if (mode === 'ring' && email && !attemptId) {
+        (async () => {
+          try {
+            const response = await apiRequest("POST", "/api/trivia/attempts", {
+              category: selectedTrack.id,
+              mode: 'ring',
+              email,
+              playerProfile: {
+                firstName,
+                lastName,
+              }
+            });
+            const data = await response.json();
+            if (data.attempt?.id) {
+              setAttemptId(data.attempt.id);
+              console.log('[TriviaWarmup] Created attempt:', data.attempt.id);
+            }
+          } catch (error) {
+            console.error('[TriviaWarmup] Failed to create attempt:', error);
+          }
+        })();
+      }
     }
-  }, [selectedTrack, practiceDeck, isDeckLoading]);
+  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, firstName, lastName, attemptId]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -374,16 +412,19 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
             setShowOverlay(false);
             setSelectedTrack(null);
           }}
-          onComplete={(score) => {
-            // Score is captured but attempt tracking not yet implemented
-            // TODO: In ring mode, submit attempt completion to API
+          onComplete={async (score) => {
             console.log(`[TriviaWarmup] Completed with score: ${score}`);
+
+            // Note: Full answer submission requires TriviaGame to expose individual answers
+            // For now, the attempt is created and attemptId is passed to submission
+            // The backend will calculate score from the submission's trivia attempt
           }}
           continueLabel={continueLabel}
           onContinue={(score?: number) => {
             setShowOverlay(false);
             if (onContinue) {
-              onContinue(score);
+              // Pass score, category, and attemptId back to parent
+              onContinue(score, selectedTrack?.id, attemptId || undefined);
             }
           }}
           onShuffle={async () => {

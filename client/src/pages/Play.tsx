@@ -66,14 +66,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
   const [triviaScore, setTriviaScore] = useState<number | null>(null);
+  const [triviaAttemptId, setTriviaAttemptId] = useState<string | null>(null);
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
-
-  // TODO: Implement full Ring mode with attempt tracking
-  // Currently, trivia runs in practice mode (no attempt record created)
-  // Future enhancement: Create attempt via POST /api/trivia/attempts,
-  // track answers during gameplay, and submit via POST /api/trivia/attempts/:id/complete
-  // For now, we capture the score for display purposes
-  const triviaAttemptId: string | null = null;
 
   if (isBeta && !hasCompletedTrivia) {
     return (
@@ -96,6 +90,9 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
           <TriviaWarmup
             mode="ring"
             exitHref={exitDestination}
+            email={email}
+            firstName={firstName}
+            lastName={lastName}
             onContinue={(score?: number, category?: string, attemptId?: string) => {
               setHasCompletedTrivia(true);
               if (score !== undefined) {
@@ -104,7 +101,9 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
               if (category) {
                 setSelectedCategory(category);
               }
-              // Note: attemptId handling will be added when TriviaWarmup is updated
+              if (attemptId) {
+                setTriviaAttemptId(attemptId);
+              }
             }}
             className="h-full"
           />
@@ -525,7 +524,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 {triviaScore !== null && (
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
                     <i className="fas fa-check-circle"></i>
-                    Trivia: {triviaScore}/30
+                    Trivia: {triviaScore}/60
                   </div>
                 )}
               </div>
