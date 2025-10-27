@@ -27,7 +27,7 @@ const dojoExperiences: Record<DojoExperienceId, {
     eyebrow: "Practice",
     description:
       "Race the countdown with live Data#3 trivia before your official run. Pick a Cisco architecture tile and lock in the numbers before you enter the ring.",
-    status: "Now live",
+    status: "WARM UP",
     highlights: [
       "Five architecture tracks fed by the current stats deck",
       "One wrong answer drops at 10 seconds remaining",

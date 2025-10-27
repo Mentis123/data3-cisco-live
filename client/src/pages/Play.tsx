@@ -64,6 +64,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
   const [triviaScore, setTriviaScore] = useState<number | null>(null);
+  const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
 
   // TODO: Implement full Ring mode with attempt tracking
   // Currently, trivia runs in practice mode (no attempt record created)
@@ -83,10 +84,10 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
               className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40"
             />
             <div className="flex-1 space-y-2 text-center sm:text-left">
-              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">Warm-up</Badge>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Trivia briefing</h1>
+              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
+              <h1 className="text-4xl font-semibold sm:text-5xl">Trivia challenge</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-                Before you hit the sprint coach, prove you know the numbers. Answer Data#3 trivia pulled from the live stats deck.
+                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
               </p>
             </div>
           </div>
@@ -471,6 +472,16 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return;
     }
 
+    // For beta/ring mode, show confirmation dialog
+    if (isBeta) {
+      setShowOfficialRunConfirm(true);
+    } else {
+      startSessionMutation.mutate({ firstName, lastName });
+    }
+  };
+
+  const handleConfirmOfficialRun = () => {
+    setShowOfficialRunConfirm(false);
     startSessionMutation.mutate({ firstName, lastName });
   };
 
@@ -657,6 +668,50 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </CardContent>
             </Card>
           </div>
+
+          <AlertDialog open={showOfficialRunConfirm} onOpenChange={setShowOfficialRunConfirm}>
+            <AlertDialogContent className="border-white/10 bg-slate-900/95 text-white backdrop-blur-xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-2xl font-semibold text-white">
+                  Ready to enter the Ring?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-4 text-base text-slate-200/90">
+                  <p className="leading-relaxed">
+                    This is your <strong className="text-emerald-300">official competition entry</strong>. Your trivia score and case submission will count toward:
+                  </p>
+                  <ul className="space-y-2 text-left">
+                    <li className="flex items-start gap-3">
+                      <span aria-hidden="true" className="text-emerald-300">🏆</span>
+                      <span>Leaderboard placement and final ranking</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span aria-hidden="true" className="text-emerald-300">🎫</span>
+                      <span>Daily Meta AI Glasses raffle eligibility</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span aria-hidden="true" className="text-emerald-300">⏱️</span>
+                      <span>Your one official attempt per day</span>
+                    </li>
+                  </ul>
+                  <p className="pt-2 text-sm text-slate-300/80">
+                    Please confirm the name you entered matches your Cisco Live badge exactly: <strong className="text-white">{firstName} {lastName}</strong>
+                  </p>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-white/20 bg-transparent text-white/80 hover:bg-white/10 hover:text-white">
+                  Go back
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleConfirmOfficialRun}
+                  className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                >
+                  <i className="fas fa-bolt mr-2"></i>
+                  Let's Go!
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       );
     }
