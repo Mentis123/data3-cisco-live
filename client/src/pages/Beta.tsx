@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
+import ringImage from "@assets/ring.jpg";
+import dojoImage from "@assets/dojo.jpg";
+import leaderboardImage from "@assets/leaderboard.jpg";
+import howitworksImage from "@assets/howitworks.jpg";
 
 const categories = (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
   const meta = triviaCardCategoryMeta[key];
@@ -112,23 +116,23 @@ export default function Beta() {
           </div>
           <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-2">
             <Link href="/beta/play">
-              <Button size="lg" className="w-full">
-                Enter the Ring
+              <Button size="lg" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${ringImage})` }}>
+                <span className="relative z-10">Enter the Ring</span>
               </Button>
             </Link>
             <Link href="/beta/dojo/trivia-cards">
-              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary">
-                Practice in Dojo
+              <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
+                <span className="relative z-10">Practice in Dojo</span>
               </Button>
             </Link>
             <Link href="/beta/leaderboard">
-              <Button size="lg" variant="secondary" className="w-full">
-                View Leaderboard
+              <Button size="lg" variant="secondary" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${leaderboardImage})` }}>
+                <span className="relative z-10">View Leaderboard</span>
               </Button>
             </Link>
             <Link href="/beta/how-to-play">
-              <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10">
-                How it works
+              <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${howitworksImage})` }}>
+                <span className="relative z-10">How it works</span>
               </Button>
             </Link>
           </div>
@@ -235,23 +239,23 @@ export default function Beta() {
 
         <section className="grid w-full max-w-2xl gap-3 self-center sm:grid-cols-2">
           <Link href="/beta/play">
-            <Button size="lg" className="w-full">
-              Enter the Ring
+            <Button size="lg" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${ringImage})` }}>
+              <span className="relative z-10">Enter the Ring</span>
             </Button>
           </Link>
           <Link href="/beta/dojo/trivia-cards">
-            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary">
-              Practice in Dojo
+            <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
+              <span className="relative z-10">Practice in Dojo</span>
             </Button>
           </Link>
           <Link href="/beta/leaderboard">
-            <Button size="lg" variant="secondary" className="w-full">
-              View Leaderboard
+            <Button size="lg" variant="secondary" className="w-full relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${leaderboardImage})` }}>
+              <span className="relative z-10">View Leaderboard</span>
             </Button>
           </Link>
           <Link href="/beta/how-to-play">
-            <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10">
-              How it works
+            <Button size="lg" variant="ghost" className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${howitworksImage})` }}>
+              <span className="relative z-10">How it works</span>
             </Button>
           </Link>
         </section>
