@@ -96,9 +96,11 @@ export function TriviaOverlay({
                     {continueLabel || "Enter the ring"}
                   </Button>
                 )}
-                <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
-                  {mode === "ring" ? "Replay warm-up" : "Try Again"}
-                </Button>
+                {mode === "dojo" && (
+                  <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
+                    Try Again
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
                   Finish Session
                 </Button>

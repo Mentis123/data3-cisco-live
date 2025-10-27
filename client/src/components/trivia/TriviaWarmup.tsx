@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -112,6 +112,12 @@ export function TriviaWarmup({
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
   const [attemptId, setAttemptId] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!selectedTrack && attemptId) {
+      setAttemptId(null);
+    }
+  }, [selectedTrack, attemptId]);
+
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
       const meta = triviaCardCategoryMeta[key];
@@ -223,33 +229,46 @@ export function TriviaWarmup({
   );
 
   // Open overlay when deck is loaded
-  useMemo(() => {
-    if (selectedTrack && practiceDeck && practiceDeck.length > 0 && !isDeckLoading) {
-      setShowOverlay(true);
+  useEffect(() => {
+    if (!selectedTrack || !practiceDeck || practiceDeck.length === 0 || isDeckLoading) {
+      return;
+    }
 
-      // Create attempt record for ring mode
-      if (mode === 'ring' && email && !attemptId) {
-        (async () => {
-          try {
-            const response = await apiRequest("POST", "/api/trivia/attempts", {
-              category: selectedTrack.id,
-              mode: 'ring',
-              email,
-              playerProfile: {
-                firstName,
-                lastName,
-              }
-            });
-            const data = await response.json();
-            if (data.attempt?.id) {
-              setAttemptId(data.attempt.id);
-              console.log('[TriviaWarmup] Created attempt:', data.attempt.id);
-            }
-          } catch (error) {
-            console.error('[TriviaWarmup] Failed to create attempt:', error);
+    setShowOverlay(true);
+
+    // Create attempt record for ring mode
+    if (mode === "ring" && email && !attemptId) {
+      const createAttempt = async () => {
+        try {
+          const response = await apiRequest("POST", "/api/trivia/attempts", {
+            category: selectedTrack.id,
+            mode: "ring",
+            email,
+            playerProfile: {
+              firstName,
+              lastName,
+            },
+          });
+          const data = await response.json();
+          const nextAttemptId =
+            typeof data.attemptId === "string"
+              ? data.attemptId
+              : data.attempt && typeof data.attempt.id === "string"
+              ? data.attempt.id
+              : null;
+
+          if (nextAttemptId) {
+            setAttemptId(nextAttemptId);
+            console.log("[TriviaWarmup] Created attempt:", nextAttemptId);
+          } else {
+            console.warn("[TriviaWarmup] Unable to determine attempt id from response", data);
           }
-        })();
-      }
+        } catch (error) {
+          console.error("[TriviaWarmup] Failed to create attempt:", error);
+        }
+      };
+
+      void createAttempt();
     }
   }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, firstName, lastName, attemptId]);
 
