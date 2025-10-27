@@ -425,10 +425,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           const correct = selectedIndex === snapshot.correctIndex;
           let points = 0;
           if (correct) {
-            // Aligned with frontend: 0-5s=6pts, 5-10s=4pts, 10-15s=2pts
-            if (elapsedMs <= 5000) points = 6;
-            else if (elapsedMs <= 10000) points = 4;
-            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 2;
+            // Aligned with frontend: 0-5s=12pts, 5-10s=8pts, 10-15s=4pts
+            if (elapsedMs <= 5000) points = 12;
+            else if (elapsedMs <= 10000) points = 8;
+            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
           }
 
           totalScore += points;
@@ -472,8 +472,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
         const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
         const endedAt = new Date();
-        const passed = totalScore >= 18;
-        const eligible = passed && attempt.mode === "ring";
+        // Trivia pass threshold: 40% of 60 points = 24 points
+        const passed = totalScore >= 24;
+        // Eligibility will be determined at submission time based on total score (trivia + pitch) vs bot bar
+        const eligible = false;
 
         const [updated] = await tx
           .update(attempts)
@@ -510,6 +512,105 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     const [result] = await db.select().from(participants).where(eq(participants.id, id));
     return result || null;
   },
+
+    async ensureUser(data: { email: string; firstName?: string; lastName?: string }): Promise<User> {
+      const { user } = await ensureUserRecord(data.email, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+      if (!user) {
+        throw new Error("Failed to create or retrieve user");
+      }
+      return user;
+    },
+
+    async calculateBotBar(category: string, dateStr: string): Promise<number> {
+      // Get all completed ring attempts for this category on this date
+      const completedAttempts = await db
+        .select({
+          attemptId: attempts.id,
+          triviaScore: attempts.totalScore,
+          pitchScore: submissions.totalScore,
+        })
+        .from(attempts)
+        .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
+        .where(
+          and(
+            eq(attempts.category, category),
+            eq(attempts.mode, "ring"),
+            eq(attempts.passed, true),
+            sql`DATE(${attempts.startedAt} AT TIME ZONE 'UTC') = ${dateStr}`,
+            sql`${submissions.id} IS NOT NULL` // Only include attempts with completed submissions
+          )
+        );
+
+      // Need at least 5 completed submissions to use dynamic bot bar
+      const MINIMUM_SUBMISSIONS = 5;
+      const FALLBACK_BOT_BAR = 60; // 60% of 100 points
+
+      if (completedAttempts.length < MINIMUM_SUBMISSIONS) {
+        return FALLBACK_BOT_BAR;
+      }
+
+      // Calculate combined scores (trivia + pitch)
+      const combinedScores = completedAttempts.map(
+        (attempt) => (attempt.triviaScore || 0) + (attempt.pitchScore || 0)
+      );
+
+      // Sort and find median
+      combinedScores.sort((a, b) => a - b);
+      const midpoint = Math.floor(combinedScores.length / 2);
+
+      if (combinedScores.length % 2 === 0) {
+        // Even number of scores: average the two middle values
+        return Math.round((combinedScores[midpoint - 1]! + combinedScores[midpoint]!) / 2);
+      } else {
+        // Odd number of scores: return the middle value
+        return combinedScores[midpoint]!;
+      }
+    },
+
+    async getTriviaAttempt(attemptId: string): Promise<Attempt | null> {
+      const [attempt] = await db
+        .select()
+        .from(attempts)
+        .where(eq(attempts.id, attemptId));
+
+      return attempt || null;
+    },
+
+    async createRaffleEntry(data: {
+      emailHash: string;
+      category: string;
+      attemptId: string;
+      raffleDate: string;
+    }): Promise<{ success: boolean; alreadyExists?: boolean }> {
+      // Check if entry already exists for this email/category/date (enforced by unique index)
+      const existing = await db
+        .select()
+        .from(schema.raffleEntries)
+        .where(
+          and(
+            eq(schema.raffleEntries.emailHash, data.emailHash),
+            eq(schema.raffleEntries.category, data.category),
+            eq(schema.raffleEntries.raffleDate, data.raffleDate)
+          )
+        );
+
+      if (existing.length > 0) {
+        return { success: false, alreadyExists: true };
+      }
+
+      // Create new raffle entry
+      await db.insert(schema.raffleEntries).values({
+        emailHash: data.emailHash,
+        category: data.category,
+        attemptId: data.attemptId,
+        raffleDate: data.raffleDate,
+      });
+
+      return { success: true };
+    },
 
     async createSubmission(data: InsertSubmission): Promise<Submission> {
     const [result] = await db.insert(submissions).values(data).returning();

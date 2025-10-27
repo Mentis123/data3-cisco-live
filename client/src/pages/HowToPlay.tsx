@@ -177,8 +177,8 @@ export default function HowToPlay() {
                 <CardTitle className="text-2xl">4) Score & Bot Bar</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-slate-200/85">
-                <p>Trivia /30 + Case Card /20 = Total /50.</p>
-                <p>Beat today’s Bot Bar to win the round and record a raffle entry.</p>
+                <p>Trivia /60 + Project Pitch /40 = Total /100.</p>
+                <p>Beat today's Bot Bar to win the round and record a raffle entry.</p>
               </CardContent>
             </Card>
           </div>

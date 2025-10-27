@@ -42,7 +42,13 @@ function ensureAdminAccess(req: Request, res: Response): boolean {
 }
 
 // In-memory session storage (in production, use Redis)
-const sessions = new Map<string, { participantId: string; category?: string; messages: any[] }>();
+const sessions = new Map<string, {
+  participantId: string;
+  emailHash?: string;
+  category?: string;
+  triviaAttemptId?: string;
+  messages: any[]
+}>();
 
 // Rate limiting map (IP -> last submission timestamp)
 const rateLimits = new Map<string, number>();
@@ -220,17 +226,34 @@ export async function registerRoutes(
 
   app.post("/api/start", async (req, res) => {
     try {
-      const { firstName, lastName } = startSessionSchema.parse(req.body);
+      const { firstName, lastName, email } = startSessionSchema.parse(req.body);
 
       const participant = await storage.createParticipant({ firstName, lastName });
       const sessionToken = randomUUID();
 
-      sessions.set(sessionToken, { 
-        participantId: participant.id, 
-        messages: [] 
+      let emailHash: string | undefined;
+
+      // If email provided, create/lookup user and hash email
+      if (email) {
+        const user = await storage.ensureUser({
+          email,
+          firstName,
+          lastName,
+        });
+        emailHash = user.emailHash;
+      }
+
+      sessions.set(sessionToken, {
+        participantId: participant.id,
+        emailHash,
+        messages: []
       });
 
-      res.json({ participantId: participant.id, sessionToken });
+      res.json({
+        participantId: participant.id,
+        sessionToken,
+        emailHash
+      });
     } catch (error) {
       res.status(400).json({ message: "Invalid request" });
     }
@@ -432,47 +455,97 @@ export async function registerRoutes(
         return res.status(400).json({ message: "No structured solution available" });
       }
 
-      // Auto-categorize the solution
-      const category = await categorizeProposal(
-        structuredSubmission.problem_summary,
-        session.messages.map(m => m.content).join(" "),
-        JSON.stringify(structuredSubmission)
-      );
+      // Use session category if available (from trivia selection), otherwise auto-categorize
+      let category = session.category;
+      if (!category) {
+        category = await categorizeProposal(
+          structuredSubmission.problem_summary,
+          session.messages.map(m => m.content).join(" "),
+          JSON.stringify(structuredSubmission)
+        );
+      }
 
-      // Evaluate solution
+      // Evaluate solution (pass category for Technology Fit scoring)
       console.log('[express] Evaluating solution with structured data:', JSON.stringify(structuredSubmission, null, 2));
       const evaluation = await evaluateSolution(
         structuredSubmission.problem_summary,
         session.messages.map(m => m.content).join(" "),
-        JSON.stringify(structuredSubmission)
+        JSON.stringify(structuredSubmission),
+        category
       );
       console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
 
-      // Create submission with evaluation notes
+      // Create submission with evaluation notes (pitch score only, 0-40 points)
+      const pitchScore = evaluation.total;
       const submission = await storage.createSubmission({
         participantId: session.participantId,
         category,
         solutionText,
         structuredJson: JSON.stringify(structuredSubmission),
         subScores: JSON.stringify(evaluation.subscores),
-        totalScore: evaluation.total,
+        totalScore: pitchScore,
         evaluationNotes: evaluation.notes_short,
       });
 
+      // Calculate combined score and handle raffle eligibility
+      let triviaScore = 0;
+      let combinedScore = pitchScore; // Default to pitch only
+      let botBar: number | null = null;
+      let isEligible = false;
+      let raffleResult: { success: boolean; alreadyExists?: boolean } | null = null;
+
       if (triviaAttemptId) {
         try {
+          // Attach submission to trivia attempt
           await storage.attachSubmissionToTriviaAttempt(triviaAttemptId, submission.id);
+
+          // Get trivia attempt to retrieve trivia score
+          const attempt = await storage.getTriviaAttempt?.(triviaAttemptId);
+          if (attempt) {
+            triviaScore = attempt.totalScore || 0;
+            combinedScore = triviaScore + pitchScore;
+
+            // Calculate bot bar for this category and today
+            const today = new Date().toISOString().split('T')[0];
+            botBar = await storage.calculateBotBar(category, today);
+
+            // Check eligibility: combined score >= bot bar
+            isEligible = combinedScore >= botBar;
+
+            // Update attempt with bot bar and eligibility
+            if (attempt.mode === 'ring' && session.emailHash) {
+              // Only create raffle entry if eligible and in ring mode with email
+              if (isEligible) {
+                raffleResult = await storage.createRaffleEntry({
+                  emailHash: session.emailHash,
+                  category,
+                  attemptId: triviaAttemptId,
+                  raffleDate: today,
+                });
+              }
+            }
+
+            console.log('[express] Combined scoring:', {
+              triviaScore,
+              pitchScore,
+              combinedScore,
+              botBar,
+              isEligible,
+              raffleCreated: raffleResult?.success,
+              alreadyEntered: raffleResult?.alreadyExists
+            });
+          }
         } catch (error) {
           console.warn(
-            `[trivia] Failed to associate submission ${submission.id} with trivia attempt ${triviaAttemptId}:`,
+            `[trivia] Failed to process trivia attempt ${triviaAttemptId}:`,
             error,
           );
         }
       }
 
-      // Get current leaderboard to calculate rank
+      // Get current leaderboard to calculate rank (based on combined score)
       const leaderboard = await storage.getLeaderboard();
-      const targetRank = leaderboard.findIndex(entry => entry.totalScore <= evaluation.total) + 1;
+      const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
 
       // Broadcast WebSocket update
       broadcastScoreUpdate({
@@ -480,17 +553,23 @@ export async function registerRoutes(
         name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
         category,
         targetRank: targetRank || leaderboard.length + 1,
-        finalScore: evaluation.total,
+        finalScore: combinedScore,
       });
 
       // Update rate limit
       rateLimits.set(clientIP, now);
 
       res.json({
-        finalScore: evaluation.total,
+        triviaScore,
+        pitchScore,
+        finalScore: combinedScore,
         subscores: evaluation.subscores,
         evaluationNotes: evaluation.notes_short,
         rank: targetRank || leaderboard.length + 1,
+        botBar,
+        isEligible,
+        raffleEntered: raffleResult?.success || false,
+        alreadyEntered: raffleResult?.alreadyExists || false,
         leaderboardUrl: "/leaderboard"
       });
     } catch (error) {

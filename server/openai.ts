@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { SPRINT_PROMPTS, SPRINT_SYSTEM } from "./sprintPrompts.js";
+import { PITCH_PROMPTS, PITCH_SYSTEM } from "./pitchPrompts.js";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
@@ -33,42 +34,52 @@ const SYSTEM_PROMPT = `You are an expert Sprint Coach for the Data#3 Solution Sp
 
 **BE CONCISE**: Keep responses to 2-3 sentences packed with value. Stay focused on metrics and KPIs.`;
 
-const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Solution Sprint. Score submissions across 5 criteria (0–10 each). Be fair but competitive.
+const EVALUATION_PROMPT = `You are 'Objective Judge' for Data#3's Cisco Technology Pitch Challenge. Score submissions across 5 criteria (0–8 each, max 40 total). Be fair but competitive.
 
-IMPORTANT: Award participation points (2-3 per criterion minimum) for ANY coherent attempt that completes the sprint. Never give all zeros unless the submission is completely empty or nonsensical.
+IMPORTANT: Award participation points (2 per criterion minimum) for ANY coherent attempt. Never give all zeros unless the submission is completely empty or nonsensical.
 
-Scoring Bands (per criterion):
+Scoring Bands (per criterion, 0-8 scale):
 - 0 points = Only for completely empty/off-topic submissions
-- 2-3 points = Participation tier (basic attempt with minimal detail)
-- 4-6 points = Solid attempt with some numbers and next steps
-- 7-9 points = Strong submission with clear metrics and plan
-- 10 points = Exceptional clarity, math, and execution confidence
+- 2 points = Participation tier (basic attempt with minimal detail)
+- 3-5 points = Solid attempt with some specifics
+- 6-7 points = Strong submission with clear details and alignment
+- 8 points = Exceptional quality and perfect category fit
 
-Score using these criteria:
-1) Clarity — Problem statement, audience, and context are specific.
-2) Impact — Time/cost/risk is quantified with reasonable math.
-3) KPI Strength — Baseline metrics, targets, and timeframes are meaningful.
-4) Execution — Action plan and ownership feel realistic.
-5) Confidence — Risks, follow-ups, or checkpoints show awareness.
+Score using these criteria (MAX 8 POINTS EACH):
+1) Problem Clarity — Challenge is specific with clear triggers and affected parties (0-8 pts)
+2) Impact Quantification — Measurable consequences: time, cost, risk, or volume (0-8 pts)
+3) Technology Fit — Cisco solution MUST align with their selected category (0-8 pts)
+4) Feasibility — Realistic, actionable solution with clear implementation path (0-8 pts)
+5) Business Value — Meaningful organizational improvement potential (0-8 pts)
+
+CATEGORY VALIDATION (Critical for Criterion 3):
+The participant selected a trivia category. Their Cisco tech solution MUST fit that category:
+- SECURE_CONNECTIVITY: Zero Trust, VPN, firewalls, identity, threat detection
+- HYBRID_DC: Data center, cloud, HyperFlex, UCS, ACI, storage, compute
+- COLLAB_CX: Webex, contact center, unified comms, video, collaboration
+- OBSERVABILITY: Monitoring, ThousandEyes, AppDynamics, analytics, automation
+- EDGE_IOT: IoT platforms, edge computing, industrial networks, Meraki
+
+If solution doesn't match their category, cap Technology Fit at 3 points max.
 
 Scoring Rules:
-- ALWAYS give at least 2 points per criterion if the submission covers it.
-- Total of 10-20 points for basic participation.
-- Total of 20-30 points for decent attempts with some specifics.
-- Total of 30-40 points for strong solutions with quantified KPIs.
-- Total of 40+ only for exceptional, presentation-ready stories.
+- ALWAYS give at least 2 points per criterion if submission attempts to cover it
+- Total of 10-16 points for basic participation (2pts × 5 criteria)
+- Total of 17-24 points for decent attempts with some specifics
+- Total of 25-32 points for strong pitches with good quantification and fit
+- Total of 33-40 for exceptional, category-aligned, presentation-ready pitches
 
 Return this exact JSON structure:
 {
   "subscores": {
-    "clarity": [2-10],
-    "impact": [2-10],
-    "kpi_strength": [2-10],
-    "execution": [2-10],
-    "confidence": [2-10]
+    "clarity": [0-8],
+    "impact": [0-8],
+    "technology_fit": [0-8],
+    "feasibility": [0-8],
+    "business_value": [0-8]
   },
-  "total": [sum of subscores],
-  "notes_short": "One sentence evaluation"
+  "total": [sum of subscores, max 40],
+  "notes_short": "One sentence evaluation mentioning category fit"
 }`;
 
 export async function chatWithAssistant(
@@ -81,14 +92,14 @@ export async function chatWithAssistant(
       content: msg.content
     }));
 
-    // Use sprint-specific system prompt if step is provided
-    let systemPrompt = SYSTEM_PROMPT;
+    // Use pitch-specific system prompt for the new Project Pitch flow
+    let systemPrompt = PITCH_SYSTEM;
     if (sprintStep === 1) {
-      systemPrompt = SPRINT_PROMPTS.step1_problem;
+      systemPrompt = PITCH_PROMPTS.step1_problem;
     } else if (sprintStep === 2) {
-      systemPrompt = SPRINT_PROMPTS.step2_impact;
+      systemPrompt = PITCH_PROMPTS.step2_impact;
     } else if (sprintStep === 3) {
-      systemPrompt = SPRINT_PROMPTS.step3_confirm;
+      systemPrompt = PITCH_PROMPTS.step3_solution;
     }
 
     const response = await openai.chat.completions.create({
@@ -151,7 +162,8 @@ Respond with only the category key (e.g., "SECURE_CONNECTIVITY"). Nothing else.`
 export async function evaluateSolution(
   problem: string,
   conversation: string,
-  structuredSolution: string
+  structuredSolution: string,
+  selectedCategory?: string
 ): Promise<{ subscores: any, total: number, notes_short: string }> {
   try {
     const response = await openai.chat.completions.create({
@@ -163,7 +175,10 @@ export async function evaluateSolution(
         },
         {
           role: "user",
-          content: `This submission completed all sprint steps; apply participation floor unless clearly non-attempt.
+          content: `This submission completed all pitch steps; apply participation floor unless clearly non-attempt.
+
+SELECTED CATEGORY: ${selectedCategory || "UNKNOWN"}
+The participant must propose a Cisco solution that fits this category. Score Technology Fit accordingly.
 
 Evaluate this submission:
 
@@ -189,30 +204,30 @@ Return only valid JSON with subscores, total, and notes_short.`
       result.subscores = {
         clarity: 0,
         impact: 0,
-        kpi_strength: 0,
-        execution: 0,
-        confidence: 0
+        technology_fit: 0,
+        feasibility: 0,
+        business_value: 0
       };
     }
-    
+
     // Apply participation floor if submission was completed but scored too low
     const hasContent = structuredSolution && structuredSolution.length > 100 && conversation.length > 500;
     if (hasContent) {
-      // Ensure minimum score of 2 per criterion for completed submissions
+      // Ensure minimum score of 2 per criterion for completed submissions (0-8 scale, max 40 total)
       Object.keys(result.subscores).forEach(key => {
-        result.subscores[key] = Math.max(2, Math.min(10, Math.round(result.subscores[key] || 0)));
+        result.subscores[key] = Math.max(2, Math.min(8, Math.round(result.subscores[key] || 0)));
       });
     } else {
-      // Just clamp scores to valid range
+      // Just clamp scores to valid range (0-8 scale)
       Object.keys(result.subscores).forEach(key => {
-        result.subscores[key] = Math.max(0, Math.min(10, Math.round(result.subscores[key] || 0)));
+        result.subscores[key] = Math.max(0, Math.min(8, Math.round(result.subscores[key] || 0)));
       });
     }
-    
-    // Recalculate total
+
+    // Recalculate total (max 40 points)
     result.total = Object.values(result.subscores).reduce((a, b) => (a as number) + (b as number), 0) as number;
-    
-    // Apply participation floor to total if needed
+
+    // Apply participation floor to total if needed (2 pts × 5 criteria = 10 minimum)
     if (hasContent && result.total < 10) {
       result.total = 10;
     }
@@ -233,9 +248,9 @@ Return only valid JSON with subscores, total, and notes_short.`
       subscores: {
         clarity: 0,
         impact: 0,
-        kpi_strength: 0,
-        execution: 0,
-        confidence: 0
+        technology_fit: 0,
+        feasibility: 0,
+        business_value: 0
       },
       total: 0,
       notes_short: "Evaluation error - default scores applied."

@@ -51,9 +51,11 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const isBeta = variant === "beta";
   const exitDestination = isBeta ? "/" : "/old";
   const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isBeta);
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sessionToken, setSessionToken] = useState<string>("");
   const [currentMessage, setCurrentMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -64,14 +66,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
   const [triviaScore, setTriviaScore] = useState<number | null>(null);
+  const [triviaAttemptId, setTriviaAttemptId] = useState<string | null>(null);
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
-
-  // TODO: Implement full Ring mode with attempt tracking
-  // Currently, trivia runs in practice mode (no attempt record created)
-  // Future enhancement: Create attempt via POST /api/trivia/attempts,
-  // track answers during gameplay, and submit via POST /api/trivia/attempts/:id/complete
-  // For now, we capture the score for display purposes
-  const triviaAttemptId: string | null = null;
 
   if (isBeta && !hasCompletedTrivia) {
     return (
@@ -94,10 +90,19 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
           <TriviaWarmup
             mode="ring"
             exitHref={exitDestination}
-            onContinue={(score?: number) => {
+            email={email}
+            firstName={firstName}
+            lastName={lastName}
+            onContinue={(score?: number, category?: string, attemptId?: string) => {
               setHasCompletedTrivia(true);
               if (score !== undefined) {
                 setTriviaScore(score);
+              }
+              if (category) {
+                setSelectedCategory(category);
+              }
+              if (attemptId) {
+                setTriviaAttemptId(attemptId);
               }
             }}
             className="h-full"
@@ -126,8 +131,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   }, [state.inputsCount, state.step, toast]);
 
   const startSessionMutation = useMutation({
-    mutationFn: async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
-      const response = await apiRequest("POST", "/api/start", { firstName, lastName });
+    mutationFn: async ({ firstName, lastName, email }: { firstName: string; lastName: string; email?: string }) => {
+      const response = await apiRequest("POST", "/api/start", { firstName, lastName, email });
       return response.json();
     },
     onSuccess: (data) => {
@@ -476,13 +481,13 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     if (isBeta) {
       setShowOfficialRunConfirm(true);
     } else {
-      startSessionMutation.mutate({ firstName, lastName });
+      startSessionMutation.mutate({ firstName, lastName, email });
     }
   };
 
   const handleConfirmOfficialRun = () => {
     setShowOfficialRunConfirm(false);
-    startSessionMutation.mutate({ firstName, lastName });
+    startSessionMutation.mutate({ firstName, lastName, email });
   };
 
   // Registration view
@@ -519,7 +524,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 {triviaScore !== null && (
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
                     <i className="fas fa-check-circle"></i>
-                    Trivia: {triviaScore}/30
+                    Trivia: {triviaScore}/60
                   </div>
                 )}
               </div>
@@ -559,7 +564,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </Button>
                 <Button
                   onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
+                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
                   size="lg"
                   className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                   data-testid="button-start-chat"
@@ -591,32 +596,52 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-semibold text-white/80">
-                      First name
+                    <Label htmlFor="email" className="text-sm font-semibold text-white/80">
+                      Email address
                     </Label>
                     <Input
-                      id="firstName"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="As printed on your badge"
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your.name@company.com"
                       className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
-                      data-testid="input-first-name"
+                      data-testid="input-email"
                     />
+                    <p className="text-xs text-slate-300/70">
+                      Required for raffle eligibility. By submitting, you consent to being contacted if you win.
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-semibold text-white/80">
-                      Last name
-                    </Label>
-                    <Input
-                      id="lastName"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="We show the initial only"
-                      className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
-                      data-testid="input-last-name"
-                    />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName" className="text-sm font-semibold text-white/80">
+                        First name
+                      </Label>
+                      <Input
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="As printed on your badge"
+                        className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
+                        data-testid="input-first-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="text-sm font-semibold text-white/80">
+                        Last name
+                      </Label>
+                      <Input
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="We show the initial only"
+                        className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
+                        data-testid="input-last-name"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -645,7 +670,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 <Button
                   onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
+                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
                   className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                   data-testid="button-start-chat"
                 >
@@ -816,7 +841,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
               <Button
                 onClick={handleStartChat}
-                disabled={!firstName.trim() || !lastName.trim() || startSessionMutation.isPending}
+                disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
                 className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation"
                 data-testid="button-start-chat"
               >

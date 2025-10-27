@@ -102,6 +102,14 @@ const customCategoriesStore: MemoryCustomCategory[] = [];
 const triviaUsersStore = new Map<string, MemoryUser>();
 const triviaAttemptsStore: MemoryTriviaAttempt[] = [];
 const triviaAnswersStore: MemoryTriviaAnswer[] = [];
+const raffleEntriesStore: Array<{
+  id: string;
+  emailHash: string;
+  category: string;
+  attemptId: string;
+  raffleDate: string;
+  createdAt: Date;
+}> = [];
 
 const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
@@ -894,10 +902,10 @@ export function createMemoryStorage() {
 
         let points = 0;
         if (correct) {
-          // Aligned with frontend: 0-5s=6pts, 5-10s=4pts, 10-15s=2pts
-          if (elapsedMs <= 5000) points = 6;
-          else if (elapsedMs <= 10000) points = 4;
-          else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 2;
+          // Aligned with frontend: 0-5s=12pts, 5-10s=8pts, 10-15s=4pts
+          if (elapsedMs <= 5000) points = 12;
+          else if (elapsedMs <= 10000) points = 8;
+          else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
         }
 
         totalScore += points;
@@ -948,8 +956,10 @@ export function createMemoryStorage() {
       const endedAt = new Date();
       attempt.totalScore = totalScore;
       attempt.endedAt = endedAt;
-      attempt.passed = totalScore >= 18;
-      attempt.eligible = attempt.passed && attempt.mode === "ring";
+      // Trivia pass threshold: 40% of 60 points = 24 points
+      attempt.passed = totalScore >= 24;
+      // Eligibility will be determined at submission time based on total score (trivia + pitch) vs bot bar
+      attempt.eligible = false;
       attempt.avgCorrectTimeMs = avgCorrect;
 
       return { attempt, summary: summaries, totalScore };
@@ -968,6 +978,109 @@ export function createMemoryStorage() {
 
     async getParticipant(id: string): Promise<Participant | null> {
       return ensureParticipant(id) ?? null;
+    },
+
+    async ensureUser(data: { email: string; firstName?: string; lastName?: string }): Promise<User> {
+      const { user } = ensureUserRecord(data.email, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+      if (!user) {
+        throw new Error("Failed to create or retrieve user");
+      }
+      return user;
+    },
+
+    async calculateBotBar(category: string, dateStr: string): Promise<number> {
+      // Filter completed ring attempts for this category and date
+      const completedAttempts = triviaAttemptsStore.filter((attempt) => {
+        if (attempt.category !== category || attempt.mode !== "ring" || !attempt.passed) {
+          return false;
+        }
+
+        // Check if date matches
+        const attemptDate = attempt.startedAt?.toISOString().split('T')[0];
+        if (attemptDate !== dateStr) {
+          return false;
+        }
+
+        // Check if has completed submission
+        if (!attempt.submissionId) {
+          return false;
+        }
+
+        return true;
+      });
+
+      // Need at least 5 completed submissions to use dynamic bot bar
+      const MINIMUM_SUBMISSIONS = 5;
+      const FALLBACK_BOT_BAR = 60; // 60% of 100 points
+
+      if (completedAttempts.length < MINIMUM_SUBMISSIONS) {
+        return FALLBACK_BOT_BAR;
+      }
+
+      // Calculate combined scores (trivia + pitch)
+      const combinedScores = completedAttempts
+        .map((attempt) => {
+          const submission = submissionsStore.find((s) => s.id === attempt.submissionId);
+          const triviaScore = attempt.totalScore || 0;
+          const pitchScore = submission?.totalScore || 0;
+          return triviaScore + pitchScore;
+        })
+        .filter((score) => score > 0); // Filter out invalid scores
+
+      if (combinedScores.length < MINIMUM_SUBMISSIONS) {
+        return FALLBACK_BOT_BAR;
+      }
+
+      // Sort and find median
+      combinedScores.sort((a, b) => a - b);
+      const midpoint = Math.floor(combinedScores.length / 2);
+
+      if (combinedScores.length % 2 === 0) {
+        // Even number of scores: average the two middle values
+        return Math.round((combinedScores[midpoint - 1]! + combinedScores[midpoint]!) / 2);
+      } else {
+        // Odd number of scores: return the middle value
+        return combinedScores[midpoint]!;
+      }
+    },
+
+    async getTriviaAttempt(attemptId: string): Promise<Attempt | null> {
+      const attempt = triviaAttemptsStore.find((a) => a.id === attemptId);
+      return attempt || null;
+    },
+
+    async createRaffleEntry(data: {
+      emailHash: string;
+      category: string;
+      attemptId: string;
+      raffleDate: string;
+    }): Promise<{ success: boolean; alreadyExists?: boolean }> {
+      // Check if entry already exists for this email/category/date
+      const existing = raffleEntriesStore.find(
+        (entry) =>
+          entry.emailHash === data.emailHash &&
+          entry.category === data.category &&
+          entry.raffleDate === data.raffleDate
+      );
+
+      if (existing) {
+        return { success: false, alreadyExists: true };
+      }
+
+      // Create new raffle entry
+      raffleEntriesStore.push({
+        id: nanoid(),
+        emailHash: data.emailHash,
+        category: data.category,
+        attemptId: data.attemptId,
+        raffleDate: data.raffleDate,
+        createdAt: new Date(),
+      });
+
+      return { success: true };
     },
 
     async createSubmission(data: InsertSubmission): Promise<Submission> {
