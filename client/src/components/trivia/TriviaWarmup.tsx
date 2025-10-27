@@ -298,8 +298,7 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-2">
-          <Badge className="w-fit bg-white/10 text-xs uppercase tracking-[0.3em] text-slate-200">Warm-up</Badge>
-          <CardTitle className="text-2xl font-semibold">Pick your trivia track</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Pick your technology track</CardTitle>
         </CardHeader>
         <CardContent className="flex-1">
           {renderSelection()}
@@ -418,8 +417,7 @@ export function TriviaWarmup({ mode, className, continueLabel = "Enter the ring"
 
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-2">
-          <Badge className="w-fit bg-white/10 text-xs uppercase tracking-[0.3em] text-slate-200">Warm-up</Badge>
-          <CardTitle className="text-2xl font-semibold">Pick your trivia track</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Pick your technology track</CardTitle>
         </CardHeader>
         <CardContent className="flex-1">
           {renderSelection()}
