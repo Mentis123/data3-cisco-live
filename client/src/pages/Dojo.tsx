@@ -78,12 +78,12 @@ export default function Dojo({ params }: DojoRouteProps) {
           <TriviaWarmup mode="dojo" className="h-full" />
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/beta">
+            <Link href="/">
               <Button variant="secondary" className="backdrop-blur">
-                Back to beta overview
+                Back to home
               </Button>
             </Link>
-            <Link href="/beta/play">
+            <Link href="/play">
               <Button className="shadow-[0_25px_70px_-40px_rgba(34,197,94,0.9)]">
                 Enter the ring now
               </Button>
@@ -121,7 +121,7 @@ export default function Dojo({ params }: DojoRouteProps) {
           </CardHeader>
           <CardContent className="space-y-3 text-slate-200/80">
             <p>
-              We are rolling these dojo paths out alongside the beta ring experience. Until the dedicated flows go
+              We are rolling these dojo paths out alongside the ring experience. Until the dedicated flows go
               live, you can still enter the ring to run the full trivia-card round and submit a case card today.
             </p>
             <ul className="list-disc space-y-2 pl-6 text-sm">
@@ -133,12 +133,12 @@ export default function Dojo({ params }: DojoRouteProps) {
         </Card>
 
         <div className="flex flex-wrap gap-3">
-          <Link href="/beta">
+          <Link href="/">
             <Button variant="secondary" className="backdrop-blur">
-              Back to beta overview
+              Back to home
             </Button>
           </Link>
-          <Link href="/beta/play">
+          <Link href="/play">
             <Button className="shadow-[0_25px_70px_-40px_rgba(34,197,94,0.9)]">
               Enter the ring now
             </Button>

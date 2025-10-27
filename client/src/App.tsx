@@ -5,35 +5,52 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
-import Play from "@/pages/Play";
+import BetaPlay from "@/pages/BetaPlay";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
 import { NewSubmissionAnnouncementPage } from "@/pages/NewSubmissionAnnouncement";
 import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
-import Beta from "@/pages/Beta";
-import BetaPlay from "@/pages/BetaPlay";
-import BetaAdmin from "@/pages/BetaAdmin";
+import Admin from "@/pages/Admin";
 import Dojo from "@/pages/Dojo";
+import Old from "@/pages/Old";
+import OldPlay from "@/pages/OldPlay";
 
 function Router() {
   return (
     <Switch>
+      {/* Main App (was /beta) */}
       <Route path="/" component={Home} />
+      <Route path="/play" component={BetaPlay} />
+      <Route path="/ring" component={BetaPlay} />
       <Route path="/leaderboard" component={Leaderboard} />
-      <Route path="/beta/leaderboard" component={Leaderboard} />
-      <Route path="/play" component={Play} />
-      <Route path="/admin-leaderboard" component={AdminLeaderboard} />
-      <Route path="/admin" component={AdminLeaderboard} />
-      <Route path="/stand" component={StandMessaging} />
+      <Route path="/admin" component={Admin} />
+      <Route path="/dojo/:mode" component={Dojo} />
       <Route path="/how-to-play" component={HowToPlay} />
-      <Route path="/beta/how-to-play" component={HowToPlay} />
+
+      {/* Classic App (moved to /old) */}
+      <Route path="/old" component={Old} />
+      <Route path="/old/play" component={OldPlay} />
+      <Route path="/old/leaderboard" component={Leaderboard} />
+      <Route path="/old/admin" component={AdminLeaderboard} />
+
+      {/* Legacy Admin Routes */}
+      <Route path="/admin-leaderboard" component={AdminLeaderboard} />
+
+      {/* Utility Routes */}
+      <Route path="/stand" component={StandMessaging} />
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
-      <Route path="/beta" component={Beta} />
+
+      {/* Backward compatibility - redirect /beta routes to root */}
+      <Route path="/beta" component={Home} />
       <Route path="/beta/play" component={BetaPlay} />
       <Route path="/beta/ring" component={BetaPlay} />
-      <Route path="/beta/admin" component={BetaAdmin} />
+      <Route path="/beta/leaderboard" component={Leaderboard} />
+      <Route path="/beta/admin" component={Admin} />
       <Route path="/beta/dojo/:mode" component={Dojo} />
+      <Route path="/beta/how-to-play" component={HowToPlay} />
+
+      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
