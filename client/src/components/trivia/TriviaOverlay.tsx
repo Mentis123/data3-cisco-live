@@ -97,10 +97,10 @@ export function TriviaOverlay({
                   </Button>
                 )}
                 <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
-                  {mode === "ring" ? "Replay warm-up" : "Restart track"}
+                  {mode === "ring" ? "Replay warm-up" : "Restart deck"}
                 </Button>
                 <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
-                  Exit trivia
+                  Exit track
                 </Button>
               </div>
             )}
