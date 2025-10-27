@@ -425,10 +425,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           const correct = selectedIndex === snapshot.correctIndex;
           let points = 0;
           if (correct) {
-            // Aligned with frontend: 0-5s=6pts, 5-10s=4pts, 10-15s=2pts
-            if (elapsedMs <= 5000) points = 6;
-            else if (elapsedMs <= 10000) points = 4;
-            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 2;
+            // Aligned with frontend: 0-5s=12pts, 5-10s=8pts, 10-15s=4pts
+            if (elapsedMs <= 5000) points = 12;
+            else if (elapsedMs <= 10000) points = 8;
+            else if (elapsedMs <= MAX_TRIVIA_TIME_MS) points = 4;
           }
 
           totalScore += points;
@@ -472,8 +472,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
         const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
         const endedAt = new Date();
-        const passed = totalScore >= 18;
-        const eligible = passed && attempt.mode === "ring";
+        // Trivia pass threshold: 40% of 60 points = 24 points
+        const passed = totalScore >= 24;
+        // Eligibility will be determined at submission time based on total score (trivia + pitch) vs bot bar
+        const eligible = false;
 
         const [updated] = await tx
           .update(attempts)

@@ -43,15 +43,15 @@ const QUESTION_TIME = 15;
 /**
  * Calculate points based on time elapsed (not remaining)
  * Scoring tiers:
- * - 0-5s elapsed: 6 points (answered within first 5 seconds)
- * - 5-10s elapsed: 4 points (answered between 5 and 10 seconds)
- * - 10-15s elapsed: 2 points (answered in final 5 seconds)
+ * - 0-5s elapsed: 12 points (answered within first 5 seconds)
+ * - 5-10s elapsed: 8 points (answered between 5 and 10 seconds)
+ * - 10-15s elapsed: 4 points (answered in final 5 seconds)
  * - Timeout/wrong: 0 points
  */
 function getTierPoints(timeElapsed: number): number {
-  if (timeElapsed <= 5) return 6;
-  if (timeElapsed <= 10) return 4;
-  if (timeElapsed <= 15) return 2;
+  if (timeElapsed <= 5) return 12;
+  if (timeElapsed <= 10) return 8;
+  if (timeElapsed <= 15) return 4;
   return 0;
 }
 
@@ -60,7 +60,7 @@ function getTierPoints(timeElapsed: number): number {
  *
  * Features:
  * - 15-second countdown per question using requestAnimationFrame for smooth updates
- * - Tiered scoring: 6pts (0-5s), 4pts (5-10s), 2pts (10-15s)
+ * - Tiered scoring: 12pts (0-5s), 8pts (5-10s), 4pts (10-15s)
  * - At 10s remaining: one wrong answer is hidden
  * - At 5s remaining: hint appears
  * - Supports both Dojo (practice) and Ring (official) modes
