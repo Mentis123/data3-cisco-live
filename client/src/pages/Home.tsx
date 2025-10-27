@@ -108,15 +108,6 @@ export default function Home() {
                   •
                 </button>
               </Link>
-              <Link href="/old">
-                <button
-                  className="px-2 py-1 text-xs text-slate-500 transition-colors hover:text-slate-400"
-                  aria-label="Classic version"
-                  data-testid="button-classic-version"
-                >
-                  /old
-                </button>
-              </Link>
             </div>
             <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:mx-0">
               Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
