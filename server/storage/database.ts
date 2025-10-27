@@ -515,8 +515,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async ensureUser(data: { email: string; firstName?: string; lastName?: string }): Promise<User> {
       const { user } = await ensureUserRecord(data.email, {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        firstName: data.firstName ?? null,
+        lastName: data.lastName ?? null,
+        company: null,
+        role: null,
       });
       if (!user) {
         throw new Error("Failed to create or retrieve user");
