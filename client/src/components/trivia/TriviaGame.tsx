@@ -135,6 +135,17 @@ export function TriviaGame({
     return undefined;
   }, [phase]);
 
+  // Clear any lingering browser focus/active states when entering playing phase
+  // This prevents highlights from persisting in landscape mode after "ready go" disappears
+  useEffect(() => {
+    if (phase === "playing") {
+      // Blur any focused element to clear browser focus states
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  }, [phase]);
+
   useEffect(() => {
     if (phase !== "playing") {
       if (frameRef.current) {
