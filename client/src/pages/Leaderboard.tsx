@@ -9,6 +9,7 @@ import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
+import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 
 interface LeaderboardEntry {
   id: string;
@@ -1107,18 +1108,18 @@ export default function Leaderboard() {
                   Home
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={toggleFullscreen}
                 data-testid="button-fullscreen"
               >
                 <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
                 {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={testAudio}
                 data-testid="button-test-audio"
               >
@@ -1127,12 +1128,21 @@ export default function Leaderboard() {
               </Button>
             </div>
           )}
-          <h1 className={`${isFullscreen ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'} font-bold mb-2 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent`}>
-            Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
-          </h1>
-          <p className={`${isFullscreen ? 'text-3xl' : 'text-xl'} text-muted-foreground text-center`}>
-            Cisco Live Melbourne 2025 • Powered by AI
-          </p>
+          <div className="flex flex-col items-center gap-4 mb-4">
+            <img
+              src={leaderboardFullImage}
+              alt="Leaderboard"
+              className={`${isFullscreen ? 'h-32 w-32' : 'h-20 w-20'} rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}
+            />
+            <div className="text-center">
+              <h1 className={`${isFullscreen ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'} font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent`}>
+                Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
+              </h1>
+              <p className={`${isFullscreen ? 'text-3xl' : 'text-xl'} text-muted-foreground`}>
+                Cisco Live Melbourne 2025 • Powered by AI
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* View Toggle */}

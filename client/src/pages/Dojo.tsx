@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
 import NotFound from "@/pages/not-found";
+import dojoFullImage from "@assets/dojofull.jpg";
 
 type DojoExperienceId = "trivia-cards" | "case-builder";
 
@@ -59,12 +60,19 @@ export default function Dojo({ params }: DojoRouteProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
-          <div className="space-y-4">
-            <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
-            <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
-            <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-              Choose a technology track and test your knowledge. Answer fast to maximize your score.
-            </p>
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <img
+              src={dojoFullImage}
+              alt="Dojo"
+              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
+            />
+            <div className="flex-1 space-y-4 text-center sm:text-left">
+              <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
+              <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
+              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+                Choose a technology track and test your knowledge. Answer fast to maximize your score.
+              </p>
+            </div>
           </div>
 
           <TriviaWarmup mode="dojo" className="h-full" />
@@ -89,12 +97,19 @@ export default function Dojo({ params }: DojoRouteProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="space-y-4">
-          <Badge className="w-fit bg-primary/20 text-primary">{experience.status}</Badge>
-          <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
-          <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-            {experience.description}
-          </p>
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+          <img
+            src={dojoFullImage}
+            alt="Dojo"
+            className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-blue-500/30 ring-2 ring-blue-400/40"
+          />
+          <div className="flex-1 space-y-4 text-center sm:text-left">
+            <Badge className="w-fit bg-primary/20 text-primary">{experience.status}</Badge>
+            <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
+            <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+              {experience.description}
+            </p>
+          </div>
         </div>
 
         <Card className="border-white/10 bg-white/[0.04] shadow-[0_35px_120px_-60px_rgba(59,130,246,0.85)] backdrop-blur">
