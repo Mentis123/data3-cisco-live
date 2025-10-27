@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -72,6 +73,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [triviaScore, setTriviaScore] = useState<number | null>(null);
   const [triviaAttemptId, setTriviaAttemptId] = useState<string | null>(null);
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
 
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
@@ -442,6 +445,12 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return;
     }
 
+    if (!acceptedTerms) {
+      setShowTermsError(true);
+      setTimeout(() => setShowTermsError(false), 3000);
+      return;
+    }
+
     // For ring mode, show confirmation dialog
     if (isRing) {
       setShowOfficialRunConfirm(true);
@@ -529,7 +538,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </Button>
                 <Button
                   onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
+                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !acceptedTerms || startSessionMutation.isPending}
                   size="lg"
                   className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                   data-testid="button-start-chat"
@@ -610,6 +619,40 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   </div>
                 </div>
 
+                {/* Terms & Conditions */}
+                <div className={`rounded-lg border border-white/10 bg-white/5 p-4 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <Checkbox
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => {
+                        setAcceptedTerms(!!checked);
+                        if (checked) setShowTermsError(false);
+                      }}
+                      className={`flex-shrink-0 mt-0.5 ${showTermsError ? 'ring-2 ring-destructive' : ''}`}
+                      data-testid="checkbox-accept-terms"
+                    />
+                    <span className={`text-sm text-slate-200 leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : ''}`}>
+                      I agree to the{" "}
+                      <a
+                        href="/terms-and-conditions"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-300 hover:text-emerald-200 underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Terms and Conditions
+                      </a>
+                      {" "}and consent to being contacted if I win the raffle.
+                    </span>
+                  </label>
+                  {showTermsError && (
+                    <p className="text-destructive text-sm mt-2 flex items-center">
+                      <i className="fas fa-exclamation-circle mr-1"></i>
+                      Please accept the Terms & Conditions to proceed
+                    </p>
+                  )}
+                </div>
+
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-lg text-emerald-300">
@@ -635,7 +678,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 <Button
                   onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
+                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !acceptedTerms || startSessionMutation.isPending}
                   className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                   data-testid="button-start-chat"
                 >
@@ -765,6 +808,40 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </div>
               </div>
 
+              {/* Terms & Conditions */}
+              <div className={`bg-muted/20 rounded-lg p-4 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <Checkbox
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => {
+                      setAcceptedTerms(!!checked);
+                      if (checked) setShowTermsError(false);
+                    }}
+                    className={`flex-shrink-0 mt-0.5 ${showTermsError ? 'ring-2 ring-destructive' : ''}`}
+                    data-testid="checkbox-accept-terms"
+                  />
+                  <span className={`text-[0.95rem] leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : ''}`}>
+                    I agree to the{" "}
+                    <a
+                      href="/terms-and-conditions"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms and Conditions
+                    </a>
+                    {" "}and consent to being contacted if I win the raffle.
+                  </span>
+                </label>
+                {showTermsError && (
+                  <p className="text-destructive text-[0.95rem] mt-2 flex items-center">
+                    <i className="fas fa-exclamation-circle mr-1"></i>
+                    Please accept the Terms & Conditions to proceed
+                  </p>
+                )}
+              </div>
+
               <Card className="mb-6 bg-primary/5 border-primary/20">
                 <CardHeader>
                   <CardTitle className="text-balance text-lg sm:text-xl leading-tight">
@@ -806,7 +883,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
               <Button
                 onClick={handleStartChat}
-                disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
+                disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !acceptedTerms || startSessionMutation.isPending}
                 className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation"
                 data-testid="button-start-chat"
               >

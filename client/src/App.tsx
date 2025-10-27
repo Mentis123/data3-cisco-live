@@ -15,6 +15,7 @@ import Admin from "@/pages/Admin";
 import Dojo from "@/pages/Dojo";
 import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
+import TermsAndConditions from "@/pages/TermsAndConditions";
 
 function Router() {
   return (
@@ -40,6 +41,7 @@ function Router() {
       {/* Utility Routes */}
       <Route path="/stand" component={StandMessaging} />
       <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
+      <Route path="/terms-and-conditions" component={TermsAndConditions} />
 
       {/* Backward compatibility - redirect /beta routes to root */}
       <Route path="/beta" component={Home} />
