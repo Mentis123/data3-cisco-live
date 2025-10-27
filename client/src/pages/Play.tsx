@@ -34,10 +34,14 @@ import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
 import { TriviaCardDeck } from "@/components/trivia-cards/TriviaCardDeck";
-import { triviaCardDeck } from "@/data/triviaCards";
+import {
+  triviaCardDeck,
+  triviaCardCategoryMeta,
+  isTriviaCardCategory,
+} from "@/data/triviaCards";
 import { TriviaWarmup } from "@/components/trivia";
 
-type PlayVariant = "classic" | "beta";
+type PlayVariant = "classic" | "ring";
 
 type PlayContentProps = {
   variant?: PlayVariant;
@@ -48,9 +52,9 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const { toast } = useToast();
   const { state, dispatch } = useSprint();
 
-  const isBeta = variant === "beta";
-  const exitDestination = isBeta ? "/" : "/old";
-  const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isBeta);
+  const isRing = variant === "ring";
+  const exitDestination = isRing ? "/" : "/old";
+  const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isRing);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -69,49 +73,10 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [triviaAttemptId, setTriviaAttemptId] = useState<string | null>(null);
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
 
-  if (isBeta && !hasCompletedTrivia) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-            <img
-              src={ringFullImage}
-              alt="Ring"
-              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40"
-            />
-            <div className="flex-1 space-y-2 text-center sm:text-left">
-              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the bot</h1>
-              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
-              </p>
-            </div>
-          </div>
-          <TriviaWarmup
-            mode="ring"
-            exitHref={exitDestination}
-            email={email}
-            firstName={firstName}
-            lastName={lastName}
-            onContinue={(score?: number, category?: string, attemptId?: string) => {
-              setHasCompletedTrivia(true);
-              if (score !== undefined) {
-                setTriviaScore(score);
-              }
-              if (category) {
-                setSelectedCategory(category);
-              }
-              if (attemptId) {
-                setTriviaAttemptId(attemptId);
-              }
-            }}
-            className="h-full"
-          />
-        </div>
-      </div>
-    );
-  }
-  
+  const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
+    ? triviaCardCategoryMeta[selectedCategory].name
+    : null;
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -230,7 +195,7 @@ Just describe it naturally - what's the problem that needs solving?`
       );
 
       setTimeout(() => {
-        setLocation(isBeta ? "/leaderboard" : "/old/leaderboard");
+        setLocation(isRing ? "/leaderboard" : "/old/leaderboard");
       }, 3000);
     },
     onError: (error) => {
@@ -477,8 +442,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return;
     }
 
-    // For beta/ring mode, show confirmation dialog
-    if (isBeta) {
+    // For ring mode, show confirmation dialog
+    if (isRing) {
       setShowOfficialRunConfirm(true);
     } else {
       startSessionMutation.mutate({ firstName, lastName, email });
@@ -492,23 +457,23 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   // Registration view
   if (!registrationComplete) {
-    if (isBeta) {
-      const betaHighlights = [
+    if (isRing) {
+      const ringHighlights = [
         {
-          title: "Drop → Hint → Lock",
-          copy: "Each trivia card reveals the rationale so practice and competition share the same flow.",
+          title: "Official leaderboard run",
+          copy: "Every answer counts toward Beat the Bot standings — this is your sanctioned attempt.",
         },
         {
-          title: "Expo-ready controls",
-          copy: "Large tap targets, keyboard shortcuts and high contrast UI for kiosks and touch tables.",
+          title: "Beat the Bot challenge",
+          copy: "Sprint Coach guides three decisive replies before the bot locks and scores your solution.",
         },
         {
-          title: "One run per day",
-          copy: "We verify badge names so raffle entries stay clean for the daily Meta AI Glasses draw.",
+          title: "Expo-ready flow",
+          copy: "Large tap targets, high contrast screens and shortcuts keep the queue moving at the stand.",
         },
         {
-          title: "Live scoring",
-          copy: "Submit anytime to lock KPIs and see where you land on the leaderboard in seconds.",
+          title: "Verified entries",
+          copy: "Badge name and email confirm your Meta AI Glasses raffle eligibility the moment you submit.",
         },
       ];
 
@@ -519,7 +484,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               <div className="flex flex-wrap gap-3">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
                   <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-                  Beta Playtest
+                  Official Attempt
                 </div>
                 {triviaScore !== null && (
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
@@ -530,15 +495,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </div>
               <div className="space-y-4">
                 <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
-                  Launch the Solution Sprint beta run
+                  Enter the Data#3 Solution Sprint ring
                 </h1>
                 <p className="max-w-2xl text-pretty text-lg text-slate-200">
-                  Check in with your Cisco Live badge name, then the Sprint Coach guides you through a three-reply rhythm. You&apos;ll lock the problem, quantify the impact and send it for instant scoring.
+                  Check in with your Cisco Live badge name and email, then face the Sprint Coach for your official Beat the Bot attempt. Lock the problem, quantify the impact and submit for instant scoring.
                 </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                {betaHighlights.map((item) => (
+                {ringHighlights.map((item) => (
                   <Card key={item.title} className="border-white/10 bg-white/5 backdrop-blur-xl">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base font-semibold text-white/90">
@@ -560,7 +525,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
                 >
                   <i className="fas fa-arrow-left mr-2"></i>
-                  Back to beta overview
+                  Back to home
                 </Button>
                 <Button
                   onClick={handleStartChat}
@@ -577,7 +542,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   ) : (
                     <>
                       <i className="fas fa-bolt mr-2"></i>
-                      Launch beta run
+                      Enter the ring
                     </>
                   )}
                 </Button>
@@ -868,6 +833,49 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     );
   }
 
+  if (isRing && registrationComplete && !hasCompletedTrivia) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <img
+              src={ringFullImage}
+              alt="Ring"
+              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40"
+            />
+            <div className="flex-1 space-y-2 text-center sm:text-left">
+              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
+              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the bot</h1>
+              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
+              </p>
+            </div>
+          </div>
+          <TriviaWarmup
+            mode="ring"
+            exitHref={exitDestination}
+            email={email}
+            firstName={firstName}
+            lastName={lastName}
+            onContinue={(score?: number, category?: string, attemptId?: string) => {
+              setHasCompletedTrivia(true);
+              if (score !== undefined) {
+                setTriviaScore(score);
+              }
+              if (category) {
+                setSelectedCategory(category);
+              }
+              if (attemptId) {
+                setTriviaAttemptId(attemptId);
+              }
+            }}
+            className="h-full"
+          />
+        </div>
+      </div>
+    );
+  }
+
   const triviaDeckDialog = (
     <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
       <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
@@ -886,7 +894,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   if (state.step === 4 && state.submission) {
     const currentSubmission = editedSubmission || state.submission;
 
-    if (isBeta) {
+    if (isRing) {
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
           {triviaDeckDialog}
@@ -1204,12 +1212,26 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         );
     }
 
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        {triviaDeckDialog}
-          <div className="flex-1 py-4 sm:py-8 safe-area-padding">
-            <div className="max-w-4xl mx-auto px-4">
-              <Card className="glass-panel border-0 overflow-hidden">
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {triviaDeckDialog}
+      {isRing && triviaScore !== null && (
+        <div className="mx-auto w-full max-w-4xl px-4 pt-4">
+          <div className="flex items-center justify-between rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100 shadow-[0_20px_70px_-40px_rgba(34,197,94,0.7)]">
+            <div className="flex flex-col gap-1 text-left">
+              <span className="text-xs uppercase tracking-[0.25em] text-emerald-200/80">Trivia locked</span>
+              <span className="text-base font-semibold text-emerald-100">
+                {triviaScore}/60 locked in
+                {selectedCategoryLabel ? <span className="font-normal"> · {selectedCategoryLabel}</span> : null}
+              </span>
+            </div>
+            <Badge className="bg-emerald-400 text-emerald-950">Official</Badge>
+          </div>
+        </div>
+      )}
+      <div className="flex-1 py-4 sm:py-8 safe-area-padding">
+        <div className="max-w-4xl mx-auto px-4">
+          <Card className="glass-panel border-0 overflow-hidden">
                 <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
                 <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
@@ -1459,14 +1481,14 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         <AlertDialogFooter>
           <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
           <AlertDialogAction onClick={() => setLocation(exitDestination)}>
-            {isBeta ? 'Exit to beta overview' : 'Exit to Home'}
+            Exit to Home
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 
-  if (isBeta) {
+  if (isRing) {
     const previewSubmission =
       state.submission ||
       (state.problem && state.impact ? composeSubmission(state.problem, state.impact) : null);
@@ -1475,12 +1497,26 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       <>
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
+            {triviaScore !== null && (
+              <div className="order-0 rounded-3xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100 shadow-[0_25px_80px_-50px_rgba(16,185,129,0.75)] lg:col-span-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Trivia locked</p>
+                    <p className="text-base font-semibold text-emerald-100">
+                      {triviaScore}/60 locked in
+                      {selectedCategoryLabel ? <span className="font-normal"> · {selectedCategoryLabel}</span> : null}
+                    </p>
+                  </div>
+                  <Badge className="bg-emerald-400 text-emerald-950">Official entry</Badge>
+                </div>
+              </div>
+            )}
             <section className="order-1 flex min-h-[60vh] flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
               <div className="relative border-b border-white/10 bg-gradient-to-r from-emerald-500/30 via-slate-900/40 to-emerald-400/20 p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Sprint Coach</p>
-                    <h2 className="text-xl font-semibold sm:text-2xl">Beta ring</h2>
+                    <h2 className="text-xl font-semibold sm:text-2xl">Data#3 ring</h2>
                     <p className="text-sm text-slate-200/80">Follow the prompts — 3 replies max.</p>
                   </div>
                   <div className="flex items-center gap-2">
