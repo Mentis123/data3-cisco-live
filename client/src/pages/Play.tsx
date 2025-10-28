@@ -190,19 +190,32 @@ Just describe it naturally - what's the problem that needs solving?`
     },
     onSuccess: (data) => {
       setIsSubmitting(false);
-      toast({
-        title: "Solution Submitted!",
-        description: `Your score: ${data.finalScore}/50 (Rank #${data.rank}). Watch the leaderboard for live updates!`,
-      });
 
+      // Store complete submission data for announcement page
+      const submissionData = {
+        id: `submission-${Date.now()}`,
+        participantName: `${firstName} ${lastName.charAt(0)}.`,
+        firstName,
+        lastName,
+        category: data.category || 'SECURE_CONNECTIVITY',
+        totalScore: data.finalScore,
+        rank: data.rank,
+        subScores: data.subscores,
+        createdAt: new Date().toISOString(),
+        botBar: data.botBar,
+        isEligible: data.isEligible,
+        raffleEntered: data.raffleEntered,
+        alreadyEntered: data.alreadyEntered,
+      };
+
+      sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
       sessionStorage.setItem(
         "playSubmissionAudio",
         JSON.stringify({ timestamp: Date.now() })
       );
 
-      setTimeout(() => {
-        setLocation(isRing ? "/leaderboard" : "/old/leaderboard");
-      }, 3000);
+      // Navigate to announcement page
+      setLocation('/announcement');
     },
     onError: (error) => {
       setIsSubmitting(false);
