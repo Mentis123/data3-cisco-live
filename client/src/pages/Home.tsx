@@ -58,7 +58,7 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-cool-purple/40 group-hover:shadow-[0_0_30px_rgba(115,0,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/10 via-data3-blue-black/5 to-transparent transition-colors duration-300 group-hover:from-data3-blue-black/15 group-hover:via-data3-blue-black/10 group-hover:to-data3-blue-black/5" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-cool-lilac font-semibold">Practice</span>
                     <span className="text-2xl sm:text-3xl font-bold text-data3-white drop-shadow-lg">Practice in Dojo</span>
@@ -70,7 +70,7 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-light-blue/5 via-data3-light-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-aqua/40 group-hover:shadow-[0_0_30px_rgba(0,255,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/10 via-data3-blue-black/5 to-transparent transition-colors duration-300 group-hover:from-data3-blue-black/15 group-hover:via-data3-blue-black/10 group-hover:to-data3-blue-black/5" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-aqua font-semibold">Learn</span>
                     <span className="text-2xl sm:text-3xl font-bold text-data3-white drop-shadow-lg">How it works</span>
@@ -82,7 +82,7 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-magenta/5 via-data3-magenta/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-magenta/40 group-hover:shadow-[0_0_30px_rgba(255,0,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/10 via-data3-blue-black/5 to-transparent transition-colors duration-300 group-hover:from-data3-blue-black/15 group-hover:via-data3-blue-black/10 group-hover:to-data3-blue-black/5" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-magenta font-semibold">Standings</span>
                     <span className="text-2xl sm:text-3xl font-bold text-data3-white drop-shadow-lg">View Leaderboard</span>
