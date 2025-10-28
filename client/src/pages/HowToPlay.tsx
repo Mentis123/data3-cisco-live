@@ -114,24 +114,6 @@ export default function HowToPlay() {
                 Dojo
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-data3-white/85">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-infinity text-purple-400 mt-1"></i>
-                <p>Unlimited plays, perfect for learning</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-envelope-open text-purple-400 mt-1"></i>
-                <p>No email required</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-lightbulb text-purple-400 mt-1"></i>
-                <p>See explanations after each trivia question</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-stopwatch text-purple-400 mt-1"></i>
-                <p>Manual "Continue" button between questions</p>
-              </div>
-            </CardContent>
           </Card>
           <Card className="border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 via-white/5 to-white/5 backdrop-blur shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/20">
             <CardHeader>
@@ -143,24 +125,6 @@ export default function HowToPlay() {
                 Ring
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-data3-white/85">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-envelope text-cyan-400 mt-1"></i>
-                <p>Cisco Live registered email required</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-calendar-check text-cyan-400 mt-1"></i>
-                <p>1 official run per day per category (max 5/day)</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-bolt text-cyan-400 mt-1"></i>
-                <p>Auto-advance between questions (1.4s delay)</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-ticket-alt text-cyan-400 mt-1"></i>
-                <p>Beat the Bot Bar → Earn raffle entry!</p>
-              </div>
-            </CardContent>
           </Card>
         </section>
 
