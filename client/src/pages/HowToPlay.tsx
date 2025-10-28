@@ -369,7 +369,7 @@ export default function HowToPlay() {
                       <p className="font-semibold text-white">Solution</p>
                     </div>
                     <p className="text-sm text-slate-200/85">
-                      Propose a Cisco technology that fits your category and solves the problem.
+                      Propose a Cisco technology from <strong className="text-white">your chosen category</strong> that solves the problem. The AI will guide you if your solution doesn't match.
                     </p>
                   </div>
                 </div>
@@ -616,7 +616,7 @@ export default function HowToPlay() {
                     <p className="font-semibold text-white">Match Category</p>
                   </div>
                   <p className="text-sm text-slate-200/85">
-                    Align your solution with your chosen category for better AI scoring.
+                    Your pitch MUST use your trivia category's technologies. The AI coach will redirect you if your solution doesn't fit your chosen track.
                   </p>
                 </div>
                 <div className="p-4 rounded-xl border border-pink-400/30 bg-pink-500/10">
@@ -628,6 +628,75 @@ export default function HowToPlay() {
                     Try Dojo mode with unlimited plays to learn the timing and format!
                   </p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* FAQ Section */}
+        <section>
+          <Card className="border-white/10 bg-white/5 backdrop-blur">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <i className="fas fa-question-circle text-cyan-400 text-3xl"></i>
+                <CardTitle className="text-2xl sm:text-3xl text-white">Frequently Asked Questions</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <i className="fas fa-caret-right text-cyan-400"></i>
+                  Why do I need to answer trivia questions to submit a pitch?
+                </h3>
+                <p className="text-sm text-slate-200/85 pl-6">
+                  The trivia questions level the playing field by testing baseline technical knowledge in your chosen category.
+                  Everyone—regardless of background—competes on the same knowledge foundation. Your <strong className="text-white">pitch is where you differentiate yourself</strong> by
+                  demonstrating how you'd apply that technology to solve real business problems. You can't win on trivia alone—you need both knowledge AND application.
+                </p>
+              </div>
+
+              <Separator className="bg-white/10" />
+
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <i className="fas fa-caret-right text-cyan-400"></i>
+                  Do I have to pitch a solution from the category I picked for trivia?
+                </h3>
+                <p className="text-sm text-slate-200/85 pl-6">
+                  Yes! When you select a technology category (like "Zero Trust & Secure Connectivity" or "Observability & Automation"),
+                  your pitch must propose a Cisco solution from <strong className="text-white">that same category</strong>.
+                  The AI coach actively enforces this—if your proposed solution doesn't match your chosen track, it will guide you back
+                  to category-appropriate technologies. This ensures pitches are evaluated fairly against track-specific criteria.
+                </p>
+              </div>
+
+              <Separator className="bg-white/10" />
+
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <i className="fas fa-caret-right text-cyan-400"></i>
+                  Can I just do trivia without pitching?
+                </h3>
+                <p className="text-sm text-slate-200/85 pl-6">
+                  In <strong className="text-white">Dojo (practice) mode</strong>, yes! You can practice trivia as many times as you want without submitting a pitch.
+                  However, in <strong className="text-white">Ring (official) mode</strong>, you must complete both trivia AND pitch to get a final score.
+                  Your total score (0-100) combines trivia (0-60) + pitch (0-40). You need to beat the Bot Bar threshold to earn a raffle entry.
+                </p>
+              </div>
+
+              <Separator className="bg-white/10" />
+
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <i className="fas fa-caret-right text-cyan-400"></i>
+                  What if I'm not an expert in the category I choose?
+                </h3>
+                <p className="text-sm text-slate-200/85 pl-6">
+                  That's totally fine! The trivia questions test foundational knowledge, and you get helpful hints as the timer counts down (one wrong answer
+                  disappears at 10s, and a hint appears at 5s remaining). For the pitch, the AI coach guides you through each step and helps
+                  redirect you toward category-appropriate solutions. <strong className="text-white">Practice in Dojo mode first</strong>—you'll get
+                  explanations after each trivia question and can familiarize yourself with the format risk-free.
+                </p>
               </div>
             </CardContent>
           </Card>
