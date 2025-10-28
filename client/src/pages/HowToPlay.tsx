@@ -533,13 +533,6 @@ export default function HowToPlay() {
                     </div>
                     <p>Answer in the first 5 seconds for a 12-point bonus each time.</p>
                   </div>
-                  <div className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-4">
-                    <div className="mb-2 flex items-center gap-2">
-                      <i className="fas fa-keyboard text-purple-400"></i>
-                      <p className="font-semibold text-white">Use the keyboard</p>
-                    </div>
-                    <p>Keys 1/2/3/4 for A/B/C/D + Enter to lock in faster than clicking.</p>
-                  </div>
                   <div className="rounded-xl border border-yellow-400/30 bg-yellow-500/10 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <i className="fas fa-clock text-yellow-400"></i>
