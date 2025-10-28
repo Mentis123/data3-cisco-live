@@ -37,13 +37,13 @@ export function ChatbotWidget() {
 
       {/* Expandable Panel */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
+        <DialogContent className="w-[95vw] sm:max-w-[425px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
               Share Your Feedback
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               Help us improve your experience. We read every message!
             </DialogDescription>
           </DialogHeader>

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle } from "lucide-react";
+import { FeedbackTab } from "@/components/admin/FeedbackTab";
 
 interface BetaAdminOverview {
   stats: {
@@ -842,6 +843,7 @@ export default function Admin() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="trivia">Trivia Bank</TabsTrigger>
             <TabsTrigger value="raffle">Raffle Entries</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -854,6 +856,10 @@ export default function Admin() {
 
           <TabsContent value="raffle">
             <RaffleTab />
+          </TabsContent>
+
+          <TabsContent value="feedback">
+            <FeedbackTab />
           </TabsContent>
         </Tabs>
       </div>
