@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-8 sm:px-6 sm:pt-12 lg:px-8">
-        {/* Hero Section: Data3 Logo + Beat the Bot */}
+        {/* Hero Section: Data3 Logo + Delivering the Digital Future */}
         <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
@@ -22,14 +22,14 @@ export default function Home() {
             style={{ minWidth: "60px" }}
           />
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
-            Beat the Bot
+            Delivering the Digital Future
           </h1>
         </div>
 
-        {/* "Delivering the Digital Future" Section */}
+        {/* "Beat the Bot" Section */}
         <section className="space-y-6 text-center">
           <p className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
-            Delivering the Digital Future
+            Beat the Bot
           </p>
           <div className="space-y-2">
             <p className="text-lg sm:text-xl text-data3-white/90">Practice in the dojo</p>
