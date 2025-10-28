@@ -13,7 +13,7 @@ import {
   chatSchema,
   submitSolutionSchema,
 } from "../shared/schema.js";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import path from "path";
 import { z } from "zod";
 
@@ -110,9 +110,14 @@ const submitFeedbackSchema = z.object({
   rating: z.number().min(1).max(5),
   message: z.string().min(10).max(1000),
   page: z.string(),
+  email: z.string().email().optional().or(z.literal("")),
   emailHash: z.string().optional(),
   sessionToken: z.string().optional(),
 });
+
+function hashEmail(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
 
 type MetricValueKey = "value" | "target";
 type MetricEntry<K extends MetricValueKey> = { name: string } & Record<K, string>;
@@ -954,12 +959,23 @@ export async function registerRoutes(
   app.post("/api/feedback", async (req, res) => {
     try {
       const data = submitFeedbackSchema.parse(req.body);
+
+      // Hash email if provided
+      let emailHash: string | undefined = data.emailHash;
+      if (data.email && data.email.trim() !== "") {
+        emailHash = hashEmail(data.email);
+      }
+
+      // Remove email field before storing (we only store the hash for privacy)
+      const { email, ...feedbackData } = data;
+
       const feedback = await feedbackStorage.submitFeedback({
-        ...data,
+        ...feedbackData,
+        emailHash,
         status: "pending",
       });
 
-      log(`Feedback submitted: ${feedback.id} - Rating: ${feedback.rating}/5`);
+      log(`Feedback submitted: ${feedback.id} - Rating: ${feedback.rating}/5${emailHash ? ' (with email)' : ''}`);
       res.json({ success: true, id: feedback.id });
     } catch (error) {
       log(`Error submitting feedback: ${error}`);
