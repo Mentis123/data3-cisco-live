@@ -471,6 +471,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       if (!acceptedTerms) {
         setShowTermsError(true);
         setTimeout(() => setShowTermsError(false), 3000);
+        return;
       }
       setShowOfficialRunConfirm(true);
     } else {
