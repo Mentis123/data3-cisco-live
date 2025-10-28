@@ -171,6 +171,18 @@ export const leaderboardCache = pgTable(
   }),
 );
 
+export const chatbotFeedback = pgTable("chatbot_feedback", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  emailHash: text("email_hash").references(() => users.emailHash),
+  sessionToken: text("session_token"),
+  category: text("category").notNull(),
+  rating: smallint("rating").notNull(),
+  message: text("message").notNull(),
+  page: text("page").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
 export const insertParticipantSchema = createInsertSchema(participants).omit({
   id: true,
   createdAt: true,
@@ -249,3 +261,5 @@ export type TriviaItem = typeof triviaItems.$inferSelect;
 export type CaseCard = typeof caseCards.$inferSelect;
 export type RaffleEntry = typeof raffleEntries.$inferSelect;
 export type RaffleDraw = typeof raffleDraws.$inferSelect;
+export type ChatbotFeedback = typeof chatbotFeedback.$inferSelect;
+export type InsertChatbotFeedback = typeof chatbotFeedback.$inferInsert;
