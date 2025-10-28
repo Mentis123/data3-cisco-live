@@ -18,7 +18,7 @@ export default function Home() {
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
             alt="Data#3"
-            className="h-12 w-auto sm:h-16 md:h-20"
+            className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
             style={{ minWidth: "60px" }}
           />
           <h1 className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
