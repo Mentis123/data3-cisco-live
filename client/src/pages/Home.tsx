@@ -4,10 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
-import ringImage from "@assets/ring.jpg";
-import dojoImage from "@assets/dojo.jpg";
-import leaderboardImage from "@assets/leaderboard.jpg";
-import howitworksImage from "@assets/howitworks.jpg";
+import ringImage from "@assets/ringfull.jpg";
+import dojoImage from "@assets/dojofull.jpg";
+import leaderboardImage from "@assets/leaderboardfull.jpg";
+import howitworksImage from "@assets/howitworksfull.jpg";
 
 const categories = (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
   const meta = triviaCardCategoryMeta[key];
@@ -116,7 +116,7 @@ export default function Home() {
             <Link href="/play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
-                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                     <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Play</span>
@@ -128,7 +128,7 @@ export default function Home() {
             <Link href="/dojo/trivia-cards" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
-                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                     <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Practice</span>
@@ -140,7 +140,7 @@ export default function Home() {
             <Link href="/leaderboard" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
-                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                     <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
@@ -152,7 +152,7 @@ export default function Home() {
             <Link href="/how-to-play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
-                  <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                     <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Learn</span>
@@ -267,7 +267,7 @@ export default function Home() {
           <Link href="/play" className="group">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
               <div className="relative aspect-square">
-                <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                 <div className="absolute inset-0 bg-slate-950/40" />
                 <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                   <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Play</span>
@@ -279,7 +279,7 @@ export default function Home() {
           <Link href="/dojo/trivia-cards" className="group">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
               <div className="relative aspect-square">
-                <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                 <div className="absolute inset-0 bg-slate-950/40" />
                 <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                   <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Practice</span>
@@ -291,7 +291,7 @@ export default function Home() {
           <Link href="/leaderboard" className="group">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
               <div className="relative aspect-square">
-                <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                 <div className="absolute inset-0 bg-slate-950/40" />
                 <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                   <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
@@ -303,7 +303,7 @@ export default function Home() {
           <Link href="/how-to-play" className="group">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
               <div className="relative aspect-square">
-                <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-contain opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                 <div className="absolute inset-0 bg-slate-950/40" />
                 <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                   <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Learn</span>
