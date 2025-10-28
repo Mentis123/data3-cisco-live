@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +61,11 @@ const scoringTiers = [
 ];
 
 export default function HowToPlay() {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">

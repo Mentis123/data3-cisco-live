@@ -50,6 +50,11 @@ type PlayContentProps = {
 };
 
 export function PlayContent({ variant = "classic" }: PlayContentProps) {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { state, dispatch } = useSprint();

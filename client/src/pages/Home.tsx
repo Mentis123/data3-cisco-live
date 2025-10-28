@@ -14,49 +14,42 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-8 sm:px-6 sm:pt-12 lg:px-8">
-        {/* Data#3 Logo */}
-        <div className="flex justify-center">
+        {/* Hero Section: Data3 Logo + Beat the Bot */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
             alt="Data#3"
             className="h-16 w-auto sm:h-20 md:h-24"
             style={{ minWidth: '72px' }}
           />
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
+            Beat the Bot
+          </h1>
         </div>
 
-        {/* Hero Section with Left Image Layout */}
-        <HeroSection
-          title="Data3 – Beat the Bot"
-          subtitle=""
-          image={ringImage}
-          layout="centered"
-          textContrast="lightOnDark"
-          className="text-center"
-        />
-
-        {/* Mission Blurb - Claude: Three-line mission statement as specified in brief */}
-        <section className="text-center">
-          <p className="text-lg sm:text-xl text-data3-white/90 leading-relaxed">
-            Practice in the Dojo.<br />
-            Enter the Ring up to five times per day.<br />
-            Every win is a raffle entry.
+        {/* "Delivering the Digital Future" Section */}
+        <section className="space-y-6 text-center">
+          <p className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
+            Delivering the Digital Future
           </p>
+          <div className="space-y-2">
+            <p className="text-lg sm:text-xl text-data3-white/90">Practice in the dojo</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Enter the ring up to five times per day, once per category</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry</p>
+          </div>
         </section>
 
         {/* Hero Tiles Grid - Claude: Keep the 4 main navigation tiles */}
         <section className="space-y-8">
-          <p className="text-xl text-data3-pale-blue font-light tracking-wide text-center">
-            Delivering the Digital Future
-          </p>
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-light-blue/40 group-hover:shadow-[0_0_30px_rgba(0,174,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/20 via-data3-blue-black/35 to-data3-blue-black/45 transition-colors duration-300 group-hover:from-data3-blue-black/15 group-hover:via-data3-blue-black/25 group-hover:to-data3-blue-black/35" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-pale-blue font-semibold">Play</span>
-                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">Enter the Ring</span>
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-blue-black font-semibold">Play</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-blue-black drop-shadow-md">Enter the Ring</span>
                   </div>
                 </div>
               </div>
@@ -77,10 +70,10 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-light-blue/5 via-data3-light-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-aqua/40 group-hover:shadow-[0_0_30px_rgba(0,255,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/20 via-data3-blue-black/35 to-data3-blue-black/45 transition-colors duration-300 group-hover:from-data3-blue-black/15 group-hover:via-data3-blue-black/25 group-hover:to-data3-blue-black/35" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-aqua/90 font-semibold">Learn</span>
-                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">How it works</span>
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-blue-black font-semibold">Learn</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-blue-black drop-shadow-md">How it works</span>
                   </div>
                 </div>
               </div>
@@ -98,6 +91,81 @@ export default function Home() {
               </div>
             </Link>
           </div>
+        </section>
+
+        {/* Steps Section */}
+        <section className="space-y-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center text-data3-white">
+            Three Moves to Enter
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-white text-2xl font-bold">
+                1
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 1</h3>
+              <p className="text-xl sm:text-2xl text-data3-white/90">Answer five trivia</p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-white text-2xl font-bold">
+                2
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 2</h3>
+              <p className="text-xl sm:text-2xl text-data3-white/90">Pitch your project</p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white text-2xl font-bold">
+                3
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 3</h3>
+              <p className="text-xl sm:text-2xl text-data3-white/90">Beat the bot, earn a raffle entry</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Badge Check-in Section */}
+        <section className="space-y-6 max-w-3xl mx-auto">
+          <div className="text-center space-y-4 p-8 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
+            <h2 className="text-2xl sm:text-3xl font-bold text-data3-white">
+              Data3 Solution Sprint Ring
+            </h2>
+            <p className="text-lg text-data3-white/90">
+              Check-in with your Cisco Live badge name and email
+            </p>
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <input type="checkbox" id="terms" className="h-4 w-4" />
+              <label htmlFor="terms" className="text-sm text-data3-white/90">
+                I accept the{" "}
+                <a
+                  href="https://data3.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-data3-light-blue hover:text-data3-aqua underline"
+                >
+                  terms and conditions
+                </a>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        {/* Solution Sprint Rhythm */}
+        <section className="space-y-6 max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-data3-white">
+            Solution Sprint Rhythm
+          </h2>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-lg sm:text-xl text-data3-white/90">
+            <span>Name the problem</span>
+            <span className="hidden sm:inline">•</span>
+            <span>Quantify the impact</span>
+            <span className="hidden sm:inline">•</span>
+            <span>Review and submit</span>
+          </div>
+        </section>
+
+        {/* Bottom Info Section */}
+        <section className="space-y-4 text-center text-sm text-data3-white/70 border-t border-data3-pale-blue/20 pt-8">
+          <p>Official Leaderboard • Beat the Bot Challenge • Expo Ready Flow • Verified Entries</p>
         </section>
 
         {/* Data#3 Branded Footer */}

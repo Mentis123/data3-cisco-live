@@ -57,6 +57,11 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
 };
 
 export default function Leaderboard() {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [activeView, setActiveView] = useState<"leaderboard" | "wordcloud" | "categories" | "data3stats">("data3stats");
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
 
