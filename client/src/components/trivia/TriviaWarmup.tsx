@@ -284,7 +284,7 @@ export function TriviaWarmup({
           <p className="text-xs uppercase tracking-[0.35em] text-slate-300/70">Choose your track</p>
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
-            Pick the architecture you want to drill. Each warm-up pulls curated Data#3 trivia from the live question set for
+            Pick the architecture you want to drill. {mode === "ring" ? "Each deck pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set for
             that track.
           </p>
           {isCategoriesError && (
@@ -304,7 +304,7 @@ export function TriviaWarmup({
               ? "Deck counts unavailable — jump in"
               : isLoadingCategories
               ? "Loading question counts…"
-              : "Warm-up deck ready";
+              : mode === "ring" ? "Trivia deck ready" : "Warm-up deck ready";
 
             return (
               <button
@@ -322,7 +322,9 @@ export function TriviaWarmup({
                   />
                   <div>
                     <p className="text-base font-semibold text-white">{track.name}</p>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">Trivia warm-up</p>
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">
+                      {mode === "ring" ? "Official trivia" : "Trivia warm-up"}
+                    </p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm text-slate-200/80">{track.description}</p>
@@ -339,7 +341,9 @@ export function TriviaWarmup({
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-3">
-          <CardTitle className="text-2xl font-semibold">Loading warm-up decks…</CardTitle>
+          <CardTitle className="text-2xl font-semibold">
+            {mode === "ring" ? "Loading trivia decks…" : "Loading warm-up decks…"}
+          </CardTitle>
           <p className="text-sm text-slate-300/80">Gathering the latest trivia tracks from the question set.</p>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-center gap-4">
@@ -374,7 +378,9 @@ export function TriviaWarmup({
             </Badge>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Loading deck</p>
           </div>
-          <CardTitle className="text-2xl font-semibold">Building your warm-up</CardTitle>
+          <CardTitle className="text-2xl font-semibold">
+            {mode === "ring" ? "Building your trivia deck" : "Building your warm-up"}
+          </CardTitle>
           <p className="text-sm text-slate-300/80">
             Pulling a new random mix of questions for {selectedTrack.name}. This only takes a moment.
           </p>
