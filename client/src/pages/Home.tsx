@@ -12,7 +12,7 @@ import howitworksImage from "@assets/howitworksfull.jpg";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-8 sm:px-6 sm:pt-12 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8">
         {/* Hero Section: Data3 Logo + Delivering the Digital Future */}
         <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
           <img
@@ -21,14 +21,14 @@ export default function Home() {
             className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
             style={{ minWidth: "60px" }}
           />
-          <h1 className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
+          <h1 className="text-2xl sm:text-3xl text-data3-white font-light tracking-wide">
             Delivering the Digital Future
           </h1>
         </div>
 
         {/* "Beat the Bot" Section */}
-        <section className="space-y-6 text-center my-12">
-          <p className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-data3-white">
+        <section className="space-y-6 text-center">
+          <p className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-data3-pale-blue">
             Beat the Bot
           </p>
           <div className="space-y-2">
