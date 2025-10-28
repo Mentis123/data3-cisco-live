@@ -105,20 +105,9 @@ export default function Home() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-center gap-1">
-              <h1 className="text-balance text-4xl font-bold leading-tight sm:text-5xl md:text-6xl text-data3-white">
-                Beat the Bot
-              </h1>
-              <Link href="/admin">
-                <button
-                  className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
-                  aria-label="Admin"
-                  data-testid="button-secret-admin"
-                >
-                  •
-                </button>
-              </Link>
-            </div>
+            <h1 className="text-balance text-4xl font-bold leading-tight sm:text-5xl md:text-6xl text-data3-white">
+              Beat the Bot
+            </h1>
             <p className="text-xl text-data3-pale-blue font-light tracking-wide">
               Delivering the Digital Future
             </p>
@@ -281,11 +270,22 @@ export default function Home() {
         <footer className="border-t border-data3-pale-blue/20 pt-12 mt-8">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="space-y-4">
-              <img
-                src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-                alt="Data#3"
-                className="h-12 w-auto"
-              />
+              <div className="flex items-center gap-2">
+                <img
+                  src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+                  alt="Data#3"
+                  className="h-12 w-auto"
+                />
+                <Link href="/admin">
+                  <button
+                    className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
+                    aria-label="Admin"
+                    data-testid="button-secret-admin"
+                  >
+                    •
+                  </button>
+                </Link>
+              </div>
               <p className="text-sm text-data3-pale-blue">
                 <Data3Logo className="font-semibold" /> - Delivering the Digital Future
               </p>
