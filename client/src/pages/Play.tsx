@@ -41,7 +41,6 @@ import {
   isTriviaCardCategory,
 } from "@/data/triviaCards";
 import { TriviaWarmup } from "@/components/trivia";
-import { Data3Logo } from "@/components/Data3Logo";
 
 type PlayVariant = "classic" | "ring";
 
@@ -472,7 +471,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       if (!acceptedTerms) {
         setShowTermsError(true);
         setTimeout(() => setShowTermsError(false), 3000);
-        return;
       }
       setShowOfficialRunConfirm(true);
     } else {
@@ -491,19 +489,40 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[1.25fr_1fr]">
-            <div className="space-y-6">
-              <div className="flex flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
-                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-                  Official Attempt
-                </div>
-                {triviaScore !== null && (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
-                    <i className="fas fa-check-circle"></i>
-                    Trivia: {triviaScore}/60
-                  </div>
-                )}
+            <div className="space-y-8">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-left">
+                <img
+                  src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+                  alt="Data#3"
+                  className="h-12 w-auto sm:h-16 md:h-20"
+                />
+                <h2 className="text-3xl font-bold text-white sm:text-4xl md:text-5xl">
+                  Delivering the Digital Future
+                </h2>
               </div>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-28 sm:w-28">
+                  <img
+                    src={ringFullImage}
+                    alt="Data#3 Solution Sprint Ring"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
+                    <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+                    Official Attempt
+                  </div>
+                  {triviaScore !== null && (
+                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
+                      <i className="fas fa-check-circle"></i>
+                      Trivia: {triviaScore}/60
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
                   Enter the Data#3 Solution Sprint ring
@@ -512,41 +531,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
                 </p>
               </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  onClick={() => setLocation(exitDestination)}
-                  className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                >
-                  <i className="fas fa-arrow-left mr-2"></i>
-                  Back to home
-                </Button>
-                <Button
-                  onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
-                  size="lg"
-                  className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
-                  data-testid="button-start-chat"
-                >
-                  {startSessionMutation.isPending ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950" />
-                      Spinning up coach...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-bolt mr-2"></i>
-                      Enter the ring
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              <p className="text-sm text-slate-300/80">
-                Tip: Shift + Enter adds a new line. You can also type <code className="rounded bg-white/10 px-1 py-0.5 text-xs">submit</code> to jump straight to final review.
-              </p>
             </div>
 
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
@@ -634,7 +618,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   {showTermsError && (
                     <p className="text-destructive text-sm flex items-center">
                       <i className="fas fa-exclamation-circle mr-1"></i>
-                      Please accept the Terms & Conditions to proceed
+                      Please review the Terms & Conditions before you start
                     </p>
                   )}
                 </div>
@@ -656,6 +640,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       Enter the ring
                     </>
                   )}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => setLocation(exitDestination)}
+                  className="w-full border border-white/10 bg-transparent text-slate-200 hover:bg-white/10"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i>
+                  Back to home
                 </Button>
 
                 <p className="text-xs text-center text-slate-400">
