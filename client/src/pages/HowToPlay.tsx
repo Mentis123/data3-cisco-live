@@ -68,7 +68,7 @@ export default function HowToPlay() {
             <img
               src={howitworksFullImage}
               alt="How to Play"
-              className="h-32 w-32 rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
+              className="max-h-64 w-auto rounded-2xl object-contain shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
             />
           </div>
           <div className="space-y-4">
