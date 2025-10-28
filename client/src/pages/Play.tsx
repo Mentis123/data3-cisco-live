@@ -488,25 +488,6 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   // Registration view
   if (!registrationComplete) {
     if (isRing) {
-      const ringHighlights = [
-        {
-          title: "Official leaderboard run",
-          copy: "Every answer counts toward Beat the Bot standings — this is your sanctioned attempt.",
-        },
-        {
-          title: "Beat the Bot challenge",
-          copy: "Sprint Coach guides three decisive replies before the bot locks and scores your solution.",
-        },
-        {
-          title: "Expo-ready flow",
-          copy: "Large tap targets, high contrast screens and shortcuts keep the queue moving at the stand.",
-        },
-        {
-          title: "Verified entries",
-          copy: "Badge name and email confirm your Meta AI Glasses raffle eligibility the moment you submit.",
-        },
-      ];
-
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[1.25fr_1fr]">
@@ -528,23 +509,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   Enter the Data#3 Solution Sprint ring
                 </h1>
                 <p className="max-w-2xl text-pretty text-lg text-slate-200">
-                  Check in with your Cisco Live badge name and email, then face the Sprint Coach for your official Beat the Bot attempt. Lock the problem, quantify the impact and submit for instant scoring.
+                  Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
                 </p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                {ringHighlights.map((item) => (
-                  <Card key={item.title} className="border-white/10 bg-white/5 backdrop-blur-xl">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-semibold text-white/90">
-                        {item.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-slate-200/90 leading-snug">
-                      {item.copy}
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
 
               <div className="flex flex-wrap gap-3">
@@ -640,41 +606,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-lg text-emerald-300">
-                      <i className="fas fa-clock"></i>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white">Sprint rhythm</p>
-                      <p className="text-xs text-slate-300/90">3 guided replies • 6 input maximum • Instant score</p>
-                    </div>
-                  </div>
-                  <ol className="space-y-2 text-sm leading-snug text-slate-200/80">
-                    <li>
-                      <span className="font-semibold text-emerald-300">1.</span> Name the problem – what&apos;s breaking flow?
-                    </li>
-                    <li>
-                      <span className="font-semibold text-emerald-300">2.</span> Quantify impact – time, cost or risk in play.
-                    </li>
-                    <li>
-                      <span className="font-semibold text-emerald-300">3.</span> Review &amp; submit – lock targets then compete.
-                    </li>
-                  </ol>
-                </div>
-
                 {/* Terms & Conditions */}
                 <div className={`rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200 space-y-3 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
-                  <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                    <i className="fas fa-shield-alt text-emerald-300"></i>
-                    Terms & Conditions
-                  </h4>
-                  <ul className="space-y-1.5 text-sm leading-relaxed text-slate-200/80 list-disc list-inside">
-                    <li>Playing means you accept the Data<sup className="text-primary">#</sup>3 privacy notice and Cisco Live terms.</li>
-                    <li>The leaderboard only shows your first name and last initial.</li>
-                    <li>An AI judge scores every submission, and Data<sup className="text-primary">#</sup>3 may reuse standout entries for demonstrations.</li>
-                    <li>Data<sup className="text-primary">#</sup>3 employees and their families are not eligible for prizes.</li>
-                  </ul>
                   <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">
                     <Checkbox
                       checked={acceptedTerms}
@@ -686,7 +619,16 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       data-testid="checkbox-accept-terms"
                     />
                     <span className={`text-sm leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : 'text-slate-200/90'}`}>
-                      I accept these terms, including the privacy notice, and confirm my entry matches my Cisco Live badge details.
+                      I agree to the{' '}
+                      <a
+                        href="https://www.data3.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline decoration-dotted underline-offset-4 text-emerald-300 hover:text-emerald-200"
+                      >
+                        Terms &amp; Conditions
+                      </a>{' '}
+                      and confirm my entry matches my Cisco Live badge details.
                     </span>
                   </label>
                   {showTermsError && (
