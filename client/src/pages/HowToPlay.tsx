@@ -69,20 +69,25 @@ export default function HowToPlay() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
-          <img
-            src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-            alt="Data#3"
-            className="h-12 w-auto sm:h-16 md:h-20"
-            style={{ minWidth: "60px" }}
-          />
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
-            Delivering the Digital Future
-          </h1>
+        <div className="flex flex-col gap-4 text-left sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <img
+              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+              alt="Data#3"
+              className="h-12 w-auto sm:h-16 md:h-20"
+              style={{ minWidth: "60px" }}
+            />
+            <h1 className="text-3xl font-semibold text-data3-white sm:text-4xl md:text-5xl">
+              Delivering the Digital Future
+            </h1>
+          </div>
+          <Badge className="w-fit rounded-full bg-emerald-400/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
+            Learn
+          </Badge>
         </div>
 
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-start">
-          <div className="flex items-start gap-4">
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
+          <div className="flex items-center justify-start gap-4">
             <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
               <img
                 src={howitworksFullImage}
@@ -90,15 +95,9 @@ export default function HowToPlay() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <Badge className="mt-2 h-fit rounded-full bg-emerald-400/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
-              Learn
-            </Badge>
           </div>
           <div className="space-y-4 text-left sm:max-w-2xl">
             <h2 className="text-4xl font-semibold sm:text-5xl">How to Play – Beat the Bot</h2>
-            <p className="text-base text-data3-white/80 sm:text-lg">
-              Choose a category, race through 5 trivia questions, and pitch your solution. Beat the Bot Bar to earn raffle entries for Meta AI Glasses and climb the live leaderboard.
-            </p>
           </div>
         </div>
 
@@ -114,24 +113,6 @@ export default function HowToPlay() {
                 Dojo
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-data3-white/85">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-infinity text-purple-400 mt-1"></i>
-                <p>Unlimited plays, perfect for learning</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-envelope-open text-purple-400 mt-1"></i>
-                <p>No email required</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-lightbulb text-purple-400 mt-1"></i>
-                <p>See explanations after each trivia question</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-stopwatch text-purple-400 mt-1"></i>
-                <p>Manual "Continue" button between questions</p>
-              </div>
-            </CardContent>
           </Card>
           <Card className="border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 via-white/5 to-white/5 backdrop-blur shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/20">
             <CardHeader>
@@ -143,24 +124,6 @@ export default function HowToPlay() {
                 Ring
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-data3-white/85">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-envelope text-cyan-400 mt-1"></i>
-                <p>Cisco Live registered email required</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-calendar-check text-cyan-400 mt-1"></i>
-                <p>1 official run per day per category (max 5/day)</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-bolt text-cyan-400 mt-1"></i>
-                <p>Auto-advance between questions (1.4s delay)</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <i className="fas fa-ticket-alt text-cyan-400 mt-1"></i>
-                <p>Beat the Bot Bar → Earn raffle entry!</p>
-              </div>
-            </CardContent>
           </Card>
         </section>
 
