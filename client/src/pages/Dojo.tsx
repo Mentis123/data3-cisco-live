@@ -68,14 +68,22 @@ export default function Dojo({ params }: DojoRouteProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
-          {/* Hero Section - Claude: Using new HeroSection component with left image layout */}
-          <HeroSection
-            title="Dojo Trivia Card Drills"
-            subtitle="Pick your technology track"
-            image={dojoFullImage}
-            layout="leftImage"
-            textContrast="lightOnDark"
-          />
+          {/* Hero Section: Dojo icon + Title */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            <img
+              src={dojoFullImage}
+              alt="Dojo"
+              className="h-24 w-24 sm:h-32 sm:w-32 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
+            />
+            <div className="flex-1 space-y-3 text-center sm:text-left">
+              <h1 className="text-4xl sm:text-5xl font-semibold text-data3-white">
+                Warm Up
+              </h1>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-data3-white">
+                Trivia Card Drills
+              </h2>
+            </div>
+          </div>
 
           <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
 
