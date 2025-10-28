@@ -21,14 +21,14 @@ export default function Home() {
             className="h-12 w-auto sm:h-16 md:h-20"
             style={{ minWidth: "60px" }}
           />
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
+          <h1 className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
             Delivering the Digital Future
           </h1>
         </div>
 
         {/* "Beat the Bot" Section */}
         <section className="space-y-6 text-center">
-          <p className="text-2xl sm:text-3xl text-data3-pale-blue font-light tracking-wide">
+          <p className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
             Beat the Bot
           </p>
           <div className="space-y-2">
