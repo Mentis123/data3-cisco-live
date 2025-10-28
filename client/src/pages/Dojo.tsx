@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
+import { HeroSection } from "@/components/HeroSection";
 import NotFound from "@/pages/not-found";
 import dojoFullImage from "@assets/dojofull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
@@ -57,24 +59,25 @@ export default function Dojo({ params }: DojoRouteProps) {
     return <NotFound />;
   }
 
+  // Claude: Scroll to top on page load to avoid offset anchors
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [mode]);
+
   if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-            <img
-              src={dojoFullImage}
-              alt="Dojo"
-              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
-            />
-            <div className="flex-1 space-y-4 text-center sm:text-left">
-              <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
-              <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
-              <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-                Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using <span className="font-semibold text-white">that track's technologies</span> for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out.
-              </p>
-            </div>
-          </div>
+          {/* Hero Section - Claude: Using new HeroSection component with left image layout */}
+          <HeroSection
+            title="Dojo Trivia Card Drills"
+            subtitle="Pick your technology track"
+            image={dojoFullImage}
+            layout="leftImage"
+            textContrast="lightOnDark"
+          />
+
+          <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
 
           <TriviaWarmup mode="dojo" className="h-full" />
 
@@ -90,6 +93,13 @@ export default function Dojo({ params }: DojoRouteProps) {
               </Button>
             </Link>
           </div>
+
+          {/* Full Description at Bottom - Claude: Moved to bottom as per UX brief */}
+          <section role="note" className="mt-8 p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur">
+            <p className="text-base text-data3-white/80 leading-relaxed">
+              Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using <span className="font-semibold text-white">that track's technologies</span> for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out.
+            </p>
+          </section>
         </div>
       </div>
     );

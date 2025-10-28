@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { HeroSection } from "@/components/HeroSection";
 import howitworksFullImage from "@assets/howitworksfull.jpg";
 import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
@@ -62,28 +63,14 @@ export default function HowToPlay() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <section className="space-y-6 text-center">
-          <div className="flex justify-center mb-6">
-            <img
-              src={howitworksFullImage}
-              alt="How to Play"
-              className="max-h-64 w-auto rounded-2xl object-contain shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
-            />
-          </div>
-          <div className="space-y-4">
-            <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-              How to Play
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mt-2">
-                Beat the Bot
-              </span>
-            </h1>
-            <p className="mx-auto max-w-3xl text-pretty text-lg text-data3-white/85 sm:text-xl">
-              Choose a category. Answer 5 trivia questions. Pitch your business solution.
-              Beat the Bot Bar and earn a raffle entry for Meta AI Glasses!
-            </p>
-          </div>
-        </section>
+        {/* Hero Section - Claude: Using new HeroSection component for Learn page */}
+        <HeroSection
+          title="How to Play – Beat the Bot"
+          subtitle="Choose a category. Answer 5 trivia questions. Pitch your business solution. Beat the Bot Bar and earn a raffle entry for Meta AI Glasses!"
+          image={howitworksFullImage}
+          layout="leftImage"
+          textContrast="lightOnDark"
+        />
 
         {/* Game Modes */}
         <section className="grid gap-6 sm:grid-cols-2">
