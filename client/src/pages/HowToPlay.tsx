@@ -86,7 +86,7 @@ export default function HowToPlay() {
           </Badge>
         </div>
 
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
+        <div className="flex flex-row flex-wrap items-start gap-6">
           <div className="flex items-center justify-start gap-4">
             <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
               <img
@@ -100,32 +100,6 @@ export default function HowToPlay() {
             <h2 className="text-4xl font-semibold sm:text-5xl">How to Play – Beat the Bot</h2>
           </div>
         </div>
-
-        {/* Game Modes */}
-        <section className="grid gap-6 sm:grid-cols-2">
-          <Card className="border-white/10 bg-gradient-to-br from-purple-500/20 via-white/5 to-white/5 backdrop-blur shadow-lg shadow-purple-500/10">
-            <CardHeader>
-              <Badge variant="outline" className="w-fit border-purple-300/40 text-xs uppercase tracking-[0.3em] text-purple-200">
-                Practice Mode
-              </Badge>
-              <CardTitle className="text-2xl text-white flex items-center gap-2">
-                <i className="fas fa-graduation-cap text-purple-400"></i>
-                Dojo
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 via-white/5 to-white/5 backdrop-blur shadow-xl shadow-cyan-500/20 ring-2 ring-cyan-400/20">
-            <CardHeader>
-              <Badge variant="outline" className="w-fit border-cyan-300/60 text-xs uppercase tracking-[0.3em] text-cyan-200 bg-cyan-500/20">
-                Official Mode
-              </Badge>
-              <CardTitle className="text-2xl text-white flex items-center gap-2">
-                <i className="fas fa-trophy text-cyan-400"></i>
-                Ring
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </section>
 
 
         {/* Playbook accordion */}
