@@ -20,6 +20,10 @@ interface SubmissionData {
     confidence: number;
   };
   createdAt: string;
+  botBar?: number;
+  isEligible?: boolean;
+  raffleEntered?: boolean;
+  alreadyEntered?: boolean;
 }
 
 interface NewSubmissionAnnouncementProps {
@@ -194,10 +198,73 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               </Card>
             </div>
 
+            {/* Beat the Bot & Raffle Status */}
+            {submission.botBar !== undefined && (
+              <div className="announcement-slide-up" style={{ animationDelay: '1.1s' }}>
+                <Card className={`glass-panel border-2 max-w-4xl mx-auto ${
+                  submission.isEligible ? 'border-green-500/50 bg-green-500/10' : 'border-orange-500/50 bg-orange-500/10'
+                }`}>
+                  <CardContent className="p-8">
+                    <div className="text-center space-y-4">
+                      {submission.isEligible ? (
+                        <>
+                          <div className="flex items-center justify-center gap-4 mb-4">
+                            <i className="fas fa-check-circle text-5xl text-green-400"></i>
+                            <h3 className="text-4xl md:text-5xl font-black text-green-400">
+                              YOU BEAT THE BOT!
+                            </h3>
+                          </div>
+                          <p className="text-xl md:text-2xl text-white/90">
+                            Your score of <span className="font-bold text-green-400">{submission.totalScore}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
+                          </p>
+                          {submission.raffleEntered && (
+                            <div className="mt-6 pt-6 border-t border-green-500/30">
+                              <div className="flex items-center justify-center gap-3 mb-2">
+                                <i className="fas fa-ticket-alt text-4xl text-yellow-400"></i>
+                                <h4 className="text-3xl md:text-4xl font-bold text-yellow-400">
+                                  RAFFLE ENTRY CONFIRMED!
+                                </h4>
+                              </div>
+                              <p className="text-lg md:text-xl text-white/80">
+                                You've been entered into today's raffle for this category!
+                              </p>
+                            </div>
+                          )}
+                          {submission.alreadyEntered && (
+                            <div className="mt-6 pt-6 border-t border-green-500/30">
+                              <p className="text-lg md:text-xl text-white/70">
+                                <i className="fas fa-info-circle mr-2"></i>
+                                You were already entered in this category's raffle today
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-center gap-4 mb-4">
+                            <i className="fas fa-robot text-5xl text-orange-400"></i>
+                            <h3 className="text-4xl md:text-5xl font-black text-orange-400">
+                              BOT BAR NOT BEATEN
+                            </h3>
+                          </div>
+                          <p className="text-xl md:text-2xl text-white/90">
+                            Your score of <span className="font-bold">{submission.totalScore}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
+                          </p>
+                          <p className="text-lg md:text-xl text-white/70 mt-4">
+                            Try again to beat the bot and enter the raffle!
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {/* Category Display */}
-            <div className="announcement-slide-up" style={{ animationDelay: '1.1s' }}>
+            <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
               <Card className="glass-panel border-2 max-w-4xl mx-auto"
-                    style={{ 
+                    style={{
                       borderColor: categoryColor,
                       backgroundColor: `${categoryColor}15`
                     }}>
@@ -210,15 +277,15 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                            style={{ color: categoryColor }}></i>
                       </div>
                     </div>
-                    
-                    <Badge 
-                      variant="secondary" 
+
+                    <Badge
+                      variant="secondary"
                       className="text-2xl md:text-3xl px-8 py-4 mb-4 text-white font-bold"
                       style={{ backgroundColor: categoryColor }}
                     >
                       {categoryName}
                     </Badge>
-                    
+
                     <p className="text-xl md:text-2xl text-white/80">
                       Solution category automatically assigned based on content analysis
                     </p>
@@ -229,7 +296,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Subscore Breakdown */}
             {submission.subScores && (
-              <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
+              <div className="announcement-slide-up" style={{ animationDelay: '1.7s' }}>
                 <Card className="glass-panel border border-primary/20 max-w-5xl mx-auto">
                   <CardContent className="p-6">
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
@@ -239,7 +306,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       {Object.entries(submission.subScores).map(([key, value], index) => (
                         <div key={key} className="text-center announcement-subscore-pop"
-                             style={{ animationDelay: `${1.6 + index * 0.1}s` }}>
+                             style={{ animationDelay: `${1.9 + index * 0.1}s` }}>
                           <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
                             <p className="text-sm text-white/80 mb-2 capitalize">
                               {key.replace(/_/g, ' ')}
@@ -257,7 +324,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             )}
 
             {/* Action Buttons */}
-            <div className="announcement-slide-up" style={{ animationDelay: '1.8s' }}>
+            <div className="announcement-slide-up" style={{ animationDelay: '2.1s' }}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button
                   onClick={() => setLocation('/leaderboard')}

@@ -566,6 +566,7 @@ export async function registerRoutes(
         subscores: evaluation.subscores,
         evaluationNotes: evaluation.notes_short,
         rank: targetRank || leaderboard.length + 1,
+        category,
         botBar,
         isEligible,
         raffleEntered: raffleResult?.success || false,
