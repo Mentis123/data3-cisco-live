@@ -73,9 +73,10 @@ export default function Dojo({ params }: DojoRouteProps) {
               className="h-12 w-auto sm:h-16 md:h-20"
               style={{ minWidth: "60px" }}
             />
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
-              Delivering the Digital Future
-            </h1>
+            <div className="space-y-1">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">Warm Up</h1>
+              <p className="text-lg sm:text-xl font-medium text-data3-white/80">Trivia Card Drills</p>
+            </div>
           </div>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
@@ -84,26 +85,7 @@ export default function Dojo({ params }: DojoRouteProps) {
               alt="Dojo"
               className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
             />
-            <div className="space-y-4 text-center sm:text-left">
-              <Badge className="mx-auto sm:mx-0 w-fit bg-emerald-400/20 text-emerald-200 uppercase tracking-[0.25em]">
-                {experience.status}
-              </Badge>
-              <div className="space-y-2">
-                <p className="text-sm uppercase tracking-[0.3em] text-emerald-200/80">Practice</p>
-                <h2 className="text-4xl sm:text-5xl font-semibold text-data3-white">Warm Up</h2>
-                <h3 className="text-2xl sm:text-3xl font-semibold text-data3-white/90">Trivia Card Drills</h3>
-              </div>
-            </div>
           </div>
-
-          <section className="space-y-4 text-center">
-            <p className="text-2xl sm:text-3xl text-emerald-200 font-light tracking-wide">Warm Up Trivia Card Drills</p>
-            <div className="space-y-2 text-lg sm:text-xl text-data3-white/90">
-              <p>Run the official five-question round without the pressure.</p>
-              <p>Pick your Cisco architecture tile and master the countdown.</p>
-              <p>Bank confidence before you enter the ring.</p>
-            </div>
-          </section>
 
           <TriviaWarmup mode="dojo" className="h-full" />
 
