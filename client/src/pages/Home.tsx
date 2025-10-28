@@ -27,8 +27,8 @@ export default function Home() {
         </div>
 
         {/* "Beat the Bot" Section */}
-        <section className="space-y-6 text-center">
-          <p className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
+        <section className="space-y-6 text-center my-12">
+          <p className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-data3-white">
             Beat the Bot
           </p>
           <div className="space-y-2">
