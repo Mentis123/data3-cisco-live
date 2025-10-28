@@ -60,7 +60,7 @@ const scoringTiers = [
 
 export default function HowToPlay() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <section className="space-y-6 text-center">
@@ -78,7 +78,7 @@ export default function HowToPlay() {
                 Beat the Bot
               </span>
             </h1>
-            <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 sm:text-xl">
+            <p className="mx-auto max-w-3xl text-pretty text-lg text-data3-white/85 sm:text-xl">
               Choose a category. Answer 5 trivia questions. Pitch your business solution.
               Beat the Bot Bar and earn a raffle entry for Meta AI Glasses!
             </p>
@@ -97,7 +97,7 @@ export default function HowToPlay() {
                 Dojo
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-200/85">
+            <CardContent className="space-y-3 text-sm text-data3-white/85">
               <div className="flex items-start gap-2">
                 <i className="fas fa-infinity text-purple-400 mt-1"></i>
                 <p>Unlimited plays, perfect for learning</p>
@@ -126,7 +126,7 @@ export default function HowToPlay() {
                 Ring
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-200/85">
+            <CardContent className="space-y-3 text-sm text-data3-white/85">
               <div className="flex items-start gap-2">
                 <i className="fas fa-envelope text-cyan-400 mt-1"></i>
                 <p>Cisco Live registered email required</p>
@@ -152,7 +152,7 @@ export default function HowToPlay() {
           <div className="space-y-3 text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-400/70">Step-by-step</p>
             <h2 className="text-3xl font-semibold sm:text-4xl">Your Path to Victory</h2>
-            <p className="text-slate-200/70">Follow these steps to beat the bot and win</p>
+            <p className="text-data3-white/70">Follow these steps to beat the bot and win</p>
           </div>
           <div className="space-y-8">
             {/* Step 1: Pick Category */}
@@ -167,7 +167,7 @@ export default function HowToPlay() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-slate-200/85">Pick one of five business challenge categories that matches your expertise or interest:</p>
+                <p className="text-data3-white/85">Pick one of five business challenge categories that matches your expertise or interest:</p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {categories.map((category) => (
                     <div
@@ -183,7 +183,7 @@ export default function HowToPlay() {
                         />
                         <p className="font-semibold text-white">{category.title}</p>
                       </div>
-                      <p className="text-xs text-slate-300/70">{category.copy}</p>
+                      <p className="text-xs text-data3-white/70">{category.copy}</p>
                     </div>
                   ))}
                 </div>
@@ -200,7 +200,7 @@ export default function HowToPlay() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-white font-bold">2</span>
                   Answer 5 Trivia Questions
                 </CardTitle>
-                <p className="text-sm text-slate-200/80 mt-2">
+                <p className="text-sm text-data3-white/80 mt-2">
                   <i className="fas fa-clock text-cyan-400 mr-2"></i>
                   15 seconds per question • 4 answer options (A/B/C/D) • Speed matters!
                 </p>
@@ -277,7 +277,7 @@ export default function HowToPlay() {
                         <div className="flex-shrink-0 w-20 font-mono font-bold text-cyan-300">
                           {item.label}
                         </div>
-                        <div className="flex-1 text-slate-200/85">{item.description}</div>
+                        <div className="flex-1 text-data3-white/85">{item.description}</div>
                         <div className="flex-shrink-0 w-16 text-right font-semibold text-white">
                           {item.points}
                         </div>
@@ -295,19 +295,19 @@ export default function HowToPlay() {
                     <p className="text-sm font-semibold text-white">Pro Tips:</p>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <div className="flex items-start gap-2 text-sm text-slate-200/85">
+                    <div className="flex items-start gap-2 text-sm text-data3-white/85">
                       <i className="fas fa-keyboard text-purple-400 mt-1 flex-shrink-0"></i>
                       <p>Use keyboard: 1/2/3/4 for A/B/C/D, Enter to confirm</p>
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-slate-200/85">
+                    <div className="flex items-start gap-2 text-sm text-data3-white/85">
                       <i className="fas fa-eye-slash text-purple-400 mt-1 flex-shrink-0"></i>
                       <p>At 10s: One wrong answer disappears</p>
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-slate-200/85">
+                    <div className="flex items-start gap-2 text-sm text-data3-white/85">
                       <i className="fas fa-comment-dots text-purple-400 mt-1 flex-shrink-0"></i>
                       <p>At 5s remaining: Hint appears</p>
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-slate-200/85">
+                    <div className="flex items-start gap-2 text-sm text-data3-white/85">
                       <i className="fas fa-book-open text-purple-400 mt-1 flex-shrink-0"></i>
                       <p>Dojo mode: See explanations after each answer</p>
                     </div>
@@ -326,13 +326,13 @@ export default function HowToPlay() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white font-bold">3</span>
                   Pitch Your Solution
                 </CardTitle>
-                <p className="text-sm text-slate-200/80 mt-2">
+                <p className="text-sm text-data3-white/80 mt-2">
                   <i className="fas fa-comments text-purple-400 mr-2"></i>
                   AI-guided conversation • 3 simple steps • Worth up to 40 points
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-slate-200/85">
+                <p className="text-data3-white/85">
                   After trivia, you'll pitch your business solution through a guided conversation with our AI:
                 </p>
 
@@ -344,7 +344,7 @@ export default function HowToPlay() {
                       </div>
                       <p className="font-semibold text-white">Problem</p>
                     </div>
-                    <p className="text-sm text-slate-200/85">
+                    <p className="text-sm text-data3-white/85">
                       What business challenge are you facing? Be specific about the pain point.
                     </p>
                   </div>
@@ -356,7 +356,7 @@ export default function HowToPlay() {
                       </div>
                       <p className="font-semibold text-white">Impact</p>
                     </div>
-                    <p className="text-sm text-slate-200/85">
+                    <p className="text-sm text-data3-white/85">
                       Quantify the consequences: time, cost, people affected, frequency.
                     </p>
                   </div>
@@ -368,7 +368,7 @@ export default function HowToPlay() {
                       </div>
                       <p className="font-semibold text-white">Solution</p>
                     </div>
-                    <p className="text-sm text-slate-200/85">
+                    <p className="text-sm text-data3-white/85">
                       Propose a Cisco technology from <strong className="text-white">your chosen category</strong> that solves the problem. The AI will guide you if your solution doesn't match.
                     </p>
                   </div>
@@ -379,7 +379,7 @@ export default function HowToPlay() {
                     <i className="fas fa-robot text-purple-400 text-xl mt-1"></i>
                     <div className="space-y-2">
                       <p className="text-sm font-semibold text-white">AI Evaluation Criteria:</p>
-                      <div className="grid gap-2 sm:grid-cols-2 text-xs text-slate-200/85">
+                      <div className="grid gap-2 sm:grid-cols-2 text-xs text-data3-white/85">
                         <div className="flex items-center gap-2">
                           <i className="fas fa-check-circle text-purple-400"></i>
                           <span>Problem Clarity</span>
@@ -428,7 +428,7 @@ export default function HowToPlay() {
                       <i className="fas fa-calculator text-cyan-400 text-2xl"></i>
                       <p className="font-semibold text-white">Final Score</p>
                     </div>
-                    <div className="space-y-2 text-sm text-slate-200/85">
+                    <div className="space-y-2 text-sm text-data3-white/85">
                       <div className="flex justify-between items-center">
                         <span>Trivia Score:</span>
                         <span className="font-bold text-white">/60</span>
@@ -450,9 +450,9 @@ export default function HowToPlay() {
                       <i className="fas fa-robot text-yellow-400 text-2xl"></i>
                       <p className="font-semibold text-white">The Bot Bar</p>
                     </div>
-                    <div className="space-y-2 text-sm text-slate-200/85">
+                    <div className="space-y-2 text-sm text-data3-white/85">
                       <p>Dynamic daily threshold per category</p>
-                      <p className="text-xs text-slate-300/70">
+                      <p className="text-xs text-data3-white/70">
                         (Default: 60 points if no data yet)
                       </p>
                       <div className="mt-3 p-2 rounded-lg bg-yellow-500/20 border border-yellow-400/30">
@@ -470,7 +470,7 @@ export default function HowToPlay() {
                     <i className="fas fa-check-circle text-green-400 text-2xl"></i>
                     <div>
                       <p className="font-semibold text-white mb-2">Win Conditions:</p>
-                      <ul className="space-y-1 text-sm text-slate-200/85">
+                      <ul className="space-y-1 text-sm text-data3-white/85">
                         <li className="flex items-center gap-2">
                           <i className="fas fa-caret-right text-green-400"></i>
                           Total Score ≥ Bot Bar threshold
@@ -507,9 +507,9 @@ export default function HowToPlay() {
                   <i className="fas fa-glasses"></i>
                   Meta AI Glasses
                 </p>
-                <p className="text-sm text-slate-200/85">One pair awarded each day via random draw</p>
+                <p className="text-sm text-data3-white/85">One pair awarded each day via random draw</p>
               </div>
-              <div className="space-y-2 text-sm text-slate-200/85">
+              <div className="space-y-2 text-sm text-data3-white/85">
                 <div className="flex items-start gap-2">
                   <i className="fas fa-ticket-alt text-yellow-400 mt-1"></i>
                   <p>Every win (beat the Bot Bar) = 1 raffle entry</p>
@@ -537,7 +537,7 @@ export default function HowToPlay() {
                 <CardTitle className="text-2xl sm:text-3xl text-white">Live Leaderboard</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-200/85">
+            <CardContent className="space-y-3 text-sm text-data3-white/85">
               <p className="text-base text-white mb-3">
                 See where you rank in real-time! The leaderboard displays:
               </p>
@@ -579,7 +579,7 @@ export default function HowToPlay() {
                     <i className="fas fa-bolt text-cyan-400"></i>
                     <p className="font-semibold text-white">Speed Matters</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Answer in the first 5 seconds for maximum 12 points per question!
                   </p>
                 </div>
@@ -588,7 +588,7 @@ export default function HowToPlay() {
                     <i className="fas fa-keyboard text-purple-400"></i>
                     <p className="font-semibold text-white">Use Keyboard</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Keys 1/2/3/4 for A/B/C/D, Enter to confirm. Faster than clicking!
                   </p>
                 </div>
@@ -597,7 +597,7 @@ export default function HowToPlay() {
                     <i className="fas fa-clock text-yellow-400"></i>
                     <p className="font-semibold text-white">Wait for Hints</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Not sure? Wait for the wrong answer to drop at 10s, or hint at 5s remaining.
                   </p>
                 </div>
@@ -606,7 +606,7 @@ export default function HowToPlay() {
                     <i className="fas fa-chart-line text-green-400"></i>
                     <p className="font-semibold text-white">Quantify Impact</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Use numbers! "Saves 2 hours/day for 50 people" beats "saves time."
                   </p>
                 </div>
@@ -615,7 +615,7 @@ export default function HowToPlay() {
                     <i className="fas fa-bullseye text-blue-400"></i>
                     <p className="font-semibold text-white">Match Category</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Your pitch MUST use your trivia category's technologies. The AI coach will redirect you if your solution doesn't fit your chosen track.
                   </p>
                 </div>
@@ -624,7 +624,7 @@ export default function HowToPlay() {
                     <i className="fas fa-graduation-cap text-pink-400"></i>
                     <p className="font-semibold text-white">Practice First</p>
                   </div>
-                  <p className="text-sm text-slate-200/85">
+                  <p className="text-sm text-data3-white/85">
                     Try Dojo mode with unlimited plays to learn the timing and format!
                   </p>
                 </div>
@@ -648,7 +648,7 @@ export default function HowToPlay() {
                   <i className="fas fa-caret-right text-cyan-400"></i>
                   Why do I need to answer trivia questions to submit a pitch?
                 </h3>
-                <p className="text-sm text-slate-200/85 pl-6">
+                <p className="text-sm text-data3-white/85 pl-6">
                   The trivia questions level the playing field by testing baseline technical knowledge in your chosen category.
                   Everyone—regardless of background—competes on the same knowledge foundation. Your <strong className="text-white">pitch is where you differentiate yourself</strong> by
                   demonstrating how you'd apply that technology to solve real business problems. You can't win on trivia alone—you need both knowledge AND application.
@@ -662,7 +662,7 @@ export default function HowToPlay() {
                   <i className="fas fa-caret-right text-cyan-400"></i>
                   Do I have to pitch a solution from the category I picked for trivia?
                 </h3>
-                <p className="text-sm text-slate-200/85 pl-6">
+                <p className="text-sm text-data3-white/85 pl-6">
                   Yes! When you select a technology category (like "Zero Trust & Secure Connectivity" or "Observability & Automation"),
                   your pitch must propose a Cisco solution from <strong className="text-white">that same category</strong>.
                   The AI coach actively enforces this—if your proposed solution doesn't match your chosen track, it will guide you back
@@ -677,7 +677,7 @@ export default function HowToPlay() {
                   <i className="fas fa-caret-right text-cyan-400"></i>
                   Can I just do trivia without pitching?
                 </h3>
-                <p className="text-sm text-slate-200/85 pl-6">
+                <p className="text-sm text-data3-white/85 pl-6">
                   In <strong className="text-white">Dojo (practice) mode</strong>, yes! You can practice trivia as many times as you want without submitting a pitch.
                   However, in <strong className="text-white">Ring (official) mode</strong>, you must complete both trivia AND pitch to get a final score.
                   Your total score (0-100) combines trivia (0-60) + pitch (0-40). You need to beat the Bot Bar threshold to earn a raffle entry.
@@ -691,7 +691,7 @@ export default function HowToPlay() {
                   <i className="fas fa-caret-right text-cyan-400"></i>
                   What if I'm not an expert in the category I choose?
                 </h3>
-                <p className="text-sm text-slate-200/85 pl-6">
+                <p className="text-sm text-data3-white/85 pl-6">
                   That's totally fine! The trivia questions test foundational knowledge, and you get helpful hints as the timer counts down (one wrong answer
                   disappears at 10s, and a hint appears at 5s remaining). For the pitch, the AI coach guides you through each step and helps
                   redirect you toward category-appropriate solutions. <strong className="text-white">Practice in Dojo mode first</strong>—you'll get
@@ -706,7 +706,7 @@ export default function HowToPlay() {
         <section className="space-y-6">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-semibold sm:text-4xl">Ready to Play?</h2>
-            <p className="text-slate-200/70">Choose your path and start competing!</p>
+            <p className="text-data3-white/70">Choose your path and start competing!</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 max-w-4xl mx-auto">
             <Link href="/play" className="group">
@@ -725,7 +725,7 @@ export default function HowToPlay() {
                     <i className="fas fa-arrow-right text-cyan-400 text-xl group-hover:translate-x-1 transition-transform"></i>
                   </div>
                 </CardHeader>
-                <CardContent className="text-sm text-slate-200/85 space-y-2">
+                <CardContent className="text-sm text-data3-white/85 space-y-2">
                   <div className="flex items-center gap-2">
                     <i className="fas fa-check-circle text-cyan-400"></i>
                     <span>Compete for raffle entries</span>
@@ -758,7 +758,7 @@ export default function HowToPlay() {
                     <i className="fas fa-arrow-right text-purple-400 text-xl group-hover:translate-x-1 transition-transform"></i>
                   </div>
                 </CardHeader>
-                <CardContent className="text-sm text-slate-200/85 space-y-2">
+                <CardContent className="text-sm text-data3-white/85 space-y-2">
                   <div className="flex items-center gap-2">
                     <i className="fas fa-check-circle text-purple-400"></i>
                     <span>Unlimited practice attempts</span>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
 import NotFound from "@/pages/not-found";
 import dojoFullImage from "@assets/dojofull.jpg";
+import { Data3Logo } from "@/components/Data3Logo";
 
 type DojoExperienceId = "trivia-cards" | "case-builder";
 
@@ -26,7 +27,7 @@ const dojoExperiences: Record<DojoExperienceId, {
     title: "Dojo trivia-card drills",
     eyebrow: "Practice",
     description:
-      "Race the countdown with live Data#3 trivia before your official run. Pick a Cisco architecture tile and lock in the numbers before you enter the ring.",
+      "Race the countdown with live trivia before your official run. Pick a Cisco architecture tile and lock in the numbers before you enter the ring.",
     status: "WARM UP",
     highlights: [
       "Five architecture tracks fed by the current stats deck",
@@ -58,7 +59,7 @@ export default function Dojo({ params }: DojoRouteProps) {
 
   if (mode === "trivia-cards") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
             <img
@@ -69,7 +70,7 @@ export default function Dojo({ params }: DojoRouteProps) {
             <div className="flex-1 space-y-4 text-center sm:text-left">
               <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
               <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
-              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+              <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
                 Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using <span className="font-semibold text-white">that track's technologies</span> for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out.
               </p>
             </div>
@@ -95,7 +96,7 @@ export default function Dojo({ params }: DojoRouteProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
           <img
@@ -106,7 +107,7 @@ export default function Dojo({ params }: DojoRouteProps) {
           <div className="flex-1 space-y-4 text-center sm:text-left">
             <Badge className="w-fit bg-primary/20 text-primary">{experience.status}</Badge>
             <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
-            <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+            <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
               {experience.description}
             </p>
           </div>
@@ -119,7 +120,7 @@ export default function Dojo({ params }: DojoRouteProps) {
             </Badge>
             <CardTitle className="text-2xl">What to expect</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-slate-200/80">
+          <CardContent className="space-y-3 text-data3-white/80">
             <p>
               We are rolling these dojo paths out alongside the ring experience. Until the dedicated flows go
               live, you can still enter the ring to run the full trivia-card round and submit a case card today.
