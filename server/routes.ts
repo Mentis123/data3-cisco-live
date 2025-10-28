@@ -2,6 +2,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage, storageKind } from "./storage/index.js";
+import { createDatabaseFeedbackStorage, createJSONFeedbackStorage } from "./storage/feedback.js";
+import { db, hasDatabase } from "./db.js";
 import { log } from "./logging.js";
 import { setupWebSocket, broadcastScoreUpdate } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
@@ -18,6 +20,13 @@ import { z } from "zod";
 log(
   `Using ${storageKind} storage backend${storageKind === "memory" ? " (no database connection string configured)" : ""}`,
 );
+
+// Initialize feedback storage (DB or JSON fallback)
+const feedbackStorage = hasDatabase && db
+  ? createDatabaseFeedbackStorage(db)
+  : createJSONFeedbackStorage();
+const feedbackStorageKind = hasDatabase ? "database" : "json";
+log(`Using ${feedbackStorageKind} storage for feedback`);
 
 const DEFAULT_ADMIN_KEY = "cisco-live-melbourne-2025";
 const ADMIN_KEY = process.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
@@ -87,6 +96,22 @@ const completeTriviaAttemptSchema = z.object({
       }),
     )
     .min(1),
+});
+
+const submitFeedbackSchema = z.object({
+  category: z.enum([
+    "ui-ux",
+    "gameplay",
+    "trivia",
+    "technical",
+    "feature-request",
+    "other",
+  ]),
+  rating: z.number().min(1).max(5),
+  message: z.string().min(10).max(1000),
+  page: z.string(),
+  emailHash: z.string().optional(),
+  sessionToken: z.string().optional(),
 });
 
 type MetricValueKey = "value" | "target";
@@ -921,6 +946,64 @@ export async function registerRoutes(
       res.json(entries);
     } catch (error) {
       res.status(500).json({ message: "Failed to get raffle entries" });
+    }
+  });
+
+  // Feedback endpoints
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      const data = submitFeedbackSchema.parse(req.body);
+      const feedback = await feedbackStorage.submitFeedback({
+        ...data,
+        status: "pending",
+      });
+
+      log(`Feedback submitted: ${feedback.id} - Rating: ${feedback.rating}/5`);
+      res.json({ success: true, id: feedback.id });
+    } catch (error) {
+      log(`Error submitting feedback: ${error}`);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, error: "Invalid feedback data" });
+      } else {
+        res.status(500).json({ success: false, error: "Failed to submit feedback" });
+      }
+    }
+  });
+
+  app.get("/api/admin/feedback", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { status } = req.query;
+      const feedback = status
+        ? await feedbackStorage.getFeedbackByStatus(status as string)
+        : await feedbackStorage.getAllFeedback();
+
+      res.json(feedback);
+    } catch (error) {
+      log(`Error getting feedback: ${error}`);
+      res.status(500).json({ error: "Failed to get feedback" });
+    }
+  });
+
+  app.patch("/api/admin/feedback/:id/status", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!["pending", "reviewed", "implemented"].includes(status)) {
+        res.status(400).json({ error: "Invalid status" });
+        return;
+      }
+
+      await feedbackStorage.updateFeedbackStatus(id, status);
+      log(`Feedback ${id} status updated to: ${status}`);
+      res.json({ success: true });
+    } catch (error) {
+      log(`Error updating feedback status: ${error}`);
+      res.status(500).json({ error: "Failed to update feedback status" });
     }
   });
 
