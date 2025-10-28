@@ -179,7 +179,10 @@ export default function HowToPlay() {
             <AccordionItem value="step-2" className="border-b border-white/10 last:border-b-0">
               <AccordionTrigger className="px-6 text-left text-lg font-semibold text-white">
                 <span className="flex items-center gap-3">
-                  <Badge variant="outline" className="border-blue-300/50 bg-blue-500/10 text-xs uppercase tracking-[0.3em] text-blue-200">
+                  <Badge
+                    variant="outline"
+                    className="border-blue-300/50 bg-blue-500/10 px-3 text-xs uppercase tracking-[0.2em] text-blue-200 whitespace-nowrap"
+                  >
                     Step 2
                   </Badge>
                   <span>Answer 5 trivia questions</span>
@@ -512,7 +515,10 @@ export default function HowToPlay() {
             <AccordionItem value="pro-tips" className="border-b border-white/10 last:border-b-0">
               <AccordionTrigger className="px-6 text-left text-lg font-semibold text-white">
                 <span className="flex items-center gap-3">
-                  <Badge variant="outline" className="border-emerald-300/60 bg-emerald-500/10 text-xs uppercase tracking-[0.3em] text-emerald-200">
+                  <Badge
+                    variant="outline"
+                    className="border-emerald-300/60 bg-emerald-500/10 px-3 text-xs uppercase tracking-[0.2em] text-emerald-200 whitespace-nowrap"
+                  >
                     Pro tips
                   </Badge>
                   <span>Quick ways to gain an edge</span>
