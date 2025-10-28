@@ -137,18 +137,6 @@ export default function Home() {
                 </div>
               </div>
             </Link>
-            <Link href="/leaderboard" className="group">
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
-                <div className="relative aspect-square">
-                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
-                  <div className="absolute inset-0 bg-slate-950/40" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
-                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
-                    <span className="text-xl font-semibold text-white">View Leaderboard</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
             <Link href="/how-to-play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
@@ -157,6 +145,18 @@ export default function Home() {
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                     <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Learn</span>
                     <span className="text-xl font-semibold text-white">How it works</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <Link href="/leaderboard" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square">
+                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-slate-950/40" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
+                    <span className="text-xl font-semibold text-white">View Leaderboard</span>
                   </div>
                 </div>
               </div>
@@ -288,18 +288,6 @@ export default function Home() {
               </div>
             </div>
           </Link>
-          <Link href="/leaderboard" className="group">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
-              <div className="relative aspect-square">
-                <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
-                <div className="absolute inset-0 bg-slate-950/40" />
-                <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
-                  <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
-                  <span className="text-xl font-semibold text-white">View Leaderboard</span>
-                </div>
-              </div>
-            </div>
-          </Link>
           <Link href="/how-to-play" className="group">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
               <div className="relative aspect-square">
@@ -308,6 +296,18 @@ export default function Home() {
                 <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
                   <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Learn</span>
                   <span className="text-xl font-semibold text-white">How it works</span>
+                </div>
+              </div>
+            </div>
+          </Link>
+          <Link href="/leaderboard" className="group">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+              <div className="relative aspect-square">
+                <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                <div className="absolute inset-0 bg-slate-950/40" />
+                <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                  <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Standings</span>
+                  <span className="text-xl font-semibold text-white">View Leaderboard</span>
                 </div>
               </div>
             </div>
