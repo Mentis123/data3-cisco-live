@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -40,6 +41,7 @@ export function FeedbackForm({ onSuccess }: FeedbackFormProps) {
       rating: 0,
       category: "other",
       message: "",
+      email: "", // Claude: Optional email field default value
     },
   });
 
@@ -131,6 +133,20 @@ export function FeedbackForm({ onSuccess }: FeedbackFormProps) {
         </Select>
         {errors.category && (
           <p className="text-sm text-destructive">{errors.category.message}</p>
+        )}
+      </div>
+
+      {/* Email (Optional) - Claude: Optional email field as specified in UX brief */}
+      <div className="space-y-2">
+        <Label htmlFor="email">Email (optional)</Label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="your.email@example.com"
+          {...register("email")}
+        />
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
         )}
       </div>
 

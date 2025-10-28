@@ -1,120 +1,53 @@
 import { Link } from "wouter";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
-import { cn } from "@/lib/utils";
 import { Data3Logo } from "@/components/Data3Logo";
+import { HeroSection } from "@/components/HeroSection";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
 import howitworksImage from "@assets/howitworksfull.jpg";
 
-const categories = (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
-  const meta = triviaCardCategoryMeta[key];
-  return {
-    id: key,
-    title: meta.name,
-    copy: meta.blurb,
-    accentClass: meta.accent,
-  };
-});
-
-const howItWorks = [
-  {
-    title: "Answer 5 trivia questions in your chosen category",
-    bullets: [
-      "15 seconds per question",
-      "After 5 seconds (at 10s remaining): one wrong option drops",
-      "After 10 seconds (at 5s remaining): a hint appears",
-    ],
-  },
-  {
-    title: "Submit your Case Card",
-    bullets: [
-      "One-line problem",
-      "Baseline / Target / Due date + Owner & first milestone",
-    ],
-  },
-  {
-    title: "Beat the Bot → Earn a raffle entry",
-    bullets: [
-      "If your Total /100 clears today's Bot Bar, we record a raffle entry for today's draw",
-    ],
-  },
-];
-
-const scoringTiers = [
-  { label: "Answer within first 5 seconds", value: "+12" },
-  { label: "Answer between 5 and 10 seconds", value: "+8" },
-  { label: "Answer in final 5 seconds (10-15s)", value: "+4" },
-  { label: "Wrong or time-out", value: "+0" },
-];
-
-const quickRules = [
-  {
-    title: "Dojo",
-    copy: "Unlimited practice; no email; explanations shown.",
-  },
-  {
-    title: "Ring",
-    copy: "Cisco Live email required on submit. 1 official run/day per category (max 5/day).",
-  },
-  {
-    title: "Scoring",
-    copy: "Trivia (0–60) + Project Pitch (0–40) = Total (0–100).",
-  },
-  {
-    title: "Bot Bar",
-    copy: "Dynamic daily bar; clear it to win the round.",
-  },
-  {
-    title: "Prize",
-    copy: "Every win = 1 raffle entry for today's random draw (software-picked).",
-  },
-];
-
-const microFaq = [
-  {
-    question: "How many times can I play?",
-    answer: "Up to 5 official entries/day (one per category). Practice is unlimited.",
-  },
-  {
-    question: "Eligibility?",
-    answer: "Use your Cisco Live registered email, complete the KPI triplet, and beat the Bot Bar.",
-  },
-  {
-    question: "Queues?",
-    answer: "Nope. Scan the QR and play on your phone.",
-  },
-];
+// Claude: Removed unused data constants (categories, howItWorks, scoringTiers, quickRules, microFaq)
+// These sections have been moved to the HowToPlay ("Learn") page as per UX refactor brief
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-8 sm:px-6 sm:pt-12 lg:px-8">
-        <section className="space-y-8 text-center">
-          {/* Data#3 Logo */}
-          <div className="flex justify-center mb-6">
-            <img
-              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-              alt="Data#3"
-              className="h-16 w-auto sm:h-20 md:h-24"
-              style={{ minWidth: '72px' }}
-            />
-          </div>
+        {/* Data#3 Logo */}
+        <div className="flex justify-center">
+          <img
+            src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+            alt="Data#3"
+            className="h-16 w-auto sm:h-20 md:h-24"
+            style={{ minWidth: '72px' }}
+          />
+        </div>
 
-          <div className="space-y-4">
-            <h1 className="text-balance text-4xl font-bold leading-tight sm:text-5xl md:text-6xl text-data3-white">
-              Beat the Bot
-            </h1>
-            <p className="text-xl text-data3-pale-blue font-light tracking-wide">
-              Delivering the Digital Future
-            </p>
-            <p className="mx-auto max-w-3xl text-pretty text-base sm:text-lg text-data3-white/90">
-              Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
-            </p>
-          </div>
+        {/* Hero Section with Left Image Layout */}
+        <HeroSection
+          title="Data3 – Beat the Bot"
+          subtitle=""
+          image={ringImage}
+          layout="centered"
+          textContrast="lightOnDark"
+          className="text-center"
+        />
+
+        {/* Mission Blurb - Claude: Three-line mission statement as specified in brief */}
+        <section className="text-center">
+          <p className="text-lg sm:text-xl text-data3-white/90 leading-relaxed">
+            Practice in the Dojo.<br />
+            Enter the Ring up to five times per day.<br />
+            Every win is a raffle entry.
+          </p>
+        </section>
+
+        {/* Hero Tiles Grid - Claude: Keep the 4 main navigation tiles */}
+        <section className="space-y-8">
+          <p className="text-xl text-data3-pale-blue font-light tracking-wide text-center">
+            Delivering the Digital Future
+          </p>
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-light-blue/40 group-hover:shadow-[0_0_30px_rgba(0,174,255,0.35)]">
@@ -165,105 +98,6 @@ export default function Home() {
               </div>
             </Link>
           </div>
-        </section>
-
-        <section className="space-y-6">
-          <div className="space-y-2 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-primary/70">Categories (5-up)</p>
-            <h2 className="text-3xl font-semibold">Pick your arena</h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category) => (
-              <Card key={category.id} className="border-white/10 bg-white/5 p-5 backdrop-blur">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full",
-                      category.accentClass,
-                    )}
-                  />
-                  <div>
-                    <p className="text-base font-semibold text-white">{category.title}</p>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-slate-200/80">{category.copy}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-8">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.3em] text-primary/70">How it works</p>
-            <h2 className="text-3xl font-semibold">Three moves to log your entry</h2>
-          </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {howItWorks.map((step, index) => (
-              <Card key={step.title} className="border-white/10 bg-white/5 backdrop-blur">
-                <CardHeader>
-                  <Badge variant="outline" className="w-fit border-white/20 text-xs uppercase tracking-[0.3em] text-white/80">
-                    Step {index + 1}
-                  </Badge>
-                  <CardTitle className="text-xl text-white">{step.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-slate-200/80">
-                    {step.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-white/10 bg-white/5 backdrop-blur">
-            <CardHeader>
-              <Badge variant="outline" className="w-fit border-primary/40 text-xs uppercase tracking-[0.3em] text-primary/80">
-                Scoring (per trivia question)
-              </Badge>
-              <CardTitle className="text-2xl text-white">Lock points before the hint lands</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {scoringTiers.map((tier) => (
-                <div key={tier.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200/85">
-                  <span>{tier.label}</span>
-                  <span className="font-semibold text-primary">{tier.value}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-          <Card className="border-white/10 bg-white/5 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">Quick rules</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-200/85">
-              {quickRules.map((rule) => (
-                <div key={rule.title}>
-                  <p className="font-semibold text-white">{rule.title}</p>
-                  <p>{rule.copy}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
-
-        <section>
-          <Card className="border-white/10 bg-white/5 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">Micro-FAQ</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-slate-200/85">
-              {microFaq.map((item) => (
-                <div key={item.question}>
-                  <p className="font-semibold text-white">{item.question}</p>
-                  <p>{item.answer}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </section>
 
         {/* Data#3 Branded Footer */}

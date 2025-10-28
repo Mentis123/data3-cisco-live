@@ -15,6 +15,7 @@ export const feedbackSchema = z.object({
     .min(10, "Please provide at least 10 characters of feedback")
     .max(1000, "Feedback must be less than 1000 characters"),
   page: z.string(),
+  email: z.string().email("Please enter a valid email").optional().or(z.literal("")), // Claude: Optional email field
   emailHash: z.string().optional(),
   sessionToken: z.string().optional(),
 });
