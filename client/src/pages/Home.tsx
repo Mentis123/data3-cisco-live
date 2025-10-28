@@ -119,11 +119,11 @@ export default function Home() {
             <Link href="/play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-light-blue/40 group-hover:shadow-[0_0_30px_rgba(0,174,255,0.3)]">
                 <div className="relative aspect-square">
-                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/50 to-data3-blue-black/70" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-                    <span className="text-xs sm:text-sm uppercase tracking-[0.3em] text-data3-pale-blue font-semibold">Play</span>
-                    <span className="text-lg sm:text-xl font-bold text-data3-white">Enter the Ring</span>
+                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/40 to-data3-blue-black/60" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-pale-blue font-semibold">Play</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">Enter the Ring</span>
                   </div>
                 </div>
               </div>
@@ -131,11 +131,11 @@ export default function Home() {
             <Link href="/dojo/trivia-cards" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-cool-purple/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-cool-purple/40 group-hover:shadow-[0_0_30px_rgba(115,0,255,0.3)]">
                 <div className="relative aspect-square">
-                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/50 to-data3-blue-black/70" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-                    <span className="text-xs sm:text-sm uppercase tracking-[0.3em] text-data3-cool-lilac font-semibold">Practice</span>
-                    <span className="text-lg sm:text-xl font-bold text-data3-white">Practice in Dojo</span>
+                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/40 to-data3-blue-black/60" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-cool-lilac font-semibold">Practice</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">Practice in Dojo</span>
                   </div>
                 </div>
               </div>
@@ -143,11 +143,11 @@ export default function Home() {
             <Link href="/how-to-play" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-light-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-aqua/40 group-hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]">
                 <div className="relative aspect-square">
-                  <img src={leaderboardImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/50 to-data3-blue-black/70" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-                    <span className="text-xs sm:text-sm uppercase tracking-[0.3em] text-data3-aqua/90 font-semibold">Learn</span>
-                    <span className="text-lg sm:text-xl font-bold text-data3-white">How it works</span>
+                  <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/40 to-data3-blue-black/60" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-aqua/90 font-semibold">Learn</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">How it works</span>
                   </div>
                 </div>
               </div>
@@ -155,11 +155,11 @@ export default function Home() {
             <Link href="/leaderboard" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-magenta/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-magenta/40 group-hover:shadow-[0_0_30px_rgba(255,0,255,0.3)]">
                 <div className="relative aspect-square">
-                  <img src={howitworksImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/50 to-data3-blue-black/70" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-                    <span className="text-xs sm:text-sm uppercase tracking-[0.3em] text-data3-magenta/90 font-semibold">Standings</span>
-                    <span className="text-lg sm:text-xl font-bold text-data3-white">View Leaderboard</span>
+                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-data3-blue-black/40 to-data3-blue-black/60" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                    <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-magenta/90 font-semibold">Standings</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-white">View Leaderboard</span>
                   </div>
                 </div>
               </div>
