@@ -515,6 +515,14 @@ export default function Leaderboard() {
     );
   }
 
+  const heroImageSize = isFullscreen
+    ? "h-36 w-36 sm:h-44 sm:w-44"
+    : "h-20 w-20 sm:h-24 sm:w-24";
+  const heroTitleSize = isFullscreen
+    ? "text-6xl sm:text-7xl"
+    : "text-4xl sm:text-5xl";
+  const heroSubtitleSize = isFullscreen ? "text-2xl" : "text-lg sm:text-xl";
+
   const renderLeaderboard = () => {
     const titleSize = isFullscreen ? 'text-6xl' : 'text-4xl sm:text-5xl';
     const subtitleSize = isFullscreen ? 'text-2xl' : 'text-base sm:text-lg';
@@ -1105,46 +1113,48 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-background text-foreground p-4 pt-8 portrait-leaderboard">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          {!isFullscreen && (
-            <div className="flex gap-2 mb-4">
-              <Link href={homeHref}>
-                <Button variant="outline" size="sm">
-                  <i className="fas fa-home mr-2"></i>
-                  Home
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleFullscreen}
-                data-testid="button-fullscreen"
-              >
-                <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
-                {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={testAudio}
-                data-testid="button-test-audio"
-              >
-                <i className="fas fa-volume-up mr-2"></i>
-                Test Audio
-              </Button>
-            </div>
-          )}
-          <div className="flex flex-col items-center gap-4 mb-4">
+        <div className="mb-8 space-y-6">
+          <div
+            className={`flex flex-wrap items-center justify-center gap-3 sm:gap-4 ${
+              isFullscreen ? '' : 'sm:justify-start'
+            }`}
+          >
+            <img
+              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+              alt="Data#3"
+              className={`${isFullscreen ? 'h-14 sm:h-16' : 'h-10 sm:h-12'} w-auto`}
+              style={{ minWidth: isFullscreen ? '72px' : '56px' }}
+            />
+            <span
+              className={`${
+                isFullscreen ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'
+              } font-semibold tracking-tight text-white`}
+            >
+              Delivering the Digital Future
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
             <img
               src={leaderboardFullImage}
               alt="Leaderboard"
-              className={`${isFullscreen ? 'h-32 w-32' : 'h-20 w-20'} rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}
+              className={`${heroImageSize} rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}
             />
-            <div className="text-center">
-              <h1 className={`${isFullscreen ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'} font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent`}>
-                <Data3Logo /> Solution Sprint
+            <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-left">
+              <Badge
+                className={`w-fit rounded-full border-fuchsia-400/50 bg-fuchsia-500/15 px-4 py-1 font-semibold uppercase tracking-[0.4em] text-[0.65rem] text-fuchsia-200 shadow-[0_0_25px_rgba(217,70,239,0.35)] ${
+                  isFullscreen ? 'sm:text-sm' : 'sm:text-xs'
+                }`}
+              >
+                Standings
+              </Badge>
+              <h1
+                className={`${heroTitleSize} font-bold tracking-tight text-white drop-shadow-[0_8px_30px_rgba(15,76,129,0.55)]`}
+              >
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  <Data3Logo /> Solution Sprint
+                </span>
               </h1>
-              <p className={`${isFullscreen ? 'text-3xl' : 'text-xl'} text-muted-foreground`}>
+              <p className={`${heroSubtitleSize} text-cyan-100/80`}>
                 Cisco Live Melbourne 2025 • Powered by AI
               </p>
             </div>
@@ -1214,6 +1224,35 @@ export default function Leaderboard() {
           {activeView === "categories" && renderCategoryStats()}
           {activeView === "data3stats" && renderData3Stats()}
         </div>
+
+        {!isFullscreen && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link href={homeHref}>
+              <Button variant="outline" size="sm">
+                <i className="fas fa-home mr-2"></i>
+                Home
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleFullscreen}
+              data-testid="button-fullscreen"
+            >
+              <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={testAudio}
+              data-testid="button-test-audio"
+            >
+              <i className="fas fa-volume-up mr-2"></i>
+              Test Audio
+            </Button>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
