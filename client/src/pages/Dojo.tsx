@@ -5,10 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
-import { HeroSection } from "@/components/HeroSection";
 import NotFound from "@/pages/not-found";
 import dojoFullImage from "@assets/dojofull.jpg";
-import { Data3Logo } from "@/components/Data3Logo";
 
 type DojoExperienceId = "trivia-cards" | "case-builder";
 
@@ -67,25 +65,45 @@ export default function Dojo({ params }: DojoRouteProps) {
   if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-        <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-16 sm:px-6 lg:px-8">
-          {/* Hero Section: Dojo icon + Title */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
+            <img
+              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
+              alt="Data#3"
+              className="h-12 w-auto sm:h-16 md:h-20"
+              style={{ minWidth: "60px" }}
+            />
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
+              Delivering the Digital Future
+            </h1>
+          </div>
+
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             <img
               src={dojoFullImage}
               alt="Dojo"
-              className="h-24 w-24 sm:h-32 sm:w-32 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
+              className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
             />
-            <div className="flex-1 space-y-3 text-center sm:text-left">
-              <h1 className="text-4xl sm:text-5xl font-semibold text-data3-white">
-                Warm Up
-              </h1>
-              <h2 className="text-3xl sm:text-4xl font-semibold text-data3-white">
-                Trivia Card Drills
-              </h2>
+            <div className="space-y-4 text-center sm:text-left">
+              <Badge className="mx-auto sm:mx-0 w-fit bg-emerald-400/20 text-emerald-200 uppercase tracking-[0.25em]">
+                {experience.status}
+              </Badge>
+              <div className="space-y-2">
+                <p className="text-sm uppercase tracking-[0.3em] text-emerald-200/80">Practice</p>
+                <h2 className="text-4xl sm:text-5xl font-semibold text-data3-white">Warm Up</h2>
+                <h3 className="text-2xl sm:text-3xl font-semibold text-data3-white/90">Trivia Card Drills</h3>
+              </div>
             </div>
           </div>
 
-          <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
+          <section className="space-y-4 text-center">
+            <p className="text-2xl sm:text-3xl text-emerald-200 font-light tracking-wide">Warm Up Trivia Card Drills</p>
+            <div className="space-y-2 text-lg sm:text-xl text-data3-white/90">
+              <p>Run the official five-question round without the pressure.</p>
+              <p>Pick your Cisco architecture tile and master the countdown.</p>
+              <p>Bank confidence before you enter the ring.</p>
+            </div>
+          </section>
 
           <TriviaWarmup mode="dojo" className="h-full" />
 
@@ -101,13 +119,6 @@ export default function Dojo({ params }: DojoRouteProps) {
               </Button>
             </Link>
           </div>
-
-          {/* Full Description at Bottom - Claude: Moved to bottom as per UX brief */}
-          <section role="note" className="mt-8 p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur">
-            <p className="text-base text-data3-white/80 leading-relaxed">
-              Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using <span className="font-semibold text-white">that track's technologies</span> for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out.
-            </p>
-          </section>
         </div>
       </div>
     );

@@ -72,7 +72,7 @@ export default function HowToPlay() {
         {/* Hero Section - Claude: Using new HeroSection component for Learn page */}
         <HeroSection
           title="How to Play – Beat the Bot"
-          subtitle="Choose a category. Answer 5 trivia questions. Pitch your business solution. Beat the Bot Bar and earn a raffle entry for Meta AI Glasses!"
+          subtitle="Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using that track's technologies for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out."
           image={howitworksFullImage}
           layout="leftImage"
           textContrast="lightOnDark"
