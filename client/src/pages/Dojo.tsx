@@ -70,7 +70,7 @@ export default function Dojo({ params }: DojoRouteProps) {
               <Badge className="w-fit bg-emerald-400/20 text-emerald-200">{experience.status}</Badge>
               <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
-                Choose a technology track and test your knowledge. Answer fast to maximize your score.
+                Choose a technology track and answer 5 trivia questions to earn up to 60 points. Then pitch a solution using <span className="font-semibold text-white">that track's technologies</span> for up to 40 more points. The trivia equalizes technical knowledge—your pitch is where you stand out.
               </p>
             </div>
           </div>
