@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -72,6 +73,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [triviaScore, setTriviaScore] = useState<number | null>(null);
   const [triviaAttemptId, setTriviaAttemptId] = useState<string | null>(null);
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
 
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
@@ -445,8 +448,13 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return;
     }
 
-    // For ring mode, show confirmation dialog
+    // For ring mode, validate terms acceptance before showing confirmation dialog
     if (isRing) {
+      if (!acceptedTerms) {
+        setShowTermsError(true);
+        setTimeout(() => setShowTermsError(false), 3000);
+        return;
+      }
       setShowOfficialRunConfirm(true);
     } else {
       startSessionMutation.mutate({ firstName, lastName, email });
@@ -634,6 +642,40 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       <span className="font-semibold text-emerald-300">3.</span> Review &amp; submit – lock targets then compete.
                     </li>
                   </ol>
+                </div>
+
+                {/* Terms & Conditions */}
+                <div className={`rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200 space-y-3 transition-all ${showTermsError ? 'ring-2 ring-destructive animate-pulse' : ''}`}>
+                  <h4 className="text-base font-semibold text-white flex items-center gap-2">
+                    <i className="fas fa-shield-alt text-emerald-300"></i>
+                    Terms & Conditions
+                  </h4>
+                  <ul className="space-y-1.5 text-sm leading-relaxed text-slate-200/80 list-disc list-inside">
+                    <li>Playing means you accept the Data<sup className="text-primary">#</sup>3 privacy notice and Cisco Live terms.</li>
+                    <li>The leaderboard only shows your first name and last initial.</li>
+                    <li>An AI judge scores every submission, and Data<sup className="text-primary">#</sup>3 may reuse standout entries for demonstrations.</li>
+                    <li>Data<sup className="text-primary">#</sup>3 employees and their families are not eligible for prizes.</li>
+                  </ul>
+                  <label className="flex items-start space-x-3 cursor-pointer touch-manipulation">
+                    <Checkbox
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => {
+                        setAcceptedTerms(!!checked);
+                        if (checked) setShowTermsError(false);
+                      }}
+                      className={`flex-shrink-0 mt-0.5 ${showTermsError ? 'ring-2 ring-destructive' : ''}`}
+                      data-testid="checkbox-accept-terms"
+                    />
+                    <span className={`text-sm leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : 'text-slate-200/90'}`}>
+                      I accept these terms, including the privacy notice, and confirm my entry matches my Cisco Live badge details.
+                    </span>
+                  </label>
+                  {showTermsError && (
+                    <p className="text-destructive text-sm flex items-center">
+                      <i className="fas fa-exclamation-circle mr-1"></i>
+                      Please accept the Terms & Conditions to proceed
+                    </p>
+                  )}
                 </div>
 
                 <Button
@@ -922,8 +964,8 @@ Just describe it naturally - what's the problem that needs solving?`
 
     if (isRing) {
       return (
-        <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
-          {triviaDeckDialog}
+        <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
+          <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
           <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -1235,7 +1277,17 @@ Just describe it naturally - what's the problem that needs solving?`
             </div>
             </div>
           </div>
-        );
+          <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
+              <DialogDescription className="text-sm text-slate-300">
+                Work through each dial with instant rationales before you lock your score.
+              </DialogDescription>
+            </DialogHeader>
+            <TriviaCardDeck cards={triviaCardDeck} />
+          </DialogContent>
+        </Dialog>
+      );
     }
 
   return (
@@ -1521,7 +1573,8 @@ Just describe it naturally - what's the problem that needs solving?`
 
     return (
       <>
-        <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
+        <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
+          <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
             {triviaScore !== null && (
               <div className="order-0 rounded-3xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100 shadow-[0_25px_80px_-50px_rgba(16,185,129,0.75)] lg:col-span-3">
@@ -1782,7 +1835,16 @@ Just describe it naturally - what's the problem that needs solving?`
           </div>
         </div>
         {exitDialog}
-        {triviaDeckDialog}
+        <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
+            <DialogDescription className="text-sm text-slate-300">
+              Work through each dial with instant rationales before you lock your score.
+            </DialogDescription>
+          </DialogHeader>
+          <TriviaCardDeck cards={triviaCardDeck} />
+        </DialogContent>
+        </Dialog>
       </>
     );
   }
