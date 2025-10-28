@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 
 import { Data3Logo } from "@/components/Data3Logo";
-import { HeroSection } from "@/components/HeroSection";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -85,14 +84,13 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <span className="text-sm sm:text-base uppercase tracking-[0.3em] text-data3-magenta font-semibold">Standings</span>
-                    <span className="text-2xl sm:text-3xl font-bold text-data3-white drop-shadow-lg">View Leaderboard</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-data3-blue-black drop-shadow-lg">View Leaderboard</span>
                   </div>
                 </div>
               </div>
             </Link>
           </div>
         </section>
-
         {/* Steps Section */}
         <section className="space-y-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-center text-data3-white">
@@ -121,51 +119,6 @@ export default function Home() {
               <p className="text-xl sm:text-2xl text-data3-white/90">Beat the bot, earn a raffle entry</p>
             </div>
           </div>
-        </section>
-
-        {/* Badge Check-in Section */}
-        <section className="space-y-6 max-w-3xl mx-auto">
-          <div className="text-center space-y-4 p-8 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
-            <h2 className="text-2xl sm:text-3xl font-bold text-data3-white">
-              Data3 Solution Sprint Ring
-            </h2>
-            <p className="text-lg text-data3-white/90">
-              Check-in with your Cisco Live badge name and email
-            </p>
-            <div className="flex items-center justify-center gap-2 pt-4">
-              <input type="checkbox" id="terms" className="h-4 w-4" />
-              <label htmlFor="terms" className="text-sm text-data3-white/90">
-                I accept the{" "}
-                <a
-                  href="https://data3.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-data3-light-blue hover:text-data3-aqua underline"
-                >
-                  terms and conditions
-                </a>
-              </label>
-            </div>
-          </div>
-        </section>
-
-        {/* Solution Sprint Rhythm */}
-        <section className="space-y-6 max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-data3-white">
-            Solution Sprint Rhythm
-          </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-lg sm:text-xl text-data3-white/90">
-            <span>Name the problem</span>
-            <span className="hidden sm:inline">•</span>
-            <span>Quantify the impact</span>
-            <span className="hidden sm:inline">•</span>
-            <span>Review and submit</span>
-          </div>
-        </section>
-
-        {/* Bottom Info Section */}
-        <section className="space-y-4 text-center text-sm text-data3-white/70 border-t border-data3-pale-blue/20 pt-8">
-          <p>Official Leaderboard • Beat the Bot Challenge • Expo Ready Flow • Verified Entries</p>
         </section>
 
         {/* Data#3 Branded Footer */}
@@ -219,7 +172,16 @@ export default function Home() {
           </div>
           <div className="mt-8 pt-8 border-t border-data3-pale-blue/10 text-center">
             <p className="text-sm text-data3-grey">
-              © {new Date().getFullYear()} <Data3Logo className="font-semibold" />. Experience powered by <Data3Logo className="font-semibold" />.
+              © 2025 Data#3. Experience powered by{" "}
+              <a
+                href="https://www.linkedin.com/in/adam-aka-mentis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-data3-light-blue hover:text-data3-aqua underline underline-offset-4"
+              >
+                good vibes
+              </a>
+              .
             </p>
           </div>
         </footer>
