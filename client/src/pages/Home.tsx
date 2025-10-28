@@ -15,12 +15,12 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-36 pt-8 sm:px-6 sm:pt-12 lg:px-8">
         {/* Hero Section: Data3 Logo + Beat the Bot */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
+        <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
             alt="Data#3"
-            className="h-16 w-auto sm:h-20 md:h-24"
-            style={{ minWidth: '72px' }}
+            className="h-12 w-auto sm:h-16 md:h-20"
+            style={{ minWidth: "60px" }}
           />
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">
             Beat the Bot
