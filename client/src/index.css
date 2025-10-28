@@ -5,50 +5,65 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(220, 40%, 7%);
-  --foreground: hsl(220, 15%, 92%);
-  --card: hsl(220, 30%, 10%);
-  --card-foreground: hsl(220, 15%, 92%);
-  --popover: hsl(220, 30%, 10%);
-  --popover-foreground: hsl(220, 15%, 92%);
-  --primary: hsl(197, 95%, 55%);
-  --primary-foreground: hsl(220, 40%, 7%);
-  --secondary: hsl(160, 65%, 65%);
-  --secondary-foreground: hsl(220, 40%, 7%);
-  --muted: hsl(220, 20%, 15%);
-  --muted-foreground: hsl(220, 15%, 65%);
-  --accent: hsl(220, 75%, 70%);
-  --accent-foreground: hsl(220, 40%, 7%);
-  --destructive: hsl(0, 65%, 55%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --border: hsl(220, 30%, 18%);
-  --input: hsl(220, 30%, 15%);
-  --ring: hsl(197, 95%, 55%);
-  --chart-1: hsl(197, 95%, 55%);
-  --chart-2: hsl(160, 65%, 65%);
-  --chart-3: hsl(220, 75%, 70%);
-  --chart-4: hsl(0, 65%, 55%);
-  --chart-5: hsl(45, 85%, 60%);
-  --sidebar: hsl(220, 30%, 10%);
-  --sidebar-foreground: hsl(220, 15%, 92%);
-  --sidebar-primary: hsl(197, 95%, 55%);
-  --sidebar-primary-foreground: hsl(220, 40%, 7%);
-  --sidebar-accent: hsl(220, 75%, 70%);
-  --sidebar-accent-foreground: hsl(220, 40%, 7%);
-  --sidebar-border: hsl(220, 30%, 18%);
-  --sidebar-ring: hsl(197, 95%, 55%);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* DATA#3 BRAND COLORS */
+  --data3-blue-black: #000025;
+  --data3-blue: #007BC3;
+  --data3-light-blue: #00AEFF;
+  --data3-pale-blue: #78DCFF;
+  --data3-grey: #9D9FA2;
+  --data3-white: #EEEEEE;
+
+  /* DATA#3 SECONDARY PALETTE */
+  --data3-aqua: #00FFFF;
+  --data3-cool-purple: #7300FF;
+  --data3-magenta: #FF00FF;
+  --data3-cool-lilac: #9B9BFF;
+
+  /* SEMANTIC COLOR MAPPING */
+  --background: #000025;
+  --foreground: #EEEEEE;
+  --card: rgba(0, 123, 195, 0.08);
+  --card-foreground: #EEEEEE;
+  --popover: rgba(0, 123, 195, 0.12);
+  --popover-foreground: #EEEEEE;
+  --primary: #007BC3;
+  --primary-foreground: #EEEEEE;
+  --secondary: #00AEFF;
+  --secondary-foreground: #000025;
+  --muted: rgba(0, 123, 195, 0.15);
+  --muted-foreground: #9D9FA2;
+  --accent: #7300FF;
+  --accent-foreground: #EEEEEE;
+  --destructive: #FF00FF;
+  --destructive-foreground: #EEEEEE;
+  --border: rgba(0, 174, 255, 0.2);
+  --input: rgba(0, 123, 195, 0.1);
+  --ring: #00AEFF;
+  --chart-1: #007BC3;
+  --chart-2: #00AEFF;
+  --chart-3: #7300FF;
+  --chart-4: #FF00FF;
+  --chart-5: #00FFFF;
+  --sidebar: rgba(0, 123, 195, 0.08);
+  --sidebar-foreground: #EEEEEE;
+  --sidebar-primary: #007BC3;
+  --sidebar-primary-foreground: #EEEEEE;
+  --sidebar-accent: #00AEFF;
+  --sidebar-accent-foreground: #000025;
+  --sidebar-border: rgba(0, 174, 255, 0.2);
+  --sidebar-ring: #00AEFF;
+  --font-sans: Arial, 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-mono: 'Courier New', Menlo, monospace;
   --radius: 18px;
-  --shadow-2xs: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00), 0px 1px 2px -1px hsl(197, 95%, 55% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00), 0px 1px 2px -1px hsl(197, 95%, 55% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00), 0px 2px 4px -1px hsl(197, 95%, 55% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00), 0px 4px 6px -1px hsl(197, 95%, 55% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00), 0px 8px 10px -1px hsl(197, 95%, 55% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(197, 95%, 55% / 0.00);
+  --shadow-2xs: 0px 2px 0px 0px rgba(0, 174, 255, 0.1);
+  --shadow-xs: 0px 2px 0px 0px rgba(0, 174, 255, 0.15);
+  --shadow-sm: 0px 2px 4px rgba(0, 174, 255, 0.2), 0px 1px 2px -1px rgba(0, 123, 195, 0.15);
+  --shadow: 0px 4px 6px rgba(0, 174, 255, 0.2), 0px 2px 4px -1px rgba(0, 123, 195, 0.15);
+  --shadow-md: 0px 6px 12px rgba(0, 174, 255, 0.25), 0px 2px 4px -1px rgba(0, 123, 195, 0.2);
+  --shadow-lg: 0px 10px 20px rgba(0, 174, 255, 0.3), 0px 4px 6px -1px rgba(0, 123, 195, 0.25);
+  --shadow-xl: 0px 16px 32px rgba(0, 174, 255, 0.35), 0px 8px 10px -1px rgba(0, 123, 195, 0.3);
+  --shadow-2xl: 0px 24px 48px rgba(0, 174, 255, 0.4);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
@@ -61,10 +76,10 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background: 
-      radial-gradient(1200px 800px at 5% -10%, hsl(220, 35%, 15%) 0%, transparent 60%),
-      radial-gradient(900px 600px at 120% 10%, hsl(220, 30%, 12%) 0%, transparent 55%),
-      var(--background);
+    background:
+      radial-gradient(1200px 800px at 5% -10%, rgba(0, 123, 195, 0.08) 0%, transparent 60%),
+      radial-gradient(900px 600px at 120% 10%, rgba(0, 174, 255, 0.06) 0%, transparent 55%),
+      #000025;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     touch-action: manipulation;
@@ -99,60 +114,108 @@
 
 @layer components {
   .glass-panel {
-    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: linear-gradient(
+      135deg,
+      rgba(0, 123, 195, 0.08),
+      rgba(0, 174, 255, 0.04)
+    );
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(0, 174, 255, 0.2);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 37, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-panel:hover {
+    border-color: rgba(0, 174, 255, 0.4);
+    box-shadow:
+      0 12px 48px rgba(0, 123, 195, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold rounded-lg flex items-center justify-center transition-all hover:opacity-90 focus:ring-2 focus:ring-ring focus:outline-none px-6 py-3;
+    background: linear-gradient(135deg, var(--data3-blue), var(--data3-light-blue));
+    @apply text-primary-foreground font-bold rounded-lg flex items-center justify-center transition-all focus:ring-2 focus:ring-ring focus:outline-none px-6 py-3;
     min-height: 48px;
+    min-height: 56px; /* Larger for mobile */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 16px rgba(0, 174, 255, 0.3);
+    border: none;
   }
-  
+
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover {
-      @apply opacity-90;
+      background: linear-gradient(135deg, var(--data3-light-blue), var(--data3-pale-blue));
+      box-shadow: 0 6px 24px rgba(0, 174, 255, 0.4);
+      transform: translateY(-2px);
     }
   }
-  
+
   .btn-primary:active {
     @apply scale-95;
+    transform: translateY(0);
+  }
+
+  @media (min-width: 640px) {
+    .btn-primary {
+      min-height: 48px;
+    }
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground font-semibold rounded-lg flex items-center justify-center transition-all hover:opacity-90 focus:ring-2 focus:ring-ring focus:outline-none px-6 py-3;
-    min-height: 48px;
+    background: transparent;
+    border: 2px solid var(--data3-blue);
+    color: var(--data3-light-blue);
+    @apply font-bold rounded-lg flex items-center justify-center transition-all focus:ring-2 focus:ring-ring focus:outline-none px-6 py-3;
+    min-height: 56px; /* Larger for mobile */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   @media (hover: hover) and (pointer: fine) {
     .btn-secondary:hover {
-      @apply opacity-90;
+      background: rgba(0, 123, 195, 0.1);
+      border-color: var(--data3-light-blue);
+      box-shadow: 0 4px 16px rgba(0, 174, 255, 0.2);
     }
   }
-  
+
   .btn-secondary:active {
     @apply scale-95;
   }
 
+  @media (min-width: 640px) {
+    .btn-secondary {
+      min-height: 48px;
+    }
+  }
+
   .btn-outline {
-    @apply border border-border bg-transparent text-foreground font-semibold rounded-lg flex items-center justify-center transition-colors hover:bg-muted focus:ring-2 focus:ring-ring focus:outline-none px-6 py-3;
-    min-height: 48px;
+    @apply border-2 bg-transparent font-bold rounded-lg flex items-center justify-center transition-all focus:ring-2 focus:outline-none px-6 py-3;
+    border-color: var(--data3-pale-blue);
+    color: var(--data3-pale-blue);
+    min-height: 56px; /* Larger for mobile */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   @media (hover: hover) and (pointer: fine) {
     .btn-outline:hover {
-      @apply bg-muted;
+      background: rgba(0, 174, 255, 0.1);
+      border-color: var(--data3-light-blue);
+      color: var(--data3-light-blue);
     }
   }
-  
+
   .btn-outline:active {
     @apply scale-95;
+  }
+
+  @media (min-width: 640px) {
+    .btn-outline {
+      min-height: 48px;
+    }
   }
 
   .category-card {

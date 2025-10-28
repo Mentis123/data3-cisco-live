@@ -10,6 +10,7 @@ import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
+import { Data3Logo } from "@/components/Data3Logo";
 
 interface LeaderboardEntry {
   id: string;
@@ -982,7 +983,7 @@ export default function Leaderboard() {
         <CardHeader className="pb-4">
           <CardTitle className={`${titleSize} font-bold text-center`}>
             <i className="fas fa-building text-blue-600 mr-3"></i>
-            Data<sup>#</sup>3 by the Numbers
+            <Data3Logo /> by the Numbers
           </CardTitle>
           <p className={`text-center ${subtitleSize}`}>
             {isWithin5Minutes ? (
@@ -1003,7 +1004,7 @@ export default function Leaderboard() {
               </>
             ) : (
               <span className="text-muted-foreground">
-                General Data<sup>#</sup>3 Stats • Scale and expertise across Australia & New Zealand
+                General <Data3Logo /> Stats • Scale and expertise across Australia & New Zealand
               </span>
             )}
           </p>
@@ -1136,7 +1137,7 @@ export default function Leaderboard() {
             />
             <div className="text-center">
               <h1 className={`${isFullscreen ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'} font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent`}>
-                Data<sup className="text-[#1cc8e4]">#</sup>3 Solution Sprint
+                <Data3Logo /> Solution Sprint
               </h1>
               <p className={`${isFullscreen ? 'text-3xl' : 'text-xl'} text-muted-foreground`}>
                 Cisco Live Melbourne 2025 • Powered by AI
@@ -1211,7 +1212,7 @@ export default function Leaderboard() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Visit the Data<sup>#</sup>3 booth to participate • Challenge entries scored in real-time</p>
+          <p>Visit the <Data3Logo /> booth to participate • Challenge entries scored in real-time</p>
           <div className="flex justify-center gap-4 mt-2">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>

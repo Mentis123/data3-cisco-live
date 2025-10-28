@@ -61,6 +61,19 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        // Data#3 Brand Colors
+        data3: {
+          "blue-black": "var(--data3-blue-black)",
+          blue: "var(--data3-blue)",
+          "light-blue": "var(--data3-light-blue)",
+          "pale-blue": "var(--data3-pale-blue)",
+          grey: "var(--data3-grey)",
+          white: "var(--data3-white)",
+          aqua: "var(--data3-aqua)",
+          "cool-purple": "var(--data3-cool-purple)",
+          magenta: "var(--data3-magenta)",
+          "cool-lilac": "var(--data3-cool-lilac)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

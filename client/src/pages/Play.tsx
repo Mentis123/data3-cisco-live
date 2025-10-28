@@ -41,6 +41,7 @@ import {
   isTriviaCardCategory,
 } from "@/data/triviaCards";
 import { TriviaWarmup } from "@/components/trivia";
+import { Data3Logo } from "@/components/Data3Logo";
 
 type PlayVariant = "classic" | "ring";
 
