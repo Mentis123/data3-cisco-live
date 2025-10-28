@@ -97,22 +97,19 @@ export default function Home() {
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-white text-2xl font-bold">
                 1
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 1</h3>
-              <p className="text-xl sm:text-2xl text-data3-white/90">Answer five trivia</p>
+              <p className="text-2xl sm:text-3xl font-bold text-data3-white">Answer five trivia</p>
             </div>
             <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-white text-2xl font-bold">
                 2
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 2</h3>
-              <p className="text-xl sm:text-2xl text-data3-white/90">Pitch your project</p>
+              <p className="text-2xl sm:text-3xl font-bold text-data3-white">Pitch your project</p>
             </div>
             <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white text-2xl font-bold">
                 3
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-data3-white">Step 3</h3>
-              <p className="text-xl sm:text-2xl text-data3-white/90">Beat the bot, earn a raffle entry</p>
+              <p className="text-2xl sm:text-3xl font-bold text-data3-white">Beat the bot, earn a raffle entry</p>
             </div>
           </div>
         </section>
