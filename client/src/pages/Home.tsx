@@ -109,7 +109,7 @@ export default function Home() {
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white text-2xl font-bold">
                 3
               </div>
-              <p className="text-2xl sm:text-3xl font-bold text-data3-white">Beat the bot, earn a raffle entry</p>
+              <p className="text-2xl sm:text-3xl font-bold text-data3-white">Beat the bot<br />Earn a raffle entry</p>
             </div>
           </div>
         </section>
