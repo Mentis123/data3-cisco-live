@@ -101,7 +101,7 @@ function areDecksEquivalent(
 export function TriviaWarmup({
   mode,
   className,
-  continueLabel = "Enter the ring",
+  continueLabel = "Pitch My Project",
   exitHref = "/beta",
   onContinue,
   email,
