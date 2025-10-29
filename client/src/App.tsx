@@ -16,6 +16,7 @@ import Admin from "@/pages/Admin";
 import Dojo from "@/pages/Dojo";
 import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
+import LeaderboardIdeas from "@/pages/LeaderboardIdeas";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/play" component={RingPlay} />
       <Route path="/ring" component={RingPlay} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/leaderboard/ideas" component={LeaderboardIdeas} />
       <Route path="/admin" component={Admin} />
       <Route path="/dojo" component={Dojo} />
       <Route path="/dojo/:mode" component={Dojo} />
