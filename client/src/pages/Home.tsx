@@ -165,14 +165,14 @@ export default function Home() {
           </div>
           <div className="mt-8 pt-8 border-t border-data3-pale-blue/10 text-center">
             <p className="text-sm text-data3-grey">
-              © 2025 Data#3. Experience powered by{" "}
+              © 2025 Data#3. Experience vibe coded by our resident{" "}
               <a
                 href="https://www.linkedin.com/in/adam-aka-mentis"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-data3-light-blue hover:text-data3-aqua underline underline-offset-4"
               >
-                good vibes
+                Tech Wizard
               </a>
               .
             </p>
