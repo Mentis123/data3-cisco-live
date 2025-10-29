@@ -40,6 +40,13 @@ import {
   triviaCardCategoryMeta,
   isTriviaCardCategory,
 } from "@/data/triviaCards";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { TriviaWarmup } from "@/components/trivia";
 
 type PlayVariant = "classic" | "ring";
@@ -72,6 +79,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [triviaDeckOpen, setTriviaDeckOpen] = useState(false);
+  const [mobileInsightsOpen, setMobileInsightsOpen] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState<any>(null);
@@ -1522,6 +1530,136 @@ Just describe it naturally - what's the problem that needs solving?`
       state.submission ||
       (state.problem && state.impact ? composeSubmission(state.problem, state.impact) : null);
 
+    const SprintMapCard = () => (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-white">Sprint map</CardTitle>
+          <p className="text-xs text-slate-300/80">Four beats to the leaderboard.</p>
+        </CardHeader>
+        <CardContent>
+          <SprintStepper currentStep={state.step} completedSteps={state.completedSteps} onStepClick={handleStepClick} />
+        </CardContent>
+      </Card>
+    );
+
+    const CoachShortcutsCard = () => (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-white">Coach shortcuts</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-slate-200/90">
+          <p>
+            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">cat</code> show categories &amp; test runs
+          </p>
+          <p>
+            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">submit</code> jump straight to review
+          </p>
+          <p>Shift + Enter for a new line</p>
+        </CardContent>
+      </Card>
+    );
+
+    const SolutionSnapshotCard = () => (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-white">Solution snapshot</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-200/90">
+          {state.problem ? (
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Problem</p>
+              <p className="mt-1 text-pretty leading-snug text-white/90">{state.problem.userInput}</p>
+            </div>
+          ) : (
+            <p className="text-slate-400">Complete Step 1 to populate the snapshot.</p>
+          )}
+          {state.impact ? (
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Impact cues</p>
+              <p className="mt-1 text-pretty leading-snug text-white/90">{state.impact.userInput}</p>
+            </div>
+          ) : null}
+          {previewSubmission ? (
+            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Category</span>
+              <span className="font-semibold text-emerald-300">{previewSubmission.chosen_category}</span>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+    );
+
+    const MetricTargetsCard = () => (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-white">Metric targets</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-200/90">
+          {previewSubmission ? (
+            <>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Baseline</p>
+                <ul className="mt-2 space-y-2">
+                  {previewSubmission.baseline_metrics.map((metric: any, idx: number) => (
+                    <li key={idx} className="flex items-start justify-between gap-3">
+                      <span className="text-slate-300/90">{metric.name}</span>
+                      <span className="font-semibold text-white">{metric.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Target</p>
+                <ul className="mt-2 space-y-2">
+                  {previewSubmission.target_metrics.map((metric: any, idx: number) => (
+                    <li key={idx} className="flex items-start justify-between gap-3">
+                      <span className="text-slate-300/90">{metric.name}</span>
+                      <span className="font-semibold text-emerald-300">{metric.target}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          ) : (
+            <p className="text-slate-400">Quantify the impact to generate baselines and targets.</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+
+    const ReadyToLockCard = () => (
+      <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-white">Ready to lock it?</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-200/90">
+          <p>Finish the impact step to jump into the final review screen and submit for scoring.</p>
+          <Button
+            onClick={handleSubmitCommand}
+            disabled={state.step < 2}
+            className="w-full rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-500"
+          >
+            Review &amp; submit
+          </Button>
+        </CardContent>
+      </Card>
+    );
+
+    const PrimaryInsights = () => (
+      <>
+        <SprintMapCard />
+        <CoachShortcutsCard />
+      </>
+    );
+
+    const SecondaryInsights = () => (
+      <>
+        <SolutionSnapshotCard />
+        <MetricTargetsCard />
+        <ReadyToLockCard />
+      </>
+    );
+
     return (
       <>
         <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
@@ -1541,15 +1679,14 @@ Just describe it naturally - what's the problem that needs solving?`
                 </div>
               </div>
             )}
-            <section className="order-1 flex min-h-[60vh] flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
+            <section className="order-1 relative flex min-h-[60vh] flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl lg:overflow-hidden">
               <div className="relative border-b border-white/10 bg-gradient-to-r from-emerald-500/30 via-slate-900/40 to-emerald-400/20 p-4 sm:p-6">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-1">
                     <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Sprint Coach</p>
-                    <h2 className="text-xl font-semibold sm:text-2xl">Data#3 ring</h2>
-                    <p className="text-sm text-slate-200/80">Follow the prompts — 3 replies max.</p>
+                    <p className="text-sm text-slate-200/80">Follow the prompts — three replies max.</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                     <span className="rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
                       Step {state.step}/4
                     </span>
@@ -1573,12 +1710,21 @@ Just describe it naturally - what's the problem that needs solving?`
                       <i className="fas fa-door-open mr-2"></i>
                       Exit
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setMobileInsightsOpen(true)}
+                      className="h-9 border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white lg:hidden"
+                    >
+                      <i className="fas fa-layer-group mr-2"></i>
+                      Sprint insights
+                    </Button>
                   </div>
                 </div>
               </div>
               <div
                 ref={chatContainerRef}
-                className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-6"
+                className="flex-1 space-y-3 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-6"
                 data-testid="chat-messages"
               >
                 {state.messages.length === 0 ? (
@@ -1627,7 +1773,7 @@ Just describe it naturally - what's the problem that needs solving?`
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="border-t border-white/10 bg-slate-950/60 p-4 sm:p-6">
+              <div className="sticky bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 sm:p-6 lg:static lg:bg-slate-950/60 lg:backdrop-blur-none backdrop-blur-xl">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                   <Textarea
                     value={currentMessage}
@@ -1657,135 +1803,55 @@ Just describe it naturally - what's the problem that needs solving?`
                     </Button>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-300/80">
-                  <span>Inputs {state.inputsCount}/6</span>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-medium uppercase tracking-[0.2em] text-slate-300/70 sm:text-sm sm:normal-case sm:tracking-normal sm:text-slate-300/80">
+                  <span className="flex items-center gap-1 text-[0.7rem] sm:text-sm">
+                    <i className="fas fa-circle-dot text-[0.55rem] text-emerald-300"></i>
+                    Inputs {state.inputsCount}/6
+                  </span>
                   {state.step >= 2 ? (
                     <Button
                       onClick={handleSubmitCommand}
                       variant="outline"
-                      className="rounded-xl border-white/20 bg-transparent px-4 text-white/80 hover:text-white"
+                      className="rounded-xl border-white/20 bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 hover:text-white sm:text-sm sm:font-normal sm:tracking-normal"
                       data-testid="button-quick-submit"
                     >
                       <i className="fas fa-gauge mr-2"></i>
                       Jump to review
                     </Button>
                   ) : (
-                    <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Finish Step 1 to unlock review</span>
+                    <span className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 sm:text-xs">Finish Step 1 to unlock review</span>
                   )}
                 </div>
               </div>
             </section>
 
-            <aside className="order-2 space-y-4 lg:order-1">
-              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold text-white">Sprint map</CardTitle>
-                  <p className="text-xs text-slate-300/80">Four beats to the leaderboard.</p>
-                </CardHeader>
-                <CardContent>
-                  <SprintStepper
-                    currentStep={state.step}
-                    completedSteps={state.completedSteps}
-                    onStepClick={handleStepClick}
-                  />
-                </CardContent>
-              </Card>
-              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold text-white">Coach shortcuts</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-slate-200/90">
-                  <p><code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">cat</code> show categories &amp; test runs</p>
-                  <p><code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">submit</code> jump straight to review</p>
-                  <p>Shift + Enter for a new line</p>
-                </CardContent>
-              </Card>
+            <aside className="order-2 hidden space-y-4 lg:order-1 lg:block">
+              <PrimaryInsights />
             </aside>
 
-            <aside className="order-3 space-y-4">
-              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold text-white">Solution snapshot</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-slate-200/90">
-                  {state.problem ? (
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Problem</p>
-                      <p className="mt-1 text-pretty leading-snug text-white/90">{state.problem.userInput}</p>
-                    </div>
-                  ) : (
-                    <p className="text-slate-400">Complete Step 1 to populate the snapshot.</p>
-                  )}
-                  {state.impact ? (
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Impact cues</p>
-                      <p className="mt-1 text-pretty leading-snug text-white/90">{state.impact.userInput}</p>
-                    </div>
-                  ) : null}
-                  {previewSubmission ? (
-                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-                      <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Category</span>
-                      <span className="font-semibold text-emerald-300">{previewSubmission.chosen_category}</span>
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-
-              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold text-white">Metric targets</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-slate-200/90">
-                  {previewSubmission ? (
-                    <>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Baseline</p>
-                        <ul className="mt-2 space-y-2">
-                          {previewSubmission.baseline_metrics.map((metric: any, idx: number) => (
-                            <li key={idx} className="flex items-start justify-between gap-3">
-                              <span className="text-slate-300/90">{metric.name}</span>
-                              <span className="font-semibold text-white">{metric.value}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Target</p>
-                        <ul className="mt-2 space-y-2">
-                          {previewSubmission.target_metrics.map((metric: any, idx: number) => (
-                            <li key={idx} className="flex items-start justify-between gap-3">
-                              <span className="text-slate-300/90">{metric.name}</span>
-                              <span className="font-semibold text-emerald-300">{metric.target}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-slate-400">Quantify the impact to generate baselines and targets.</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold text-white">Ready to lock it?</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-slate-200/90">
-                  <p>Finish the impact step to jump into the final review screen and submit for scoring.</p>
-                  <Button
-                    onClick={handleSubmitCommand}
-                    disabled={state.step < 2}
-                    className="w-full rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-500"
-                  >
-                    Review &amp; submit
-                  </Button>
-                </CardContent>
-              </Card>
+            <aside className="order-3 hidden space-y-4 lg:block">
+              <SecondaryInsights />
             </aside>
           </div>
         </div>
         {exitDialog}
+        <Sheet open={mobileInsightsOpen} onOpenChange={setMobileInsightsOpen}>
+          <SheetContent
+            side="bottom"
+            className="h-[85vh] overflow-y-auto border-t border-white/10 bg-slate-950/95 text-white backdrop-blur-xl sm:h-[75vh]"
+          >
+            <SheetHeader className="text-left">
+              <SheetTitle className="text-lg font-semibold text-white">Sprint insights</SheetTitle>
+              <SheetDescription className="text-sm text-slate-300">
+                Progress, shortcuts, and your draft in one quick view.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-4 space-y-4 pb-8">
+              <PrimaryInsights />
+              <SecondaryInsights />
+            </div>
+          </SheetContent>
+        </Sheet>
         <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
           <DialogHeader className="space-y-2">
             <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
