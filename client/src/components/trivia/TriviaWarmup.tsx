@@ -112,12 +112,17 @@ export function TriviaWarmup({
   const [showOverlay, setShowOverlay] = useState(false);
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
   const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedTrack && attemptId) {
       setAttemptId(null);
     }
-  }, [selectedTrack, attemptId]);
+    // Clear duplicate error when track changes
+    if (!selectedTrack && duplicateError) {
+      setDuplicateError(null);
+    }
+  }, [selectedTrack, attemptId, duplicateError]);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -250,6 +255,17 @@ export function TriviaWarmup({
               lastName,
             },
           });
+
+          // Check for 409 Conflict (duplicate submission)
+          if (response.status === 409) {
+            const data = await response.json();
+            const errorMessage = data.message || "You have already submitted for this category today";
+            setDuplicateError(errorMessage);
+            setShowOverlay(false);
+            setSelectedTrack(null);
+            return;
+          }
+
           const data = await response.json();
           const nextAttemptId =
             typeof data.attemptId === "string"
@@ -266,6 +282,12 @@ export function TriviaWarmup({
           }
         } catch (error) {
           console.error("[TriviaWarmup] Failed to create attempt:", error);
+          // Check if error response indicates duplicate
+          if (error && typeof error === 'object' && 'status' in error && error.status === 409) {
+            setDuplicateError("You have already submitted for this category today");
+            setShowOverlay(false);
+            setSelectedTrack(null);
+          }
         }
       };
 
@@ -288,6 +310,14 @@ export function TriviaWarmup({
             Pick the architecture you want to drill. {mode === "ring" ? "Each deck pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set for
             that track.
           </p>
+          {duplicateError && (
+            <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
+              <p className="text-sm font-medium text-amber-200">{duplicateError}</p>
+              <p className="mt-1 text-xs text-amber-300/80">
+                You can only submit once per category per day. Try a different category or come back tomorrow!
+              </p>
+            </div>
+          )}
           {isCategoriesError && (
             <p className="text-xs text-amber-300/80">
               We couldn&apos;t confirm deck counts right now{categoriesErrorMessage ? ` (${categoriesErrorMessage})` : ""}, but every
