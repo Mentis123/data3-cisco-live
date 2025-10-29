@@ -9,14 +9,14 @@ The /beta project is a **trivia-based gamification system** for Cisco Live that 
 - 5-question trivia rounds across 5 technology categories
 - Case card submissions for real-world problem-solving
 - Competitive leaderboard with "Beat the Bot" mechanics
-- Practice (Dojo) and Official (Ring) modes
+- Training (Dojo) and Official (Ring) modes
 
 **Overall Assessment**: The codebase is well-structured with solid architecture, proper TypeScript typing, and effective error handling. The JSON fallback mechanism works perfectly. A few critical bugs need fixing before production.
 
 ## Architecture Quality: 8.5/10
 
 ### Strengths
-- Clean separation between Dojo (practice) and Ring (official) modes
+- Clean separation between Dojo (training) and Ring (official) modes
 - Robust fallback from database to memory storage with JSON seed data
 - Proper TypeScript interfaces throughout
 - Good use of React Query for data fetching
@@ -218,7 +218,7 @@ const triviaAttemptId: string | null = null;
 
 ## User Experience Flow
 
-### Dojo Practice Flow: ✅ WORKS PERFECTLY
+### Dojo Training Flow: ✅ WORKS PERFECTLY
 1. User visits `/beta/dojo/trivia-cards`
 2. Selects one of 5 categories
 3. Server builds deck (1 easy, 3 medium, 1 hard)

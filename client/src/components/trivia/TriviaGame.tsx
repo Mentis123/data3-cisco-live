@@ -15,7 +15,7 @@ type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete"
 
 /**
  * TriviaMode determines UI behavior:
- * - "dojo": Practice mode with manual "Continue" button between questions
+ * - "dojo": Training mode with manual "Continue" button between questions
  * - "ring": Official mode with auto-advance (1.4s delay)
  */
 type TriviaMode = "dojo" | "ring";
@@ -27,7 +27,7 @@ type TriviaMode = "dojo" | "ring";
  * @param className - Optional CSS classes for styling
  * @param onComplete - Callback fired when all questions are answered, receives final score
  * @param completionRender - Custom render function for completion screen
- * @param mode - "dojo" (practice) or "ring" (official) mode
+ * @param mode - "dojo" (training) or "ring" (official) mode
  */
 interface TriviaGameProps {
   questions: TriviaQuestion[];
@@ -63,7 +63,7 @@ function getTierPoints(timeElapsed: number): number {
  * - Tiered scoring: 12pts (0-5s), 8pts (5-10s), 4pts (10-15s)
  * - At 10s remaining: one wrong answer is hidden
  * - At 5s remaining: hint appears
- * - Supports both Dojo (practice) and Ring (official) modes
+ * - Supports both Dojo (training) and Ring (official) modes
  *
  * Game Flow:
  * 1. Ready countdown (1s)
