@@ -831,13 +831,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-            <img
-              src={ringFullImage}
-              alt="Ring"
-              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40"
-            />
-            <div className="flex-1 space-y-2 text-center sm:text-left">
+          <div className="mb-10 flex flex-wrap items-center gap-6 sm:flex-nowrap sm:items-start">
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-emerald-400/40 bg-emerald-500/10 shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40 sm:h-28 sm:w-28">
+              <img
+                src={ringFullImage}
+                alt="Ring"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex-1 min-w-[240px] space-y-2 text-left">
               <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
               <h1 className="text-4xl font-semibold sm:text-5xl">Beat the bot</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
