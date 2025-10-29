@@ -39,6 +39,7 @@ import {
   triviaCardDeck,
   triviaCardCategoryMeta,
   isTriviaCardCategory,
+  type TriviaCardCategory,
 } from "@/data/triviaCards";
 import {
   Sheet,
@@ -48,6 +49,71 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { TriviaWarmup } from "@/components/trivia";
+
+type CategoryTheme = {
+  border: string;
+  background: string;
+  text: string;
+  subheading: string;
+  badgeBg: string;
+  badgeText: string;
+  shadow: string;
+};
+
+const CATEGORY_THEMES: Record<TriviaCardCategory, CategoryTheme> = {
+  SECURE_CONNECTIVITY: {
+    border: "rgba(34, 211, 238, 0.45)",
+    background: "rgba(14, 165, 233, 0.12)",
+    text: "#E0F2FE",
+    subheading: "rgba(125, 211, 252, 0.85)",
+    badgeBg: "#22D3EE",
+    badgeText: "#083344",
+    shadow: "0 20px 70px -40px rgba(14, 165, 233, 0.65)",
+  },
+  HYBRID_DC: {
+    border: "rgba(168, 85, 247, 0.45)",
+    background: "rgba(139, 92, 246, 0.12)",
+    text: "#F3E8FF",
+    subheading: "rgba(216, 180, 254, 0.85)",
+    badgeBg: "#A855F7",
+    badgeText: "#2E1065",
+    shadow: "0 20px 70px -40px rgba(139, 92, 246, 0.6)",
+  },
+  COLLAB_CX: {
+    border: "rgba(249, 115, 22, 0.5)",
+    background: "rgba(251, 146, 60, 0.14)",
+    text: "#FFEAD5",
+    subheading: "rgba(251, 191, 36, 0.85)",
+    badgeBg: "#FB923C",
+    badgeText: "#431407",
+    shadow: "0 20px 70px -40px rgba(249, 115, 22, 0.55)",
+  },
+  OBSERVABILITY: {
+    border: "rgba(56, 189, 248, 0.45)",
+    background: "rgba(59, 130, 246, 0.14)",
+    text: "#E0F2FE",
+    subheading: "rgba(165, 243, 252, 0.85)",
+    badgeBg: "#38BDF8",
+    badgeText: "#0C4A6E",
+    shadow: "0 20px 70px -40px rgba(56, 189, 248, 0.6)",
+  },
+  EDGE_IOT: {
+    border: "rgba(34, 197, 94, 0.45)",
+    background: "rgba(52, 211, 153, 0.14)",
+    text: "#D1FAE5",
+    subheading: "rgba(167, 243, 208, 0.85)",
+    badgeBg: "#34D399",
+    badgeText: "#022C22",
+    shadow: "0 20px 70px -40px rgba(16, 185, 129, 0.6)",
+  },
+};
+
+const getCategoryTheme = (category: string | null | undefined): CategoryTheme => {
+  if (category && isTriviaCardCategory(category)) {
+    return CATEGORY_THEMES[category];
+  }
+  return CATEGORY_THEMES.EDGE_IOT;
+};
 
 type PlayVariant = "classic" | "ring";
 
@@ -92,6 +158,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
     : null;
+
+  const selectedCategoryTheme = getCategoryTheme(selectedCategory);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -922,10 +990,17 @@ Just describe it naturally - what's the problem that needs solving?`
     const currentSubmission = editedSubmission || state.submission;
 
     if (isRing) {
+      const submissionCategory = currentSubmission?.chosen_category ?? selectedCategory;
+      const submissionTheme = getCategoryTheme(submissionCategory);
+      const submissionCategoryLabel =
+        submissionCategory && isTriviaCardCategory(submissionCategory)
+          ? triviaCardCategoryMeta[submissionCategory].name
+          : selectedCategoryLabel;
+
       return (
         <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
           <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
-          <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
+            <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
@@ -1254,15 +1329,37 @@ Just describe it naturally - what's the problem that needs solving?`
       {triviaDeckDialog}
       {isRing && triviaScore !== null && (
         <div className="mx-auto w-full max-w-4xl px-4 pt-4">
-          <div className="flex items-center justify-between rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100 shadow-[0_20px_70px_-40px_rgba(34,197,94,0.7)]">
+          <div
+            className="flex items-center justify-between rounded-2xl border px-4 py-3 text-sm"
+            style={{
+              borderColor: selectedCategoryTheme.border,
+              backgroundColor: selectedCategoryTheme.background,
+              color: selectedCategoryTheme.text,
+              boxShadow: selectedCategoryTheme.shadow,
+            }}
+          >
             <div className="flex flex-col gap-1 text-left">
-              <span className="text-xs uppercase tracking-[0.25em] text-emerald-200/80">Trivia locked</span>
-              <span className="text-base font-semibold text-emerald-100">
+              <span
+                className="text-xs uppercase tracking-[0.25em]"
+                style={{ color: selectedCategoryTheme.subheading }}
+              >
+                Trivia locked
+              </span>
+              <span className="text-base font-semibold" style={{ color: selectedCategoryTheme.text }}>
                 {triviaScore}/60 locked in
                 {selectedCategoryLabel ? <span className="font-normal"> · {selectedCategoryLabel}</span> : null}
               </span>
             </div>
-            <Badge className="bg-emerald-400 text-emerald-950">Official</Badge>
+            <Badge
+              variant="outline"
+              className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+              style={{
+                backgroundColor: selectedCategoryTheme.badgeBg,
+                color: selectedCategoryTheme.badgeText,
+              }}
+            >
+              Official
+            </Badge>
           </div>
         </div>
       )}
@@ -1666,16 +1763,38 @@ Just describe it naturally - what's the problem that needs solving?`
           <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
             {triviaScore !== null && (
-              <div className="order-0 rounded-3xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100 shadow-[0_25px_80px_-50px_rgba(16,185,129,0.75)] lg:col-span-3">
+              <div
+                className="order-0 rounded-3xl border px-4 py-3 text-sm lg:col-span-3"
+                style={{
+                  borderColor: submissionTheme.border,
+                  backgroundColor: submissionTheme.background,
+                  color: submissionTheme.text,
+                  boxShadow: submissionTheme.shadow,
+                }}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Trivia locked</p>
-                    <p className="text-base font-semibold text-emerald-100">
+                    <p
+                      className="text-xs uppercase tracking-[0.3em]"
+                      style={{ color: submissionTheme.subheading }}
+                    >
+                      Trivia locked
+                    </p>
+                    <p className="text-base font-semibold" style={{ color: submissionTheme.text }}>
                       {triviaScore}/60 locked in
-                      {selectedCategoryLabel ? <span className="font-normal"> · {selectedCategoryLabel}</span> : null}
+                      {submissionCategoryLabel ? <span className="font-normal"> · {submissionCategoryLabel}</span> : null}
                     </p>
                   </div>
-                  <Badge className="bg-emerald-400 text-emerald-950">Official entry</Badge>
+                  <Badge
+                    variant="outline"
+                    className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+                    style={{
+                      backgroundColor: submissionTheme.badgeBg,
+                      color: submissionTheme.badgeText,
+                    }}
+                  >
+                    Official entry
+                  </Badge>
                 </div>
               </div>
             )}
