@@ -326,6 +326,25 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Email is required for ring attempts" });
       }
 
+      // Check for existing submission for this email + category + day
+      if (payload.email) {
+        const emailHash = hashEmail(payload.email);
+        const today = new Date().toISOString().split('T')[0];
+        const existingAttempt = await storage.checkExistingDailyAttempt(
+          emailHash,
+          payload.category,
+          today
+        );
+
+        if (existingAttempt) {
+          return res.status(409).json({
+            message: "You have already submitted for this category today",
+            alreadySubmitted: true,
+            existingAttemptId: existingAttempt.id
+          });
+        }
+      }
+
       const playerProfile = payload.playerProfile
         ? {
             firstName: payload.playerProfile.firstName ?? null,

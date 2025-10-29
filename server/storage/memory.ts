@@ -1054,6 +1054,22 @@ export function createMemoryStorage() {
       return attempt || null;
     },
 
+    async checkExistingDailyAttempt(
+      emailHash: string | null,
+      category: string,
+      attemptDay: string
+    ): Promise<Attempt | null> {
+      if (!emailHash) {
+        return null;
+      }
+
+      const existing = triviaAttemptsStore.find(
+        (a) => a.emailHash === emailHash && a.category === category && a.attemptDay === attemptDay
+      );
+
+      return existing || null;
+    },
+
     async createRaffleEntry(data: {
       emailHash: string;
       category: string;

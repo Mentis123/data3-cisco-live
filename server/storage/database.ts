@@ -581,6 +581,29 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return attempt || null;
     },
 
+    async checkExistingDailyAttempt(
+      emailHash: string | null,
+      category: string,
+      attemptDay: string
+    ): Promise<Attempt | null> {
+      if (!emailHash) {
+        return null;
+      }
+
+      const [existing] = await db
+        .select()
+        .from(attempts)
+        .where(
+          and(
+            eq(attempts.emailHash, emailHash),
+            eq(attempts.category, category),
+            eq(attempts.attemptDay, attemptDay)
+          )
+        );
+
+      return existing || null;
+    },
+
     async createRaffleEntry(data: {
       emailHash: string;
       category: string;
