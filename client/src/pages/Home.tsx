@@ -32,7 +32,7 @@ export default function Home() {
             Beat the Bot
           </p>
           <div className="space-y-2">
-            <p className="text-lg sm:text-xl text-data3-white/90">Practice in the dojo</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Training dojo</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Enter the ring when you're ready</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry</p>
           </div>
@@ -55,10 +55,10 @@ export default function Home() {
             <Link href="/dojo" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-cool-purple/40 group-hover:shadow-[0_0_30px_rgba(115,0,255,0.35)]">
                 <div className="relative aspect-square">
-                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
+                  <img src={dojoImage} alt="Training Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">Practice in Dojo</span>
+                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">Training Dojo</span>
                   </div>
                 </div>
               </div>

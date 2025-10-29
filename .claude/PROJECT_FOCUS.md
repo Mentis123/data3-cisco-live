@@ -7,7 +7,7 @@
 
 ### Key Objectives
 1. **Trivia System**: Ensure .json fallback with trivia questions per category all working correctly
-2. **Dojo Logic**: Complete practice functionality for all five categories online
+2. **Dojo Logic**: Complete training functionality for all five categories online
 3. **Component Completion**: Review and complete all incomplete components
 4. **Refactoring**: Improve code quality, performance, and maintainability
 5. **Testing**: Verify all functionality works as expected
@@ -34,7 +34,7 @@
 
 ### Current Status (Post-Review)
 - All 5 trivia categories fully functional with JSON fallback
-- Dojo practice mode: LIVE
+- Dojo training mode: LIVE
 - Ring mode with trivia warmup: LIVE
 - Case builder: IN DEVELOPMENT (showing placeholder)
 

@@ -520,9 +520,9 @@ export default function HowToPlay() {
                   <div className="rounded-xl border border-pink-400/30 bg-pink-500/10 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <i className="fas fa-graduation-cap text-pink-400"></i>
-                      <p className="font-semibold text-white">Warm up in the dojo</p>
+                      <p className="font-semibold text-white">Training dojo</p>
                     </div>
-                    <p>Unlimited practice runs with explanations help you get the rhythm before going official.</p>
+                    <p>Unlimited training runs with explanations help you get the rhythm before going official.</p>
                   </div>
                 </div>
               </AccordionContent>
@@ -560,7 +560,7 @@ export default function HowToPlay() {
                       Can I just play trivia without pitching?
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4 pt-0 text-sm text-data3-white/85">
-                      In <span className="font-semibold text-white">Dojo mode</span> yes—practice as much as you like. In <span className="font-semibold text-white">Ring mode</span> you must complete trivia and the pitch to record a score and earn raffle entries.
+                      In <span className="font-semibold text-white">Dojo mode</span> yes—train as much as you like. In <span className="font-semibold text-white">Ring mode</span> you must complete trivia and the pitch to record a score and earn raffle entries.
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="faq-4">
@@ -568,7 +568,7 @@ export default function HowToPlay() {
                       What if I'm not an expert in my category?
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4 pt-0 text-sm text-data3-white/85">
-                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Practice in Dojo</span> to see explanations and build confidence before your official run.
+                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Training Dojo</span> to see explanations and build confidence before your official run.
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -626,7 +626,7 @@ export default function HowToPlay() {
                         <i className="fas fa-graduation-cap text-white text-xl"></i>
                       </div>
                       <div>
-                        <CardTitle className="text-2xl text-white">Practice in Dojo</CardTitle>
+                        <CardTitle className="text-2xl text-white">Training Dojo</CardTitle>
                         <p className="text-sm text-purple-200/80 mt-1">Learn and improve</p>
                       </div>
                     </div>

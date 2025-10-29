@@ -47,7 +47,7 @@ Completed comprehensive review of the /beta trivia system and implemented critic
 - `client/src/pages/Play.tsx` (lines 66-73, 90-95, 497-508)
 - `client/src/components/trivia/TriviaWarmup.tsx` (lines 27, 345-349, 353)
 
-**Note**: Full Ring mode with attempt creation (POST /api/trivia/attempts) is documented but not yet implemented. Current implementation uses practice mode for both Dojo and Ring, which is acceptable for beta launch.
+**Note**: Full Ring mode with attempt creation (POST /api/trivia/attempts) is documented but not yet implemented. Current implementation uses training mode for both Dojo and Ring, which is acceptable for beta launch.
 
 ---
 
@@ -86,7 +86,7 @@ Completed comprehensive review of the /beta trivia system and implemented critic
 - JSON fallback loads correctly (125 questions across 5 categories)
 - Deck building algorithm produces correct difficulty distribution
 - Memory storage fallback mechanism works
-- Dojo practice mode fully functional
+- Dojo training mode fully functional
 - Scoring calculation aligned between frontend and backend
 
 ### Manual Testing Recommended ⚠️
@@ -116,7 +116,7 @@ Completed comprehensive review of the /beta trivia system and implemented critic
 5. Handle errors and retry logic
 
 **Decision**: Implement minimal viable fix for beta launch:
-- Keep practice mode for both Dojo and Ring
+- Keep training mode for both Dojo and Ring
 - Track score for user feedback
 - Document full Ring mode as future enhancement
 - Maintain backward compatibility
@@ -250,7 +250,7 @@ All changes are additive and don't break existing functionality.
 - ✅ Aligned all user-facing scoring information
 
 ### What Stayed The Same
-- ✅ Dojo practice mode unchanged
+- ✅ Dojo training mode unchanged
 - ✅ All 125 trivia questions intact
 - ✅ Deck building algorithm working correctly
 - ✅ JSON fallback mechanism operational

@@ -1,7 +1,7 @@
 # Ring Mode Implementation Fix
 
 ## Problem
-Currently, TriviaWarmup uses the practice endpoint (`GET /api/trivia/practice`) for both Dojo and Ring modes. This means Ring mode doesn't:
+Currently, TriviaWarmup uses the training endpoint (`GET /api/trivia/practice`) for both Dojo and Ring modes. This means Ring mode doesn't:
 1. Create an attempt record
 2. Track answers
 3. Submit scores to the database
@@ -65,7 +65,7 @@ Ring Mode:
 Given the complexity and potential for breaking changes, I recommend a **simpler fix for immediate deployment**:
 
 ### Minimal Viable Fix
-1. Keep practice mode for both Dojo and Ring (no breaking changes)
+1. Keep training mode for both Dojo and Ring (no breaking changes)
 2. Collect email at the **submission step** in PlayContent
 3. Create trivia attempt retroactively when submitting case card
 4. Link attempt to submission at that point

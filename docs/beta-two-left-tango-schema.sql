@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Attempt sessions for Dojo (practice) and Ring (official) modes.
+-- Attempt sessions for Dojo (training) and Ring (official) modes.
 CREATE TABLE IF NOT EXISTS attempts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email_hash text REFERENCES users(email_hash),

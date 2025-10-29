@@ -111,7 +111,7 @@ export default function Beta() {
               </Link>
             </div>
             <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 text-center">
-              Practice in the Dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today’s Meta AI Glasses.
+              Training dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
             </p>
           </div>
           <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 sm:gap-6 mx-auto">
@@ -130,11 +130,11 @@ export default function Beta() {
             <Link href="/beta/dojo" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
-                  <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
+                  <img src={dojoImage} alt="Training Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
-                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Practice</span>
-                    <span className="text-xl font-semibold text-white">Practice in Dojo</span>
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Training</span>
+                    <span className="text-xl font-semibold text-white">Training Dojo</span>
                   </div>
                 </div>
               </div>
@@ -273,7 +273,7 @@ export default function Beta() {
           </Link>
           <Link href="/beta/dojo">
             <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
-              <span className="relative z-10">Practice in Dojo</span>
+              <span className="relative z-10">Training Dojo</span>
             </Button>
           </Link>
           <Link href="/beta/leaderboard">
