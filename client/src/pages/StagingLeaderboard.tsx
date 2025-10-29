@@ -211,15 +211,15 @@ export default function StagingLeaderboard() {
       }
 
       if (index === 0) {
-        return 'bg-gradient-to-r from-cyan-500/30 via-blue-500/25 to-purple-500/30 border-cyan-300/60 shadow-2xl shadow-cyan-500/30';
+        return 'bg-gradient-to-r from-[#007BC3]/30 via-[#00AEFF]/25 to-[#7300FF]/30 border-[#00AEFF]/60 shadow-2xl shadow-[#007BC3]/30';
       }
 
       if (index === 1) {
-        return 'bg-white/10 border-white/40 shadow-xl shadow-blue-500/20';
+        return 'bg-white/10 border-white/40 shadow-xl shadow-[#007BC3]/20';
       }
 
       if (index === 2) {
-        return 'bg-white/10 border-white/30 shadow-xl shadow-purple-500/20';
+        return 'bg-white/10 border-white/30 shadow-xl shadow-[#7300FF]/20';
       }
 
       return 'bg-white/5 border-white/20 hover:bg-white/10';
@@ -227,7 +227,7 @@ export default function StagingLeaderboard() {
 
     const getRankClasses = (index: number, hasEntry: boolean) => {
       if (!hasEntry) {
-        return 'bg-white/10 text-cyan-100/50';
+        return 'bg-white/10 text-[#78DCFF]/50';
       }
 
       if (index === 0) {
@@ -242,7 +242,7 @@ export default function StagingLeaderboard() {
         return 'bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/40';
       }
 
-      return 'bg-white/10 text-cyan-100 border border-white/20 shadow-inner';
+      return 'bg-white/10 text-[#78DCFF] border border-white/20 shadow-inner';
     };
 
     return (
@@ -265,10 +265,10 @@ export default function StagingLeaderboard() {
                 {String(index + 1).padStart(2, '0')}
               </div>
               <div className="min-w-0 text-left">
-                <p className={`text-base font-semibold tracking-tight truncate ${hasEntry ? 'text-white' : 'text-cyan-100/60'}`}>
+                <p className={`text-base font-semibold tracking-tight truncate ${hasEntry ? 'text-white' : 'text-[#78DCFF]/60'}`}>
                   {entry ? entry.name : 'Awaiting Challenger'}
                 </p>
-                <div className="mt-1 flex flex-wrap items-center justify-start gap-1 text-cyan-100/80">
+                <div className="mt-1 flex flex-wrap items-center justify-start gap-1 text-[#78DCFF]/80">
                   {entry ? (
                     <span
                       className="inline-flex items-center justify-start rounded-full px-2 py-0.5 font-medium uppercase tracking-wider text-[0.6rem]"
@@ -281,17 +281,17 @@ export default function StagingLeaderboard() {
                       {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
                     </span>
                   ) : (
-                    <span className="uppercase tracking-wider text-[0.6rem] text-cyan-100/60">
+                    <span className="uppercase tracking-wider text-[0.6rem] text-[#78DCFF]/60">
                       Open Slot
                     </span>
                   )}
                 </div>
               </div>
               <div className="text-right">
-                <p className={`score-value font-black tabular-nums tracking-tight text-xl ${hasEntry ? 'text-white drop-shadow-[0_10px_25px_rgba(28,200,228,0.35)]' : 'text-white/40'}`}>
+                <p className={`score-value font-black tabular-nums tracking-tight text-xl ${hasEntry ? 'text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]' : 'text-white/40'}`}>
                   {entry ? entry.totalScore.toString().padStart(2, '0') : '--'}
                 </p>
-                <p className="uppercase tracking-[0.25em] text-cyan-100/60 mt-0.5 text-[0.55rem]">
+                <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.55rem]">
                   pts
                 </p>
               </div>
@@ -306,9 +306,9 @@ export default function StagingLeaderboard() {
     if (activeChallengers.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center py-8">
-          <i className="fas fa-users text-4xl text-cyan-200/50 mb-4"></i>
+          <i className="fas fa-users text-4xl text-[#78DCFF]/50 mb-4"></i>
           <p className="text-lg font-semibold text-white/70">No Active Challengers</p>
-          <p className="text-sm text-cyan-100/60 mt-2">
+          <p className="text-sm text-[#78DCFF]/60 mt-2">
             When someone enters the ring, they'll appear here
           </p>
         </div>
@@ -350,7 +350,7 @@ export default function StagingLeaderboard() {
                     {categoryName}
                   </Badge>
                 </div>
-                <div className="text-cyan-100/60">
+                <div className="text-[#78DCFF]/60">
                   <i className="fas fa-fist-raised text-2xl"></i>
                 </div>
               </div>
@@ -403,13 +403,13 @@ export default function StagingLeaderboard() {
             <img
               src={leaderboardFullImage}
               alt="Leaderboard"
-              className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-cyan-500/30 ring-2 ring-cyan-400/40"
+              className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
             />
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-white">
                 Staging Leaderboard
               </h1>
-              <p className="text-sm text-cyan-100/80">
+              <p className="text-sm text-[#78DCFF]/80">
                 Real-time challenge tracking
               </p>
             </div>
@@ -426,19 +426,19 @@ export default function StagingLeaderboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Side: Leaderboard (wider) */}
           <div className="lg:col-span-7">
-            <Card className="relative overflow-hidden border-none bg-gradient-to-b from-[#071734] via-[#0b2650] to-[#13316b] text-white shadow-2xl">
-              <div className="absolute -top-40 -left-32 h-72 w-72 rounded-full bg-cyan-500/30 blur-3xl"></div>
-              <div className="absolute -bottom-48 -right-24 h-80 w-80 rounded-full bg-purple-500/20 blur-3xl"></div>
-              <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-500/10 blur-[160px]"></div>
+            <Card className="relative overflow-hidden border-none bg-gradient-to-b from-[#000025] via-[#000045] to-[#007BC3]/20 text-white shadow-2xl">
+              <div className="absolute -top-40 -left-32 h-72 w-72 rounded-full bg-[#00AEFF]/30 blur-3xl"></div>
+              <div className="absolute -bottom-48 -right-24 h-80 w-80 rounded-full bg-[#7300FF]/20 blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#007BC3]/10 blur-[160px]"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center">
-                <p className="uppercase tracking-[0.5em] text-cyan-100/60 text-[0.65rem]">
+                <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
                   Live Rankings
                 </p>
-                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(15,76,129,0.55)]">
+                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
                   Top 10
                 </CardTitle>
-                <p className="mt-2 text-sm text-cyan-100/80">
+                <p className="mt-2 text-sm text-[#78DCFF]/80">
                   {displayData.leaderboard.length > 0
                     ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
                     : 'Waiting for first submission'}
@@ -453,21 +453,21 @@ export default function StagingLeaderboard() {
 
           {/* Right Side: Active Challengers */}
           <div className="lg:col-span-5">
-            <Card className="relative overflow-hidden border-none bg-gradient-to-b from-[#1a0f2e] via-[#2d1b47] to-[#4a2c5e] text-white shadow-2xl h-full">
-              <div className="absolute -top-32 -right-24 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl"></div>
-              <div className="absolute -bottom-32 -left-24 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl"></div>
+            <Card className="relative overflow-hidden border-none bg-gradient-to-b from-[#000025] via-[#000045] to-[#7300FF]/15 text-white shadow-2xl h-full">
+              <div className="absolute -top-32 -right-24 h-64 w-64 rounded-full bg-[#FF00FF]/20 blur-3xl"></div>
+              <div className="absolute -bottom-32 -left-24 h-64 w-64 rounded-full bg-[#7300FF]/20 blur-3xl"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center border-b border-white/10">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <i className="fas fa-fist-raised text-orange-400"></i>
-                  <p className="uppercase tracking-[0.4em] text-orange-100/80 text-[0.65rem]">
+                  <i className="fas fa-fist-raised text-[#FF00FF]"></i>
+                  <p className="uppercase tracking-[0.4em] text-[#9B9BFF]/80 text-[0.65rem]">
                     Active Now
                   </p>
                 </div>
-                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(255,107,53,0.4)]">
+                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(115,0,255,0.4)]">
                   In The Ring
                 </CardTitle>
-                <p className="mt-2 text-sm text-orange-100/70">
+                <p className="mt-2 text-sm text-[#9B9BFF]/70">
                   {activeChallengers.length} {activeChallengers.length === 1 ? 'Challenger' : 'Challengers'}
                 </p>
               </CardHeader>
