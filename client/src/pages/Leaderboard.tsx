@@ -1115,23 +1115,14 @@ export default function Leaderboard() {
         {/* Header */}
         <div className="mb-8 space-y-6">
           <div
-            className={`flex flex-wrap items-center justify-center gap-3 sm:gap-4 ${
-              isFullscreen ? '' : 'sm:justify-start'
+            className={`flex ${
+              isFullscreen ? 'justify-center' : 'justify-center sm:justify-start'
             }`}
           >
-            <img
-              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-              alt="Data#3"
-              className={`${isFullscreen ? 'h-14 sm:h-16' : 'h-10 sm:h-12'} w-auto`}
-              style={{ minWidth: isFullscreen ? '72px' : '56px' }}
-            />
-            <span
-              className={`${
-                isFullscreen ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'
-              } font-semibold tracking-tight text-white`}
-            >
-              Delivering the Digital Future
-            </span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.35em] text-fuchsia-100">
+              <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-300"></span>
+              Standings
+            </div>
           </div>
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
             <img
@@ -1140,19 +1131,10 @@ export default function Leaderboard() {
               className={`${heroImageSize} rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}
             />
             <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-left">
-              <Badge
-                className={`w-fit rounded-full border-fuchsia-400/50 bg-fuchsia-500/15 px-4 py-1 font-semibold uppercase tracking-[0.4em] text-[0.65rem] text-fuchsia-200 shadow-[0_0_25px_rgba(217,70,239,0.35)] ${
-                  isFullscreen ? 'sm:text-sm' : 'sm:text-xs'
-                }`}
-              >
-                Standings
-              </Badge>
               <h1
                 className={`${heroTitleSize} font-bold tracking-tight text-white drop-shadow-[0_8px_30px_rgba(15,76,129,0.55)]`}
               >
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  <Data3Logo /> Solution Sprint
-                </span>
+                Leaderboard
               </h1>
               <p className={`${heroSubtitleSize} text-cyan-100/80`}>
                 Cisco Live Melbourne 2025 • Powered by AI
