@@ -72,7 +72,7 @@ export default function Dojo({ params }: DojoRouteProps) {
   if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8">
           <TriviaWarmup mode="dojo" className="h-full" />
 
           <div className="flex flex-wrap gap-3">
@@ -94,7 +94,7 @@ export default function Dojo({ params }: DojoRouteProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
           <img
             src={dojoFullImage}
