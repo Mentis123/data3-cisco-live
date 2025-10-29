@@ -628,7 +628,7 @@ export default function HowToPlay() {
               </Card>
             </Link>
 
-            <Link href="/dojo/trivia-cards" className="group">
+            <Link href="/dojo" className="group">
               <Card className="border-purple-400/40 bg-gradient-to-br from-purple-500/20 via-white/5 to-white/5 backdrop-blur shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 transition-all duration-300 group-hover:-translate-y-1">
                 <CardHeader>
                   <div className="flex items-center justify-between">
