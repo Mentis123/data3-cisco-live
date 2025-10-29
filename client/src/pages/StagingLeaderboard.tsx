@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
+import { formatNameToInitials } from "@/lib/utils";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
 
@@ -266,7 +267,7 @@ export default function StagingLeaderboard() {
               </div>
               <div className="min-w-0 text-left">
                 <p className={`text-base font-semibold tracking-tight truncate ${hasEntry ? 'text-white' : 'text-[#78DCFF]/60'}`}>
-                  {entry ? entry.name : 'Awaiting Challenger'}
+                  {entry ? formatNameToInitials(entry.name) : 'Awaiting Challenger'}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center justify-start gap-1 text-[#78DCFF]/80">
                   {entry ? (
