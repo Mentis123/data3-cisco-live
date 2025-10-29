@@ -364,7 +364,7 @@ export function TriviaWarmup({
             <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-400" />
             Warm-up
           </div>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
             <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-24 sm:w-24">
               <img
                 src={dojoFullImage}
@@ -372,7 +372,7 @@ export function TriviaWarmup({
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 text-left">
               <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Training Dojo</CardTitle>
               <p className="text-sm text-slate-200/80 sm:text-base">
                 Race the countdown with live trivia before your official run. Pick a Cisco architecture tile and lock in the
