@@ -360,7 +360,7 @@ export function TriviaWarmup({
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white whitespace-nowrap">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white whitespace-nowrap">
             <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-400" />
             Warm-up
           </div>
