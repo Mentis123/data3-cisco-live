@@ -10,7 +10,7 @@ const entryPoints = [
     eyebrow: "Dojo",
     title: "Practice trivia cards",
     description: "Drill the daily decks with instant rationale reveals and unlimited restarts.",
-    href: "/beta/dojo/trivia-cards",
+    href: "/beta/dojo",
     action: "Start practicing",
     variant: "outline" as const,
   },

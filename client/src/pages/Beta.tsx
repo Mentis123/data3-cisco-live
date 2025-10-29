@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { triviaCardCategoryMeta, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
@@ -126,7 +127,7 @@ export default function Beta() {
                 </div>
               </div>
             </Link>
-            <Link href="/beta/dojo/trivia-cards" className="group">
+            <Link href="/beta/dojo" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="relative aspect-square">
                   <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
@@ -270,7 +271,7 @@ export default function Beta() {
               <span className="relative z-10">Enter the Ring</span>
             </Button>
           </Link>
-          <Link href="/beta/dojo/trivia-cards">
+          <Link href="/beta/dojo">
             <Button size="lg" variant="outline" className="w-full border-primary/40 text-primary relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dojoImage})` }}>
               <span className="relative z-10">Practice in Dojo</span>
             </Button>

@@ -26,6 +26,7 @@ function Router() {
       <Route path="/ring" component={RingPlay} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/admin" component={Admin} />
+      <Route path="/dojo" component={Dojo} />
       <Route path="/dojo/:mode" component={Dojo} />
       <Route path="/how-to-play" component={HowToPlay} />
 
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/beta/ring" component={RingPlay} />
       <Route path="/beta/leaderboard" component={Leaderboard} />
       <Route path="/beta/admin" component={Admin} />
+      <Route path="/beta/dojo" component={Dojo} />
       <Route path="/beta/dojo/:mode" component={Dojo} />
       <Route path="/beta/how-to-play" component={HowToPlay} />
 
