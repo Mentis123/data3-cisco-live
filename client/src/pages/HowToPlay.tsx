@@ -75,7 +75,7 @@ export default function HowToPlay() {
             Learn
           </div>
 
-          <div className="flex flex-row flex-wrap items-start gap-6">
+          <div className="flex flex-row flex-wrap items-center gap-6">
             <div className="flex items-center justify-start gap-4">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
                 <img
