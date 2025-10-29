@@ -77,20 +77,17 @@ export default function Dojo({ params }: DojoRouteProps) {
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-5">
                 <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-white/15 via-white/5 to-transparent shadow-[0_35px_120px_-50px_rgba(192,132,252,0.75)] ring-2 ring-purple-400/40 sm:h-28 sm:w-28">
+                  <Badge className="absolute -left-2 -top-3 w-fit rounded-full border-transparent bg-data3-cool-purple px-4 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-slate-950 shadow-[0_15px_40px_-20px_rgba(192,132,252,0.95)]">
+                    Warm-up
+                  </Badge>
                   <img
                     src={dojoFullImage}
                     alt="Dojo"
                     className="h-16 w-16 object-contain opacity-90"
                   />
                 </div>
-                <div className="space-y-4">
-                  <Badge className="w-fit rounded-full border-transparent bg-data3-cool-purple px-4 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-slate-950 shadow-[0_15px_40px_-20px_rgba(192,132,252,0.95)]">
-                    Warm-up
-                  </Badge>
-                  <div className="space-y-1">
-                    <h1 className="text-4xl font-semibold text-white sm:text-5xl">Practice in Dojo</h1>
-                    <p className="text-lg font-medium text-white/70 sm:text-xl">Trivia warm-up</p>
-                  </div>
+                <div>
+                  <h1 className="text-4xl font-semibold text-white sm:text-5xl">Practice in Dojo</h1>
                 </div>
               </div>
               <p className="max-w-xl text-sm text-slate-200/85 sm:text-base">{experience.description}</p>
