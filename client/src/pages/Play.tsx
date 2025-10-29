@@ -503,18 +503,25 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
           </div>
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-12 lg:grid-cols-[1.25fr_1fr]">
             <div className="space-y-8">
-              <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-                <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-28 sm:w-28">
-                  <img
-                    src={ringFullImage}
-                    alt="Data#3 Solution Sprint Ring"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                </div>
-                <div className="space-y-4 text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+                Official Attempt
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-center gap-6">
+                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-28 sm:w-28">
+                    <img
+                      src={ringFullImage}
+                      alt="Data#3 Solution Sprint Ring"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </div>
                   <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
                     Enter the Ring
                   </h1>
+                </div>
+                <div className="space-y-4">
                   <p className="max-w-2xl text-pretty text-lg text-slate-200">
                     Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
                   </p>
