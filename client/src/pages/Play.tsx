@@ -88,6 +88,12 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Email validation helper
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -489,7 +495,13 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     if (isRing) {
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[1.25fr_1fr]">
+          <div className="mx-auto w-full max-w-6xl px-6 py-6">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+              Official Attempt
+            </div>
+          </div>
+          <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-12 lg:grid-cols-[1.25fr_1fr]">
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
@@ -615,8 +627,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 <Button
                   onClick={handleStartChat}
-                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
-                  className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                  disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !isValidEmail(email) || startSessionMutation.isPending}
+                  className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed"
                   data-testid="button-start-chat"
                 >
                   {startSessionMutation.isPending ? (
@@ -795,8 +807,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
               <Button
                 onClick={handleStartChat}
-                disabled={!firstName.trim() || !lastName.trim() || !email.trim() || startSessionMutation.isPending}
-                className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation"
+                disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !isValidEmail(email) || startSessionMutation.isPending}
+                className="w-full min-h-[52px] text-base sm:text-lg touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed"
                 data-testid="button-start-chat"
               >
                 {startSessionMutation.isPending ? (
