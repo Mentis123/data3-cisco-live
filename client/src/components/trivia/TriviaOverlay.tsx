@@ -93,7 +93,7 @@ export function TriviaOverlay({
                     onClick={() => onContinue(score)}
                     className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
                   >
-                    {continueLabel || "Pitch your project"}
+                    {continueLabel || "Pitch My Project"}
                   </Button>
                 )}
                 {mode === "dojo" && (

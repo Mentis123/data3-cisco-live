@@ -26,7 +26,7 @@ const entryPoints = [
   {
     id: "ring",
     eyebrow: "Ring",
-    title: "Enter the ring",
+    title: "Pitch My Project",
     description:
       "Run the full experience — trivia mastery, case submission, scoring and leaderboard glory.",
     href: "/beta/ring",

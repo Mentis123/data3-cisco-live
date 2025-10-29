@@ -83,7 +83,7 @@ export default function Dojo({ params }: DojoRouteProps) {
             </Link>
             <Link href="/play">
               <Button className="shadow-[0_25px_70px_-40px_rgba(34,197,94,0.9)]">
-                Enter the ring now
+                Pitch My Project now
               </Button>
             </Link>
           </div>
@@ -138,7 +138,7 @@ export default function Dojo({ params }: DojoRouteProps) {
           </Link>
           <Link href="/play">
             <Button className="shadow-[0_25px_70px_-40px_rgba(34,197,94,0.9)]">
-              Enter the ring now
+              Pitch My Project now
             </Button>
           </Link>
         </div>

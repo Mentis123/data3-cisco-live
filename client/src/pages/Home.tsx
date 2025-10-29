@@ -33,7 +33,7 @@ export default function Home() {
           </p>
           <div className="space-y-2">
             <p className="text-lg sm:text-xl text-data3-white/90">Training dojo</p>
-            <p className="text-lg sm:text-xl text-data3-white/90">Enter the ring when you're ready</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Pitch My Project when you're ready</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry</p>
           </div>
         </section>

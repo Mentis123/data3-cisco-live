@@ -632,7 +632,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   ) : (
                     <>
                       <i className="fas fa-play mr-2"></i>
-                      Enter the ring
+                      Pitch My Project
                     </>
                   )}
                 </Button>
@@ -657,7 +657,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             <AlertDialogContent className="border-white/10 bg-slate-900/95 text-white backdrop-blur-xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-2xl font-semibold text-white">
-                  Ready to enter the Ring?
+                  Ready to Pitch My Project?
                 </AlertDialogTitle>
                 <AlertDialogDescription className="space-y-4 text-base text-slate-200/90">
                   <p className="leading-relaxed">
