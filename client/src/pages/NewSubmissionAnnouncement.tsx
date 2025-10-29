@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatNameToInitials } from "@/lib/utils";
 
 interface SubmissionData {
   id: string;
@@ -157,7 +158,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                     </div>
                     <div>
                       <h2 className="text-4xl md:text-6xl font-bold text-white">
-                        {submission.firstName} {submission.lastName.charAt(0)}.
+                        {formatNameToInitials(submission.participantName)}
                       </h2>
                       <p className="text-xl md:text-2xl text-primary/80">has joined the leaderboard!</p>
                     </div>
