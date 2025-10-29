@@ -841,7 +841,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             </div>
             <div className="flex-1 min-w-[240px] space-y-2 text-left">
               <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the bot</h1>
+              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
                 This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
               </p>

@@ -360,26 +360,30 @@ export function TriviaWarmup({
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white whitespace-nowrap">
-            <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-400" />
-            Warm-up
-          </div>
-          <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
-            <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-24 sm:w-24">
-              <img
-                src={dojoFullImage}
-                alt="Training Dojo"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </div>
-            <div className="space-y-3 text-left">
-              <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Training Dojo</CardTitle>
-              <p className="text-sm text-slate-200/80 sm:text-base">
-                Race the countdown with live trivia before your official run. Pick a Cisco architecture tile and lock in the
-                numbers before you enter the ring.
-              </p>
-            </div>
-          </div>
+          {mode === "dojo" && (
+            <>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white whitespace-nowrap">
+                <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-400" />
+                Warm-up
+              </div>
+              <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
+                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-24 sm:w-24">
+                  <img
+                    src={dojoFullImage}
+                    alt="Training Dojo"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </div>
+                <div className="space-y-3 text-left">
+                  <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Training Dojo</CardTitle>
+                  <p className="text-sm text-slate-200/80 sm:text-base">
+                    Race the countdown with live trivia before your official run. Pick a Cisco architecture tile and lock in the
+                    numbers before you enter the ring.
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </CardHeader>
         <CardContent className="flex-1 pt-2">
           {renderSelection()}
