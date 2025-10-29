@@ -1215,6 +1215,12 @@ export default function Leaderboard() {
                 Home
               </Button>
             </Link>
+            <Link href="/leaderboard/ideas">
+              <Button variant="outline" size="sm" className="bg-yellow-500/10 border-yellow-500/40 hover:bg-yellow-500/20">
+                <i className="fas fa-lightbulb mr-2"></i>
+                Design Ideas
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"
