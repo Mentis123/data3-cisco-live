@@ -45,6 +45,66 @@ export function broadcastScoreUpdate(entry: {
   });
 }
 
+export function broadcastRingEntry(entry: {
+  attemptId: string;
+  initials: string;
+  category: string;
+}): void {
+  if (!wss) {
+    return;
+  }
+
+  const message = JSON.stringify({
+    type: "ringEntry",
+    data: entry
+  });
+
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
+export function broadcastRingExit(data: {
+  attemptId: string;
+  qualified: boolean;
+}): void {
+  if (!wss) {
+    return;
+  }
+
+  const message = JSON.stringify({
+    type: "ringExit",
+    data
+  });
+
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
+export function broadcastRaffleQualified(data: {
+  category: string;
+}): void {
+  if (!wss) {
+    return;
+  }
+
+  const message = JSON.stringify({
+    type: "raffleQualified",
+    data
+  });
+
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
 export function getClientCount(): number {
   return wss ? clients.size : 0;
 }

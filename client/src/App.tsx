@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ChatbotWidget } from "@/components/ChatbotWidget";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
+import StagingLeaderboard from "@/pages/StagingLeaderboard";
 import RingPlay from "@/pages/RingPlay";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/play" component={RingPlay} />
       <Route path="/ring" component={RingPlay} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/leaderboard/staging" component={StagingLeaderboard} />
       <Route path="/admin" component={Admin} />
       <Route path="/dojo" component={Dojo} />
       <Route path="/dojo/:mode" component={Dojo} />

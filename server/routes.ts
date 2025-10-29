@@ -5,7 +5,7 @@ import { storage, storageKind } from "./storage/index.js";
 import { createDatabaseFeedbackStorage, createJSONFeedbackStorage } from "./storage/feedback.js";
 import { db, hasDatabase } from "./db.js";
 import { log } from "./logging.js";
-import { setupWebSocket, broadcastScoreUpdate } from "./ws.js";
+import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
 import {
   acceptTncSchema,
@@ -339,6 +339,17 @@ export async function registerRoutes(
         ...payload,
         playerProfile,
       });
+
+      // Broadcast ring entry if it's a ring mode attempt
+      if (payload.mode === "ring" && playerProfile) {
+        const initials = `${playerProfile.firstName?.[0] || ''}${playerProfile.lastName?.[0] || ''}`.toUpperCase();
+        broadcastRingEntry({
+          attemptId: attempt.id,
+          initials,
+          category: attempt.category
+        });
+      }
+
       res.json({
         attemptId: attempt.id,
         category: attempt.category,
@@ -576,6 +587,21 @@ export async function registerRoutes(
       // Get current leaderboard to calculate rank (based on combined score)
       const leaderboard = await storage.getLeaderboard();
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
+
+      // Broadcast ring exit if this was a ring attempt
+      if (session.triviaAttemptId) {
+        broadcastRingExit({
+          attemptId: session.triviaAttemptId,
+          qualified: isEligible
+        });
+
+        // Broadcast raffle qualification announcement (only if they qualified)
+        if (isEligible) {
+          broadcastRaffleQualified({
+            category
+          });
+        }
+      }
 
       // Broadcast WebSocket update
       broadcastScoreUpdate({
