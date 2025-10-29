@@ -13,7 +13,7 @@ import {
   chatSchema,
   submitSolutionSchema,
 } from "../shared/schema.js";
-import { randomUUID, createHash } from "crypto";
+import { createHash } from "crypto";
 import path from "path";
 import { z } from "zod";
 
@@ -49,15 +49,6 @@ function ensureAdminAccess(req: Request, res: Response): boolean {
 
   return true;
 }
-
-// In-memory session storage (in production, use Redis)
-const sessions = new Map<string, {
-  participantId: string;
-  emailHash?: string;
-  category?: string;
-  triviaAttemptId?: string;
-  messages: any[]
-}>();
 
 // Rate limiting map (IP -> last submission timestamp)
 const rateLimits = new Map<string, number>();
@@ -259,7 +250,6 @@ export async function registerRoutes(
       const { firstName, lastName, email } = startSessionSchema.parse(req.body);
 
       const participant = await storage.createParticipant({ firstName, lastName });
-      const sessionToken = randomUUID();
 
       let emailHash: string | undefined;
 
@@ -273,15 +263,14 @@ export async function registerRoutes(
         emailHash = user.emailHash;
       }
 
-      sessions.set(sessionToken, {
+      const session = await storage.createChatSession({
         participantId: participant.id,
         emailHash,
-        messages: []
       });
 
       res.json({
         participantId: participant.id,
-        sessionToken,
+        sessionToken: session.token,
         emailHash
       });
     } catch (error) {
@@ -406,20 +395,21 @@ export async function registerRoutes(
   app.post("/api/chat", async (req, res) => {
     try {
       const { sessionToken, messages, sprintStep } = chatSchema.parse(req.body);
-      const session = sessions.get(sessionToken);
+      const session = await storage.getChatSession(sessionToken);
 
       if (!session) {
         return res.status(401).json({ message: "Invalid session" });
       }
 
-      // Add messages to session
-      session.messages.push(...messages);
+      const updatedMessages = [...(session.messages ?? []), ...messages];
 
       // Pass sprintStep to AI for context-aware responses
-      const response = await chatWithAssistant(session.messages, sprintStep);
+      const response = await chatWithAssistant(updatedMessages, sprintStep);
 
       // Add assistant response to session
-      session.messages.push({ role: "assistant", content: response });
+      updatedMessages.push({ role: "assistant", content: response });
+
+      await storage.updateChatSession(sessionToken, { messages: updatedMessages });
 
       res.json({ content: response });
     } catch (error) {
@@ -486,7 +476,7 @@ export async function registerRoutes(
       }
 
       const { sessionToken, solutionText, structuredFields, triviaAttemptId } = submitSolutionSchema.parse(req.body);
-      const session = sessions.get(sessionToken);
+      const session = await storage.getChatSession(sessionToken);
 
       if (!session) {
         return res.status(401).json({ message: "Invalid session" });
@@ -500,9 +490,14 @@ export async function registerRoutes(
 
       // Prepare structured submission for evaluation
       let structuredSubmission = structuredFields;
+      const conversation = session.messages ?? [];
+
       if (!structuredSubmission) {
         // Extract from chat messages if not provided
-        const lastMessage = session.messages[session.messages.length - 1];
+        const lastMessage = conversation[conversation.length - 1];
+        if (!lastMessage) {
+          return res.status(400).json({ message: "No structured solution provided" });
+        }
         try {
           structuredSubmission = JSON.parse(lastMessage.content);
         } catch {
@@ -520,7 +515,7 @@ export async function registerRoutes(
       if (!category) {
         category = await categorizeProposal(
           structuredSubmission.problem_summary,
-          session.messages.map(m => m.content).join(" "),
+          conversation.map(m => m.content).join(" "),
           JSON.stringify(structuredSubmission)
         );
       }
@@ -529,11 +524,13 @@ export async function registerRoutes(
       console.log('[express] Evaluating solution with structured data:', JSON.stringify(structuredSubmission, null, 2));
       const evaluation = await evaluateSolution(
         structuredSubmission.problem_summary,
-        session.messages.map(m => m.content).join(" "),
+        conversation.map(m => m.content).join(" "),
         JSON.stringify(structuredSubmission),
         category
       );
       console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
+
+      const persistedTriviaAttemptId = session.triviaAttemptId ?? triviaAttemptId ?? null;
 
       // Create submission with evaluation notes (pitch score only, 0-40 points)
       const pitchScore = evaluation.total;
@@ -608,9 +605,9 @@ export async function registerRoutes(
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
 
       // Broadcast ring exit if this was a ring attempt
-      if (session.triviaAttemptId) {
+      if (persistedTriviaAttemptId) {
         broadcastRingExit({
-          attemptId: session.triviaAttemptId,
+          attemptId: persistedTriviaAttemptId,
           qualified: isEligible
         });
 
@@ -629,6 +626,11 @@ export async function registerRoutes(
         category,
         targetRank: targetRank || leaderboard.length + 1,
         finalScore: combinedScore,
+      });
+
+      await storage.updateChatSession(sessionToken, {
+        category,
+        triviaAttemptId: persistedTriviaAttemptId,
       });
 
       // Update rate limit
@@ -894,7 +896,6 @@ export async function registerRoutes(
       }
 
       await storage.clearDatabase();
-      sessions.clear();
       rateLimits.clear();
 
       res.json({ message: "Database reset successfully" });
