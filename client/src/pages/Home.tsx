@@ -52,7 +52,7 @@ export default function Home() {
                 </div>
               </div>
             </Link>
-            <Link href="/dojo/trivia-cards" className="group">
+            <Link href="/dojo" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-cool-purple/40 group-hover:shadow-[0_0_30px_rgba(115,0,255,0.35)]">
                 <div className="relative aspect-square">
                   <img src={dojoImage} alt="Practice in Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />

@@ -50,12 +50,19 @@ const dojoExperiences: Record<DojoExperienceId, {
 };
 
 export default function Dojo({ params }: DojoRouteProps) {
-  const mode = params?.mode as DojoExperienceId | undefined;
-  const experience = mode ? dojoExperiences[mode] : undefined;
+  const rawMode = params?.mode;
+  const fallbackMode: DojoExperienceId = "trivia-cards";
+  const mode = rawMode
+    ? (Object.prototype.hasOwnProperty.call(dojoExperiences, rawMode)
+        ? (rawMode as DojoExperienceId)
+        : undefined)
+    : fallbackMode;
 
-  if (!experience) {
+  if (!mode) {
     return <NotFound />;
   }
+
+  const experience = dojoExperiences[mode];
 
   // Claude: Scroll to top on page load to avoid offset anchors
   useEffect(() => {
@@ -66,25 +73,28 @@ export default function Dojo({ params }: DojoRouteProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
-            <img
-              src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-              alt="Data#3"
-              className="h-12 w-auto sm:h-16 md:h-20"
-              style={{ minWidth: "60px" }}
-            />
-            <div className="space-y-1">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-data3-white">Warm Up</h1>
-              <p className="text-lg sm:text-xl font-medium text-data3-white/80">Trivia Card Drills</p>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_45px_140px_-60px_rgba(192,132,252,0.8)] backdrop-blur-sm sm:p-10">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-5">
+                <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-white/15 via-white/5 to-transparent shadow-[0_35px_120px_-50px_rgba(192,132,252,0.75)] ring-2 ring-purple-400/40 sm:h-28 sm:w-28">
+                  <img
+                    src={dojoFullImage}
+                    alt="Dojo"
+                    className="h-16 w-16 object-contain opacity-90"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <Badge className="w-fit rounded-full border-transparent bg-data3-cool-purple px-4 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-slate-950 shadow-[0_15px_40px_-20px_rgba(192,132,252,0.95)]">
+                    Warm-up
+                  </Badge>
+                  <div className="space-y-1">
+                    <h1 className="text-4xl font-semibold text-white sm:text-5xl">Practice in Dojo</h1>
+                    <p className="text-lg font-medium text-white/70 sm:text-xl">Trivia warm-up</p>
+                  </div>
+                </div>
+              </div>
+              <p className="max-w-xl text-sm text-slate-200/85 sm:text-base">{experience.description}</p>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-            <img
-              src={dojoFullImage}
-              alt="Dojo"
-              className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
-            />
           </div>
 
           <TriviaWarmup mode="dojo" className="h-full" />
