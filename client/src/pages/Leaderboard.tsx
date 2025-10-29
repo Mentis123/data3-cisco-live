@@ -1050,7 +1050,7 @@ export default function Leaderboard() {
                 <span className={`font-semibold ${isFullscreen ? 'text-xl' : ''}`}>Latest Submission</span>
               </div>
               <p className={isFullscreen ? 'text-lg' : 'text-sm'}>
-                <strong>{displayData.recentSubmission.name}</strong> {isWithin5Minutes ? 'just ' : ''}submitted a solution for{' '}
+                <strong>{formatNameToInitials(displayData.recentSubmission.name)}</strong> {isWithin5Minutes ? 'just ' : ''}submitted a solution for{' '}
                 <Badge 
                   className={`mx-1 text-white ${isFullscreen ? 'text-base' : ''} ${CATEGORY_BADGE_CLASSES[displayData.recentSubmission.category as keyof typeof CATEGORY_BADGE_CLASSES] || 'bg-gray-500'}`}
                 >
