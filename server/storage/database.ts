@@ -10,6 +10,7 @@ import {
   attempts,
   answers,
   triviaItems,
+  chatSessions,
 } from "../../shared/schema.js";
 import type {
   InsertParticipant,
@@ -24,6 +25,7 @@ import type {
   Answer,
   InsertAnswer,
   TriviaItem,
+  ChatSession,
 } from "../../shared/schema.js";
 import { createHash, randomUUID } from "crypto";
 
@@ -103,6 +105,20 @@ const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
 
+type SessionMessage = {
+  role: "user" | "assistant" | "system";
+  content: string;
+};
+
+interface PersistedChatSession {
+  token: string;
+  participantId: string;
+  emailHash: string | null;
+  category: string | null;
+  triviaAttemptId: string | null;
+  messages: SessionMessage[];
+}
+
 // Initialize stats on startup (development only)
 async function initializeData(db: NeonDatabase<typeof schema>) {
   // Only initialize default data in development mode
@@ -143,6 +159,57 @@ function hashEmail(email: string): string {
 function computeAttemptDay(date: Date): string {
   const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   return utc.toISOString().slice(0, 10);
+}
+
+function parseSessionMessages(value: unknown): SessionMessage[] {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => {
+        if (!entry || typeof entry !== "object") {
+          return null;
+        }
+
+        const role = (entry as { role?: string }).role;
+        const content = (entry as { content?: unknown }).content;
+        if (
+          (role === "user" || role === "assistant" || role === "system") &&
+          typeof content === "string"
+        ) {
+          return { role, content } satisfies SessionMessage;
+        }
+        return null;
+      })
+      .filter((item): item is SessionMessage => Boolean(item));
+  }
+
+  if (typeof value === "string") {
+    try {
+      return parseSessionMessages(JSON.parse(value));
+    } catch {
+      return [];
+    }
+  }
+
+  if (typeof value === "object" && value != null && "value" in value) {
+    return parseSessionMessages((value as { value: unknown }).value);
+  }
+
+  return [];
+}
+
+function mapChatSession(row: ChatSession): PersistedChatSession {
+  return {
+    token: row.token,
+    participantId: row.participantId,
+    emailHash: row.emailHash ?? null,
+    category: row.category ?? null,
+    triviaAttemptId: row.triviaAttemptId ?? null,
+    messages: parseSessionMessages(row.messages),
+  };
 }
 
 // Define system category names that are reserved and cannot be used for custom categories
@@ -308,6 +375,88 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   };
 
   return {
+    async createChatSession({
+      participantId,
+      emailHash = null,
+      category = null,
+      triviaAttemptId = null,
+      messages = [],
+      token,
+    }: {
+      participantId: string;
+      emailHash?: string | null;
+      category?: string | null;
+      triviaAttemptId?: string | null;
+      messages?: SessionMessage[];
+      token?: string;
+    }): Promise<PersistedChatSession> {
+      const sessionToken = token ?? randomUUID();
+      const [row] = await db
+        .insert(chatSessions)
+        .values({
+          token: sessionToken,
+          participantId,
+          emailHash,
+          category,
+          triviaAttemptId,
+          messages: JSON.stringify(messages ?? []),
+        })
+        .returning();
+
+      return mapChatSession(row);
+    },
+
+    async getChatSession(token: string): Promise<PersistedChatSession | null> {
+      const [row] = await db
+        .select()
+        .from(chatSessions)
+        .where(eq(chatSessions.token, token))
+        .limit(1);
+
+      if (!row) {
+        return null;
+      }
+
+      return mapChatSession(row);
+    },
+
+    async updateChatSession(
+      token: string,
+      updates: Partial<
+        Pick<PersistedChatSession, "messages" | "category" | "triviaAttemptId" | "emailHash">
+      >,
+    ): Promise<PersistedChatSession | null> {
+      const updatePayload: Record<string, unknown> = { updatedAt: sql`now()` };
+
+      if (Object.prototype.hasOwnProperty.call(updates, "messages")) {
+        updatePayload.messages = JSON.stringify(updates.messages ?? []);
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "category")) {
+        updatePayload.category = updates.category ?? null;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "triviaAttemptId")) {
+        updatePayload.triviaAttemptId = updates.triviaAttemptId ?? null;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "emailHash")) {
+        updatePayload.emailHash = updates.emailHash ?? null;
+      }
+
+      const [row] = await db
+        .update(chatSessions)
+        .set(updatePayload)
+        .where(eq(chatSessions.token, token))
+        .returning();
+
+      return row ? mapChatSession(row) : null;
+    },
+
+    async deleteChatSession(token: string): Promise<void> {
+      await db.delete(chatSessions).where(eq(chatSessions.token, token));
+    },
+
     async getTriviaCategories() {
       const rows = await db
         .select({
@@ -1102,10 +1251,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async clearDatabase(): Promise<void> {
-    await db.delete(submissions);
-    await db.delete(participants);
-    // Don't clear data3_stats as they are reference data
-  },
+      await db.delete(chatSessions);
+      await db.delete(submissions);
+      await db.delete(participants);
+      // Don't clear data3_stats as they are reference data
+    },
 
     async getSubmissionDetails(id: string): Promise<any> {
     return await this.getSubmission(id);

@@ -38,6 +38,31 @@ interface MemoryUser extends User {
   createdAt: Date | null;
 }
 
+type SessionMessage = {
+  role: "user" | "assistant" | "system";
+  content: string;
+};
+
+interface MemoryChatSession {
+  token: string;
+  participantId: string;
+  emailHash: string | null;
+  category: string | null;
+  triviaAttemptId: string | null;
+  messages: SessionMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type PersistedChatSession = {
+  token: string;
+  participantId: string;
+  emailHash: string | null;
+  category: string | null;
+  triviaAttemptId: string | null;
+  messages: SessionMessage[];
+};
+
 type TriviaMode = "dojo" | "ring";
 
 type TriviaCardSnapshot = Array<{
@@ -110,6 +135,7 @@ const raffleEntriesStore: Array<{
   raffleDate: string;
   createdAt: Date;
 }> = [];
+const chatSessionsStore = new Map<string, MemoryChatSession>();
 
 const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
@@ -805,6 +831,102 @@ export function createMemoryStorage() {
   };
 
   return {
+    async createChatSession({
+      participantId,
+      emailHash = null,
+      category = null,
+      triviaAttemptId = null,
+      messages = [],
+      token,
+    }: {
+      participantId: string;
+      emailHash?: string | null;
+      category?: string | null;
+      triviaAttemptId?: string | null;
+      messages?: SessionMessage[];
+      token?: string;
+    }) {
+      const sessionToken = token ?? nanoid();
+      const now = new Date();
+      const session: MemoryChatSession = {
+        token: sessionToken,
+        participantId,
+        emailHash,
+        category,
+        triviaAttemptId,
+        messages: Array.isArray(messages) ? [...messages] : [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      chatSessionsStore.set(sessionToken, session);
+      return {
+        token: session.token,
+        participantId: session.participantId,
+        emailHash: session.emailHash,
+        category: session.category,
+        triviaAttemptId: session.triviaAttemptId,
+        messages: [...session.messages],
+      } satisfies PersistedChatSession;
+    },
+
+    async getChatSession(token: string) {
+      const session = chatSessionsStore.get(token);
+      if (!session) {
+        return null;
+      }
+      return {
+        token: session.token,
+        participantId: session.participantId,
+        emailHash: session.emailHash,
+        category: session.category,
+        triviaAttemptId: session.triviaAttemptId,
+        messages: [...session.messages],
+      } satisfies PersistedChatSession;
+    },
+
+    async updateChatSession(
+      token: string,
+      updates: Partial<
+        Pick<PersistedChatSession, "messages" | "category" | "triviaAttemptId" | "emailHash">
+      >,
+    ) {
+      const session = chatSessionsStore.get(token);
+      if (!session) {
+        return null;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "messages")) {
+        session.messages = Array.isArray(updates.messages) ? [...updates.messages] : [];
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "category")) {
+        session.category = updates.category ?? null;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "triviaAttemptId")) {
+        session.triviaAttemptId = updates.triviaAttemptId ?? null;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(updates, "emailHash")) {
+        session.emailHash = updates.emailHash ?? null;
+      }
+
+      session.updatedAt = new Date();
+
+      return {
+        token: session.token,
+        participantId: session.participantId,
+        emailHash: session.emailHash,
+        category: session.category,
+        triviaAttemptId: session.triviaAttemptId,
+        messages: [...session.messages],
+      } satisfies PersistedChatSession;
+    },
+
+    async deleteChatSession(token: string) {
+      chatSessionsStore.delete(token);
+    },
+
     async getTriviaCategories() {
       const summary = new Map<
         string,
@@ -1220,6 +1342,7 @@ export function createMemoryStorage() {
         ...stat,
       })));
       customCategoriesStore.splice(0, customCategoriesStore.length);
+      chatSessionsStore.clear();
     },
 
     async getSubmissionDetails(id: string): Promise<any> {

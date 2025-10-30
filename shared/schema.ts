@@ -183,6 +183,19 @@ export const chatbotFeedback = pgTable("chatbot_feedback", {
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
 });
 
+export const chatSessions = pgTable("chat_sessions", {
+  token: text("token").primaryKey(),
+  participantId: text("participant_id")
+    .notNull()
+    .references(() => participants.id, { onDelete: "cascade" }),
+  emailHash: text("email_hash").references(() => users.emailHash),
+  category: text("category"),
+  triviaAttemptId: text("trivia_attempt_id").references(() => attempts.id, { onDelete: "set null" }),
+  messages: jsonb("messages").notNull().default(sql`'[]'::jsonb`),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`),
+});
+
 export const insertParticipantSchema = createInsertSchema(participants).omit({
   id: true,
   createdAt: true,
@@ -263,3 +276,4 @@ export type RaffleEntry = typeof raffleEntries.$inferSelect;
 export type RaffleDraw = typeof raffleDraws.$inferSelect;
 export type ChatbotFeedback = typeof chatbotFeedback.$inferSelect;
 export type InsertChatbotFeedback = typeof chatbotFeedback.$inferInsert;
+export type ChatSession = typeof chatSessions.$inferSelect;
