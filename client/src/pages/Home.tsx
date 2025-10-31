@@ -118,14 +118,14 @@ export default function Home() {
 
     const startAutoScroll = () => {
       if (!userHasScrolledRef.current) {
-        // Play audio 100ms after autoscroll starts
+        // Play audio 350ms after autoscroll starts
         setTimeout(() => {
           if (audioRef.current && !userHasScrolledRef.current) {
             audioRef.current.play().catch(err => {
               console.log('Audio playback prevented by browser:', err);
             });
           }
-        }, 100);
+        }, 350);
 
         // Slow scroll down
         let scrollAmount = 0;
