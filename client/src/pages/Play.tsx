@@ -1766,21 +1766,21 @@ Just describe it naturally - what's the problem that needs solving?`
               <div
                 className="order-0 rounded-3xl border px-4 py-3 text-sm lg:col-span-3"
                 style={{
-                  borderColor: submissionTheme.border,
-                  backgroundColor: submissionTheme.background,
-                  color: submissionTheme.text,
-                  boxShadow: submissionTheme.shadow,
+                  borderColor: selectedCategoryTheme.border,
+                  backgroundColor: selectedCategoryTheme.background,
+                  color: selectedCategoryTheme.text,
+                  boxShadow: selectedCategoryTheme.shadow,
                 }}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="space-y-1">
                     <p
                       className="text-xs uppercase tracking-[0.3em]"
-                      style={{ color: submissionTheme.subheading }}
+                      style={{ color: selectedCategoryTheme.subheading }}
                     >
                       Trivia locked
                     </p>
-                    <p className="text-base font-semibold" style={{ color: submissionTheme.text }}>
+                    <p className="text-base font-semibold" style={{ color: selectedCategoryTheme.text }}>
                       {triviaScore}/60 locked in
                       {submissionCategoryLabel ? <span className="font-normal"> · {submissionCategoryLabel}</span> : null}
                     </p>
@@ -1789,8 +1789,8 @@ Just describe it naturally - what's the problem that needs solving?`
                     variant="outline"
                     className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
                     style={{
-                      backgroundColor: submissionTheme.badgeBg,
-                      color: submissionTheme.badgeText,
+                      backgroundColor: selectedCategoryTheme.badgeBg,
+                      color: selectedCategoryTheme.badgeText,
                     }}
                   >
                     Official entry
