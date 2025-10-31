@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useEffect, useRef } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import ringImage from "@assets/ringfull.jpg";
@@ -10,6 +11,81 @@ import howitworksImage from "@assets/howitworksfull.jpg";
 // These sections have been moved to the HowToPlay ("Learn") page as per UX refactor brief
 
 export default function Home() {
+  const autoScrollTimeoutRef = useRef<number | null>(null);
+  const autoScrollIntervalRef = useRef<number | null>(null);
+  const userHasScrolledRef = useRef(false);
+
+  useEffect(() => {
+    // Check if this is the first visit to the page (during this session)
+    const hasAutoScrolled = sessionStorage.getItem('hasAutoScrolled');
+
+    if (hasAutoScrolled) {
+      return; // Don't auto-scroll if we've already done it this session
+    }
+
+    // Start auto-scroll after 2 seconds
+    autoScrollTimeoutRef.current = window.setTimeout(() => {
+      if (!userHasScrolledRef.current) {
+        // Slow scroll down
+        let scrollAmount = 0;
+        autoScrollIntervalRef.current = window.setInterval(() => {
+          if (!userHasScrolledRef.current) {
+            scrollAmount += 1;
+            window.scrollBy(0, 1);
+
+            // Stop after scrolling ~300px or reaching bottom
+            if (scrollAmount >= 300 || (window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+              if (autoScrollIntervalRef.current) {
+                clearInterval(autoScrollIntervalRef.current);
+              }
+            }
+          } else {
+            if (autoScrollIntervalRef.current) {
+              clearInterval(autoScrollIntervalRef.current);
+            }
+          }
+        }, 20); // Scroll 1px every 20ms = 50px per second (slow scroll)
+      }
+    }, 2000);
+
+    // Listen for user scroll
+    const handleUserScroll = () => {
+      userHasScrolledRef.current = true;
+
+      // Clear any ongoing auto-scroll
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current);
+      }
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
+
+      // Mark that we've shown the auto-scroll feature
+      sessionStorage.setItem('hasAutoScrolled', 'true');
+
+      // Remove the listener since we don't need it anymore
+      window.removeEventListener('wheel', handleUserScroll);
+      window.removeEventListener('touchmove', handleUserScroll);
+      window.removeEventListener('keydown', handleUserScroll);
+    };
+
+    window.addEventListener('wheel', handleUserScroll, { passive: true });
+    window.addEventListener('touchmove', handleUserScroll, { passive: true });
+    window.addEventListener('keydown', handleUserScroll);
+
+    // Cleanup
+    return () => {
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current);
+      }
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
+      window.removeEventListener('wheel', handleUserScroll);
+      window.removeEventListener('touchmove', handleUserScroll);
+      window.removeEventListener('keydown', handleUserScroll);
+    };
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8">
@@ -47,17 +123,6 @@ export default function Home() {
         {/* Hero Tiles Grid - Claude: Keep the 4 main navigation tiles */}
         <section className="space-y-8">
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
-            <Link href="/play" className="group">
-              <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-light-blue/40 group-hover:shadow-[0_0_30px_rgba(0,174,255,0.35)]">
-                <div className="relative aspect-square">
-                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
-                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-blue-black drop-shadow-md">Enter the Ring</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
             <Link href="/dojo" className="group">
               <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-cool-purple/40 group-hover:shadow-[0_0_30px_rgba(115,0,255,0.35)]">
                 <div className="relative aspect-square">
@@ -65,6 +130,17 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">Training Dojo</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <Link href="/play" className="group">
+              <div className="relative overflow-hidden rounded-2xl border border-data3-pale-blue/20 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-lg transition-all duration-300 group-hover:-translate-y-2 group-hover:border-data3-light-blue/40 group-hover:shadow-[0_0_30px_rgba(0,174,255,0.35)]">
+                <div className="relative aspect-square">
+                  <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
+                  <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
+                    <span className="text-4xl sm:text-5xl font-bold text-data3-blue-black drop-shadow-md">Enter the Ring</span>
                   </div>
                 </div>
               </div>
