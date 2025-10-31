@@ -147,21 +147,21 @@ export function TriviaCardDeck({ cards, variant = "full", className }: TriviaCar
       <CardContent className="mt-4 flex-1 space-y-5 overflow-hidden p-0">
         <ScrollArea className={cn("pr-4", isCompact ? "max-h-[260px]" : "max-h-[360px]")}> 
           <div className="space-y-4">
-            <div className="rounded-2xl border-4 border-white/30 bg-white/5 p-4 shadow-[0_0_20px_rgba(255,255,255,0.15),inset_0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300 hover:border-white/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.25),inset_0_0_20px_rgba(255,255,255,0.1)] hover:scale-[1.02]">
+            <div className="rounded-2xl border-4 border-white/30 bg-white/5 p-4 shadow-[inset_2px_2px_6px_rgba(255,255,255,0.3),inset_-2px_-2px_6px_rgba(0,0,0,0.4),0_4px_12px_rgba(255,255,255,0.15),0_8px_20px_rgba(255,255,255,0.08)] transition-all duration-300 hover:border-white/50 hover:shadow-[inset_2px_2px_8px_rgba(255,255,255,0.4),inset_-2px_-2px_8px_rgba(0,0,0,0.5),0_6px_16px_rgba(255,255,255,0.25),0_10px_28px_rgba(255,255,255,0.12)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-white", isCompact ? "text-sm" : "text-base")}>Scenario</h3>
               <p className={cn("mt-2 text-pretty leading-relaxed text-slate-200/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.scenario}
               </p>
             </div>
 
-            <div className="rounded-2xl border-4 border-cyan-300/60 bg-cyan-500/10 p-4 shadow-[0_0_20px_rgba(0,255,255,0.2),inset_0_0_15px_rgba(0,255,255,0.08)] transition-all duration-300 hover:border-cyan-300/90 hover:shadow-[0_0_30px_rgba(0,255,255,0.35),inset_0_0_20px_rgba(0,255,255,0.12)] hover:scale-[1.02]">
+            <div className="rounded-2xl border-4 border-cyan-300/60 bg-cyan-500/10 p-4 shadow-[inset_2px_2px_6px_rgba(255,255,255,0.3),inset_-2px_-2px_6px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,255,255,0.2),0_8px_20px_rgba(0,255,255,0.12),inset_0_0_15px_rgba(0,255,255,0.08)] transition-all duration-300 hover:border-cyan-300/90 hover:shadow-[inset_2px_2px_8px_rgba(255,255,255,0.4),inset_-2px_-2px_8px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,255,255,0.35),0_10px_28px_rgba(0,255,255,0.18),inset_0_0_20px_rgba(0,255,255,0.12)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-cyan-200", isCompact ? "text-sm" : "text-base")}>Prompt</h3>
               <p className={cn("mt-2 text-pretty leading-relaxed text-cyan-50/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.prompt}
               </p>
             </div>
 
-            <div className="rounded-2xl border-4 border-emerald-300/60 bg-emerald-500/10 p-4 shadow-[0_0_20px_rgba(0,255,0,0.2),inset_0_0_15px_rgba(0,255,0,0.08)] transition-all duration-300 hover:border-emerald-300/90 hover:shadow-[0_0_30px_rgba(0,255,0,0.35),inset_0_0_20px_rgba(0,255,0,0.12)] hover:scale-[1.02]">
+            <div className="rounded-2xl border-4 border-emerald-300/60 bg-emerald-500/10 p-4 shadow-[inset_2px_2px_6px_rgba(255,255,255,0.3),inset_-2px_-2px_6px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,255,0,0.2),0_8px_20px_rgba(0,255,0,0.12),inset_0_0_15px_rgba(0,255,0,0.08)] transition-all duration-300 hover:border-emerald-300/90 hover:shadow-[inset_2px_2px_8px_rgba(255,255,255,0.4),inset_-2px_-2px_8px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,255,0,0.35),0_10px_28px_rgba(0,255,0,0.18),inset_0_0_20px_rgba(0,255,0,0.12)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-emerald-200", isCompact ? "text-sm" : "text-base")}>Winning move</h3>
               <p className={cn("mt-2 text-pretty leading-relaxed text-emerald-50/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.winningMove}
@@ -169,7 +169,7 @@ export function TriviaCardDeck({ cards, variant = "full", className }: TriviaCar
             </div>
 
             {revealed ? (
-              <div className="rounded-2xl border-4 border-amber-300/60 bg-amber-500/10 p-4 shadow-[0_0_20px_rgba(255,191,0,0.2),inset_0_0_15px_rgba(255,191,0,0.08)] transition-all duration-300 hover:border-amber-300/90 hover:shadow-[0_0_30px_rgba(255,191,0,0.35),inset_0_0_20px_rgba(255,191,0,0.12)] hover:scale-[1.02]">
+              <div className="rounded-2xl border-4 border-amber-300/60 bg-amber-500/10 p-4 shadow-[inset_2px_2px_6px_rgba(255,255,255,0.3),inset_-2px_-2px_6px_rgba(0,0,0,0.4),0_4px_12px_rgba(255,191,0,0.2),0_8px_20px_rgba(255,191,0,0.12),inset_0_0_15px_rgba(255,191,0,0.08)] transition-all duration-300 hover:border-amber-300/90 hover:shadow-[inset_2px_2px_8px_rgba(255,255,255,0.4),inset_-2px_-2px_8px_rgba(0,0,0,0.5),0_6px_16px_rgba(255,191,0,0.35),0_10px_28px_rgba(255,191,0,0.18),inset_0_0_20px_rgba(255,191,0,0.12)] hover:scale-[1.02]">
                 <h3 className={cn("font-semibold text-amber-200", isCompact ? "text-sm" : "text-base")}>Rationale</h3>
                 <p className={cn("mt-2 text-pretty leading-relaxed text-amber-50/90", isCompact ? "text-sm" : "text-base")}>
                   {currentCard.rationale}
