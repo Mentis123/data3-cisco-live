@@ -21,7 +21,7 @@ export default function Home() {
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
     audioRef.current.volume = 0.8;
-    audioRef.current.playbackRate = 0.9; // Play at 90% speed
+    audioRef.current.playbackRate = 0.8; // Play at 80% speed
 
     // For mobile browsers, we need to prime the audio on user interaction
     const enableAudio = () => {
@@ -118,14 +118,14 @@ export default function Home() {
 
     const startAutoScroll = () => {
       if (!userHasScrolledRef.current) {
-        // Play audio 350ms after autoscroll starts
+        // Play audio 500ms after autoscroll starts
         setTimeout(() => {
           if (audioRef.current && !userHasScrolledRef.current) {
             audioRef.current.play().catch(err => {
               console.log('Audio playback prevented by browser:', err);
             });
           }
-        }, 350);
+        }, 500);
 
         // Slow scroll down
         let scrollAmount = 0;
