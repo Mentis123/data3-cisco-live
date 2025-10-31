@@ -15,6 +15,7 @@ import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
 import Admin from "@/pages/Admin";
 import Dojo from "@/pages/Dojo";
+import TileShowcase from "@/pages/TileShowcase";
 import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
 import LeaderboardIdeas from "@/pages/LeaderboardIdeas";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/dojo" component={Dojo} />
       <Route path="/dojo/:mode" component={Dojo} />
+      <Route path="/tile" component={TileShowcase} />
       <Route path="/how-to-play" component={HowToPlay} />
 
       {/* Classic App (moved to /old) */}
