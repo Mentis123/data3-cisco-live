@@ -262,7 +262,7 @@ export default function TileShowcase() {
         "relative overflow-hidden rounded-xl border-t-4 border-l-4 border-r-2 border-b-2 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-cool-purple/70 after:via-data3-cool-purple/40 after:to-transparent after:blur-sm after:-z-10",
       style: {
         backgroundImage:
-          "radial-gradient(circle at 50% 20%, rgba(255,255,255,0.4), transparent 55%), linear-gradient(185deg, rgba(150,80,255,0.75) 0%, rgba(115,0,255,0.55) 45%, rgba(70,0,180,0.65) 75%, rgba(45,0,120,0.8) 100%)",
+          "linear-gradient(to bottom, rgba(12,6,35,0.85) 0%, rgba(12,6,35,0.35) 12%, rgba(12,6,35,0) 28%), radial-gradient(circle at 50% 20%, rgba(255,255,255,0.4), transparent 55%), linear-gradient(185deg, rgba(150,80,255,0.75) 0%, rgba(115,0,255,0.55) 45%, rgba(70,0,180,0.65) 75%, rgba(45,0,120,0.8) 100%)",
         backgroundBlendMode: "screen",
         borderTopColor: "rgba(180,120,255,0.8)",
         borderLeftColor: "rgba(180,120,255,0.7)",
@@ -284,7 +284,7 @@ export default function TileShowcase() {
       },
       hoverStyle: {
         backgroundImage:
-          "radial-gradient(circle at 50% 18%, rgba(255,255,255,0.35), transparent 60%), linear-gradient(185deg, rgba(150,80,255,0.7) 0%, rgba(115,0,255,0.5) 45%, rgba(70,0,180,0.6) 75%, rgba(40,0,110,0.75) 100%)",
+          "linear-gradient(to bottom, rgba(12,6,35,0.75) 0%, rgba(12,6,35,0.28) 14%, rgba(12,6,35,0) 30%), radial-gradient(circle at 50% 18%, rgba(255,255,255,0.35), transparent 60%), linear-gradient(185deg, rgba(150,80,255,0.7) 0%, rgba(115,0,255,0.5) 45%, rgba(70,0,180,0.6) 75%, rgba(40,0,110,0.75) 100%)",
         backgroundBlendMode: "screen",
         borderTopColor: "rgba(190,140,255,0.72)",
         borderLeftColor: "rgba(190,140,255,0.62)",
@@ -398,6 +398,9 @@ export default function TileShowcase() {
               onMouseEnter={() => setHoveredTile(index)}
               onMouseLeave={() => setHoveredTile(null)}
             >
+              {currentDesign.id === 13 && (
+                <div className="pointer-events-none absolute inset-x-3 top-0 h-12 rounded-t-2xl bg-gradient-to-b from-[#0b0520]/90 via-[#0b0520]/30 to-transparent z-30" />
+              )}
               <div className="relative z-20 p-6 md:p-10 cursor-pointer">
                 {/* Inner Content - Different content for each of the 4 dojos */}
                 <div className="relative z-20 text-center space-y-3">
