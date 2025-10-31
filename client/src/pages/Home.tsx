@@ -21,7 +21,7 @@ export default function Home() {
             className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 flex-shrink-0"
             style={{ minWidth: "50px" }}
           />
-          <h1 className="text-center text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-data3-white font-light tracking-wide flex-grow px-2 sm:px-4 whitespace-nowrap overflow-hidden text-ellipsis">
+          <h1 className="text-center text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-data3-white font-light tracking-wide flex-1 min-w-0 px-2 sm:px-4 leading-snug">
             Delivering the Digital Future
           </h1>
           <img
