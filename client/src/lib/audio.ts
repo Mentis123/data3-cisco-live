@@ -26,7 +26,7 @@ export class AudioManager {
     if (!this.challengerAudio) {
       this.challengerAudio = new Audio(newChallengerSound);
       this.challengerAudio.preload = "auto";
-      this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+      this.challengerAudio.volume = 0.4; // Reduced to half volume after flash sound
     }
 
     if (!this.flashAudio) {
