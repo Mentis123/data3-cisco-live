@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import ringImage from "@assets/ringfull.jpg";
@@ -16,7 +16,6 @@ export default function Home() {
   const userHasScrolledRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioReadyRef = useRef(false);
-  const [showPageFrame, setShowPageFrame] = useState(true);
 
   // Initialize audio
   useEffect(() => {
@@ -216,22 +215,8 @@ export default function Home() {
   }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-      {/* Frame Toggle Button - Fixed at top */}
-      <div className="fixed top-4 right-4 z-50">
-        <button
-          onClick={() => setShowPageFrame(!showPageFrame)}
-          className="px-4 py-2 rounded-lg bg-data3-blue/80 hover:bg-data3-light-blue/80 border-2 border-data3-pale-blue/40 hover:border-data3-pale-blue/70 text-data3-white font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(120,220,255,0.5)] backdrop-blur-sm"
-        >
-          {showPageFrame ? 'Hide Frame' : 'Show Frame'}
-        </button>
-      </div>
-
-      {/* Main Content Container with Optional Frame */}
-      <div className={`mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8 transition-all duration-500 ${
-        showPageFrame
-          ? 'border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm'
-          : ''
-      }`}>
+      {/* Main Content Container with Frame */}
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8 transition-all duration-500 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
         {/* Hero Section: Data3 Logo (left) + Tagline (center) + Cisco Live Logo (right) */}
         <div className="flex items-center justify-between gap-2 sm:gap-4 w-full">
           <img
@@ -267,7 +252,7 @@ export default function Home() {
         <section className="space-y-8">
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/dojo" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/60 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-[0_0_25px_rgba(115,0,255,0.25),inset_0_0_20px_rgba(115,0,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-cool-purple/90 group-hover:shadow-[0_0_40px_rgba(115,0,255,0.5),inset_0_0_30px_rgba(115,0,255,0.2)]">
+              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/60 bg-gradient-to-br from-data3-cool-purple/5 via-data3-cool-purple/10 to-transparent shadow-[inset_2px_2px_8px_rgba(255,255,255,0.25),inset_-2px_-2px_8px_rgba(0,0,0,0.4),0_4px_12px_rgba(115,0,255,0.3),0_8px_24px_rgba(115,0,255,0.2),inset_0_0_20px_rgba(115,0,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-cool-purple/90 group-hover:shadow-[inset_2px_2px_10px_rgba(255,255,255,0.35),inset_-2px_-2px_10px_rgba(0,0,0,0.5),0_6px_16px_rgba(115,0,255,0.5),0_12px_32px_rgba(115,0,255,0.3),inset_0_0_30px_rgba(115,0,255,0.15)]">
                 <div className="relative aspect-square">
                   <img src={dojoImage} alt="Training Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -278,7 +263,7 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/play" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/60 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-[0_0_25px_rgba(0,174,255,0.25),inset_0_0_20px_rgba(0,174,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-light-blue/90 group-hover:shadow-[0_0_40px_rgba(0,174,255,0.5),inset_0_0_30px_rgba(0,174,255,0.2)]">
+              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/60 bg-gradient-to-br from-data3-blue/5 via-data3-blue/10 to-transparent shadow-[inset_2px_2px_8px_rgba(255,255,255,0.25),inset_-2px_-2px_8px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,174,255,0.3),0_8px_24px_rgba(0,174,255,0.2),inset_0_0_20px_rgba(0,174,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-light-blue/90 group-hover:shadow-[inset_2px_2px_10px_rgba(255,255,255,0.35),inset_-2px_-2px_10px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,174,255,0.5),0_12px_32px_rgba(0,174,255,0.3),inset_0_0_30px_rgba(0,174,255,0.15)]">
                 <div className="relative aspect-square">
                   <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -289,7 +274,7 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/how-to-play" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/60 bg-gradient-to-br from-data3-light-blue/5 via-data3-light-blue/10 to-transparent shadow-[0_0_25px_rgba(0,255,255,0.25),inset_0_0_20px_rgba(0,255,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-aqua/90 group-hover:shadow-[0_0_40px_rgba(0,255,255,0.5),inset_0_0_30px_rgba(0,255,255,0.2)]">
+              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/60 bg-gradient-to-br from-data3-light-blue/5 via-data3-light-blue/10 to-transparent shadow-[inset_2px_2px_8px_rgba(255,255,255,0.25),inset_-2px_-2px_8px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,255,255,0.3),0_8px_24px_rgba(0,255,255,0.2),inset_0_0_20px_rgba(0,255,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-aqua/90 group-hover:shadow-[inset_2px_2px_10px_rgba(255,255,255,0.35),inset_-2px_-2px_10px_rgba(0,0,0,0.5),0_6px_16px_rgba(0,255,255,0.5),0_12px_32px_rgba(0,255,255,0.3),inset_0_0_30px_rgba(0,255,255,0.15)]">
                 <div className="relative aspect-square">
                   <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -300,7 +285,7 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/leaderboard" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/60 bg-gradient-to-br from-data3-magenta/5 via-data3-magenta/10 to-transparent shadow-[0_0_25px_rgba(255,0,255,0.25),inset_0_0_20px_rgba(255,0,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-magenta/90 group-hover:shadow-[0_0_40px_rgba(255,0,255,0.5),inset_0_0_30px_rgba(255,0,255,0.2)]">
+              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/60 bg-gradient-to-br from-data3-magenta/5 via-data3-magenta/10 to-transparent shadow-[inset_2px_2px_8px_rgba(255,255,255,0.25),inset_-2px_-2px_8px_rgba(0,0,0,0.4),0_4px_12px_rgba(255,0,255,0.3),0_8px_24px_rgba(255,0,255,0.2),inset_0_0_20px_rgba(255,0,255,0.1)] transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105 group-hover:border-data3-magenta/90 group-hover:shadow-[inset_2px_2px_10px_rgba(255,255,255,0.35),inset_-2px_-2px_10px_rgba(0,0,0,0.5),0_6px_16px_rgba(255,0,255,0.5),0_12px_32px_rgba(255,0,255,0.3),inset_0_0_30px_rgba(255,0,255,0.15)]">
                 <div className="relative aspect-square">
                   <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
