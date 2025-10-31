@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
+import { audioManager } from "@/lib/audio";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -23,7 +24,7 @@ export default function Home() {
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
-    audioRef.current.volume = 0.4;
+    audioRef.current.volume = 0.2; // Reduced to half
     audioRef.current.playbackRate = 0.8; // Play at 80% speed
 
     // For mobile browsers, we need to prime the audio on user interaction
@@ -172,14 +173,29 @@ export default function Home() {
 
     const startAutoScroll = () => {
       if (!userHasScrolledRef.current) {
-        // Play audio 750ms after autoscroll starts
-        setTimeout(() => {
-          if (audioRef.current && !userHasScrolledRef.current) {
-            audioRef.current.play().catch(err => {
-              console.log('Audio playback prevented by browser:', err);
+        // Play audio immediately with animation
+        if (audioRef.current) {
+          // Add event listener to play new challenger sound after stone sliding sound ends
+          audioRef.current.onended = () => {
+            // Play new challenger sound at reduced volume (40%)
+            const originalVolume = audioManager['challengerAudio']?.volume;
+            if (audioManager['challengerAudio']) {
+              audioManager['challengerAudio'].volume = 0.4;
+            }
+            audioManager.playNewChallengerSound().catch(err => {
+              console.log('Challenger sound playback prevented by browser:', err);
+            }).finally(() => {
+              // Restore original volume after playing
+              if (audioManager['challengerAudio'] && originalVolume !== undefined) {
+                audioManager['challengerAudio'].volume = originalVolume;
+              }
             });
-          }
-        }, 750);
+          };
+
+          audioRef.current.play().catch(err => {
+            console.log('Audio playback prevented by browser:', err);
+          });
+        }
 
         // Slow scroll down
         let scrollAmount = 0;
