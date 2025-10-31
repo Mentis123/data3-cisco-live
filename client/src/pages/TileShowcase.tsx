@@ -253,6 +253,49 @@ export default function TileShowcase() {
       },
       backgroundColor: "#000025",
       backgroundDescription: "Dark background to emphasize shadow depth"
+    },
+    {
+      id: 13,
+      title: "Keyboard Keycap",
+      description: "Physical keyboard key with beveled edges and layered depth",
+      className: "relative overflow-hidden rounded-xl border-t-4 border-l-4 border-r-2 border-b-2 transition-all duration-150 hover:translate-y-1 active:translate-y-2",
+      style: {
+        background: "linear-gradient(180deg, rgba(115,0,255,0.5) 0%, rgba(115,0,255,0.35) 50%, rgba(90,0,204,0.4) 100%)",
+        borderTopColor: "rgba(180,120,255,0.8)",
+        borderLeftColor: "rgba(180,120,255,0.7)",
+        borderRightColor: "rgba(60,0,150,0.6)",
+        borderBottomColor: "rgba(60,0,150,0.8)",
+        boxShadow: `
+          inset 0 2px 4px rgba(255,255,255,0.3),
+          inset 0 -2px 4px rgba(0,0,0,0.4),
+          inset 2px 0 3px rgba(255,255,255,0.15),
+          inset -2px 0 3px rgba(0,0,0,0.15),
+          0 6px 0 rgba(70,0,180,0.8),
+          0 8px 0 rgba(50,0,130,0.7),
+          0 10px 0 rgba(30,0,80,0.6),
+          0 12px 20px rgba(115,0,255,0.6),
+          0 0 30px rgba(115,0,255,0.4)
+        `
+      },
+      hoverStyle: {
+        background: "linear-gradient(180deg, rgba(115,0,255,0.45) 0%, rgba(115,0,255,0.32) 50%, rgba(90,0,204,0.38) 100%)",
+        borderTopColor: "rgba(180,120,255,0.7)",
+        borderLeftColor: "rgba(180,120,255,0.6)",
+        borderRightColor: "rgba(60,0,150,0.5)",
+        borderBottomColor: "rgba(60,0,150,0.7)",
+        boxShadow: `
+          inset 0 2px 4px rgba(255,255,255,0.25),
+          inset 0 -2px 4px rgba(0,0,0,0.5),
+          inset 2px 0 3px rgba(255,255,255,0.12),
+          inset -2px 0 3px rgba(0,0,0,0.18),
+          0 3px 0 rgba(70,0,180,0.8),
+          0 5px 0 rgba(50,0,130,0.7),
+          0 7px 15px rgba(115,0,255,0.5),
+          0 0 25px rgba(115,0,255,0.35)
+        `
+      },
+      backgroundColor: "#0f0f23",
+      backgroundDescription: "Dark background simulating keyboard surface"
     }
   ];
 
@@ -412,6 +455,8 @@ export default function TileShowcase() {
           <li>✓ Scale and translate animations</li>
           <li>✓ Smart background pairing (light/dark)</li>
           <li>✓ Design variants for different contexts</li>
+          <li>✓ Keyboard keycap beveled edges</li>
+          <li>✓ Physical depth with layered shadows</li>
         </ul>
       </div>
 
