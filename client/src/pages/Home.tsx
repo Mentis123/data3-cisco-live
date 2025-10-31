@@ -21,13 +21,22 @@ export default function Home() {
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
     audioRef.current.volume = 0.8;
+    audioRef.current.load(); // Preload the audio
 
     // For mobile browsers, we need to prime the audio on user interaction
     const enableAudio = () => {
       if (audioRef.current && !audioReadyRef.current) {
-        // Load the audio to prepare it for playback
-        audioRef.current.load();
-        audioReadyRef.current = true;
+        // Create a promise to play and immediately pause to unlock audio
+        audioRef.current.play().then(() => {
+          audioRef.current?.pause();
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+          }
+          audioReadyRef.current = true;
+        }).catch(() => {
+          // If play fails, just mark as ready anyway
+          audioReadyRef.current = true;
+        });
       }
     };
 
@@ -169,13 +178,19 @@ export default function Home() {
       window.removeEventListener('keydown', handleUserScroll);
     };
 
+    // On desktop, add all listeners immediately
     window.addEventListener('wheel', handleUserScroll, { passive: true });
-    window.addEventListener('touchmove', handleUserScroll, { passive: true });
     window.addEventListener('keydown', handleUserScroll);
 
     if (isMobile) {
       // On mobile, wait for user interaction before auto-scrolling
       const startOnInteraction = () => {
+        // Add touchmove listener only after the interaction that triggers autoscroll
+        // This prevents the initial tap from being treated as a scroll
+        setTimeout(() => {
+          window.addEventListener('touchmove', handleUserScroll, { passive: true });
+        }, 500); // Add listener after a delay to allow autoscroll to begin
+
         setTimeout(startAutoScroll, 300); // Brief delay after interaction
       };
 
@@ -195,6 +210,9 @@ export default function Home() {
         window.removeEventListener('keydown', handleUserScroll);
       };
     } else {
+      // On mobile touchmove is added later, but on desktop we add it here for touch-enabled desktops
+      window.addEventListener('touchmove', handleUserScroll, { passive: true });
+
       // On desktop, start auto-scroll after 2 seconds as normal
       autoScrollTimeoutRef.current = window.setTimeout(startAutoScroll, 2000);
 
