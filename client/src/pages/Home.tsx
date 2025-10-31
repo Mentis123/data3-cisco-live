@@ -13,17 +13,23 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8">
-        {/* Hero Section: Data3 Logo + Delivering the Digital Future */}
-        <div className="flex items-center gap-4 sm:gap-6 self-start text-left">
+        {/* Hero Section: Data3 Logo (left) + Tagline (center) + Cisco Live Logo (right) */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4 w-full">
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
             alt="Data#3"
-            className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
-            style={{ minWidth: "60px" }}
+            className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 flex-shrink-0"
+            style={{ minWidth: "50px" }}
           />
-          <h1 className="text-2xl sm:text-3xl text-data3-white font-light tracking-wide">
+          <h1 className="text-center text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-data3-white font-light tracking-wide flex-grow px-2 sm:px-4 whitespace-nowrap overflow-hidden text-ellipsis">
             Delivering the Digital Future
           </h1>
+          <img
+            src="/cisco_live.png"
+            alt="Cisco Live"
+            className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 flex-shrink-0"
+            style={{ minWidth: "50px" }}
+          />
         </div>
 
         {/* "Beat the Bot" Section */}
