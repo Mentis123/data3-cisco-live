@@ -32,9 +32,9 @@ export default function Home() {
             Beat the Bot
           </p>
           <div className="space-y-2">
-            <p className="text-lg sm:text-xl text-data3-white/90">Training dojo</p>
-            <p className="text-lg sm:text-xl text-data3-white/90">Enter the ring when you're ready</p>
-            <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Practice in the Dojo.</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Hit the Ring when you're ready.</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry.</p>
           </div>
         </section>
 
