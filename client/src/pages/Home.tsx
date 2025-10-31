@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import ringImage from "@assets/ringfull.jpg";
@@ -16,6 +16,9 @@ export default function Home() {
   const userHasScrolledRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioReadyRef = useRef(false);
+
+  // Gyroscope-based 3D tilt effect state
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   // Initialize audio
   useEffect(() => {
@@ -43,6 +46,53 @@ export default function Home() {
       }
       document.removeEventListener('touchstart', enableAudio);
       document.removeEventListener('click', enableAudio);
+    };
+  }, []);
+
+  // Gyroscope-based 3D tilt effect
+  useEffect(() => {
+    // Check if device orientation is supported
+    if (!window.DeviceOrientationEvent) {
+      return;
+    }
+
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      // beta: front-to-back tilt (-180 to 180), gamma: left-to-right tilt (-90 to 90)
+      const beta = event.beta || 0;
+      const gamma = event.gamma || 0;
+
+      // Normalize and limit the tilt values for subtle effect
+      // We'll use a smaller range for a more subtle, pleasant effect
+      const maxTilt = 15; // degrees
+      const normalizedX = Math.max(-maxTilt, Math.min(maxTilt, gamma)) / maxTilt;
+      const normalizedY = Math.max(-maxTilt, Math.min(maxTilt, beta - 90)) / maxTilt; // Subtract 90 to account for portrait orientation
+
+      setTilt({ x: normalizedX * 8, y: normalizedY * 8 }); // Scale to pixels for transform
+    };
+
+    // Request permission for iOS 13+
+    const requestPermission = async () => {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        try {
+          const permission = await (DeviceOrientationEvent as any).requestPermission();
+          if (permission === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation);
+          }
+        } catch (error) {
+          console.log('Device orientation permission denied:', error);
+        }
+      } else {
+        // Non-iOS devices or older iOS versions
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+    };
+
+    // Start listening after a short delay to let the page settle
+    const timeoutId = setTimeout(requestPermission, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('deviceorientation', handleOrientation);
     };
   }, []);
 
@@ -252,7 +302,20 @@ export default function Home() {
         <section className="space-y-8">
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/dojo" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/70 bg-gradient-to-br from-data3-cool-purple/10 via-data3-cool-purple/15 to-data3-cool-purple/5 shadow-[inset_3px_3px_12px_rgba(255,255,255,0.4),inset_-3px_-3px_12px_rgba(0,0,0,0.6),0_8px_0px_0px_rgba(115,0,255,0.4),0_12px_20px_rgba(115,0,255,0.3),0_20px_40px_rgba(115,0,255,0.2)] transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-cool-purple group-hover:shadow-[inset_3px_3px_14px_rgba(255,255,255,0.5),inset_-3px_-3px_14px_rgba(0,0,0,0.7),0_12px_0px_0px_rgba(115,0,255,0.5),0_16px_24px_rgba(115,0,255,0.4),0_28px_50px_rgba(115,0,255,0.3)] active:translate-y-1 active:shadow-[inset_3px_3px_10px_rgba(255,255,255,0.3),inset_-3px_-3px_10px_rgba(0,0,0,0.5),0_2px_0px_0px_rgba(115,0,255,0.3),0_4px_8px_rgba(115,0,255,0.2)]">
+              <div
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/80 bg-gradient-to-br from-data3-cool-purple/10 via-data3-cool-purple/15 to-data3-cool-purple/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-cool-purple active:translate-y-1"
+                style={{
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  boxShadow: `
+                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
+                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
+                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(115,0,255,0.5),
+                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(115,0,255,0.4),
+                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(115,0,255,0.3)
+                  `,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                }}
+              >
                 <div className="relative aspect-square">
                   <img src={dojoImage} alt="Training Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -263,7 +326,20 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/play" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/70 bg-gradient-to-br from-data3-blue/10 via-data3-blue/15 to-data3-blue/5 shadow-[inset_3px_3px_12px_rgba(255,255,255,0.4),inset_-3px_-3px_12px_rgba(0,0,0,0.6),0_8px_0px_0px_rgba(0,174,255,0.4),0_12px_20px_rgba(0,174,255,0.3),0_20px_40px_rgba(0,174,255,0.2)] transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-light-blue group-hover:shadow-[inset_3px_3px_14px_rgba(255,255,255,0.5),inset_-3px_-3px_14px_rgba(0,0,0,0.7),0_12px_0px_0px_rgba(0,174,255,0.5),0_16px_24px_rgba(0,174,255,0.4),0_28px_50px_rgba(0,174,255,0.3)] active:translate-y-1 active:shadow-[inset_3px_3px_10px_rgba(255,255,255,0.3),inset_-3px_-3px_10px_rgba(0,0,0,0.5),0_2px_0px_0px_rgba(0,174,255,0.3),0_4px_8px_rgba(0,174,255,0.2)]">
+              <div
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/80 bg-gradient-to-br from-data3-blue/10 via-data3-blue/15 to-data3-blue/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-light-blue active:translate-y-1"
+                style={{
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  boxShadow: `
+                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
+                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
+                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(0,174,255,0.5),
+                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(0,174,255,0.4),
+                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(0,174,255,0.3)
+                  `,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                }}
+              >
                 <div className="relative aspect-square">
                   <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -274,7 +350,20 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/how-to-play" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/70 bg-gradient-to-br from-data3-light-blue/10 via-data3-light-blue/15 to-data3-light-blue/5 shadow-[inset_3px_3px_12px_rgba(255,255,255,0.4),inset_-3px_-3px_12px_rgba(0,0,0,0.6),0_8px_0px_0px_rgba(0,255,255,0.4),0_12px_20px_rgba(0,255,255,0.3),0_20px_40px_rgba(0,255,255,0.2)] transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-aqua group-hover:shadow-[inset_3px_3px_14px_rgba(255,255,255,0.5),inset_-3px_-3px_14px_rgba(0,0,0,0.7),0_12px_0px_0px_rgba(0,255,255,0.5),0_16px_24px_rgba(0,255,255,0.4),0_28px_50px_rgba(0,255,255,0.3)] active:translate-y-1 active:shadow-[inset_3px_3px_10px_rgba(255,255,255,0.3),inset_-3px_-3px_10px_rgba(0,0,0,0.5),0_2px_0px_0px_rgba(0,255,255,0.3),0_4px_8px_rgba(0,255,255,0.2)]">
+              <div
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/80 bg-gradient-to-br from-data3-light-blue/10 via-data3-light-blue/15 to-data3-light-blue/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-aqua active:translate-y-1"
+                style={{
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  boxShadow: `
+                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
+                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
+                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(0,255,255,0.5),
+                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(0,255,255,0.4),
+                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(0,255,255,0.3)
+                  `,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                }}
+              >
                 <div className="relative aspect-square">
                   <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
@@ -285,7 +374,20 @@ export default function Home() {
               </div>
             </Link>
             <Link href="/leaderboard" className="group">
-              <div className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/70 bg-gradient-to-br from-data3-magenta/10 via-data3-magenta/15 to-data3-magenta/5 shadow-[inset_3px_3px_12px_rgba(255,255,255,0.4),inset_-3px_-3px_12px_rgba(0,0,0,0.6),0_8px_0px_0px_rgba(255,0,255,0.4),0_12px_20px_rgba(255,0,255,0.3),0_20px_40px_rgba(255,0,255,0.2)] transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-magenta group-hover:shadow-[inset_3px_3px_14px_rgba(255,255,255,0.5),inset_-3px_-3px_14px_rgba(0,0,0,0.7),0_12px_0px_0px_rgba(255,0,255,0.5),0_16px_24px_rgba(255,0,255,0.4),0_28px_50px_rgba(255,0,255,0.3)] active:translate-y-1 active:shadow-[inset_3px_3px_10px_rgba(255,255,255,0.3),inset_-3px_-3px_10px_rgba(0,0,0,0.5),0_2px_0px_0px_rgba(255,0,255,0.3),0_4px_8px_rgba(255,0,255,0.2)]">
+              <div
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/80 bg-gradient-to-br from-data3-magenta/10 via-data3-magenta/15 to-data3-magenta/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-magenta active:translate-y-1"
+                style={{
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  boxShadow: `
+                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
+                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
+                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(255,0,255,0.5),
+                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(255,0,255,0.4),
+                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(255,0,255,0.3)
+                  `,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                }}
+              >
                 <div className="relative aspect-square">
                   <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
