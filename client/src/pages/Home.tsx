@@ -313,9 +313,9 @@ export default function Home() {
                   boxShadow: `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(115,0,255,0.6),
-                    0 12px 20px rgba(115,0,255,0.4),
-                    0 20px 40px rgba(115,0,255,0.3)
+                    0 8px 0 rgba(115,0,255,0.85),
+                    0 12px 20px rgba(115,0,255,0.65),
+                    0 20px 40px rgba(115,0,255,0.45)
                   `,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -324,9 +324,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(115,0,255,0.7),
-                    0 16px 24px rgba(115,0,255,0.5),
-                    0 24px 48px rgba(115,0,255,0.4)
+                    0 12px 0 rgba(115,0,255,0.9),
+                    0 16px 24px rgba(115,0,255,0.7),
+                    0 24px 48px rgba(115,0,255,0.5)
                   `;
                   e.currentTarget.style.borderColor = 'rgb(115 0 255)';
                 }}
@@ -335,9 +335,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(115,0,255,0.6),
-                    0 12px 20px rgba(115,0,255,0.4),
-                    0 20px 40px rgba(115,0,255,0.3)
+                    0 8px 0 rgba(115,0,255,0.85),
+                    0 12px 20px rgba(115,0,255,0.65),
+                    0 20px 40px rgba(115,0,255,0.45)
                   `;
                   e.currentTarget.style.borderColor = 'rgba(115, 0, 255, 0.8)';
                 }}
@@ -346,9 +346,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(115,0,255,0.8),
-                    0 4px 8px rgba(115,0,255,0.5),
-                    0 8px 16px rgba(115,0,255,0.3)
+                    0 2px 0 rgba(115,0,255,0.9),
+                    0 4px 8px rgba(115,0,255,0.7),
+                    0 8px 16px rgba(115,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -357,9 +357,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(115,0,255,0.7),
-                    0 16px 24px rgba(115,0,255,0.5),
-                    0 24px 48px rgba(115,0,255,0.4)
+                    0 12px 0 rgba(115,0,255,0.9),
+                    0 16px 24px rgba(115,0,255,0.7),
+                    0 24px 48px rgba(115,0,255,0.5)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -368,9 +368,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(115,0,255,0.8),
-                    0 4px 8px rgba(115,0,255,0.5),
-                    0 8px 16px rgba(115,0,255,0.3)
+                    0 2px 0 rgba(115,0,255,0.9),
+                    0 4px 8px rgba(115,0,255,0.7),
+                    0 8px 16px rgba(115,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -379,9 +379,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(115,0,255,0.6),
-                    0 12px 20px rgba(115,0,255,0.4),
-                    0 20px 40px rgba(115,0,255,0.3)
+                    0 8px 0 rgba(115,0,255,0.85),
+                    0 12px 20px rgba(115,0,255,0.65),
+                    0 20px 40px rgba(115,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -403,9 +403,9 @@ export default function Home() {
                   boxShadow: `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,174,255,0.6),
-                    0 12px 20px rgba(0,174,255,0.4),
-                    0 20px 40px rgba(0,174,255,0.3)
+                    0 8px 0 rgba(0,174,255,0.85),
+                    0 12px 20px rgba(0,174,255,0.65),
+                    0 20px 40px rgba(0,174,255,0.45)
                   `,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -414,9 +414,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(0,174,255,0.7),
-                    0 16px 24px rgba(0,174,255,0.5),
-                    0 24px 48px rgba(0,174,255,0.4)
+                    0 12px 0 rgba(0,174,255,0.9),
+                    0 16px 24px rgba(0,174,255,0.7),
+                    0 24px 48px rgba(0,174,255,0.5)
                   `;
                   e.currentTarget.style.borderColor = 'rgb(0 174 255)';
                 }}
@@ -425,9 +425,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,174,255,0.6),
-                    0 12px 20px rgba(0,174,255,0.4),
-                    0 20px 40px rgba(0,174,255,0.3)
+                    0 8px 0 rgba(0,174,255,0.85),
+                    0 12px 20px rgba(0,174,255,0.65),
+                    0 20px 40px rgba(0,174,255,0.45)
                   `;
                   e.currentTarget.style.borderColor = 'rgba(0, 174, 255, 0.8)';
                 }}
@@ -436,9 +436,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(0,174,255,0.8),
-                    0 4px 8px rgba(0,174,255,0.5),
-                    0 8px 16px rgba(0,174,255,0.3)
+                    0 2px 0 rgba(0,174,255,0.9),
+                    0 4px 8px rgba(0,174,255,0.7),
+                    0 8px 16px rgba(0,174,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -447,9 +447,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(0,174,255,0.7),
-                    0 16px 24px rgba(0,174,255,0.5),
-                    0 24px 48px rgba(0,174,255,0.4)
+                    0 12px 0 rgba(0,174,255,0.9),
+                    0 16px 24px rgba(0,174,255,0.7),
+                    0 24px 48px rgba(0,174,255,0.5)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -458,9 +458,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(0,174,255,0.8),
-                    0 4px 8px rgba(0,174,255,0.5),
-                    0 8px 16px rgba(0,174,255,0.3)
+                    0 2px 0 rgba(0,174,255,0.9),
+                    0 4px 8px rgba(0,174,255,0.7),
+                    0 8px 16px rgba(0,174,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -469,9 +469,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,174,255,0.6),
-                    0 12px 20px rgba(0,174,255,0.4),
-                    0 20px 40px rgba(0,174,255,0.3)
+                    0 8px 0 rgba(0,174,255,0.85),
+                    0 12px 20px rgba(0,174,255,0.65),
+                    0 20px 40px rgba(0,174,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -493,9 +493,9 @@ export default function Home() {
                   boxShadow: `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,255,255,0.6),
-                    0 12px 20px rgba(0,255,255,0.4),
-                    0 20px 40px rgba(0,255,255,0.3)
+                    0 8px 0 rgba(0,255,255,0.85),
+                    0 12px 20px rgba(0,255,255,0.65),
+                    0 20px 40px rgba(0,255,255,0.45)
                   `,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -504,9 +504,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(0,255,255,0.7),
-                    0 16px 24px rgba(0,255,255,0.5),
-                    0 24px 48px rgba(0,255,255,0.4)
+                    0 12px 0 rgba(0,255,255,0.9),
+                    0 16px 24px rgba(0,255,255,0.7),
+                    0 24px 48px rgba(0,255,255,0.5)
                   `;
                   e.currentTarget.style.borderColor = 'rgb(0 255 255)';
                 }}
@@ -515,9 +515,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,255,255,0.6),
-                    0 12px 20px rgba(0,255,255,0.4),
-                    0 20px 40px rgba(0,255,255,0.3)
+                    0 8px 0 rgba(0,255,255,0.85),
+                    0 12px 20px rgba(0,255,255,0.65),
+                    0 20px 40px rgba(0,255,255,0.45)
                   `;
                   e.currentTarget.style.borderColor = 'rgba(0, 255, 255, 0.8)';
                 }}
@@ -526,9 +526,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(0,255,255,0.8),
-                    0 4px 8px rgba(0,255,255,0.5),
-                    0 8px 16px rgba(0,255,255,0.3)
+                    0 2px 0 rgba(0,255,255,0.9),
+                    0 4px 8px rgba(0,255,255,0.7),
+                    0 8px 16px rgba(0,255,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -537,9 +537,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(0,255,255,0.7),
-                    0 16px 24px rgba(0,255,255,0.5),
-                    0 24px 48px rgba(0,255,255,0.4)
+                    0 12px 0 rgba(0,255,255,0.9),
+                    0 16px 24px rgba(0,255,255,0.7),
+                    0 24px 48px rgba(0,255,255,0.5)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -548,9 +548,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(0,255,255,0.8),
-                    0 4px 8px rgba(0,255,255,0.5),
-                    0 8px 16px rgba(0,255,255,0.3)
+                    0 2px 0 rgba(0,255,255,0.9),
+                    0 4px 8px rgba(0,255,255,0.7),
+                    0 8px 16px rgba(0,255,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -559,9 +559,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(0,255,255,0.6),
-                    0 12px 20px rgba(0,255,255,0.4),
-                    0 20px 40px rgba(0,255,255,0.3)
+                    0 8px 0 rgba(0,255,255,0.85),
+                    0 12px 20px rgba(0,255,255,0.65),
+                    0 20px 40px rgba(0,255,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -583,9 +583,9 @@ export default function Home() {
                   boxShadow: `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(255,0,255,0.6),
-                    0 12px 20px rgba(255,0,255,0.4),
-                    0 20px 40px rgba(255,0,255,0.3)
+                    0 8px 0 rgba(255,0,255,0.85),
+                    0 12px 20px rgba(255,0,255,0.65),
+                    0 20px 40px rgba(255,0,255,0.45)
                   `,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -594,9 +594,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(255,0,255,0.7),
-                    0 16px 24px rgba(255,0,255,0.5),
-                    0 24px 48px rgba(255,0,255,0.4)
+                    0 12px 0 rgba(255,0,255,0.9),
+                    0 16px 24px rgba(255,0,255,0.7),
+                    0 24px 48px rgba(255,0,255,0.5)
                   `;
                   e.currentTarget.style.borderColor = 'rgb(255 0 255)';
                 }}
@@ -605,9 +605,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(255,0,255,0.6),
-                    0 12px 20px rgba(255,0,255,0.4),
-                    0 20px 40px rgba(255,0,255,0.3)
+                    0 8px 0 rgba(255,0,255,0.85),
+                    0 12px 20px rgba(255,0,255,0.65),
+                    0 20px 40px rgba(255,0,255,0.45)
                   `;
                   e.currentTarget.style.borderColor = 'rgba(255, 0, 255, 0.8)';
                 }}
@@ -616,9 +616,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(255,0,255,0.8),
-                    0 4px 8px rgba(255,0,255,0.5),
-                    0 8px 16px rgba(255,0,255,0.3)
+                    0 2px 0 rgba(255,0,255,0.9),
+                    0 4px 8px rgba(255,0,255,0.7),
+                    0 8px 16px rgba(255,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -627,9 +627,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.4),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 12px 0 rgba(255,0,255,0.7),
-                    0 16px 24px rgba(255,0,255,0.5),
-                    0 24px 48px rgba(255,0,255,0.4)
+                    0 12px 0 rgba(255,0,255,0.9),
+                    0 16px 24px rgba(255,0,255,0.7),
+                    0 24px 48px rgba(255,0,255,0.5)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
@@ -638,9 +638,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.2),
                     inset -2px -2px 8px rgba(0,0,0,0.6),
-                    0 2px 0 rgba(255,0,255,0.8),
-                    0 4px 8px rgba(255,0,255,0.5),
-                    0 8px 16px rgba(255,0,255,0.3)
+                    0 2px 0 rgba(255,0,255,0.9),
+                    0 4px 8px rgba(255,0,255,0.7),
+                    0 8px 16px rgba(255,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.05s ease';
                 }}
@@ -649,9 +649,9 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = `
                     inset 2px 2px 8px rgba(255,255,255,0.3),
                     inset -2px -2px 8px rgba(0,0,0,0.5),
-                    0 8px 0 rgba(255,0,255,0.6),
-                    0 12px 20px rgba(255,0,255,0.4),
-                    0 20px 40px rgba(255,0,255,0.3)
+                    0 8px 0 rgba(255,0,255,0.85),
+                    0 12px 20px rgba(255,0,255,0.65),
+                    0 20px 40px rgba(255,0,255,0.45)
                   `;
                   e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
