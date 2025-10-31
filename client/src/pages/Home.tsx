@@ -15,6 +15,63 @@ export default function Home() {
   const autoScrollIntervalRef = useRef<number | null>(null);
   const userHasScrolledRef = useRef(false);
 
+  // Smooth half-speed scrolling effect
+  useEffect(() => {
+    let isScrolling = false;
+    let targetScrollY = window.scrollY;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+
+      // Reduce scroll speed to half
+      const delta = e.deltaY * 0.5;
+      targetScrollY += delta;
+      targetScrollY = Math.max(0, Math.min(targetScrollY, document.documentElement.scrollHeight - window.innerHeight));
+
+      if (!isScrolling) {
+        isScrolling = true;
+        smoothScrollTo(targetScrollY);
+      }
+    };
+
+    const smoothScrollTo = (target: number) => {
+      const start = window.scrollY;
+      const distance = target - start;
+      const duration = 300; // milliseconds for smooth animation
+      let startTime: number | null = null;
+
+      const animation = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+
+        // Ease out cubic for smooth deceleration
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+        window.scrollTo(0, start + distance * easeProgress);
+
+        if (progress < 1) {
+          requestAnimationFrame(animation);
+        } else {
+          isScrolling = false;
+          // Check if we need to continue scrolling
+          if (Math.abs(window.scrollY - targetScrollY) > 1) {
+            isScrolling = true;
+            smoothScrollTo(targetScrollY);
+          }
+        }
+      };
+
+      requestAnimationFrame(animation);
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
   useEffect(() => {
     // Check if this is the first visit to the page (during this session)
     const hasAutoScrolled = sessionStorage.getItem('hasAutoScrolled');
