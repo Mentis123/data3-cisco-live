@@ -259,10 +259,10 @@ export default function TileShowcase() {
       title: "Keyboard Keycap",
       description: "Physical keyboard key with beveled edges and layered depth",
       className:
-        "relative overflow-hidden rounded-xl border-t-4 border-l-4 border-r-2 border-b-2 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-cool-purple/70 after:via-data3-cool-purple/40 after:to-transparent after:blur-sm after:-z-10",
+        "relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-cool-purple/70 after:via-data3-cool-purple/40 after:to-transparent after:blur-sm after:-z-10",
       style: {
         backgroundImage:
-          "linear-gradient(to bottom, rgba(12,6,35,0.9) 0%, rgba(12,6,35,0.5) 18%, rgba(24,14,65,0.18) 44%, rgba(36,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(240,220,255,0.45) 0%, rgba(190,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(140,70,250,0.78) 0%, rgba(110,45,225,0.64) 46%, rgba(76,26,170,0.68) 76%, rgba(42,12,120,0.85) 100%)",
+          "linear-gradient(to bottom, rgba(12,6,35,0.9) 0%, rgba(12,6,35,0.5) 18%, rgba(24,14,65,0.18) 44%, rgba(36,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(240,220,255,0.13) 0%, rgba(190,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(140,70,250,0.78) 0%, rgba(110,45,225,0.64) 46%, rgba(76,26,170,0.68) 76%, rgba(42,12,120,0.85) 100%)",
         backgroundBlendMode: "screen",
         borderTopColor: "rgba(188,140,255,0.82)",
         borderLeftColor: "rgba(188,140,255,0.72)",
@@ -274,17 +274,17 @@ export default function TileShowcase() {
           inset 3px 0 4px rgba(255,255,255,0.18),
           inset -3px 0 4px rgba(0,0,0,0.22),
           inset 0 22px 46px rgba(120,60,255,0.14),
-          0 7px 0 rgba(70,0,180,0.9),
-          0 12px 0 rgba(50,0,150,0.84),
-          0 17px 0 rgba(34,0,110,0.78),
-          0 22px 0 rgba(22,0,70,0.72),
-          0 26px 16px rgba(18,0,50,0.68),
-          0 34px 46px rgba(80,0,200,0.55)
+          1px 7px 0 rgba(70,0,180,0.9),
+          1px 12px 0 rgba(50,0,150,0.84),
+          2px 17px 0 rgba(34,0,110,0.78),
+          2px 22px 0 rgba(22,0,70,0.72),
+          3px 26px 16px rgba(18,0,50,0.68),
+          3px 34px 46px rgba(80,0,200,0.55)
         `
       },
       hoverStyle: {
         backgroundImage:
-          "linear-gradient(to bottom, rgba(12,6,35,0.78) 0%, rgba(12,6,35,0.38) 16%, rgba(22,12,60,0.16) 38%, rgba(34,16,85,0) 68%), radial-gradient(circle at 50% 22%, rgba(245,230,255,0.38) 0%, rgba(205,170,255,0.16) 52%, transparent 74%), linear-gradient(188deg, rgba(140,70,250,0.7) 0%, rgba(110,45,225,0.58) 46%, rgba(72,30,165,0.62) 76%, rgba(38,12,115,0.8) 100%)",
+          "linear-gradient(to bottom, rgba(12,6,35,0.78) 0%, rgba(12,6,35,0.38) 16%, rgba(22,12,60,0.16) 38%, rgba(34,16,85,0) 68%), radial-gradient(circle at 50% 22%, rgba(245,230,255,0.13) 0%, rgba(205,170,255,0.16) 52%, transparent 74%), linear-gradient(188deg, rgba(140,70,250,0.7) 0%, rgba(110,45,225,0.58) 46%, rgba(72,30,165,0.62) 76%, rgba(38,12,115,0.8) 100%)",
         backgroundBlendMode: "screen",
         borderTopColor: "rgba(196,150,255,0.75)",
         borderLeftColor: "rgba(196,150,255,0.65)",
@@ -296,10 +296,10 @@ export default function TileShowcase() {
           inset 3px 0 4px rgba(255,255,255,0.15),
           inset -3px 0 4px rgba(0,0,0,0.2),
           inset 0 24px 48px rgba(120,60,255,0.18),
-          0 5px 0 rgba(70,0,180,0.88),
-          0 9px 0 rgba(48,0,145,0.8),
-          0 14px 20px rgba(115,0,255,0.6),
-          0 22px 34px rgba(95,0,230,0.5)
+          1px 5px 0 rgba(70,0,180,0.88),
+          1px 9px 0 rgba(48,0,145,0.8),
+          2px 14px 20px rgba(115,0,255,0.6),
+          2px 22px 34px rgba(95,0,230,0.5)
         `
       },
       backgroundColor: "#0f0f23",
