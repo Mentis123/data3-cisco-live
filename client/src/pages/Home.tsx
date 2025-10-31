@@ -323,14 +323,27 @@ export default function Home() {
           <div className="mx-auto grid w-11/12 max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/dojo" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-2 border-white/40 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-white/60"
+                className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-cool-purple/70 after:via-data3-cool-purple/40 after:to-transparent after:blur-sm after:-z-10"
                 style={{
-                  background: "rgba(115,0,255,0.15)",
+                  backgroundImage:
+                    "linear-gradient(to bottom, rgba(12,6,35,0.9) 0%, rgba(12,6,35,0.5) 18%, rgba(24,14,65,0.18) 44%, rgba(36,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(240,220,255,0.13) 0%, rgba(190,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(140,70,250,0.78) 0%, rgba(110,45,225,0.64) 46%, rgba(76,26,170,0.68) 76%, rgba(42,12,120,0.85) 100%)",
+                  backgroundBlendMode: "screen",
+                  borderTopColor: "rgba(188,140,255,0.82)",
+                  borderLeftColor: "rgba(188,140,255,0.72)",
+                  borderRightColor: "rgba(44,0,135,0.62)",
+                  borderBottomColor: "rgba(40,0,115,0.88)",
                   boxShadow: `
-                    0 8px 32px rgba(115,0,255,0.4),
-                    0 0 0 1px rgba(255,255,255,0.2),
-                    inset 0 0 60px rgba(255,255,255,0.1),
-                    inset 0 -10px 40px rgba(115,0,255,0.2)
+                    inset 0 4px 8px rgba(255,255,255,0.45),
+                    inset 0 -4px 9px rgba(0,0,0,0.55),
+                    inset 3px 0 4px rgba(255,255,255,0.18),
+                    inset -3px 0 4px rgba(0,0,0,0.22),
+                    inset 0 22px 46px rgba(120,60,255,0.14),
+                    1px 7px 0 rgba(70,0,180,0.9),
+                    1px 12px 0 rgba(50,0,150,0.84),
+                    2px 17px 0 rgba(34,0,110,0.78),
+                    2px 22px 0 rgba(22,0,70,0.72),
+                    3px 26px 16px rgba(18,0,50,0.68),
+                    3px 34px 46px rgba(80,0,200,0.55)
                   `
                 }}
               >
@@ -345,14 +358,27 @@ export default function Home() {
             </Link>
             <Link href="/play" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-2 border-blue-400/60 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-blue-500/80"
+                className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-sky-400/70 after:via-sky-400/40 after:to-transparent after:blur-sm after:-z-10"
                 style={{
-                  background: "rgba(255,255,255,0.25)",
+                  backgroundImage:
+                    "linear-gradient(to bottom, rgba(6,20,35,0.9) 0%, rgba(6,20,35,0.5) 18%, rgba(14,35,65,0.18) 44%, rgba(16,50,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(220,240,255,0.13) 0%, rgba(150,200,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(70,170,250,0.78) 0%, rgba(45,140,225,0.64) 46%, rgba(26,100,170,0.68) 76%, rgba(12,70,120,0.85) 100%)",
+                  backgroundBlendMode: "screen",
+                  borderTopColor: "rgba(140,200,255,0.82)",
+                  borderLeftColor: "rgba(140,200,255,0.72)",
+                  borderRightColor: "rgba(0,80,135,0.62)",
+                  borderBottomColor: "rgba(0,70,115,0.88)",
                   boxShadow: `
-                    0 8px 32px rgba(0,174,255,0.2),
-                    0 4px 16px rgba(0,0,0,0.1),
-                    0 0 0 1px rgba(255,255,255,0.4),
-                    inset 0 0 60px rgba(255,255,255,0.3)
+                    inset 0 4px 8px rgba(255,255,255,0.45),
+                    inset 0 -4px 9px rgba(0,0,0,0.55),
+                    inset 3px 0 4px rgba(255,255,255,0.18),
+                    inset -3px 0 4px rgba(0,0,0,0.22),
+                    inset 0 22px 46px rgba(60,150,255,0.14),
+                    1px 7px 0 rgba(0,100,180,0.9),
+                    1px 12px 0 rgba(0,90,150,0.84),
+                    2px 17px 0 rgba(0,70,110,0.78),
+                    2px 22px 0 rgba(0,50,70,0.72),
+                    3px 26px 16px rgba(0,40,50,0.68),
+                    3px 34px 46px rgba(0,120,200,0.55)
                   `
                 }}
               >
@@ -367,14 +393,27 @@ export default function Home() {
             </Link>
             <Link href="/how-to-play" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-2 border-white/40 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-white/60"
+                className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-cyan-400/70 after:via-cyan-400/40 after:to-transparent after:blur-sm after:-z-10"
                 style={{
-                  background: "rgba(0,255,255,0.15)",
+                  backgroundImage:
+                    "linear-gradient(to bottom, rgba(6,25,35,0.9) 0%, rgba(6,25,35,0.5) 18%, rgba(14,50,65,0.18) 44%, rgba(16,75,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(220,255,255,0.13) 0%, rgba(150,240,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(70,240,250,0.78) 0%, rgba(45,200,225,0.64) 46%, rgba(26,150,170,0.68) 76%, rgba(12,100,120,0.85) 100%)",
+                  backgroundBlendMode: "screen",
+                  borderTopColor: "rgba(140,240,255,0.82)",
+                  borderLeftColor: "rgba(140,240,255,0.72)",
+                  borderRightColor: "rgba(0,120,135,0.62)",
+                  borderBottomColor: "rgba(0,110,115,0.88)",
                   boxShadow: `
-                    0 8px 32px rgba(0,255,255,0.4),
-                    0 0 0 1px rgba(255,255,255,0.2),
-                    inset 0 0 60px rgba(255,255,255,0.1),
-                    inset 0 -10px 40px rgba(0,255,255,0.2)
+                    inset 0 4px 8px rgba(255,255,255,0.45),
+                    inset 0 -4px 9px rgba(0,0,0,0.55),
+                    inset 3px 0 4px rgba(255,255,255,0.18),
+                    inset -3px 0 4px rgba(0,0,0,0.22),
+                    inset 0 22px 46px rgba(60,220,255,0.14),
+                    1px 7px 0 rgba(0,140,180,0.9),
+                    1px 12px 0 rgba(0,120,150,0.84),
+                    2px 17px 0 rgba(0,100,110,0.78),
+                    2px 22px 0 rgba(0,80,70,0.72),
+                    3px 26px 16px rgba(0,60,50,0.68),
+                    3px 34px 46px rgba(0,180,200,0.55)
                   `
                 }}
               >
@@ -389,14 +428,27 @@ export default function Home() {
             </Link>
             <Link href="/leaderboard" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-2 border-purple-400/60 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-purple-500/80"
+                className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-fuchsia-400/70 after:via-fuchsia-400/40 after:to-transparent after:blur-sm after:-z-10"
                 style={{
-                  background: "rgba(255,255,255,0.25)",
+                  backgroundImage:
+                    "linear-gradient(to bottom, rgba(25,6,35,0.9) 0%, rgba(25,6,35,0.5) 18%, rgba(45,14,65,0.18) 44%, rgba(65,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(255,220,255,0.13) 0%, rgba(240,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(240,70,250,0.78) 0%, rgba(215,45,225,0.64) 46%, rgba(170,26,170,0.68) 76%, rgba(120,12,120,0.85) 100%)",
+                  backgroundBlendMode: "screen",
+                  borderTopColor: "rgba(240,140,255,0.82)",
+                  borderLeftColor: "rgba(240,140,255,0.72)",
+                  borderRightColor: "rgba(100,0,135,0.62)",
+                  borderBottomColor: "rgba(90,0,115,0.88)",
                   boxShadow: `
-                    0 8px 32px rgba(255,0,255,0.2),
-                    0 4px 16px rgba(0,0,0,0.1),
-                    0 0 0 1px rgba(255,255,255,0.4),
-                    inset 0 0 60px rgba(255,255,255,0.3)
+                    inset 0 4px 8px rgba(255,255,255,0.45),
+                    inset 0 -4px 9px rgba(0,0,0,0.55),
+                    inset 3px 0 4px rgba(255,255,255,0.18),
+                    inset -3px 0 4px rgba(0,0,0,0.22),
+                    inset 0 22px 46px rgba(220,60,255,0.14),
+                    1px 7px 0 rgba(140,0,180,0.9),
+                    1px 12px 0 rgba(120,0,150,0.84),
+                    2px 17px 0 rgba(100,0,110,0.78),
+                    2px 22px 0 rgba(80,0,70,0.72),
+                    3px 26px 16px rgba(60,0,50,0.68),
+                    3px 34px 46px rgba(180,0,200,0.55)
                   `
                 }}
               >
