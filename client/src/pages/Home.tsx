@@ -21,6 +21,7 @@ export default function Home() {
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
     audioRef.current.volume = 0.8;
+    audioRef.current.playbackRate = 0.9; // Play at 90% speed
 
     // For mobile browsers, we need to prime the audio on user interaction
     const enableAudio = () => {
