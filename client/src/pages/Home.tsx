@@ -320,7 +320,7 @@ export default function Home() {
 
         {/* Hero Tiles Grid - Claude: Keep the 4 main navigation tiles */}
         <section className="space-y-8">
-          <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
+          <div className="mx-auto grid w-11/12 max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/dojo" className="group">
               <div
                 className="relative overflow-hidden rounded-2xl border-2 border-white/40 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-white/60"
