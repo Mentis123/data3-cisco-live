@@ -147,36 +147,36 @@ export function TriviaCardDeck({ cards, variant = "full", className }: TriviaCar
       <CardContent className="mt-4 flex-1 space-y-5 overflow-hidden p-0">
         <ScrollArea className={cn("pr-4", isCompact ? "max-h-[260px]" : "max-h-[360px]")}> 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-2xl border-4 border-white/30 bg-white/5 p-4 shadow-[0_0_20px_rgba(255,255,255,0.15),inset_0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300 hover:border-white/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.25),inset_0_0_20px_rgba(255,255,255,0.1)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-white", isCompact ? "text-sm" : "text-base")}>Scenario</h3>
-              <p className={cn("mt-2 text-pretty leading-relaxed text-slate-200/90", isCompact ? "text-sm" : "text-base")}> 
+              <p className={cn("mt-2 text-pretty leading-relaxed text-slate-200/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.scenario}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-cyan-300/30 bg-cyan-500/10 p-4">
+            <div className="rounded-2xl border-4 border-cyan-300/60 bg-cyan-500/10 p-4 shadow-[0_0_20px_rgba(0,255,255,0.2),inset_0_0_15px_rgba(0,255,255,0.08)] transition-all duration-300 hover:border-cyan-300/90 hover:shadow-[0_0_30px_rgba(0,255,255,0.35),inset_0_0_20px_rgba(0,255,255,0.12)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-cyan-200", isCompact ? "text-sm" : "text-base")}>Prompt</h3>
-              <p className={cn("mt-2 text-pretty leading-relaxed text-cyan-50/90", isCompact ? "text-sm" : "text-base")}> 
+              <p className={cn("mt-2 text-pretty leading-relaxed text-cyan-50/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.prompt}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-4">
+            <div className="rounded-2xl border-4 border-emerald-300/60 bg-emerald-500/10 p-4 shadow-[0_0_20px_rgba(0,255,0,0.2),inset_0_0_15px_rgba(0,255,0,0.08)] transition-all duration-300 hover:border-emerald-300/90 hover:shadow-[0_0_30px_rgba(0,255,0,0.35),inset_0_0_20px_rgba(0,255,0,0.12)] hover:scale-[1.02]">
               <h3 className={cn("font-semibold text-emerald-200", isCompact ? "text-sm" : "text-base")}>Winning move</h3>
-              <p className={cn("mt-2 text-pretty leading-relaxed text-emerald-50/90", isCompact ? "text-sm" : "text-base")}> 
+              <p className={cn("mt-2 text-pretty leading-relaxed text-emerald-50/90", isCompact ? "text-sm" : "text-base")}>
                 {currentCard.winningMove}
               </p>
             </div>
 
             {revealed ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <h3 className={cn("font-semibold text-white", isCompact ? "text-sm" : "text-base")}>Rationale</h3>
-                <p className={cn("mt-2 text-pretty leading-relaxed text-slate-200/90", isCompact ? "text-sm" : "text-base")}> 
+              <div className="rounded-2xl border-4 border-amber-300/60 bg-amber-500/10 p-4 shadow-[0_0_20px_rgba(255,191,0,0.2),inset_0_0_15px_rgba(255,191,0,0.08)] transition-all duration-300 hover:border-amber-300/90 hover:shadow-[0_0_30px_rgba(255,191,0,0.35),inset_0_0_20px_rgba(255,191,0,0.12)] hover:scale-[1.02]">
+                <h3 className={cn("font-semibold text-amber-200", isCompact ? "text-sm" : "text-base")}>Rationale</h3>
+                <p className={cn("mt-2 text-pretty leading-relaxed text-amber-50/90", isCompact ? "text-sm" : "text-base")}>
                   {currentCard.rationale}
                 </p>
-                <ul className={cn("mt-3 space-y-2", isCompact ? "text-sm" : "text-base")}> 
+                <ul className={cn("mt-3 space-y-2", isCompact ? "text-sm" : "text-base")}>
                   {currentCard.scoringSignals.map((signal) => (
-                    <li key={signal} className="flex items-start gap-2 text-slate-100/80">
+                    <li key={signal} className="flex items-start gap-2 text-amber-100/80">
                       <span className="mt-1 inline-flex h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-300"></span>
                       <span>{signal}</span>
                     </li>
