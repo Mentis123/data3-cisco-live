@@ -14,6 +14,20 @@ export default function Home() {
   const autoScrollTimeoutRef = useRef<number | null>(null);
   const autoScrollIntervalRef = useRef<number | null>(null);
   const userHasScrolledRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio('/sliding_stone.mp3');
+    audioRef.current.volume = 0.45; // Moderate volume - not too quiet but not too loud
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   // Smooth half-speed scrolling effect
   useEffect(() => {
@@ -83,6 +97,15 @@ export default function Home() {
     // Start auto-scroll after 2 seconds
     autoScrollTimeoutRef.current = window.setTimeout(() => {
       if (!userHasScrolledRef.current) {
+        // Play audio 100ms after autoscroll starts
+        setTimeout(() => {
+          if (audioRef.current && !userHasScrolledRef.current) {
+            audioRef.current.play().catch(err => {
+              console.log('Audio playback failed:', err);
+            });
+          }
+        }, 100);
+
         // Slow scroll down
         let scrollAmount = 0;
         autoScrollIntervalRef.current = window.setInterval(() => {
