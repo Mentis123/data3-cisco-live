@@ -58,16 +58,20 @@ export default function Home() {
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
       // beta: front-to-back tilt (-180 to 180), gamma: left-to-right tilt (-90 to 90)
-      const beta = event.beta || 0;
-      const gamma = event.gamma || 0;
+      const beta = event.beta;
+      const gamma = event.gamma;
+
+      // Check if we have valid values
+      if (beta === null || gamma === null) {
+        return;
+      }
 
       // Normalize and limit the tilt values for subtle effect
-      // We'll use a smaller range for a more subtle, pleasant effect
-      const maxTilt = 15; // degrees
+      const maxTilt = 20; // degrees
       const normalizedX = Math.max(-maxTilt, Math.min(maxTilt, gamma)) / maxTilt;
       const normalizedY = Math.max(-maxTilt, Math.min(maxTilt, beta - 90)) / maxTilt; // Subtract 90 to account for portrait orientation
 
-      setTilt({ x: normalizedX * 8, y: normalizedY * 8 }); // Scale to pixels for transform
+      setTilt({ x: normalizedX * 5, y: normalizedY * 5 }); // Reduced multiplier for subtler effect
     };
 
     // Request permission for iOS 13+
@@ -303,17 +307,83 @@ export default function Home() {
           <div className="mx-auto grid w-full max-w-2xl gap-4 sm:gap-5 sm:grid-cols-2">
             <Link href="/dojo" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/80 bg-gradient-to-br from-data3-cool-purple/10 via-data3-cool-purple/15 to-data3-cool-purple/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-cool-purple active:translate-y-1"
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-cool-purple/80 bg-gradient-to-br from-data3-cool-purple/10 via-data3-cool-purple/15 to-data3-cool-purple/5"
                 style={{
-                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`,
                   boxShadow: `
-                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
-                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
-                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(115,0,255,0.5),
-                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(115,0,255,0.4),
-                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(115,0,255,0.3)
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(115,0,255,0.6),
+                    0 12px 20px rgba(115,0,255,0.4),
+                    0 20px 40px rgba(115,0,255,0.3)
                   `,
-                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(115,0,255,0.7),
+                    0 16px 24px rgba(115,0,255,0.5),
+                    0 24px 48px rgba(115,0,255,0.4)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgb(115 0 255)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(115,0,255,0.6),
+                    0 12px 20px rgba(115,0,255,0.4),
+                    0 20px 40px rgba(115,0,255,0.3)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgba(115, 0, 255, 0.8)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(115,0,255,0.8),
+                    0 4px 8px rgba(115,0,255,0.5),
+                    0 8px 16px rgba(115,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(115,0,255,0.7),
+                    0 16px 24px rgba(115,0,255,0.5),
+                    0 24px 48px rgba(115,0,255,0.4)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(115,0,255,0.8),
+                    0 4px 8px rgba(115,0,255,0.5),
+                    0 8px 16px rgba(115,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(115,0,255,0.6),
+                    0 12px 20px rgba(115,0,255,0.4),
+                    0 20px 40px rgba(115,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
               >
                 <div className="relative aspect-square">
@@ -327,17 +397,83 @@ export default function Home() {
             </Link>
             <Link href="/play" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/80 bg-gradient-to-br from-data3-blue/10 via-data3-blue/15 to-data3-blue/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-light-blue active:translate-y-1"
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-light-blue/80 bg-gradient-to-br from-data3-blue/10 via-data3-blue/15 to-data3-blue/5"
                 style={{
-                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`,
                   boxShadow: `
-                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
-                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
-                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(0,174,255,0.5),
-                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(0,174,255,0.4),
-                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(0,174,255,0.3)
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,174,255,0.6),
+                    0 12px 20px rgba(0,174,255,0.4),
+                    0 20px 40px rgba(0,174,255,0.3)
                   `,
-                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(0,174,255,0.7),
+                    0 16px 24px rgba(0,174,255,0.5),
+                    0 24px 48px rgba(0,174,255,0.4)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgb(0 174 255)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,174,255,0.6),
+                    0 12px 20px rgba(0,174,255,0.4),
+                    0 20px 40px rgba(0,174,255,0.3)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgba(0, 174, 255, 0.8)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(0,174,255,0.8),
+                    0 4px 8px rgba(0,174,255,0.5),
+                    0 8px 16px rgba(0,174,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(0,174,255,0.7),
+                    0 16px 24px rgba(0,174,255,0.5),
+                    0 24px 48px rgba(0,174,255,0.4)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(0,174,255,0.8),
+                    0 4px 8px rgba(0,174,255,0.5),
+                    0 8px 16px rgba(0,174,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,174,255,0.6),
+                    0 12px 20px rgba(0,174,255,0.4),
+                    0 20px 40px rgba(0,174,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
               >
                 <div className="relative aspect-square">
@@ -351,17 +487,83 @@ export default function Home() {
             </Link>
             <Link href="/how-to-play" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/80 bg-gradient-to-br from-data3-light-blue/10 via-data3-light-blue/15 to-data3-light-blue/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-aqua active:translate-y-1"
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-aqua/80 bg-gradient-to-br from-data3-light-blue/10 via-data3-light-blue/15 to-data3-light-blue/5"
                 style={{
-                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`,
                   boxShadow: `
-                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
-                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
-                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(0,255,255,0.5),
-                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(0,255,255,0.4),
-                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(0,255,255,0.3)
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,255,255,0.6),
+                    0 12px 20px rgba(0,255,255,0.4),
+                    0 20px 40px rgba(0,255,255,0.3)
                   `,
-                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(0,255,255,0.7),
+                    0 16px 24px rgba(0,255,255,0.5),
+                    0 24px 48px rgba(0,255,255,0.4)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgb(0 255 255)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,255,255,0.6),
+                    0 12px 20px rgba(0,255,255,0.4),
+                    0 20px 40px rgba(0,255,255,0.3)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgba(0, 255, 255, 0.8)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(0,255,255,0.8),
+                    0 4px 8px rgba(0,255,255,0.5),
+                    0 8px 16px rgba(0,255,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(0,255,255,0.7),
+                    0 16px 24px rgba(0,255,255,0.5),
+                    0 24px 48px rgba(0,255,255,0.4)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(0,255,255,0.8),
+                    0 4px 8px rgba(0,255,255,0.5),
+                    0 8px 16px rgba(0,255,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(0,255,255,0.6),
+                    0 12px 20px rgba(0,255,255,0.4),
+                    0 20px 40px rgba(0,255,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
               >
                 <div className="relative aspect-square">
@@ -375,17 +577,83 @@ export default function Home() {
             </Link>
             <Link href="/leaderboard" className="group">
               <div
-                className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/80 bg-gradient-to-br from-data3-magenta/10 via-data3-magenta/15 to-data3-magenta/5 transition-all duration-200 group-hover:-translate-y-3 group-hover:scale-[1.02] group-hover:border-data3-magenta active:translate-y-1"
+                className="relative overflow-hidden rounded-2xl border-4 border-data3-magenta/80 bg-gradient-to-br from-data3-magenta/10 via-data3-magenta/15 to-data3-magenta/5"
                 style={{
-                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                  transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`,
                   boxShadow: `
-                    inset ${4 + tilt.x}px ${4 + tilt.y}px 16px rgba(255,255,255,0.5),
-                    inset ${-4 + tilt.x}px ${-4 + tilt.y}px 16px rgba(0,0,0,0.7),
-                    ${tilt.x * 2}px ${10 + tilt.y * 2}px 0px rgba(255,0,255,0.5),
-                    ${tilt.x * 3}px ${14 + tilt.y * 3}px 24px rgba(255,0,255,0.4),
-                    ${tilt.x * 4}px ${24 + tilt.y * 4}px 48px rgba(255,0,255,0.3)
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(255,0,255,0.6),
+                    0 12px 20px rgba(255,0,255,0.4),
+                    0 20px 40px rgba(255,0,255,0.3)
                   `,
-                  transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out, border 0.2s, translate 0.2s, scale 0.2s'
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(255,0,255,0.7),
+                    0 16px 24px rgba(255,0,255,0.5),
+                    0 24px 48px rgba(255,0,255,0.4)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgb(255 0 255)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(255,0,255,0.6),
+                    0 12px 20px rgba(255,0,255,0.4),
+                    0 20px 40px rgba(255,0,255,0.3)
+                  `;
+                  e.currentTarget.style.borderColor = 'rgba(255, 0, 255, 0.8)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(255,0,255,0.8),
+                    0 4px 8px rgba(255,0,255,0.5),
+                    0 8px 16px rgba(255,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-12px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.4),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 12px 0 rgba(255,0,255,0.7),
+                    0 16px 24px rgba(255,0,255,0.5),
+                    0 24px 48px rgba(255,0,255,0.4)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-2px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.2),
+                    inset -2px -2px 8px rgba(0,0,0,0.6),
+                    0 2px 0 rgba(255,0,255,0.8),
+                    0 4px 8px rgba(255,0,255,0.5),
+                    0 8px 16px rgba(255,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.05s ease';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) translateY(-8px)`;
+                  e.currentTarget.style.boxShadow = `
+                    inset 2px 2px 8px rgba(255,255,255,0.3),
+                    inset -2px -2px 8px rgba(0,0,0,0.5),
+                    0 8px 0 rgba(255,0,255,0.6),
+                    0 12px 20px rgba(255,0,255,0.4),
+                    0 20px 40px rgba(255,0,255,0.3)
+                  `;
+                  e.currentTarget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 }}
               >
                 <div className="relative aspect-square">
