@@ -258,40 +258,48 @@ export default function TileShowcase() {
       id: 13,
       title: "Keyboard Keycap",
       description: "Physical keyboard key with beveled edges and layered depth",
-      className: "relative overflow-hidden rounded-xl border-t-4 border-l-4 border-r-2 border-b-2 transition-all duration-150 hover:translate-y-1 active:translate-y-2",
+      className:
+        "relative overflow-hidden rounded-xl border-t-4 border-l-4 border-r-2 border-b-2 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-cool-purple/70 after:via-data3-cool-purple/40 after:to-transparent after:blur-sm after:-z-10",
       style: {
-        background: "linear-gradient(180deg, rgba(115,0,255,0.5) 0%, rgba(115,0,255,0.35) 50%, rgba(90,0,204,0.4) 100%)",
+        backgroundImage:
+          "radial-gradient(circle at 50% 20%, rgba(255,255,255,0.4), transparent 55%), linear-gradient(185deg, rgba(150,80,255,0.75) 0%, rgba(115,0,255,0.55) 45%, rgba(70,0,180,0.65) 75%, rgba(45,0,120,0.8) 100%)",
+        backgroundBlendMode: "screen",
         borderTopColor: "rgba(180,120,255,0.8)",
         borderLeftColor: "rgba(180,120,255,0.7)",
-        borderRightColor: "rgba(60,0,150,0.6)",
-        borderBottomColor: "rgba(60,0,150,0.8)",
+        borderRightColor: "rgba(50,0,140,0.6)",
+        borderBottomColor: "rgba(45,0,120,0.85)",
         boxShadow: `
-          inset 0 2px 4px rgba(255,255,255,0.3),
-          inset 0 -2px 4px rgba(0,0,0,0.4),
-          inset 2px 0 3px rgba(255,255,255,0.15),
-          inset -2px 0 3px rgba(0,0,0,0.15),
-          0 6px 0 rgba(70,0,180,0.8),
-          0 8px 0 rgba(50,0,130,0.7),
-          0 10px 0 rgba(30,0,80,0.6),
-          0 12px 20px rgba(115,0,255,0.6),
-          0 0 30px rgba(115,0,255,0.4)
+          inset 0 4px 8px rgba(255,255,255,0.45),
+          inset 0 -4px 8px rgba(0,0,0,0.5),
+          inset 3px 0 4px rgba(255,255,255,0.18),
+          inset -3px 0 4px rgba(0,0,0,0.22),
+          inset 0 20px 40px rgba(120,60,255,0.12),
+          0 6px 0 rgba(70,0,180,0.85),
+          0 10px 0 rgba(45,0,120,0.78),
+          0 14px 0 rgba(30,0,80,0.72),
+          0 18px 0 rgba(18,0,50,0.6),
+          0 22px 30px rgba(115,0,255,0.65),
+          0 30px 50px rgba(115,0,255,0.45)
         `
       },
       hoverStyle: {
-        background: "linear-gradient(180deg, rgba(115,0,255,0.45) 0%, rgba(115,0,255,0.32) 50%, rgba(90,0,204,0.38) 100%)",
-        borderTopColor: "rgba(180,120,255,0.7)",
-        borderLeftColor: "rgba(180,120,255,0.6)",
-        borderRightColor: "rgba(60,0,150,0.5)",
-        borderBottomColor: "rgba(60,0,150,0.7)",
+        backgroundImage:
+          "radial-gradient(circle at 50% 18%, rgba(255,255,255,0.35), transparent 60%), linear-gradient(185deg, rgba(150,80,255,0.7) 0%, rgba(115,0,255,0.5) 45%, rgba(70,0,180,0.6) 75%, rgba(40,0,110,0.75) 100%)",
+        backgroundBlendMode: "screen",
+        borderTopColor: "rgba(190,140,255,0.72)",
+        borderLeftColor: "rgba(190,140,255,0.62)",
+        borderRightColor: "rgba(45,0,130,0.5)",
+        borderBottomColor: "rgba(45,0,120,0.78)",
         boxShadow: `
-          inset 0 2px 4px rgba(255,255,255,0.25),
-          inset 0 -2px 4px rgba(0,0,0,0.5),
-          inset 2px 0 3px rgba(255,255,255,0.12),
-          inset -2px 0 3px rgba(0,0,0,0.18),
-          0 3px 0 rgba(70,0,180,0.8),
-          0 5px 0 rgba(50,0,130,0.7),
-          0 7px 15px rgba(115,0,255,0.5),
-          0 0 25px rgba(115,0,255,0.35)
+          inset 0 4px 8px rgba(255,255,255,0.4),
+          inset 0 -4px 10px rgba(0,0,0,0.55),
+          inset 3px 0 4px rgba(255,255,255,0.15),
+          inset -3px 0 4px rgba(0,0,0,0.2),
+          inset 0 22px 44px rgba(120,60,255,0.16),
+          0 4px 0 rgba(70,0,180,0.85),
+          0 7px 0 rgba(45,0,120,0.78),
+          0 10px 18px rgba(115,0,255,0.55),
+          0 18px 32px rgba(115,0,255,0.45)
         `
       },
       backgroundColor: "#0f0f23",
@@ -390,9 +398,9 @@ export default function TileShowcase() {
               onMouseEnter={() => setHoveredTile(index)}
               onMouseLeave={() => setHoveredTile(null)}
             >
-              <div className="p-6 md:p-10 cursor-pointer">
+              <div className="relative z-20 p-6 md:p-10 cursor-pointer">
                 {/* Inner Content - Different content for each of the 4 dojos */}
-                <div className="text-center space-y-3">
+                <div className="relative z-20 text-center space-y-3">
                   <div className="text-5xl md:text-6xl">
                     {index === 0 && "🥋"}
                     {index === 1 && "⚔️"}
