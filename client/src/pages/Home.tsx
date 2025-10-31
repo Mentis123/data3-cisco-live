@@ -15,17 +15,33 @@ export default function Home() {
   const autoScrollIntervalRef = useRef<number | null>(null);
   const userHasScrolledRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioReadyRef = useRef(false);
 
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
-    audioRef.current.volume = 0.45; // Moderate volume - not too quiet but not too loud
+    audioRef.current.volume = 0.8;
+
+    // For mobile browsers, we need to prime the audio on user interaction
+    const enableAudio = () => {
+      if (audioRef.current && !audioReadyRef.current) {
+        // Load the audio to prepare it for playback
+        audioRef.current.load();
+        audioReadyRef.current = true;
+      }
+    };
+
+    // Listen for first user interaction to enable audio (required for mobile)
+    document.addEventListener('touchstart', enableAudio, { once: true });
+    document.addEventListener('click', enableAudio, { once: true });
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      document.removeEventListener('touchstart', enableAudio);
+      document.removeEventListener('click', enableAudio);
     };
   }, []);
 
@@ -94,14 +110,18 @@ export default function Home() {
       return; // Don't auto-scroll if we've already done it this session
     }
 
-    // Start auto-scroll after 2 seconds
-    autoScrollTimeoutRef.current = window.setTimeout(() => {
+    // Detect if we're on mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     ('ontouchstart' in window) ||
+                     (navigator.maxTouchPoints > 0);
+
+    const startAutoScroll = () => {
       if (!userHasScrolledRef.current) {
         // Play audio 100ms after autoscroll starts
         setTimeout(() => {
           if (audioRef.current && !userHasScrolledRef.current) {
             audioRef.current.play().catch(err => {
-              console.log('Audio playback failed:', err);
+              console.log('Audio playback prevented by browser:', err);
             });
           }
         }, 100);
@@ -126,7 +146,7 @@ export default function Home() {
           }
         }, 20); // Scroll 1px every 20ms = 50px per second (slow scroll)
       }
-    }, 2000);
+    };
 
     // Listen for user scroll
     const handleUserScroll = () => {
@@ -153,18 +173,44 @@ export default function Home() {
     window.addEventListener('touchmove', handleUserScroll, { passive: true });
     window.addEventListener('keydown', handleUserScroll);
 
-    // Cleanup
-    return () => {
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-      }
-      if (autoScrollIntervalRef.current) {
-        clearInterval(autoScrollIntervalRef.current);
-      }
-      window.removeEventListener('wheel', handleUserScroll);
-      window.removeEventListener('touchmove', handleUserScroll);
-      window.removeEventListener('keydown', handleUserScroll);
-    };
+    if (isMobile) {
+      // On mobile, wait for user interaction before auto-scrolling
+      const startOnInteraction = () => {
+        setTimeout(startAutoScroll, 300); // Brief delay after interaction
+      };
+
+      document.addEventListener('touchstart', startOnInteraction, { once: true });
+
+      // Cleanup
+      return () => {
+        document.removeEventListener('touchstart', startOnInteraction);
+        if (autoScrollTimeoutRef.current) {
+          clearTimeout(autoScrollTimeoutRef.current);
+        }
+        if (autoScrollIntervalRef.current) {
+          clearInterval(autoScrollIntervalRef.current);
+        }
+        window.removeEventListener('wheel', handleUserScroll);
+        window.removeEventListener('touchmove', handleUserScroll);
+        window.removeEventListener('keydown', handleUserScroll);
+      };
+    } else {
+      // On desktop, start auto-scroll after 2 seconds as normal
+      autoScrollTimeoutRef.current = window.setTimeout(startAutoScroll, 2000);
+
+      // Cleanup
+      return () => {
+        if (autoScrollTimeoutRef.current) {
+          clearTimeout(autoScrollTimeoutRef.current);
+        }
+        if (autoScrollIntervalRef.current) {
+          clearInterval(autoScrollIntervalRef.current);
+        }
+        window.removeEventListener('wheel', handleUserScroll);
+        window.removeEventListener('touchmove', handleUserScroll);
+        window.removeEventListener('keydown', handleUserScroll);
+      };
+    }
   }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
