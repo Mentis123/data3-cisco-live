@@ -538,6 +538,11 @@
   50% { opacity: 0.5; }
 }
 
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
 /* New Submission Announcement Keyframes */
 @keyframes strobe {
   0%, 100% {
