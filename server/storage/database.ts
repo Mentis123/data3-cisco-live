@@ -120,6 +120,46 @@ interface PersistedChatSession {
   messages: SessionMessage[];
 }
 
+async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
+  try {
+    await db.execute(
+      sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "marketing_opt_in" boolean NOT NULL DEFAULT false`,
+    );
+    await db.execute(sql`ALTER TABLE "attempts" ALTER COLUMN "marketing_opt_in" SET DEFAULT false`);
+
+    await db.execute(
+      sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "consent_captured_at" timestamptz`,
+    );
+    await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "attempt_day" date`);
+    await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "bot_bar" integer`);
+    await db.execute(
+      sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "card_set_version" integer DEFAULT 1`,
+    );
+    await db.execute(sql`ALTER TABLE "attempts" ALTER COLUMN "card_set_version" SET DEFAULT 1`);
+    await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "deck_snapshot" jsonb`);
+    await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "submission_id" text`);
+
+    await db.execute(sql`
+      DO $$
+      BEGIN
+        ALTER TABLE "attempts"
+        ADD CONSTRAINT "attempts_submission_id_fkey"
+        FOREIGN KEY ("submission_id") REFERENCES "submissions"("id") ON DELETE SET NULL;
+      EXCEPTION
+        WHEN duplicate_object THEN NULL;
+      END;
+      $$;
+    `);
+
+    await db.execute(
+      sql`ALTER TABLE "answers" ADD COLUMN IF NOT EXISTS "points_awarded" smallint NOT NULL DEFAULT 0`,
+    );
+    await db.execute(sql`ALTER TABLE "answers" ALTER COLUMN "points_awarded" SET DEFAULT 0`);
+  } catch (error) {
+    console.error("[db] Failed to ensure trivia schema:", error);
+  }
+}
+
 // Initialize stats on startup (development only)
 async function initializeData(db: NeonDatabase<typeof schema>) {
   // Only initialize default data in development mode
@@ -226,7 +266,8 @@ export const SYSTEM_CATEGORY_NAMES = [
 ] as const;
 
 export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
-  initializeData(db);
+  void ensureTriviaSchema(db);
+  void initializeData(db);
 
   const normalizeProfile = (
     profile: StartTriviaAttemptOptions["playerProfile"],
