@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -884,20 +884,21 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
   if (isRing && registrationComplete && !hasCompletedTrivia) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-wrap items-center gap-6 sm:flex-nowrap sm:items-start">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-cyan-400/40 bg-cyan-500/10 shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40 sm:h-28 sm:w-28">
-              <img
-                src={ringFullImage}
-                alt="Ring"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
+      <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+          <div className="flex flex-row flex-wrap items-center gap-6">
+            <div className="flex items-center justify-start gap-4">
+              <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
+                <img
+                  src={ringFullImage}
+                  alt="Ring"
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
-            <div className="flex-1 min-w-[240px] space-y-2 text-left">
-              <Badge className="w-fit bg-cyan-400/20 text-xs uppercase tracking-[0.3em] text-cyan-200">OFFICIAL RUN</Badge>
+            <div className="space-y-4 text-left sm:max-w-2xl">
               <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
-              <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
+              <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
                 This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
               </p>
             </div>
@@ -945,6 +946,19 @@ Just describe it naturally - what's the problem that needs solving?`
             }}
             className="h-full"
           />
+
+          <div className="flex flex-wrap gap-3">
+            <Link href="/">
+              <Button variant="secondary" className="backdrop-blur">
+                Back to home
+              </Button>
+            </Link>
+            <Link href="/dojo">
+              <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
+                Train in the Dojo
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );

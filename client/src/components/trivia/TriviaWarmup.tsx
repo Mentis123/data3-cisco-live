@@ -436,11 +436,11 @@ export function TriviaWarmup({
     return (
       <div className="space-y-6">
         <div className="space-y-3">
+          <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
-            Pick the architecture you want to drill. {mode === "ring" ? "Each official run pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set
+            {mode === "ring" ? "Each official run pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set
             for that track.
           </p>
-          <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           {attemptError && (
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
               <p className="text-sm font-medium text-amber-200">{attemptError}</p>
