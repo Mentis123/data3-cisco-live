@@ -155,6 +155,35 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
       sql`ALTER TABLE "answers" ADD COLUMN IF NOT EXISTS "points_awarded" smallint NOT NULL DEFAULT 0`,
     );
     await db.execute(sql`ALTER TABLE "answers" ALTER COLUMN "points_awarded" SET DEFAULT 0`);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "raffle_entries" (
+        "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
+        "raffle_date" date NOT NULL,
+        "email_hash" text NOT NULL,
+        "category" text NOT NULL,
+        "attempt_id" text NOT NULL REFERENCES "attempts"("id") ON DELETE CASCADE,
+        "created_at" timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "idx_raffle_entries_date" ON "raffle_entries" ("raffle_date")
+    `);
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "idx_raffle_entries_unique"
+      ON "raffle_entries" ("raffle_date", "email_hash", "category")
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "raffle_draws" (
+        "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
+        "raffle_date" date NOT NULL UNIQUE,
+        "winner_entry_id" text REFERENCES "raffle_entries"("id"),
+        "rng_seed" text NOT NULL,
+        "admin_user" text NOT NULL,
+        "created_at" timestamptz NOT NULL DEFAULT now()
+      )
+    `);
   } catch (error) {
     console.error("[db] Failed to ensure trivia schema:", error);
   }
@@ -548,6 +577,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const { cards, snapshot, maxVersion } = await buildTriviaDeck(options.category, deckSize);
       const { emailHash } = await ensureUserRecord(options.email, options.playerProfile);
       const now = new Date();
+      const attemptDay = computeAttemptDay(now);
 
       const [attempt] = await db
         .insert(attempts)
@@ -556,13 +586,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           category: options.category,
           mode: options.mode,
           marketingOptIn: !!options.marketingOptIn,
-          attemptDay: computeAttemptDay(now),
           cardSetVersion: maxVersion,
           deckSnapshot: snapshot,
         })
         .returning();
 
-      return { attempt, cards, snapshot } satisfies TriviaAttemptResult;
+      if (!attempt) {
+        throw new Error("Failed to create trivia attempt");
+      }
+
+      const attemptRecord = {
+        ...attempt,
+        attemptDay: attempt.attemptDay ?? attemptDay,
+      } satisfies Attempt;
+
+      return { attempt: attemptRecord, cards, snapshot } satisfies TriviaAttemptResult;
     },
 
     async completeTriviaAttempt(options: CompleteTriviaAttemptOptions) {
@@ -788,7 +826,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           and(
             eq(attempts.emailHash, emailHash),
             eq(attempts.category, category),
-            eq(attempts.attemptDay, attemptDay)
+            sql`DATE(${attempts.startedAt} AT TIME ZONE 'UTC') = ${attemptDay}`,
           )
         );
 
