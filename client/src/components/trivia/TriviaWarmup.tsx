@@ -30,25 +30,20 @@ interface TriviaWarmupProps {
   lastName?: string;
 }
 
-const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; description: string }> = {
+const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { description: string }> = {
   SECURE_CONNECTIVITY: {
-    summary: "Secure connectivity quick-fire",
     description: "Can you recall the zero-trust stats before the countdown hits zero?",
   },
   HYBRID_DC: {
-    summary: "Hybrid cloud pressure test",
     description: "Prove you know our scale across data centres and elastic infrastructure.",
   },
   COLLAB_CX: {
-    summary: "Collaboration pulse check",
     description: "Customer experience numbers are on the line — lock them in fast.",
   },
   OBSERVABILITY: {
-    summary: "Observability lightning round",
     description: "Find the metrics that keep MTTR low and trust sky high.",
   },
   EDGE_IOT: {
-    summary: "Edge & IoT blitz",
     description: "Stay sharp on the stats powering the production floor.",
   },
 };
@@ -164,14 +159,12 @@ export function TriviaWarmup({
         id: key,
         name: meta.name,
         accentClass: meta.accent,
-        summary: detail.summary,
         description: detail.description,
       } satisfies TriviaTrackMeta;
     });
   }, []);
 
   const {
-    data: categorySummaries,
     isLoading: isLoadingCategories,
     isError: isCategoriesError,
     error: categoriesError,
@@ -206,16 +199,6 @@ export function TriviaWarmup({
     },
     staleTime: 60_000,
   });
-
-  const categoryMap = useMemo(() => {
-    const map = new Map<TriviaCardCategory, TriviaCategorySummary>();
-    for (const entry of categorySummaries ?? []) {
-      if (entry && typeof entry.category === "string" && isTriviaCardCategory(entry.category)) {
-        map.set(entry.category, entry);
-      }
-    }
-    return map;
-  }, [categorySummaries]);
 
   const {
     data: practiceDeck,
@@ -456,16 +439,6 @@ export function TriviaWarmup({
         </div>
         <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
           {tracks.map((track) => {
-            const summary = categoryMap.get(track.id);
-            const total = summary?.total ?? 0;
-            const status = summary
-              ? `${total} question${total === 1 ? "" : "s"} ready`
-              : isCategoriesError
-              ? "Deck counts unavailable — jump in"
-              : isLoadingCategories
-              ? "Loading question counts…"
-              : mode === "ring" ? "Official deck ready" : "Warm-up deck ready";
-
             return (
               <button
                 key={track.id}
@@ -492,15 +465,11 @@ export function TriviaWarmup({
                       track.accentClass,
                     )}
                   />
-                  <div>
-                    <p className="text-base font-semibold text-white">{track.name}</p>
-                    <p className="text-[0.7rem] uppercase tracking-[0.3em] text-slate-200/70">
-                      {mode === "ring" ? "Official trivia" : "Trivia warm-up"}
-                    </p>
+                  <div className="space-y-1">
+                    <p className="text-base font-semibold text-white sm:text-lg">{track.name}</p>
+                    <p className="text-sm text-slate-200/80">{track.description}</p>
                   </div>
                 </div>
-                <p className="relative z-10 mt-4 text-sm text-slate-200/85">{track.description}</p>
-                <p className="relative z-10 mt-3 text-[0.7rem] uppercase tracking-[0.35em] text-slate-300/70">{status}</p>
               </button>
             );
           })}
