@@ -347,7 +347,12 @@ export default function Home() {
                   <img src={dojoImage} alt="Training Dojo" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">Training Dojo</span>
+                    <button className="nav-tile-button pointer-events-none">
+                      <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-top-white"></div>
+                        <span className="nav-tile-button-text text-2xl sm:text-3xl">Training Dojo</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -378,7 +383,12 @@ export default function Home() {
                   <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-dark-blue drop-shadow-lg">Enter the Ring</span>
+                    <button className="nav-tile-button pointer-events-none">
+                      <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-top-white"></div>
+                        <span className="nav-tile-button-text text-2xl sm:text-3xl">Enter the Ring</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -409,7 +419,12 @@ export default function Home() {
                   <img src={howitworksImage} alt="How it works" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">How to Play</span>
+                    <button className="nav-tile-button pointer-events-none">
+                      <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-top-white"></div>
+                        <span className="nav-tile-button-text text-2xl sm:text-3xl">How to Play</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -440,7 +455,12 @@ export default function Home() {
                   <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-dark-blue drop-shadow-lg">View Leaderboard</span>
+                    <button className="nav-tile-button pointer-events-none">
+                      <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-top-white"></div>
+                        <span className="nav-tile-button-text text-2xl sm:text-3xl">View Leaderboard</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
