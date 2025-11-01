@@ -338,8 +338,8 @@ export default function Home() {
                     inset 3px 0 4px rgba(255,255,255,0.18),
                     inset -3px 0 4px rgba(0,0,0,0.22),
                     inset 0 22px 46px rgba(0,174,255,0.14),
-                    3px 26px 16px rgba(0,20,30,0.68),
-                    3px 34px 46px rgba(0,174,255,0.55)
+                    3px 13px 8px rgba(0,20,30,0.68),
+                    3px 17px 23px rgba(0,174,255,0.55)
                   `
                 }}
               >
