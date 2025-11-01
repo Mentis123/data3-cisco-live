@@ -369,8 +369,8 @@ export default function Home() {
                     inset 3px 0 4px rgba(255,255,255,0.18),
                     inset -3px 0 4px rgba(0,0,0,0.22),
                     inset 0 22px 46px rgba(60,150,255,0.14),
-                    3px 26px 16px rgba(0,40,50,0.68),
-                    3px 34px 46px rgba(0,120,200,0.55)
+                    3px 13px 8px rgba(0,40,50,0.68),
+                    3px 17px 23px rgba(0,120,200,0.55)
                   `
                 }}
               >
@@ -400,8 +400,8 @@ export default function Home() {
                     inset 3px 0 4px rgba(255,255,255,0.18),
                     inset -3px 0 4px rgba(0,0,0,0.22),
                     inset 0 22px 46px rgba(60,220,255,0.14),
-                    3px 26px 16px rgba(0,60,50,0.68),
-                    3px 34px 46px rgba(0,180,200,0.55)
+                    3px 13px 8px rgba(0,60,50,0.68),
+                    3px 17px 23px rgba(0,180,200,0.55)
                   `
                 }}
               >
@@ -431,8 +431,8 @@ export default function Home() {
                     inset 3px 0 4px rgba(255,255,255,0.18),
                     inset -3px 0 4px rgba(0,0,0,0.22),
                     inset 0 22px 46px rgba(220,60,255,0.14),
-                    3px 26px 16px rgba(60,0,50,0.68),
-                    3px 34px 46px rgba(180,0,200,0.55)
+                    3px 13px 8px rgba(60,0,50,0.68),
+                    3px 17px 23px rgba(180,0,200,0.55)
                   `
                 }}
               >
