@@ -573,7 +573,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
           <div className="mx-auto w-full max-w-6xl px-6 py-6">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span className="inline-block h-2 w-2 rounded-full bg-cyan-400"></span>
               Official Attempt
             </div>
           </div>
@@ -596,7 +596,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
                 </p>
                 {triviaScore !== null && (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-200">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-sm font-semibold text-cyan-200">
                     <i className="fas fa-check-circle"></i>
                     Trivia: {triviaScore}/60
                   </div>
@@ -679,7 +679,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         href="https://www.data3.com/"
                         target="_blank"
                         rel="noreferrer"
-                        className="underline decoration-dotted underline-offset-4 text-emerald-300 hover:text-emerald-200"
+                        className="underline decoration-dotted underline-offset-4 text-cyan-300 hover:text-cyan-200"
                       >
                         Terms &amp; Conditions
                       </a>{' '}
@@ -697,12 +697,12 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 <Button
                   onClick={handleStartChat}
                   disabled={!firstName.trim() || !lastName.trim() || !email.trim() || !isValidEmail(email) || startSessionMutation.isPending}
-                  className="w-full bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-full bg-cyan-500 text-cyan-950 hover:bg-cyan-400 disabled:opacity-30 disabled:cursor-not-allowed"
                   data-testid="button-start-chat"
                 >
                   {startSessionMutation.isPending ? (
                     <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950" />
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-cyan-950" />
                       Checking badge...
                     </>
                   ) : (
@@ -737,19 +737,19 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </AlertDialogTitle>
                 <AlertDialogDescription className="space-y-4 text-base text-slate-200/90">
                   <p className="leading-relaxed">
-                    This is your <strong className="text-emerald-300">official competition entry</strong>. Your trivia score and case submission will count toward:
+                    This is your <strong className="text-cyan-300">official competition entry</strong>. Your trivia score and case submission will count toward:
                   </p>
                   <ul className="space-y-2 text-left">
                     <li className="flex items-start gap-3">
-                      <span aria-hidden="true" className="text-emerald-300">🏆</span>
+                      <span aria-hidden="true" className="text-cyan-300">🏆</span>
                       <span>Leaderboard placement and final ranking</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span aria-hidden="true" className="text-emerald-300">🎫</span>
+                      <span aria-hidden="true" className="text-cyan-300">🎫</span>
                       <span>Daily Meta AI Glasses raffle eligibility</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span aria-hidden="true" className="text-emerald-300">⏱️</span>
+                      <span aria-hidden="true" className="text-cyan-300">⏱️</span>
                       <span>One official attempt per category</span>
                     </li>
                   </ul>
@@ -764,7 +764,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleConfirmOfficialRun}
-                  className="bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                  className="bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
                 >
                   <i className="fas fa-bolt mr-2"></i>
                   Let's Go!
@@ -908,7 +908,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-wrap items-center gap-6 sm:flex-nowrap sm:items-start">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-emerald-400/40 bg-emerald-500/10 shadow-2xl shadow-emerald-500/30 ring-2 ring-emerald-400/40 sm:h-28 sm:w-28">
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-cyan-400/40 bg-cyan-500/10 shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40 sm:h-28 sm:w-28">
               <img
                 src={ringFullImage}
                 alt="Ring"
@@ -916,7 +916,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               />
             </div>
             <div className="flex-1 min-w-[240px] space-y-2 text-left">
-              <Badge className="w-fit bg-emerald-400/20 text-xs uppercase tracking-[0.3em] text-emerald-200">OFFICIAL RUN</Badge>
+              <Badge className="w-fit bg-cyan-400/20 text-xs uppercase tracking-[0.3em] text-cyan-200">OFFICIAL RUN</Badge>
               <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
               <p className="max-w-3xl text-pretty text-base text-slate-200/80 sm:text-lg">
                 This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
@@ -1014,7 +1014,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white"
+                    className="border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
                   >
                     <i className="fas fa-bolt mr-2"></i>
                     Practice cards
@@ -1053,7 +1053,7 @@ Just describe it naturally - what's the problem that needs solving?`
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
                       <i className="fas fa-lightbulb"></i>
                       Problem summary
                     </Label>
@@ -1070,7 +1070,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                    <Label className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
                       <i className="fas fa-chart-line"></i>
                       Impact summary
                     </Label>
@@ -1162,7 +1162,7 @@ Just describe it naturally - what's the problem that needs solving?`
                             ) : (
                               <div>
                                 <p className="text-sm font-medium text-white/90">{metric.name}</p>
-                                <p className="text-sm text-emerald-300">{metric.target}</p>
+                                <p className="text-sm text-cyan-300">{metric.target}</p>
                               </div>
                             )}
                           </div>
@@ -1184,7 +1184,7 @@ Just describe it naturally - what's the problem that needs solving?`
                         <ul className="space-y-2">
                           {currentSubmission.action_plan.map((item: string, idx: number) => (
                             <li key={idx} className="flex gap-2">
-                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-xs text-emerald-200">
+                              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-xs text-cyan-200">
                                 {idx + 1}
                               </span>
                               <span>{item}</span>
@@ -1200,7 +1200,7 @@ Just describe it naturally - what's the problem that needs solving?`
                         <ul className="space-y-1">
                           {currentSubmission.success_checks.map((item: string, idx: number) => (
                             <li key={idx} className="flex items-start gap-2">
-                              <i className="fas fa-check text-emerald-300"></i>
+                              <i className="fas fa-check text-cyan-300"></i>
                               <span>{item}</span>
                             </li>
                           ))}
@@ -1232,7 +1232,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   <CardContent className="space-y-3 text-sm text-slate-200/90">
                     <div className="flex items-center justify-between">
                       <span className="uppercase tracking-[0.25em] text-xs text-slate-400">Category</span>
-                      <span className="font-semibold text-emerald-300">{currentSubmission.chosen_category}</span>
+                      <span className="font-semibold text-cyan-300">{currentSubmission.chosen_category}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="uppercase tracking-[0.25em] text-xs text-slate-400">Inputs used</span>
@@ -1253,7 +1253,7 @@ Just describe it naturally - what's the problem that needs solving?`
                           dispatch({ type: 'UPDATE_SUBMISSION', payload: currentSubmission });
                           setIsEditMode(false);
                         }}
-                        className="flex-1 bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                        className="flex-1 bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
                         data-testid="button-save-edits"
                       >
                         <i className="fas fa-save mr-2"></i>
@@ -1289,12 +1289,12 @@ Just describe it naturally - what's the problem that needs solving?`
                       <Button
                         onClick={() => submitSolutionMutation.mutate()}
                         disabled={isSubmitting}
-                        className="flex-1 bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                        className="flex-1 bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
                         data-testid="button-submit-solution"
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-950"></div>
+                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-cyan-950"></div>
                             Submitting…
                           </>
                         ) : (
@@ -1646,10 +1646,10 @@ Just describe it naturally - what's the problem that needs solving?`
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-slate-200/90">
           <p>
-            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">cat</code> show categories &amp; test runs
+            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-cyan-200">cat</code> show categories &amp; test runs
           </p>
           <p>
-            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-emerald-200">submit</code> jump straight to review
+            <code className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-cyan-200">submit</code> jump straight to review
           </p>
           <p>Shift + Enter for a new line</p>
         </CardContent>
@@ -1679,7 +1679,7 @@ Just describe it naturally - what's the problem that needs solving?`
           {previewSubmission ? (
             <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
               <span className="text-xs uppercase tracking-[0.3em] text-slate-400">Category</span>
-              <span className="font-semibold text-emerald-300">{previewSubmission.chosen_category}</span>
+              <span className="font-semibold text-cyan-300">{previewSubmission.chosen_category}</span>
             </div>
           ) : null}
         </CardContent>
@@ -1711,7 +1711,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   {previewSubmission.target_metrics.map((metric: any, idx: number) => (
                     <li key={idx} className="flex items-start justify-between gap-3">
                       <span className="text-slate-300/90">{metric.name}</span>
-                      <span className="font-semibold text-emerald-300">{metric.target}</span>
+                      <span className="font-semibold text-cyan-300">{metric.target}</span>
                     </li>
                   ))}
                 </ul>
@@ -1734,7 +1734,7 @@ Just describe it naturally - what's the problem that needs solving?`
           <Button
             onClick={handleSubmitCommand}
             disabled={state.step < 2}
-            className="w-full rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-500"
+            className="w-full rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-slate-500"
           >
             Review &amp; submit
           </Button>
@@ -1799,21 +1799,21 @@ Just describe it naturally - what's the problem that needs solving?`
               </div>
             )}
             <section className="order-1 relative flex min-h-[60vh] flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl lg:overflow-hidden">
-              <div className="relative border-b border-white/10 bg-gradient-to-r from-emerald-500/30 via-slate-900/40 to-emerald-400/20 p-4 sm:p-6">
+              <div className="relative border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Sprint Coach</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
                     <p className="text-sm text-slate-200/80">Follow the prompts — three replies max.</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                    <span className="rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">
+                    <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
                       Step {state.step}/4
                     </span>
                     <DialogTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-9 border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white"
+                        className="h-9 border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
                       >
                         <i className="fas fa-bolt mr-2"></i>
                         Practice cards
@@ -1833,7 +1833,7 @@ Just describe it naturally - what's the problem that needs solving?`
                       variant="outline"
                       size="sm"
                       onClick={() => setMobileInsightsOpen(true)}
-                      className="h-9 border border-emerald-400/40 bg-emerald-500/10 px-3 text-emerald-100 hover:bg-emerald-400/20 hover:text-white lg:hidden"
+                      className="h-9 border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white lg:hidden"
                     >
                       <i className="fas fa-layer-group mr-2"></i>
                       Sprint insights
@@ -1855,7 +1855,7 @@ Just describe it naturally - what's the problem that needs solving?`
                   if (message.role === 'assistant') {
                     return (
                       <div key={index} className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
                           <i className="fas fa-robot"></i>
                         </div>
                         <div className="max-w-[75%] rounded-2xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-100/90 whitespace-pre-wrap break-words">
@@ -1867,10 +1867,10 @@ Just describe it naturally - what's the problem that needs solving?`
 
                   return (
                     <div key={index} className="ml-auto flex items-start gap-3">
-                      <div className="max-w-[75%] rounded-2xl border border-emerald-400/50 bg-emerald-500/10 p-3 text-sm leading-relaxed text-emerald-100 whitespace-pre-wrap break-words">
+                      <div className="max-w-[75%] rounded-2xl border border-cyan-400/50 bg-cyan-500/10 p-3 text-sm leading-relaxed text-cyan-100 whitespace-pre-wrap break-words">
                         {message.content}
                       </div>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
                         <i className="fas fa-user"></i>
                       </div>
                     </div>
@@ -1878,14 +1878,14 @@ Just describe it naturally - what's the problem that needs solving?`
                 })}
                 {isTyping && (
                   <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
                       <i className="fas fa-robot"></i>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                       <div className="flex gap-1">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300 [animation-delay:150ms]"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300 [animation-delay:300ms]"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:150ms]"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:300ms]"></span>
                       </div>
                     </div>
                   </div>
@@ -1907,7 +1907,7 @@ Just describe it naturally - what's the problem that needs solving?`
                         ? 'Confirm you’re ready to submit or fine tune…'
                         : 'Type your message…'
                     }
-                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-emerald-400/60 focus-visible:ring-0"
+                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
                     disabled={isTyping || state.inputsCount >= 6}
                     data-testid="input-chat-message"
                   />
@@ -1915,7 +1915,7 @@ Just describe it naturally - what's the problem that needs solving?`
                     <Button
                       onClick={handleSendMessage}
                       disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                      className="h-12 min-w-[52px] rounded-xl bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
+                      className="h-12 min-w-[52px] rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
                       data-testid="button-send-message"
                     >
                       <i className="fas fa-paper-plane"></i>
@@ -1924,7 +1924,7 @@ Just describe it naturally - what's the problem that needs solving?`
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-medium uppercase tracking-[0.2em] text-slate-300/70 sm:text-sm sm:normal-case sm:tracking-normal sm:text-slate-300/80">
                   <span className="flex items-center gap-1 text-[0.7rem] sm:text-sm">
-                    <i className="fas fa-circle-dot text-[0.55rem] text-emerald-300"></i>
+                    <i className="fas fa-circle-dot text-[0.55rem] text-cyan-300"></i>
                     Inputs {state.inputsCount}/6
                   </span>
                   {state.step >= 2 ? (

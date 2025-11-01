@@ -82,7 +82,7 @@ export default function Dojo({ params }: DojoRouteProps) {
               </Button>
             </Link>
             <Link href="/play">
-              <Button className="shadow-[0_25px_70px_-40px_rgba(34,197,94,0.9)]">
+              <Button className="shadow-[0_25px_70px_-40px_rgba(140,70,250,0.9)]">
                 Enter the ring now
               </Button>
             </Link>
@@ -99,10 +99,10 @@ export default function Dojo({ params }: DojoRouteProps) {
           <img
             src={dojoFullImage}
             alt="Dojo"
-            className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-blue-500/30 ring-2 ring-blue-400/40"
+            className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-purple-500/30 ring-2 ring-purple-400/40"
           />
           <div className="flex-1 space-y-4 text-center sm:text-left">
-            <Badge className="w-fit bg-primary/20 text-primary">{experience.status}</Badge>
+            <Badge className="w-fit bg-purple-500/20 text-purple-300 border-purple-400/40">{experience.status}</Badge>
             <h1 className="text-4xl font-semibold sm:text-5xl">{experience.title}</h1>
             <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
               {experience.description}
@@ -110,9 +110,9 @@ export default function Dojo({ params }: DojoRouteProps) {
           </div>
         </div>
 
-        <Card className="border-white/10 bg-white/[0.04] shadow-[0_35px_120px_-60px_rgba(59,130,246,0.85)] backdrop-blur">
+        <Card className="border-white/10 bg-white/[0.04] shadow-[0_35px_120px_-60px_rgba(140,70,250,0.85)] backdrop-blur">
           <CardHeader className="space-y-1">
-            <Badge variant="outline" className="w-fit border-white/20 uppercase tracking-[0.25em] text-xs">
+            <Badge variant="outline" className="w-fit border-purple-300/40 bg-purple-500/10 text-purple-200 uppercase tracking-[0.25em] text-xs">
               {experience.eyebrow}
             </Badge>
             <CardTitle className="text-2xl">What to expect</CardTitle>
