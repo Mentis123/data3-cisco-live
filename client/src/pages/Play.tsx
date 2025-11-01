@@ -125,6 +125,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [showOfficialRunConfirm, setShowOfficialRunConfirm] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
+  const [isBooting, setIsBooting] = useState(false);
 
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
@@ -926,12 +927,19 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 setTriviaAttemptId(attemptId);
               }
 
-              // Initialize the pitcher project chat conversation after trivia completion
-              dispatch({
-                type: 'ADD_MESSAGE',
-                payload: {
-                  role: "assistant",
-                  content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
+              // Trigger boot-up sequence before adding the initial message
+              setIsBooting(true);
+
+              setTimeout(() => {
+                setIsBooting(false);
+
+                // Add the coach message after boot sequence completes
+                setTimeout(() => {
+                  dispatch({
+                    type: 'ADD_MESSAGE',
+                    payload: {
+                      role: "assistant",
+                      content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
 
 Now let's move to your **Project Pitch** — the core of your Beat the Bot entry.
 
@@ -946,8 +954,10 @@ Tell me about a specific business challenge that:
 • Impacts productivity
 
 Just describe it naturally - what's the problem that needs solving?`
-                }
-              });
+                    }
+                  });
+                }, 300);
+              }, 2500);
             }}
             className="h-full"
           />
@@ -1755,105 +1765,144 @@ Just describe it naturally - what's the problem that needs solving?`
         return (
           <>
             <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
-              <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
-              <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
+              <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
+                <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+
+                {/* Ring Header Section */}
+                <div className="flex flex-col gap-4 sm:gap-6">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
+                      <img
+                        src={ringFullImage}
+                        alt="Ring"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <h1 className="text-4xl font-semibold sm:text-5xl">Project Pitch</h1>
+                      <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
+                        You crushed the trivia with {triviaScore}/60 points. Now craft your winning business case — this is what separates you from the Bot Bar!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex w-full flex-col gap-4">
               {triviaScore !== null && (
                 <div
-                  className="order-0 rounded-3xl border px-4 py-3 text-sm lg:col-span-3"
+                  className="rounded-3xl border px-6 py-4"
                   style={{
                     borderColor: activeCategoryTheme.border,
                     backgroundColor: activeCategoryTheme.background,
-                    color: activeCategoryTheme.text,
                     boxShadow: activeCategoryTheme.shadow,
                   }}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="space-y-1">
+                  <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+                    <div className="space-y-2">
                       <p
                         className="text-xs uppercase tracking-[0.3em]"
                         style={{ color: activeCategoryTheme.subheading }}
                       >
-                        Trivia locked
+                        🎯 Trivia Complete
                       </p>
-                      <p className="text-base font-semibold" style={{ color: activeCategoryTheme.text }}>
-                        {triviaScore}/60 locked in
-                        {activeCategoryLabel ? <span className="font-normal"> · {activeCategoryLabel}</span> : null}
+                      <p className="text-2xl font-bold" style={{ color: activeCategoryTheme.text }}>
+                        {triviaScore}/60 Points Locked
+                      </p>
+                      {activeCategoryLabel && (
+                        <p className="text-sm text-data3-pale-blue/70">
+                          Category: {activeCategoryLabel}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <Badge
+                        className="rounded-full border-0 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em]"
+                        style={{
+                          backgroundColor: activeCategoryTheme.badgeBg,
+                          color: activeCategoryTheme.badgeText,
+                        }}
+                      >
+                        ⚡ One Step Away
+                      </Badge>
+                      <p className="text-xs text-data3-pale-blue/70">
+                        Beat the Bot Bar to win!
                       </p>
                     </div>
-                    <Badge
-                      variant="outline"
-                      className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
-                      style={{
-                        backgroundColor: activeCategoryTheme.badgeBg,
-                        color: activeCategoryTheme.badgeText,
-                      }}
-                    >
-                      Official entry
-                    </Badge>
                   </div>
                 </div>
               )}
-            <section className="order-1 relative flex min-h-[60vh] flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl lg:overflow-hidden">
+            <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl overflow-hidden">
               <div className="relative border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-1">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-1 flex-1">
                     <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
-                    <p className="text-sm text-slate-200/80">Follow the prompts — three replies max.</p>
+                    <p className="text-sm text-slate-200/80">Three replies to build your case. Make them count.</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <div className="flex items-center gap-3">
                     <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
                       Step {state.step}/4
                     </span>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9 border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
-                      >
-                        <i className="fas fa-bolt mr-2"></i>
-                        Practice cards
-                      </Button>
-                    </DialogTrigger>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowExitDialog(true)}
-                      className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:text-white"
+                      className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:bg-white/10 hover:text-white"
                       data-testid="button-exit-chat"
                     >
                       <i className="fas fa-door-open mr-2"></i>
                       Exit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setMobileInsightsOpen(true)}
-                      className="h-9 border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white lg:hidden"
-                    >
-                      <i className="fas fa-layer-group mr-2"></i>
-                      Sprint insights
                     </Button>
                   </div>
                 </div>
               </div>
               <div
                 ref={chatContainerRef}
-                className="flex-1 space-y-3 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-6"
+                className="flex-1 space-y-4 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-6"
                 data-testid="chat-messages"
               >
-                {state.messages.length === 0 ? (
+                {isBooting ? (
+                  <div className="flex flex-col items-center justify-center gap-6 py-16">
+                    {/* Pulsing Ring Icon */}
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-ping"></div>
+                      <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-cyan-400/50 bg-cyan-500/10">
+                        <i className="fas fa-brain text-3xl text-cyan-300"></i>
+                      </div>
+                    </div>
+
+                    {/* Boot Sequence Text */}
+                    <div className="space-y-2 text-center">
+                      <p className="text-lg font-semibold text-cyan-200">
+                        Initializing Sprint Coach
+                      </p>
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:200ms]"></span>
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:400ms]"></span>
+                      </div>
+                      <p className="text-sm text-slate-400/80">
+                        Loading your personalized coaching session...
+                      </p>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-64 h-1 bg-slate-800/50 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 w-full animate-[progress_2.5s_ease-in-out]"></div>
+                    </div>
+                  </div>
+                ) : state.messages.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-slate-300/80">
                     Kick off with the business problem. The coach replies instantly.
                   </div>
                 ) : null}
-                {state.messages.map((message, index) => {
+                {!isBooting && state.messages.map((message, index) => {
                   if (message.role === 'assistant') {
                     return (
-                      <div key={index} className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
+                      <div key={index} className="flex items-start gap-3 animate-[slideIn_0.3s_ease-out]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
                           <i className="fas fa-robot"></i>
                         </div>
-                        <div className="max-w-[75%] rounded-2xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-100/90 whitespace-pre-wrap break-words">
+                        <div className="max-w-[85%] rounded-2xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-4 text-base leading-loose text-slate-50 whitespace-pre-wrap break-words shadow-lg">
                           {message.content}
                         </div>
                       </div>
@@ -1861,26 +1910,29 @@ Just describe it naturally - what's the problem that needs solving?`
                   }
 
                   return (
-                    <div key={index} className="ml-auto flex items-start gap-3">
-                      <div className="max-w-[75%] rounded-2xl border border-cyan-400/50 bg-cyan-500/10 p-3 text-sm leading-relaxed text-cyan-100 whitespace-pre-wrap break-words">
+                    <div key={index} className="ml-auto flex items-start gap-3 animate-[slideIn_0.3s_ease-out]">
+                      <div className="max-w-[85%] rounded-2xl border border-cyan-400/50 bg-cyan-500/10 p-4 text-base leading-loose text-cyan-50 whitespace-pre-wrap break-words">
                         {message.content}
                       </div>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
                         <i className="fas fa-user"></i>
                       </div>
                     </div>
                   );
                 })}
-                {isTyping && (
+                {!isBooting && isTyping && (
                   <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
-                      <i className="fas fa-robot"></i>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
+                      <i className="fas fa-brain animate-pulse"></i>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                      <div className="flex gap-1">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:150ms]"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:300ms]"></span>
+                    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 px-4 py-3 shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-300/70">Coach is thinking</span>
+                        <div className="flex gap-1">
+                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:0ms]"></span>
+                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:150ms]"></span>
+                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:300ms]"></span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1938,43 +1990,10 @@ Just describe it naturally - what's the problem that needs solving?`
                 </div>
               </div>
             </section>
-
-            <aside className="order-2 hidden space-y-4 lg:order-1 lg:block">
-              <PrimaryInsights />
-            </aside>
-
-            <aside className="order-3 hidden space-y-4 lg:block">
-              <SecondaryInsights />
-            </aside>
           </div>
         </div>
+      </div>
         {exitDialog}
-        <Sheet open={mobileInsightsOpen} onOpenChange={setMobileInsightsOpen}>
-          <SheetContent
-            side="bottom"
-            className="h-[85vh] overflow-y-auto border-t border-white/10 bg-slate-950/95 text-white backdrop-blur-xl sm:h-[75vh]"
-          >
-            <SheetHeader className="text-left">
-              <SheetTitle className="text-lg font-semibold text-white">Sprint insights</SheetTitle>
-              <SheetDescription className="text-sm text-slate-300">
-                Progress, shortcuts, and your draft in one quick view.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="mt-4 space-y-4 pb-8">
-              <PrimaryInsights />
-              <SecondaryInsights />
-            </div>
-          </SheetContent>
-        </Sheet>
-        <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
-            <DialogDescription className="text-sm text-slate-300">
-              Work through each dial with instant rationales before you lock your score.
-            </DialogDescription>
-          </DialogHeader>
-          <TriviaCardDeck cards={triviaCardDeck} />
-        </DialogContent>
         </Dialog>
       </>
     );
