@@ -604,6 +604,10 @@ export async function registerRoutes(
         }
       }
 
+      if (typeof (storage as any).updateSubmissionTotalScore === "function") {
+        await (storage as any).updateSubmissionTotalScore(submission.id, combinedScore);
+      }
+
       // Get current leaderboard to calculate rank (based on combined score)
       const leaderboard = await storage.getLeaderboard();
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
@@ -630,6 +634,11 @@ export async function registerRoutes(
         category,
         targetRank: targetRank || leaderboard.length + 1,
         finalScore: combinedScore,
+        totalScore: combinedScore,
+        pitchScore,
+        triviaScore,
+        botBar,
+        isEligible,
       });
 
       await storage.updateChatSession(sessionToken, {

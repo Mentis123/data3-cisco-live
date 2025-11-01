@@ -127,6 +127,10 @@ export default function Leaderboard() {
     totalScore?: number;
     finalScore?: number;
     targetRank?: number;
+    pitchScore?: number | null;
+    triviaScore?: number | null;
+    botBar?: number | null;
+    isEligible?: boolean;
   }) => {
     console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds...', submission);
 
@@ -158,8 +162,12 @@ export default function Leaderboard() {
       lastName: lastName,
       category: submission.category,
       totalScore: submission.finalScore ?? submission.totalScore ?? 0,
+      pitchScore: submission.pitchScore ?? null,
+      triviaScore: submission.triviaScore ?? null,
       rank: submission.targetRank ?? null,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      botBar: submission.botBar ?? undefined,
+      isEligible: submission.isEligible,
     };
 
     sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
@@ -252,7 +260,11 @@ export default function Leaderboard() {
           category: message.data.category,
           finalScore: message.data.finalScore,
           totalScore: message.data.totalScore,
-          targetRank: message.data.targetRank
+          targetRank: message.data.targetRank,
+          pitchScore: message.data.pitchScore ?? null,
+          triviaScore: message.data.triviaScore ?? null,
+          botBar: message.data.botBar ?? null,
+          isEligible: message.data.isEligible,
         });
       } else {
         triggerScoreAnimation(submissionId, message.data.finalScore ?? message.data.totalScore);
@@ -1085,7 +1097,7 @@ export default function Leaderboard() {
                 >
                   {CATEGORY_NAMES[displayData.recentSubmission.category as keyof typeof CATEGORY_NAMES]}
                 </Badge>
-                scoring <strong>{displayData.recentSubmission.totalScore}/50</strong>
+                scoring <strong>{displayData.recentSubmission.totalScore}/100</strong>
               </p>
               
               {/* Show detailed submission info during 5-minute window */}

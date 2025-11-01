@@ -98,7 +98,8 @@ export function animateScoreCountUp(element: HTMLElement, finalScore: number, du
     const easeOutCubic = 1 - Math.pow(1 - progress, 3);
     const currentScore = Math.round(startScore + (finalScore - startScore) * easeOutCubic);
     
-    element.textContent = `${currentScore}/50`;
+    const MAX_COMBINED_SCORE = 100;
+    element.textContent = `${currentScore}/${MAX_COMBINED_SCORE}`;
     
     if (progress < 1) {
       requestAnimationFrame(updateScore);

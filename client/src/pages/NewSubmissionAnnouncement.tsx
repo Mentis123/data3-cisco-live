@@ -13,6 +13,8 @@ interface SubmissionData {
   category: string;
   totalScore: number;
   rank: number;
+  pitchScore?: number | null;
+  triviaScore?: number | null;
   subScores?: {
     clarity: number;
     impact: number;
@@ -113,6 +115,25 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
   const rankDisplay = getRankDisplay(submission.rank);
 
+  const triviaScore =
+    typeof submission.triviaScore === "number"
+      ? submission.triviaScore
+      : null;
+
+  const derivedPitchScore =
+    typeof submission.pitchScore === "number"
+      ? submission.pitchScore
+      : submission.subScores
+        ? Object.values(submission.subScores).reduce((total, value) =>
+            typeof value === "number" ? total + value : total,
+          0)
+        : null;
+
+  const pitchScore = derivedPitchScore;
+  const FINAL_MAX = 100;
+  const TRIVIA_MAX = 60;
+  const PITCH_MAX = 40;
+
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm">
       {/* Flash overlay during flash phase */}
@@ -182,7 +203,10 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                         <p className="text-7xl md:text-9xl font-black text-white drop-shadow-2xl">
                           {submission.totalScore}
                         </p>
-                        <p className="text-3xl md:text-4xl text-white/60">/50</p>
+                        <p className="text-3xl md:text-4xl text-white/60">/{FINAL_MAX}</p>
+                        <p className="text-base md:text-lg text-white/60 mt-2">
+                          {TRIVIA_MAX} trivia + {PITCH_MAX} pitch points
+                        </p>
                       </div>
                     </div>
                     
@@ -193,6 +217,36 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                           {rankDisplay.text}
                         </p>
                       </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Trivia & Pitch Breakdown */}
+            <div className="announcement-slide-up" style={{ animationDelay: '1.0s' }}>
+              <Card className="glass-panel border-2 max-w-3xl mx-auto border-primary/30 bg-background/70">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                    <div className="space-y-2">
+                      <p className="text-sm md:text-base text-white/70 uppercase tracking-[0.3em]">
+                        Trivia Score
+                      </p>
+                      <p className="text-4xl md:text-5xl font-black text-white">
+                        {triviaScore !== null ? triviaScore : "—"}
+                        <span className="text-white/60 text-2xl md:text-3xl">/{TRIVIA_MAX}</span>
+                      </p>
+                      <p className="text-sm text-white/60">Fast-fire quiz performance</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm md:text-base text-white/70 uppercase tracking-[0.3em]">
+                        Pitch Score
+                      </p>
+                      <p className="text-4xl md:text-5xl font-black text-white">
+                        {pitchScore !== null ? pitchScore : "—"}
+                        <span className="text-white/60 text-2xl md:text-3xl">/{PITCH_MAX}</span>
+                      </p>
+                      <p className="text-sm text-white/60">5 criteria × 8 points each</p>
                     </div>
                   </div>
                 </CardContent>
@@ -216,7 +270,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-xl md:text-2xl text-white/90">
-                            Your score of <span className="font-bold text-green-400">{submission.totalScore}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
+                            Your score of <span className="font-bold text-green-400">{submission.totalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
                           </p>
                           {submission.raffleEntered && (
                             <div className="mt-6 pt-6 border-t border-green-500/30">
@@ -249,7 +303,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-xl md:text-2xl text-white/90">
-                            Your score of <span className="font-bold">{submission.totalScore}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
+                            Your score of <span className="font-bold">{submission.totalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
                           </p>
                           <p className="text-lg md:text-xl text-white/70 mt-4">
                             Try again to beat the bot and enter the raffle!
@@ -300,24 +354,32 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               <div className="announcement-slide-up" style={{ animationDelay: '1.7s' }}>
                 <Card className="glass-panel border border-primary/20 max-w-5xl mx-auto">
                   <CardContent className="p-6">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">
                       <i className="fas fa-chart-bar mr-3 text-primary"></i>
-                      Score Breakdown
+                      Pitch Criteria Breakdown
                     </h3>
+                    <p className="text-sm md:text-base text-white/60 text-center mb-6">
+                      Each criterion is scored on a 0–8 scale by the judging panel
+                    </p>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                      {Object.entries(submission.subScores).map(([key, value], index) => (
-                        <div key={key} className="text-center announcement-subscore-pop"
-                             style={{ animationDelay: `${1.9 + index * 0.1}s` }}>
-                          <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
-                            <p className="text-sm text-white/80 mb-2 capitalize">
-                              {key.replace(/_/g, ' ')}
-                            </p>
-                            <p className="text-2xl md:text-3xl font-bold text-primary">
-                              {value}/10
-                            </p>
+                      {Object.entries(submission.subScores).map(([key, value], index) => {
+                        const label = key
+                          .replace(/_/g, ' ')
+                          .replace(/\b\w/g, (match) => match.toUpperCase());
+                        return (
+                          <div key={key} className="text-center announcement-subscore-pop"
+                               style={{ animationDelay: `${1.9 + index * 0.1}s` }}>
+                            <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                              <p className="text-sm text-white/80 mb-2">
+                                {label}
+                              </p>
+                              <p className="text-2xl md:text-3xl font-bold text-primary">
+                                {value}/8
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -385,15 +447,19 @@ export function NewSubmissionAnnouncementPage() {
       firstName: "Demo",
       lastName: "User",
       category: "SECURE_CONNECTIVITY",
-      totalScore: 42,
+      totalScore: 88,
       rank: 3,
+      pitchScore: 36,
+      triviaScore: 52,
       subScores: {
-        clarity: 8,
-        impact: 9,
-        kpi_strength: 8,
-        execution: 8,
-        confidence: 9
+        clarity: 7,
+        impact: 7,
+        kpi_strength: 7,
+        execution: 7,
+        confidence: 8
       },
+      botBar: 70,
+      isEligible: true,
       createdAt: new Date().toISOString()
     };
   };
