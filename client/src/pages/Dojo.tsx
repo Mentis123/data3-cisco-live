@@ -72,18 +72,28 @@ export default function Dojo({ params }: DojoRouteProps) {
   if (mode === "trivia-cards") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-          <TriviaWarmup mode="dojo" className="h-full" />
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+            <TriviaWarmup mode="dojo" className="h-full" />
+          </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link href="/">
-              <Button variant="secondary" className="backdrop-blur">
-                Back to home
+          <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
+            <Link href="/play">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+              >
+                Enter the Ring Now
               </Button>
             </Link>
-            <Link href="/play">
-              <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-                Enter the ring now
+            <Link href="/">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+              >
+                Back to Home
               </Button>
             </Link>
           </div>
@@ -94,12 +104,13 @@ export default function Dojo({ params }: DojoRouteProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-          <img
-            src={dojoFullImage}
-            alt="Dojo"
-            className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-data3-light-blue/40 ring-2 ring-data3-light-blue/50"
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+        <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <img
+              src={dojoFullImage}
+              alt="Dojo"
+              className="h-24 w-24 rounded-2xl object-cover shadow-2xl shadow-data3-light-blue/40 ring-2 ring-data3-light-blue/50"
           />
           <div className="flex-1 space-y-4 text-center sm:text-left">
             <Badge className="w-fit bg-data3-blue/30 text-data3-pale-blue border-data3-light-blue/50">{experience.status}</Badge>
@@ -129,16 +140,25 @@ export default function Dojo({ params }: DojoRouteProps) {
             </ul>
           </CardContent>
         </Card>
+        </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Link href="/">
-            <Button variant="secondary" className="backdrop-blur">
-              Back to home
+        <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
+          <Link href="/play">
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+            >
+              Enter the Ring Now
             </Button>
           </Link>
-          <Link href="/play">
-            <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-              Enter the ring now
+          <Link href="/">
+            <Button
+              size="lg"
+              variant="ghost"
+              className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+            >
+              Back to Home
             </Button>
           </Link>
         </div>

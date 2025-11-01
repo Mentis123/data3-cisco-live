@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "wouter";
-
 import { useQuery } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -456,7 +454,7 @@ export function TriviaWarmup({
             </p>
           )}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
           {tracks.map((track) => {
             const summary = categoryMap.get(track.id);
             const total = summary?.total ?? 0;
@@ -477,24 +475,32 @@ export function TriviaWarmup({
                   setAttemptError(null);
                   setSelectedTrack(track);
                 }}
-                className="group h-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition hover:border-white/30 hover:bg-white/10"
+                className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-cyan-400/30 bg-slate-950/60 p-5 text-left shadow-[0_25px_60px_-45px_rgba(0,174,255,0.75)] transition-all duration-200 hover:-translate-y-1 hover:border-cyan-300/60 hover:bg-slate-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
-                <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/15 via-transparent to-white/5 opacity-60 transition duration-200 group-hover:opacity-80"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rotate-45 bg-[radial-gradient(circle_at_top,_rgba(0,174,255,0.35),_transparent_70%)] opacity-50 transition duration-200 group-hover:opacity-80"
+                />
+                <div className="relative z-10 flex items-center gap-3">
                   <span
                     className={cn(
-                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full",
+                      "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 shadow-[0_0_18px_rgba(0,174,255,0.35)]",
                       track.accentClass,
                     )}
                   />
                   <div>
                     <p className="text-base font-semibold text-white">{track.name}</p>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-300/70">
+                    <p className="text-[0.7rem] uppercase tracking-[0.3em] text-slate-200/70">
                       {mode === "ring" ? "Official trivia" : "Trivia warm-up"}
                     </p>
                   </div>
                 </div>
-                <p className="mt-4 text-sm text-slate-200/80">{track.description}</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.25em] text-slate-300/60">{status}</p>
+                <p className="relative z-10 mt-4 text-sm text-slate-200/85">{track.description}</p>
+                <p className="relative z-10 mt-3 text-[0.7rem] uppercase tracking-[0.35em] text-slate-300/70">{status}</p>
               </button>
             );
           })}
@@ -545,18 +551,6 @@ export function TriviaWarmup({
         <CardContent className="flex-1 pt-2">
           {renderSelection()}
 
-          <div className="flex flex-wrap gap-3 mt-6">
-            <Link href="/">
-              <Button variant="secondary" className="backdrop-blur">
-                Back to home
-              </Button>
-            </Link>
-            <Link href="/dojo">
-              <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-                Train in the Dojo
-              </Button>
-            </Link>
-          </div>
         </CardContent>
       </Card>
     );
