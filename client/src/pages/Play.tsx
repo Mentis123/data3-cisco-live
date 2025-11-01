@@ -60,52 +60,23 @@ type CategoryTheme = {
   shadow: string;
 };
 
+// Unified Data#3 brand theme for all categories
+const UNIFIED_THEME: CategoryTheme = {
+  border: "rgba(0, 174, 255, 0.50)",
+  background: "rgba(0, 123, 195, 0.15)",
+  text: "#EEEEEE",
+  subheading: "rgba(120, 220, 255, 0.90)",
+  badgeBg: "#00AEFF",
+  badgeText: "#000025",
+  shadow: "0 20px 70px -40px rgba(0, 174, 255, 0.70)",
+};
+
 const CATEGORY_THEMES: Record<TriviaCardCategory, CategoryTheme> = {
-  SECURE_CONNECTIVITY: {
-    border: "rgba(34, 211, 238, 0.45)",
-    background: "rgba(14, 165, 233, 0.12)",
-    text: "#E0F2FE",
-    subheading: "rgba(125, 211, 252, 0.85)",
-    badgeBg: "#22D3EE",
-    badgeText: "#083344",
-    shadow: "0 20px 70px -40px rgba(14, 165, 233, 0.65)",
-  },
-  HYBRID_DC: {
-    border: "rgba(168, 85, 247, 0.45)",
-    background: "rgba(139, 92, 246, 0.12)",
-    text: "#F3E8FF",
-    subheading: "rgba(216, 180, 254, 0.85)",
-    badgeBg: "#A855F7",
-    badgeText: "#2E1065",
-    shadow: "0 20px 70px -40px rgba(139, 92, 246, 0.6)",
-  },
-  COLLAB_CX: {
-    border: "rgba(249, 115, 22, 0.5)",
-    background: "rgba(251, 146, 60, 0.14)",
-    text: "#FFEAD5",
-    subheading: "rgba(251, 191, 36, 0.85)",
-    badgeBg: "#FB923C",
-    badgeText: "#431407",
-    shadow: "0 20px 70px -40px rgba(249, 115, 22, 0.55)",
-  },
-  OBSERVABILITY: {
-    border: "rgba(56, 189, 248, 0.45)",
-    background: "rgba(59, 130, 246, 0.14)",
-    text: "#E0F2FE",
-    subheading: "rgba(165, 243, 252, 0.85)",
-    badgeBg: "#38BDF8",
-    badgeText: "#0C4A6E",
-    shadow: "0 20px 70px -40px rgba(56, 189, 248, 0.6)",
-  },
-  EDGE_IOT: {
-    border: "rgba(34, 197, 94, 0.45)",
-    background: "rgba(52, 211, 153, 0.14)",
-    text: "#D1FAE5",
-    subheading: "rgba(167, 243, 208, 0.85)",
-    badgeBg: "#34D399",
-    badgeText: "#022C22",
-    shadow: "0 20px 70px -40px rgba(16, 185, 129, 0.6)",
-  },
+  SECURE_CONNECTIVITY: UNIFIED_THEME,
+  HYBRID_DC: UNIFIED_THEME,
+  COLLAB_CX: UNIFIED_THEME,
+  OBSERVABILITY: UNIFIED_THEME,
+  EDGE_IOT: UNIFIED_THEME,
 };
 
 const getCategoryTheme = (category: string | null | undefined): CategoryTheme => {
