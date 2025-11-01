@@ -436,12 +436,11 @@ export function TriviaWarmup({
     return (
       <div className="space-y-6">
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-300/70">Choose your track</p>
-          <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
             Pick the architecture you want to drill. {mode === "ring" ? "Each official run pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set
             for that track.
           </p>
+          <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           {attemptError && (
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
               <p className="text-sm font-medium text-amber-200">{attemptError}</p>
@@ -528,10 +527,6 @@ export function TriviaWarmup({
         <CardHeader className="space-y-6">
           {mode === "dojo" && (
             <>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white whitespace-nowrap">
-                <span className="inline-block h-2 w-2 rounded-full bg-fuchsia-400" />
-                Warm-up
-              </div>
               <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-24 sm:w-24">
                   <img
@@ -542,10 +537,6 @@ export function TriviaWarmup({
                 </div>
                 <div className="space-y-3 text-left">
                   <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Training Dojo</CardTitle>
-                  <p className="text-sm text-slate-200/80 sm:text-base">
-                    Race the countdown with live trivia before your official run. Pick a Cisco architecture tile and lock in the
-                    numbers before you enter the ring.
-                  </p>
                 </div>
               </div>
             </>
