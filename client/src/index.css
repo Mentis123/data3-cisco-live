@@ -446,11 +446,12 @@
     border-radius: inherit;
     inset: 0 -8em;
     background: radial-gradient(
-      circle at 50% -270%,
-      rgba(120, 220, 255, 0.35) 35%,
-      rgba(0, 174, 255, 0.2) 50%,
-      rgba(0, 26, 53, 0.4) 65%,
-      transparent 75%
+      circle at 50% -260%,
+      rgba(0, 16, 40, 0.85) 25%,
+      rgba(0, 42, 88, 0.7) 45%,
+      rgba(0, 102, 158, 0.35) 60%,
+      rgba(0, 174, 255, 0.18) 70%,
+      transparent 78%
     );
     transition: inherit;
   }
@@ -461,7 +462,7 @@
     inset: 0;
     border-radius: inherit;
     transition: inherit;
-    box-shadow: inset 0px 3px 10px -2px #0000;
+    box-shadow: inset 0 10px 22px -12px rgba(0, 0, 0, 0.9);
   }
 
   .nav-tile-button:active .nav-tile-button-inner::after {
