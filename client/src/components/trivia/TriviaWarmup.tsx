@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "wouter";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -552,6 +553,19 @@ export function TriviaWarmup({
         </CardHeader>
         <CardContent className="flex-1 pt-2">
           {renderSelection()}
+
+          <div className="flex flex-wrap gap-3 mt-6">
+            <Link href="/">
+              <Button variant="secondary" className="backdrop-blur">
+                Back to home
+              </Button>
+            </Link>
+            <Link href="/dojo">
+              <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
+                Train in the Dojo
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     );
