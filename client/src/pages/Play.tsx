@@ -996,9 +996,9 @@ Just describe it naturally - what's the problem that needs solving?`
           : activeCategoryLabel;
 
       return (
-        <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
-          <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#0f172a_0%,_#020617_75%)] text-slate-100">
-            <div className="mx-auto w-full max-w-6xl px-6 py-10 space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-slate-100 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto w-full max-w-6xl">
+            <div className="border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm p-6 sm:p-8 lg:p-10 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
@@ -1008,16 +1008,6 @@ Just describe it naturally - what's the problem that needs solving?`
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border border-cyan-400/40 bg-cyan-500/10 px-3 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
-                  >
-                    <i className="fas fa-bolt mr-2"></i>
-                    Practice cards
-                  </Button>
-                </DialogTrigger>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1307,24 +1297,14 @@ Just describe it naturally - what's the problem that needs solving?`
                 </div>
               </div>
             </div>
-            </div>
           </div>
-          <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
-            <DialogHeader className="space-y-2">
-              <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
-              <DialogDescription className="text-sm text-slate-300">
-                Work through each dial with instant rationales before you lock your score.
-              </DialogDescription>
-            </DialogHeader>
-            <TriviaCardDeck cards={triviaCardDeck} />
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       );
     }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {triviaDeckDialog}
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-foreground flex flex-col p-4 sm:p-6 lg:p-8">
       {isRing && triviaScore !== null && (
         <div className="mx-auto w-full max-w-4xl px-4 pt-4">
           <div
@@ -1361,9 +1341,10 @@ Just describe it naturally - what's the problem that needs solving?`
           </div>
         </div>
       )}
-      <div className="flex-1 py-4 sm:py-8 safe-area-padding">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card className="glass-panel border-0 overflow-hidden">
+      <div className="flex-1 safe-area-padding">
+        <div className="max-w-4xl mx-auto">
+          <div className="border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+            <Card className="glass-panel border-0 overflow-hidden bg-transparent">
                 <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
                 <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
                 <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
@@ -1379,16 +1360,6 @@ Just describe it naturally - what's the problem that needs solving?`
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border border-white/40 bg-white/10 text-white/90 hover:bg-white/20"
-                        >
-                          <i className="fas fa-bolt mr-2"></i>
-                          Practice cards
-                        </Button>
-                      </DialogTrigger>
                       <Button
                         variant="secondary"
                         size="sm"
@@ -1596,6 +1567,7 @@ Just describe it naturally - what's the problem that needs solving?`
             </Card>
           </div>
         </div>
+      </div>
       </div>
     );
   }
