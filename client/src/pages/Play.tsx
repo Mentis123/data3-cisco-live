@@ -562,13 +562,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     if (isRing) {
       return (
         <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#1e3a8a_0%,_#020617_60%)] text-slate-100">
-          <div className="mx-auto w-full max-w-6xl px-6 py-6">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-white/90">
-              <span className="inline-block h-2 w-2 rounded-full bg-cyan-400"></span>
-              Official Attempt
-            </div>
-          </div>
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-12 lg:grid-cols-[1.25fr_1fr]">
+          <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 pt-12 pb-12 lg:grid-cols-[1.25fr_1fr]">
             <div className="space-y-6">
               <div className="flex items-center gap-6">
                 <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-28 sm:w-28">
@@ -576,6 +570,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     src={ringFullImage}
                     alt="Data#3 Solution Sprint Ring"
                     className="absolute inset-0 h-full w-full object-cover"
+                    style={{ transform: "scale(1.8)" }}
                   />
                 </div>
                 <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
