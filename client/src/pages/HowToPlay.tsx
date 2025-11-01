@@ -67,14 +67,9 @@ export default function HowToPlay() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
         <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">
-            <span className="inline-block h-2 w-2 rounded-full bg-cyan-300"></span>
-            Learn
-          </div>
-
           <div className="flex flex-row flex-wrap items-center gap-6">
             <div className="flex items-center justify-start gap-4">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
@@ -94,10 +89,9 @@ export default function HowToPlay() {
         {/* Playbook accordion */}
         <section className="space-y-6">
           <div className="space-y-3 text-left">
-            <p className="text-xs uppercase tracking-[0.3em] text-cyan-400/70">Playbook</p>
-            <h2 className="text-3xl font-semibold sm:text-4xl">Open the moves when you're ready</h2>
+            <h2 className="text-3xl font-semibold sm:text-4xl">Your Winning Playbook</h2>
             <p className="text-data3-white/70 max-w-3xl">
-              Each accordion unlocks another part of the Cisco Solution Sprint experience—from picking a category to checking the leaderboard.
+              Master these moves to dominate the competition. Each section reveals the strategies and scoring rules you need to beat the Bot Bar and claim your raffle entry.
             </p>
           </div>
 
