@@ -594,6 +594,20 @@ function parseJson<T>(value: string | null): T | null {
   }
 }
 
+function calculatePitchScore(subScoresRaw: string | null): number {
+  const parsed = parseJson<Record<string, unknown>>(subScoresRaw);
+  if (!parsed) {
+    return 0;
+  }
+
+  return Object.values(parsed).reduce<number>((sum, value) => {
+    if (typeof value === "number") {
+      return sum + value;
+    }
+    return sum;
+  }, 0);
+}
+
 function buildWordCloud(): { text: string; value: number }[] {
   const technologyCounts = new Map<string, { count: number; display: string }>();
 
@@ -1150,7 +1164,7 @@ export function createMemoryStorage() {
         .map((attempt) => {
           const submission = submissionsStore.find((s) => s.id === attempt.submissionId);
           const triviaScore = attempt.totalScore || 0;
-          const pitchScore = submission?.totalScore || 0;
+          const pitchScore = submission ? calculatePitchScore(submission.subScores) : 0;
           return triviaScore + pitchScore;
         })
         .filter((score) => score > 0); // Filter out invalid scores
@@ -1258,6 +1272,16 @@ export function createMemoryStorage() {
       submissionsStore.push(submission);
       sortSubmissions();
       return submission;
+    },
+
+    async updateSubmissionTotalScore(id: string, totalScore: number): Promise<void> {
+      const submission = submissionsStore.find((item) => item.id === id);
+      if (!submission) {
+        return;
+      }
+
+      submission.totalScore = totalScore;
+      sortSubmissions();
     },
 
     async attachSubmissionToTriviaAttempt(attemptId: string, submissionId: string): Promise<void> {

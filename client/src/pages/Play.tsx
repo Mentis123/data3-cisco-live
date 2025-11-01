@@ -270,6 +270,8 @@ Just describe it naturally - what's the problem that needs solving?`
         lastName,
         category: data.category || 'SECURE_CONNECTIVITY',
         totalScore: data.finalScore,
+        pitchScore: data.pitchScore,
+        triviaScore: data.triviaScore,
         rank: data.rank,
         subScores: data.subscores,
         createdAt: new Date().toISOString(),

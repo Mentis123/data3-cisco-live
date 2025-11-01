@@ -806,7 +806,7 @@ function ScoredSubmissionsTab() {
                       </Badge>
                     </td>
                     <td className="py-3 px-2">
-                      <div className="font-bold text-lg">{entry.totalScore}/50</div>
+                      <div className="font-bold text-lg">{entry.totalScore}/100</div>
                       <div className="text-xs text-muted-foreground">
                         C:{entry.subScores.clarity} I:{entry.subScores.impact} K:{entry.subScores.kpi_strength} E:{entry.subScores.execution} Cf:{entry.subScores.confidence}
                       </div>
@@ -866,41 +866,44 @@ function ScoredSubmissionsTab() {
                 {/* Score Breakdown */}
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Score Breakdown</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Pitch rubric scores (0–8 each) plus trivia performance combine for a 100-point total.
+                  </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="bg-muted rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Clarity</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.clarity)}`}>
-                        {submissionDetails.subScores.clarity}/10
+                        {submissionDetails.subScores.clarity}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Impact</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.impact)}`}>
-                        {submissionDetails.subScores.impact}/10
+                        {submissionDetails.subScores.impact}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">KPI Strength</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.kpi_strength)}`}>
-                        {submissionDetails.subScores.kpi_strength}/10
+                        {submissionDetails.subScores.kpi_strength}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Execution</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.execution)}`}>
-                        {submissionDetails.subScores.execution}/10
+                        {submissionDetails.subScores.execution}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Confidence</div>
                       <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.confidence)}`}>
-                        {submissionDetails.subScores.confidence}/10
+                        {submissionDetails.subScores.confidence}/8
                       </div>
                     </div>
                     <div className="bg-primary/10 rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Total Score</div>
                       <div className="text-2xl font-bold text-primary">
-                        {submissionDetails.totalScore}/50
+                        {submissionDetails.totalScore}/100
                       </div>
                     </div>
                   </div>

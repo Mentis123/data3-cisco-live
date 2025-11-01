@@ -111,6 +111,41 @@ type SessionMessage = {
   content: string;
 };
 
+function parseSubScores(value: unknown): Record<string, number> | null {
+  if (!value) {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value) as Record<string, unknown>;
+      return Object.fromEntries(
+        Object.entries(parsed).map(([key, score]) => [key, typeof score === "number" ? score : 0])
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof value === "object" && value !== null) {
+    const record = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(record).map(([key, score]) => [key, typeof score === "number" ? score : 0])
+    );
+  }
+
+  return null;
+}
+
+function calculatePitchScore(subScores: unknown): number {
+  const parsed = parseSubScores(subScores);
+  if (!parsed) {
+    return 0;
+  }
+
+  return Object.values(parsed).reduce((sum, score) => sum + score, 0);
+}
+
 interface PersistedChatSession {
   token: string;
   participantId: string;
@@ -761,7 +796,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .select({
           attemptId: attempts.id,
           triviaScore: attempts.totalScore,
-          pitchScore: submissions.totalScore,
+          subScores: submissions.subScores,
         })
         .from(attempts)
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
@@ -784,9 +819,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       }
 
       // Calculate combined scores (trivia + pitch)
-      const combinedScores = completedAttempts.map(
-        (attempt) => (attempt.triviaScore || 0) + (attempt.pitchScore || 0)
-      );
+      const combinedScores = completedAttempts.map((attempt) => {
+        const triviaScore = attempt.triviaScore || 0;
+        const pitchScore = calculatePitchScore(attempt.subScores);
+        return triviaScore + pitchScore;
+      });
 
       // Sort and find median
       combinedScores.sort((a, b) => a - b);
@@ -890,9 +927,16 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async createSubmission(data: InsertSubmission): Promise<Submission> {
-    const [result] = await db.insert(submissions).values(data).returning();
-    return result;
-  },
+      const [result] = await db.insert(submissions).values(data).returning();
+      return result;
+    },
+
+    async updateSubmissionTotalScore(id: string, totalScore: number): Promise<void> {
+      await db
+        .update(submissions)
+        .set({ totalScore })
+        .where(eq(submissions.id, id));
+    },
 
     async attachSubmissionToTriviaAttempt(attemptId: string, submissionId: string): Promise<void> {
     const updated = await db

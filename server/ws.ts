@@ -28,6 +28,11 @@ export function broadcastScoreUpdate(entry: {
   category: string;
   targetRank: number;
   finalScore: number;
+  totalScore?: number;
+  pitchScore?: number;
+  triviaScore?: number;
+  botBar?: number | null;
+  isEligible?: boolean;
 }): void {
   if (!wss) {
     return;
