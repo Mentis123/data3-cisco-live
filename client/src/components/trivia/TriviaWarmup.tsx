@@ -111,6 +111,7 @@ export function TriviaWarmup({
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [attemptError, setAttemptError] = useState<string | null>(null);
+  const [isCreatingAttempt, setIsCreatingAttempt] = useState(false);
 
   useEffect(() => {
     if (!selectedTrack && attemptId) {
@@ -232,18 +233,24 @@ export function TriviaWarmup({
     [practiceDeck],
   );
 
-  // Open overlay when deck is loaded
+  // Open overlay when deck is loaded - for ring mode, wait until attempt is created
   useEffect(() => {
     if (!selectedTrack || !practiceDeck || practiceDeck.length === 0 || isDeckLoading) {
       return;
     }
 
-    setShowOverlay(true);
+    // For dojo mode, open overlay immediately
+    if (mode === "dojo") {
+      setShowOverlay(true);
+      return;
+    }
 
-    // Create attempt record for ring mode
-    if (mode === "ring" && email && !attemptId) {
+    // For ring mode, create attempt first, then open overlay
+    if (mode === "ring" && email && !attemptId && !isCreatingAttempt) {
       const createAttempt = async () => {
+        setIsCreatingAttempt(true);
         try {
+          console.log("[TriviaWarmup] Creating attempt for category:", selectedTrack.id);
           const response = await fetch("/api/trivia/attempts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -270,9 +277,10 @@ export function TriviaWarmup({
               payload && typeof payload === "object" && "message" in payload
                 ? String((payload as { message?: string }).message)
                 : "You have already submitted for this category today";
+            console.warn("[TriviaWarmup] Duplicate attempt detected:", errorMessage);
             setAttemptError(errorMessage);
-            setShowOverlay(false);
             setSelectedTrack(null);
+            setIsCreatingAttempt(false);
             return;
           }
 
@@ -297,23 +305,30 @@ export function TriviaWarmup({
           }
 
           if (nextAttemptId) {
+            console.log("[TriviaWarmup] Successfully created attempt:", nextAttemptId);
             setAttemptId(nextAttemptId);
-            console.log("[TriviaWarmup] Created attempt:", nextAttemptId);
+            setIsCreatingAttempt(false);
+            // Now open the overlay after successful attempt creation
+            setShowOverlay(true);
           } else {
             console.warn("[TriviaWarmup] Unable to determine attempt id from response", payload);
+            throw new Error("Invalid attempt response");
           }
         } catch (error) {
           console.error("[TriviaWarmup] Failed to create attempt:", error);
           const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
           setAttemptError(message);
-          setShowOverlay(false);
           setSelectedTrack(null);
+          setIsCreatingAttempt(false);
         }
       };
 
       void createAttempt();
+    } else if (mode === "ring" && attemptId && !showOverlay) {
+      // If attempt already exists, open overlay
+      setShowOverlay(true);
     }
-  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, firstName, lastName, attemptId]);
+  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, attemptId, isCreatingAttempt, showOverlay]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -442,7 +457,7 @@ export function TriviaWarmup({
     );
   }
 
-  if (selectedTrack && isDeckLoading) {
+  if (selectedTrack && (isDeckLoading || isCreatingAttempt)) {
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-3">
@@ -450,13 +465,21 @@ export function TriviaWarmup({
             <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-950", selectedTrack.accentClass)}>
               {selectedTrack.name}
             </Badge>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Loading deck</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">
+              {isCreatingAttempt ? "Creating attempt" : "Loading deck"}
+            </p>
           </div>
           <CardTitle className="text-2xl font-semibold">
-            {mode === "ring" ? "Building your trivia deck" : "Building your warm-up"}
+            {isCreatingAttempt
+              ? "Entering the ring..."
+              : mode === "ring"
+              ? "Building your trivia deck"
+              : "Building your warm-up"}
           </CardTitle>
           <p className="text-sm text-slate-300/80">
-            Pulling a new random mix of questions for {selectedTrack.name}. This only takes a moment.
+            {isCreatingAttempt
+              ? `Registering your official attempt for ${selectedTrack.name}. This only takes a moment.`
+              : `Pulling a new random mix of questions for ${selectedTrack.name}. This only takes a moment.`}
           </p>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col justify-center gap-4">

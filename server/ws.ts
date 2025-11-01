@@ -51,6 +51,7 @@ export function broadcastRingEntry(entry: {
   category: string;
 }): void {
   if (!wss) {
+    console.warn('[WebSocket] Cannot broadcast ringEntry - WebSocket server not initialized');
     return;
   }
 
@@ -59,11 +60,17 @@ export function broadcastRingEntry(entry: {
     data: entry
   });
 
+  console.log(`[WebSocket] Broadcasting ringEntry to ${clients.size} clients:`, entry);
+
+  let sentCount = 0;
   clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
+      sentCount++;
     }
   });
+
+  console.log(`[WebSocket] Sent ringEntry to ${sentCount}/${clients.size} connected clients`);
 }
 
 export function broadcastRingExit(data: {
