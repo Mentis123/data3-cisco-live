@@ -1134,11 +1134,14 @@ export default function Leaderboard() {
             </div>
           </div>
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
-            <img
-              src={leaderboardFullImage}
-              alt="Leaderboard"
-              className={`${heroImageSize} rounded-2xl object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}
-            />
+            <div className={`${heroImageSize} overflow-hidden rounded-2xl shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/40`}>
+              <img
+                src={leaderboardFullImage}
+                alt="Leaderboard"
+                className="h-full w-full object-cover"
+                style={{ transform: 'scale(1.8)' }}
+              />
+            </div>
             <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-left">
               <h1
                 className={`${heroTitleSize} font-bold tracking-tight text-white drop-shadow-[0_8px_30px_rgba(15,76,129,0.55)]`}
