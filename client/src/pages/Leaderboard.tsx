@@ -513,16 +513,37 @@ export default function Leaderboard() {
     return () => clearTimeout(timer);
   }, [newSubmissionTime]);
 
-  if (isLoading || !displayData) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg">Loading Dashboard...</p>
+    if (isLoading || !displayData) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+          <div className="portrait-leaderboard mx-auto flex w-full flex-1 flex-col">
+            <div className="flex flex-1 flex-col gap-10 px-4 pb-20 pt-12 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 px-4 pb-16 pt-12 shadow-[0_45px_140px_-80px_rgba(0,174,255,0.75)] backdrop-blur-xl sm:px-8 lg:px-12">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-0 rounded-[inherit] border border-white/10"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-24 left-1/2 z-0 h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(56,189,248,0.28),_transparent_70%)] blur"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-[-6rem] right-[-4rem] z-0 h-72 w-72 rounded-full bg-[radial-gradient(circle,_rgba(168,85,247,0.22),_transparent_70%)] blur-lg"
+                />
+                <div className="relative z-10 flex min-h-[260px] flex-col items-center justify-center gap-4 text-center">
+                  <div className="h-14 w-14 animate-spin rounded-full border-2 border-cyan-400/60 border-t-transparent" />
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-white">Loading leaderboard…</p>
+                    <p className="text-sm text-cyan-100/70">Crunching the latest submissions</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   const heroImageSize = isFullscreen
     ? "h-36 w-36 sm:h-44 sm:w-44"
@@ -1119,10 +1140,26 @@ export default function Leaderboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 pt-8 portrait-leaderboard">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+      <div className="portrait-leaderboard mx-auto flex w-full flex-1 flex-col">
+        <div className="flex flex-1 flex-col gap-10 px-4 pb-20 pt-12 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 px-4 pb-16 pt-8 shadow-[0_45px_140px_-80px_rgba(0,174,255,0.75)] backdrop-blur-xl sm:px-8 lg:px-12">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 rounded-[inherit] border border-white/10"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-24 left-1/2 z-0 h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(56,189,248,0.28),_transparent_70%)] blur"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute bottom-[-6rem] right-[-4rem] z-0 h-72 w-72 rounded-full bg-[radial-gradient(circle,_rgba(168,85,247,0.22),_transparent_70%)] blur-lg"
+            />
+            <div className="relative z-10">
+              <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="mb-8 space-y-6">
           <div
             className={`flex ${
               isFullscreen ? 'justify-center' : 'justify-center sm:justify-start'
@@ -1263,6 +1300,10 @@ export default function Leaderboard() {
               <div className="w-2 h-2 rounded-full bg-blue-500"></div>
               Auto-rotating every 10s
             </span>
+          </div>
+        </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
