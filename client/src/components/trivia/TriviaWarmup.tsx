@@ -112,6 +112,7 @@ export function TriviaWarmup({
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [attemptError, setAttemptError] = useState<string | null>(null);
   const [isCreatingAttempt, setIsCreatingAttempt] = useState(false);
+  const [triviaCompleted, setTriviaCompleted] = useState(false);
 
   useEffect(() => {
     if (!selectedTrack && attemptId) {
@@ -121,7 +122,11 @@ export function TriviaWarmup({
     if (!selectedTrack && attemptError) {
       setAttemptError(null);
     }
-  }, [selectedTrack, attemptId, attemptError]);
+    // Reset triviaCompleted flag when track changes
+    if (!selectedTrack && triviaCompleted) {
+      setTriviaCompleted(false);
+    }
+  }, [selectedTrack, attemptId, attemptError, triviaCompleted]);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -239,6 +244,11 @@ export function TriviaWarmup({
       return;
     }
 
+    // Don't re-open overlay if trivia has been completed
+    if (triviaCompleted) {
+      return;
+    }
+
     // For dojo mode, open overlay immediately
     if (mode === "dojo") {
       setShowOverlay(true);
@@ -325,10 +335,10 @@ export function TriviaWarmup({
 
       void createAttempt();
     } else if (mode === "ring" && attemptId && !showOverlay) {
-      // If attempt already exists, open overlay
+      // If attempt already exists, open overlay (only if trivia not completed)
       setShowOverlay(true);
     }
-  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, attemptId, isCreatingAttempt, showOverlay]);
+  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, attemptId, isCreatingAttempt, showOverlay, triviaCompleted]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -543,6 +553,8 @@ export function TriviaWarmup({
           }}
           continueLabel={continueLabel}
           onContinue={(score?: number) => {
+            console.log("[TriviaWarmup] Trivia completed, calling parent onContinue");
+            setTriviaCompleted(true);
             setShowOverlay(false);
             if (onContinue) {
               // Pass score, category, and attemptId back to parent
