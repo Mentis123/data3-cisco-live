@@ -1545,5 +1545,21 @@ export function createMemoryStorage() {
     async getBetaAdminRaffleEntries() {
       return [];
     },
+
+    async getWordCloudEntries() {
+      return [];
+    },
+
+    async createWordCloudEntry() {
+      throw new Error("Word cloud management requires database storage");
+    },
+
+    async updateWordCloudEntry() {
+      throw new Error("Word cloud management requires database storage");
+    },
+
+    async deleteWordCloudEntry() {
+      throw new Error("Word cloud management requires database storage");
+    },
   };
 }
