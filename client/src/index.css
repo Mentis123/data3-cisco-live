@@ -657,11 +657,11 @@
     background-position: 130%;
     opacity: 1;
   }
-  50% {
+  75% {
     background-position: -166%;
     opacity: 0;
   }
-  50.01%, 100% {
+  75.01%, 100% {
     background-position: 130%;
     opacity: 0;
   }
