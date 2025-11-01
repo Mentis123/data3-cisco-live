@@ -669,12 +669,13 @@ export async function registerRoutes(
   // New dashboard data endpoint
   app.get("/api/dashboard-data", async (req, res) => {
     try {
-      const [leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats] = await Promise.all([
+      const [leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats, activeChallengers] = await Promise.all([
         storage.getLeaderboard(10),
         storage.getWordCloudData(),
         storage.getCategoryStats(),
         storage.getRecentSubmission(),
-        storage.getData3Stats()
+        storage.getData3Stats(),
+        storage.getActiveRingAttempts(),
       ]);
 
       const topCategory = await storage.getTopProblemCategory();
@@ -697,7 +698,8 @@ export async function registerRoutes(
         recentSubmission,
         data3Stats,
         topCategoryStats: topCategoryData3Stats,
-        topCategory: categoryForStats // Use the category that matches the stats being shown
+        topCategory: categoryForStats, // Use the category that matches the stats being shown
+        activeChallengers,
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get dashboard data" });

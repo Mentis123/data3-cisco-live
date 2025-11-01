@@ -140,6 +140,7 @@ const chatSessionsStore = new Map<string, MemoryChatSession>();
 const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
+const ACTIVE_RING_WINDOW_MINUTES = 15;
 
 function shuffleArray<T>(items: T[]): T[] {
   const copy = [...items];
@@ -1306,6 +1307,39 @@ export function createMemoryStorage() {
         ? data3StatsStore.filter((stat) => stat.category === category)
         : data3StatsStore;
       return stats.map((stat) => ({ ...stat }));
+    },
+
+    async getActiveRingAttempts(): Promise<Array<{ attemptId: string; initials: string; category: string; startedAt: string }>> {
+      const cutoff = Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000;
+
+      const active = triviaAttemptsStore
+        .filter((attempt) =>
+          attempt.mode === "ring"
+          && !attempt.endedAt
+          && attempt.startedAt instanceof Date
+          && attempt.startedAt.getTime() >= cutoff,
+        )
+        .map((attempt) => {
+          const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
+          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
+          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const fallback = attempt.id.slice(0, 2).toUpperCase();
+          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+          const startedAtIso = attempt.startedAt instanceof Date
+            ? attempt.startedAt.toISOString()
+            : new Date().toISOString();
+
+          return {
+            attemptId: attempt.id,
+            category: attempt.category,
+            startedAt: startedAtIso,
+            initials,
+          };
+        })
+        .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+
+      return active;
     },
 
     async getRecentSubmission(): Promise<any> {
