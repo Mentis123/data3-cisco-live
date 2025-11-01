@@ -442,7 +442,7 @@
     background: linear-gradient(-65deg, #0000 40%, #fff7 50%, #0000 70%);
     background-size: 200% 100%;
     background-repeat: no-repeat;
-    animation: shine-sweep 4s ease infinite;
+    animation: shine-sweep 5s ease infinite;
   }
 
   .nav-tile-button-top-white {
@@ -657,11 +657,11 @@
     background-position: 130%;
     opacity: 1;
   }
-  50% {
+  40% {
     background-position: -166%;
     opacity: 0;
   }
-  50.01%, 100% {
+  40.01%, 100% {
     background-position: 130%;
     opacity: 0;
   }
