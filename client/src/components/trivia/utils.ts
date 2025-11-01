@@ -18,7 +18,7 @@ export interface TriviaTrackMeta {
   description: string;
 }
 
-export interface TriviaPracticeCard {
+export interface TriviaDeckCard {
   id: string;
   category: TriviaCardCategory;
   stem: string;
@@ -31,7 +31,7 @@ export interface TriviaPracticeCard {
   explanation?: string | null;
 }
 
-export function practiceCardToQuestion(card: TriviaPracticeCard): TriviaQuestion {
+export function triviaCardToQuestion(card: TriviaDeckCard): TriviaQuestion {
   const fallbackHint = card.explanation?.trim() || "Keep the scenario details in mind.";
 
   return {
