@@ -438,7 +438,7 @@
     background: linear-gradient(-65deg, #0000 40%, #fff7 50%, #0000 70%);
     background-size: 200% 100%;
     background-repeat: no-repeat;
-    animation: shine-sweep 3s ease infinite;
+    animation: shine-sweep 12s ease infinite;
   }
 
   .nav-tile-button-top-white {
@@ -447,9 +447,10 @@
     inset: 0 -8em;
     background: radial-gradient(
       circle at 50% -270%,
-      #fff 45%,
-      #fff6 60%,
-      #fff0 60%
+      rgba(120, 220, 255, 0.35) 35%,
+      rgba(0, 174, 255, 0.2) 50%,
+      rgba(0, 26, 53, 0.4) 65%,
+      transparent 75%
     );
     transition: inherit;
   }
@@ -647,8 +648,12 @@
     background-position: 130%;
     opacity: 1;
   }
-  to {
+  50% {
     background-position: -166%;
+    opacity: 0;
+  }
+  50.01%, 100% {
+    background-position: 130%;
     opacity: 0;
   }
 }
