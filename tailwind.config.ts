@@ -67,6 +67,7 @@ export default {
         // Data#3 Brand Colors
         data3: {
           "blue-black": "var(--data3-blue-black)",
+          "dark-blue": "var(--data3-dark-blue)",
           blue: "var(--data3-blue)",
           "light-blue": "var(--data3-light-blue)",
           "pale-blue": "var(--data3-pale-blue)",
