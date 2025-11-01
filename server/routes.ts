@@ -1007,6 +1007,80 @@ export async function registerRoutes(
     }
   });
 
+  // Word Cloud Management endpoints
+  app.get("/api/beta-admin/word-cloud", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const entries = await storage.getWordCloudEntries();
+      res.json(entries);
+    } catch (error) {
+      log(`Error getting word cloud entries: ${error}`);
+      res.status(500).json({ message: "Failed to get word cloud entries" });
+    }
+  });
+
+  app.post("/api/beta-admin/word-cloud", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { word, count } = req.body;
+      if (!word || typeof word !== 'string') {
+        res.status(400).json({ message: "Word is required" });
+        return;
+      }
+
+      const entry = await storage.createWordCloudEntry({
+        word: word.trim(),
+        count: count || 1,
+        source: 'manual',
+        active: true,
+      });
+      res.json(entry);
+    } catch (error) {
+      log(`Error creating word cloud entry: ${error}`);
+      res.status(500).json({ message: "Failed to create word cloud entry" });
+    }
+  });
+
+  app.put("/api/beta-admin/word-cloud/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { id } = req.params;
+      const { word, count, active } = req.body;
+
+      const entry = await storage.updateWordCloudEntry(id, {
+        word: word?.trim(),
+        count,
+        active,
+      });
+
+      if (!entry) {
+        res.status(404).json({ message: "Word cloud entry not found" });
+        return;
+      }
+
+      res.json(entry);
+    } catch (error) {
+      log(`Error updating word cloud entry: ${error}`);
+      res.status(500).json({ message: "Failed to update word cloud entry" });
+    }
+  });
+
+  app.delete("/api/beta-admin/word-cloud/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { id } = req.params;
+      await storage.deleteWordCloudEntry(id);
+      res.json({ success: true });
+    } catch (error) {
+      log(`Error deleting word cloud entry: ${error}`);
+      res.status(500).json({ message: "Failed to delete word cloud entry" });
+    }
+  });
+
   // Feedback endpoints
   app.post("/api/feedback", async (req, res) => {
     try {

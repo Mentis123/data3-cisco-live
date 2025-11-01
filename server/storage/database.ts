@@ -1277,6 +1277,29 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       processText(submission.solutionText);
     });
 
+    // Get manual word cloud entries from the database
+    const manualEntries = await db
+      .select()
+      .from(schema.wordCloudEntries)
+      .where(eq(schema.wordCloudEntries.active, true));
+
+    // Add manual entries to the technology counts, giving them their specified weight
+    manualEntries.forEach(entry => {
+      const canonical = entry.word.toLowerCase();
+      const existing = technologyCounts.get(canonical);
+      if (existing) {
+        // If the word already exists from auto-detection, add the manual count to it
+        existing.count += entry.count;
+        // Prefer the manual entry's capitalization if it's longer/more specific
+        if (entry.word.length >= existing.display.length) {
+          existing.display = entry.word;
+        }
+      } else {
+        // Add as a new entry
+        technologyCounts.set(canonical, { count: entry.count, display: entry.word });
+      }
+    });
+
     return Array.from(technologyCounts.entries())
       .map(([, data]) => ({ text: data.display, value: data.count }))
       .sort((a, b) => b.value - a.value)
@@ -1701,6 +1724,51 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .orderBy(desc(schema.raffleEntries.createdAt));
 
       return entries;
+    },
+
+    async getWordCloudEntries() {
+      const entries = await db
+        .select()
+        .from(schema.wordCloudEntries)
+        .where(eq(schema.wordCloudEntries.active, true))
+        .orderBy(desc(schema.wordCloudEntries.count));
+      return entries;
+    },
+
+    async createWordCloudEntry(data: {
+      word: string;
+      count: number;
+      source: string;
+      active: boolean;
+    }) {
+      const [entry] = await db
+        .insert(schema.wordCloudEntries)
+        .values({
+          id: randomUUID(),
+          ...data,
+        })
+        .returning();
+      return entry;
+    },
+
+    async updateWordCloudEntry(
+      id: string,
+      data: {
+        word?: string;
+        count?: number;
+        active?: boolean;
+      }
+    ) {
+      const [entry] = await db
+        .update(schema.wordCloudEntries)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(schema.wordCloudEntries.id, id))
+        .returning();
+      return entry;
+    },
+
+    async deleteWordCloudEntry(id: string) {
+      await db.delete(schema.wordCloudEntries).where(eq(schema.wordCloudEntries.id, id));
     },
   };
 }
