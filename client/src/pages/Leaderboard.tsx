@@ -39,13 +39,13 @@ interface DashboardData {
   activeChallengers?: ActiveChallengerPayload[];
 }
 
-// Consistent color scheme for all categories
+// Unified Data#3 brand color scheme for all categories
 const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#6CC04A",            // Green
-  COLLAB_CX: "#FF6B35",            // Orange
-  OBSERVABILITY: "#9B59B6",        // Purple
-  EDGE_IOT: "#F39C12"              // Yellow
+  SECURE_CONNECTIVITY: "#00AEFF",  // Data#3 Light Blue
+  HYBRID_DC: "#00AEFF",            // Data#3 Light Blue
+  COLLAB_CX: "#00AEFF",            // Data#3 Light Blue
+  OBSERVABILITY: "#00AEFF",        // Data#3 Light Blue
+  EDGE_IOT: "#00AEFF"              // Data#3 Light Blue
 };
 
 const CATEGORY_NAMES = {
@@ -56,13 +56,13 @@ const CATEGORY_NAMES = {
   EDGE_IOT: "Edge & IoT Solutions"
 };
 
-// Tailwind class equivalents for badges
+// Unified Tailwind class for category badges
 const CATEGORY_BADGE_CLASSES: Record<string, string> = {
-  SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
-  HYBRID_DC: "bg-[#6CC04A]",            // Green
-  COLLAB_CX: "bg-[#FF6B35]",            // Orange
-  OBSERVABILITY: "bg-[#9B59B6]",        // Purple
-  EDGE_IOT: "bg-[#F39C12]"              // Yellow
+  SECURE_CONNECTIVITY: "bg-[#00AEFF]",  // Data#3 Light Blue
+  HYBRID_DC: "bg-[#00AEFF]",            // Data#3 Light Blue
+  COLLAB_CX: "bg-[#00AEFF]",            // Data#3 Light Blue
+  OBSERVABILITY: "bg-[#00AEFF]",        // Data#3 Light Blue
+  EDGE_IOT: "bg-[#00AEFF]"              // Data#3 Light Blue
 };
 
 export default function Leaderboard() {

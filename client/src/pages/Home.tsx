@@ -326,12 +326,12 @@ export default function Home() {
                 className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-light-blue/80 after:via-data3-light-blue/40 after:to-transparent after:opacity-90 after:blur-md after:-z-10"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(12,6,35,0.9) 0%, rgba(12,6,35,0.5) 18%, rgba(24,14,65,0.18) 44%, rgba(36,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(240,220,255,0.13) 0%, rgba(190,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(140,70,250,0.78) 0%, rgba(110,45,225,0.64) 46%, rgba(76,26,170,0.68) 76%, rgba(42,12,120,0.85) 100%)",
+                    "linear-gradient(to bottom, rgba(0,8,25,0.9) 0%, rgba(0,12,30,0.5) 18%, rgba(0,20,40,0.18) 44%, rgba(0,30,50,0) 75%), radial-gradient(circle at 50% 24%, rgba(120,220,255,0.15) 0%, rgba(0,174,255,0.22) 48%, transparent 72%), linear-gradient(188deg, rgba(0,123,195,0.82) 0%, rgba(0,140,210,0.70) 46%, rgba(0,174,255,0.75) 76%, rgba(0,190,255,0.88) 100%)",
                   backgroundBlendMode: "screen",
-                  borderTopColor: "rgba(188,140,255,0.82)",
-                  borderLeftColor: "rgba(188,140,255,0.72)",
-                  borderRightColor: "rgba(44,0,135,0.62)",
-                  borderBottomColor: "rgba(40,0,115,0.88)",
+                  borderTopColor: "rgba(120,220,255,0.85)",
+                  borderLeftColor: "rgba(120,220,255,0.75)",
+                  borderRightColor: "rgba(0,80,150,0.65)",
+                  borderBottomColor: "rgba(0,70,140,0.90)",
                   boxShadow: `
                     inset 0 4px 8px rgba(255,255,255,0.45),
                     inset 0 -4px 9px rgba(0,0,0,0.55),
@@ -357,12 +357,12 @@ export default function Home() {
                 className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-light-blue/80 after:via-data3-light-blue/40 after:to-transparent after:opacity-90 after:blur-md after:-z-10"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(6,20,35,0.9) 0%, rgba(6,20,35,0.5) 18%, rgba(14,35,65,0.18) 44%, rgba(16,50,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(220,240,255,0.13) 0%, rgba(150,200,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(70,170,250,0.78) 0%, rgba(45,140,225,0.64) 46%, rgba(26,100,170,0.68) 76%, rgba(12,70,120,0.85) 100%)",
+                    "linear-gradient(to bottom, rgba(0,8,25,0.9) 0%, rgba(0,12,30,0.5) 18%, rgba(0,20,40,0.18) 44%, rgba(0,30,50,0) 75%), radial-gradient(circle at 50% 24%, rgba(120,220,255,0.15) 0%, rgba(0,174,255,0.22) 48%, transparent 72%), linear-gradient(188deg, rgba(0,123,195,0.82) 0%, rgba(0,140,210,0.70) 46%, rgba(0,174,255,0.75) 76%, rgba(0,190,255,0.88) 100%)",
                   backgroundBlendMode: "screen",
-                  borderTopColor: "rgba(140,200,255,0.82)",
-                  borderLeftColor: "rgba(140,200,255,0.72)",
-                  borderRightColor: "rgba(0,80,135,0.62)",
-                  borderBottomColor: "rgba(0,70,115,0.88)",
+                  borderTopColor: "rgba(120,220,255,0.85)",
+                  borderLeftColor: "rgba(120,220,255,0.75)",
+                  borderRightColor: "rgba(0,80,150,0.65)",
+                  borderBottomColor: "rgba(0,70,140,0.90)",
                   boxShadow: `
                     inset 0 4px 8px rgba(255,255,255,0.45),
                     inset 0 -4px 9px rgba(0,0,0,0.55),
@@ -378,7 +378,7 @@ export default function Home() {
                   <img src={ringImage} alt="Enter the Ring" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-blue-black drop-shadow-md">Enter the Ring</span>
+                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">Enter the Ring</span>
                   </div>
                 </div>
               </div>
@@ -388,12 +388,12 @@ export default function Home() {
                 className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-light-blue/80 after:via-data3-light-blue/40 after:to-transparent after:opacity-90 after:blur-md after:-z-10"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(6,25,35,0.9) 0%, rgba(6,25,35,0.5) 18%, rgba(14,50,65,0.18) 44%, rgba(16,75,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(220,255,255,0.13) 0%, rgba(150,240,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(70,240,250,0.78) 0%, rgba(45,200,225,0.64) 46%, rgba(26,150,170,0.68) 76%, rgba(12,100,120,0.85) 100%)",
+                    "linear-gradient(to bottom, rgba(0,8,25,0.9) 0%, rgba(0,12,30,0.5) 18%, rgba(0,20,40,0.18) 44%, rgba(0,30,50,0) 75%), radial-gradient(circle at 50% 24%, rgba(120,220,255,0.15) 0%, rgba(0,174,255,0.22) 48%, transparent 72%), linear-gradient(188deg, rgba(0,123,195,0.82) 0%, rgba(0,140,210,0.70) 46%, rgba(0,174,255,0.75) 76%, rgba(0,190,255,0.88) 100%)",
                   backgroundBlendMode: "screen",
-                  borderTopColor: "rgba(140,240,255,0.82)",
-                  borderLeftColor: "rgba(140,240,255,0.72)",
-                  borderRightColor: "rgba(0,120,135,0.62)",
-                  borderBottomColor: "rgba(0,110,115,0.88)",
+                  borderTopColor: "rgba(120,220,255,0.85)",
+                  borderLeftColor: "rgba(120,220,255,0.75)",
+                  borderRightColor: "rgba(0,80,150,0.65)",
+                  borderBottomColor: "rgba(0,70,140,0.90)",
                   boxShadow: `
                     inset 0 4px 8px rgba(255,255,255,0.45),
                     inset 0 -4px 9px rgba(0,0,0,0.55),
@@ -419,12 +419,12 @@ export default function Home() {
                 className="relative overflow-hidden rounded-xl border-t-4 border-l-3 border-r-2 border-b-3 transition-all duration-150 hover:translate-y-1 active:translate-y-2 before:content-[''] before:absolute before:inset-1 before:rounded-lg before:bg-gradient-to-b before:from-white/40 before:via-transparent before:to-black/40 before:opacity-80 before:pointer-events-none before:z-10 after:content-[''] after:absolute after:bottom-0 after:left-6 after:right-6 after:h-5 after:rounded-b-3xl after:bg-gradient-to-b after:from-data3-light-blue/80 after:via-data3-light-blue/40 after:to-transparent after:opacity-90 after:blur-md after:-z-10"
                 style={{
                   backgroundImage:
-                    "linear-gradient(to bottom, rgba(25,6,35,0.9) 0%, rgba(25,6,35,0.5) 18%, rgba(45,14,65,0.18) 44%, rgba(65,16,85,0) 75%), radial-gradient(circle at 50% 24%, rgba(255,220,255,0.13) 0%, rgba(240,150,255,0.18) 48%, transparent 72%), linear-gradient(188deg, rgba(240,70,250,0.78) 0%, rgba(215,45,225,0.64) 46%, rgba(170,26,170,0.68) 76%, rgba(120,12,120,0.85) 100%)",
+                    "linear-gradient(to bottom, rgba(0,8,25,0.9) 0%, rgba(0,12,30,0.5) 18%, rgba(0,20,40,0.18) 44%, rgba(0,30,50,0) 75%), radial-gradient(circle at 50% 24%, rgba(120,220,255,0.15) 0%, rgba(0,174,255,0.22) 48%, transparent 72%), linear-gradient(188deg, rgba(0,123,195,0.82) 0%, rgba(0,140,210,0.70) 46%, rgba(0,174,255,0.75) 76%, rgba(0,190,255,0.88) 100%)",
                   backgroundBlendMode: "screen",
-                  borderTopColor: "rgba(240,140,255,0.82)",
-                  borderLeftColor: "rgba(240,140,255,0.72)",
-                  borderRightColor: "rgba(100,0,135,0.62)",
-                  borderBottomColor: "rgba(90,0,115,0.88)",
+                  borderTopColor: "rgba(120,220,255,0.85)",
+                  borderLeftColor: "rgba(120,220,255,0.75)",
+                  borderRightColor: "rgba(0,80,150,0.65)",
+                  borderBottomColor: "rgba(0,70,140,0.90)",
                   boxShadow: `
                     inset 0 4px 8px rgba(255,255,255,0.45),
                     inset 0 -4px 9px rgba(0,0,0,0.55),
@@ -440,7 +440,7 @@ export default function Home() {
                   <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-                    <span className="text-4xl sm:text-5xl font-bold text-data3-blue-black drop-shadow-lg">View Leaderboard</span>
+                    <span className="text-4xl sm:text-5xl font-bold text-data3-white drop-shadow-lg">View Leaderboard</span>
                   </div>
                 </div>
               </div>
@@ -453,20 +453,20 @@ export default function Home() {
             Three Moves to Enter
           </h2>
           <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto">
-            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-white text-2xl font-bold">
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-light-blue/30 bg-data3-blue/10 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-data3-blue to-data3-light-blue text-white text-2xl font-bold shadow-lg shadow-data3-light-blue/30">
                 1
               </div>
               <p className="text-2xl sm:text-3xl font-bold text-data3-white">Answer five trivia</p>
             </div>
-            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-white text-2xl font-bold">
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-light-blue/30 bg-data3-blue/10 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-data3-blue to-data3-light-blue text-white text-2xl font-bold shadow-lg shadow-data3-light-blue/30">
                 2
               </div>
               <p className="text-2xl sm:text-3xl font-bold text-data3-white">Pitch your project</p>
             </div>
-            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-pale-blue/20 bg-white/5 backdrop-blur">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-pink-500 text-white text-2xl font-bold">
+            <div className="flex flex-col items-center text-center space-y-3 p-6 rounded-xl border border-data3-light-blue/30 bg-data3-blue/10 backdrop-blur">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-data3-blue to-data3-light-blue text-white text-2xl font-bold shadow-lg shadow-data3-light-blue/30">
                 3
               </div>
               <p className="text-2xl sm:text-3xl font-bold text-data3-white">Beat the bot<br />Earn a raffle entry</p>

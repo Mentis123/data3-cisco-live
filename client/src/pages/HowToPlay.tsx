@@ -347,29 +347,29 @@ export default function HowToPlay() {
                       </div>
                       <div className="space-y-2 text-sm">
                         <p>Dynamic daily threshold per category (default 60 if no data yet).</p>
-                        <div className="rounded-lg border border-yellow-400/30 bg-yellow-500/20 p-2 text-sm font-semibold text-white">
-                          <i className="fas fa-trophy mr-2 text-yellow-300"></i>
+                        <div className="rounded-lg border border-data3-light-blue/40 bg-data3-blue/30 p-2 text-sm font-semibold text-white">
+                          <i className="fas fa-trophy mr-2 text-data3-pale-blue"></i>
                           Score ≥ Bot Bar = raffle entry!
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-lg border border-green-400/40 bg-gradient-to-r from-green-500/20 to-cyan-500/20 p-4">
+                  <div className="rounded-lg border border-data3-light-blue/50 bg-gradient-to-r from-data3-blue/25 to-data3-light-blue/20 p-4">
                     <div className="flex items-start gap-3">
-                      <i className="fas fa-check-circle text-green-300 text-2xl"></i>
+                      <i className="fas fa-check-circle text-data3-pale-blue text-2xl"></i>
                       <div>
                         <p className="font-semibold text-white mb-2">Win conditions</p>
                         <ul className="space-y-1 text-sm">
                           <li className="flex items-center gap-2">
-                            <i className="fas fa-caret-right text-green-300"></i>
+                            <i className="fas fa-caret-right text-data3-pale-blue"></i>
                             Total score ≥ Bot Bar threshold
                           </li>
                           <li className="flex items-center gap-2">
-                            <i className="fas fa-caret-right text-green-300"></i>
+                            <i className="fas fa-caret-right text-data3-pale-blue"></i>
                             Cisco Live registered email submitted
                           </li>
                           <li className="flex items-center gap-2">
-                            <i className="fas fa-caret-right text-green-300"></i>
+                            <i className="fas fa-caret-right text-data3-pale-blue"></i>
                             Complete all three pitch prompts
                           </li>
                         </ul>
