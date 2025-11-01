@@ -21,6 +21,13 @@ interface LeaderboardEntry {
   createdAt: string;
 }
 
+interface ActiveChallengerPayload {
+  attemptId: string;
+  initials: string;
+  category: string;
+  startedAt: string;
+}
+
 interface DashboardData {
   leaderboard: LeaderboardEntry[];
   wordCloud: { text: string; value: number }[];
@@ -29,6 +36,7 @@ interface DashboardData {
   data3Stats: any[];
   topCategoryStats: any[];
   topCategory: string;
+  activeChallengers?: ActiveChallengerPayload[];
 }
 
 // Consistent color scheme for all categories

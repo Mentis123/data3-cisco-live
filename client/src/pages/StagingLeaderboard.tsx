@@ -20,6 +20,13 @@ interface LeaderboardEntry {
   createdAt: string;
 }
 
+interface ActiveChallengerPayload {
+  attemptId: string;
+  initials: string;
+  category: string;
+  startedAt: string;
+}
+
 interface DashboardData {
   leaderboard: LeaderboardEntry[];
   wordCloud: { text: string; value: number }[];
@@ -28,6 +35,7 @@ interface DashboardData {
   data3Stats: any[];
   topCategoryStats: any[];
   topCategory: string;
+  activeChallengers?: ActiveChallengerPayload[];
 }
 
 interface ActiveChallenger {
@@ -69,6 +77,8 @@ export default function StagingLeaderboard() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
   const [activeChallengers, setActiveChallengers] = useState<ActiveChallenger[]>([]);
@@ -190,6 +200,64 @@ export default function StagingLeaderboard() {
       setDisplayData(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (!data) {
+      if (websocketsDisabled) {
+        setActiveChallengers([]);
+      }
+      return;
+    }
+
+    const activeEntries = data.activeChallengers ?? [];
+
+    if (activeEntries.length === 0) {
+      if (websocketsDisabled) {
+        setActiveChallengers([]);
+      }
+      return;
+    }
+
+    setActiveChallengers((prev) => {
+      const toTimestamp = (iso: string) => {
+        const value = new Date(iso).getTime();
+        return Number.isFinite(value) ? value : Date.now();
+      };
+
+      const previousById = new Map(prev.map((entry) => [entry.attemptId, entry]));
+      const nextIds = new Set(activeEntries.map((entry) => entry.attemptId));
+
+      const nextFromApi = activeEntries.map((entry) => {
+        const existing = previousById.get(entry.attemptId);
+        const timestamp = toTimestamp(entry.startedAt);
+
+        if (existing) {
+          return {
+            ...existing,
+            initials: entry.initials,
+            category: entry.category,
+            timestamp,
+            fading: websocketsDisabled ? false : existing.fading,
+          };
+        }
+
+        return {
+          attemptId: entry.attemptId,
+          initials: entry.initials,
+          category: entry.category,
+          timestamp,
+          fading: false,
+        };
+      });
+
+      if (websocketsDisabled) {
+        return nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
+      }
+
+      const remaining = prev.filter((entry) => !nextIds.has(entry.attemptId));
+      return [...nextFromApi, ...remaining];
+    });
+  }, [data, websocketsDisabled]);
 
   if (isLoading || !displayData) {
     return (

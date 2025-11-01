@@ -1,6 +1,6 @@
 import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "../../shared/schema.js";
-import { eq, desc, sql, and, inArray } from "drizzle-orm";
+import { eq, desc, sql, and, inArray, gt, isNull } from "drizzle-orm";
 import {
   participants,
   submissions,
@@ -104,6 +104,7 @@ type TriviaCardSnapshot = Array<{
 const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
+const ACTIVE_RING_WINDOW_MINUTES = 15;
 
 type SessionMessage = {
   role: "user" | "assistant" | "system";
@@ -1199,12 +1200,49 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getData3Stats(category?: string): Promise<Data3Stat[]> {
     const query = db.select().from(data3Stats).orderBy(data3Stats.displayOrder);
-    
+
     if (category) {
       return await query.where(eq(data3Stats.category, category));
     }
-    
+
     return await query;
+  },
+
+    async getActiveRingAttempts(): Promise<Array<{ attemptId: string; initials: string; category: string; startedAt: string }>> {
+    const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+
+    const rows = await db
+      .select({
+        attemptId: attempts.id,
+        category: attempts.category,
+        startedAt: attempts.startedAt,
+        firstName: users.firstName,
+        lastName: users.lastName,
+      })
+      .from(attempts)
+      .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+      .where(
+        and(
+          eq(attempts.mode, "ring"),
+          isNull(attempts.endedAt),
+          gt(attempts.startedAt, cutoff),
+        ),
+      )
+      .orderBy(desc(attempts.startedAt));
+
+    return rows.map((row) => {
+      const firstInitial = row.firstName?.trim()?.[0] ?? "";
+      const lastInitial = row.lastName?.trim()?.[0] ?? "";
+      const fallback = row.attemptId.slice(0, 2).toUpperCase();
+      const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+      return {
+        attemptId: row.attemptId,
+        category: row.category,
+        startedAt: row.startedAt ? row.startedAt.toISOString() : new Date().toISOString(),
+        initials,
+      };
+    });
   },
 
     async getRecentSubmission(): Promise<any> {
