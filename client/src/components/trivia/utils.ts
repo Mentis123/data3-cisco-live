@@ -14,7 +14,6 @@ export interface TriviaTrackMeta {
   id: TriviaCardCategory;
   name: string;
   accentClass: string;
-  summary: string;
   description: string;
 }
 
