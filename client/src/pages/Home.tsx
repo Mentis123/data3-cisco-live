@@ -204,8 +204,8 @@ export default function Home() {
             scrollAmount += 1;
             window.scrollBy(0, 1);
 
-            // Stop after scrolling ~300px or reaching bottom
-            if (scrollAmount >= 300 || (window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+            // Stop after scrolling ~305px or reaching bottom
+            if (scrollAmount >= 305 || (window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
               if (autoScrollIntervalRef.current) {
                 clearInterval(autoScrollIntervalRef.current);
               }
