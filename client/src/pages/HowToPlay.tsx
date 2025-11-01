@@ -69,7 +69,21 @@ export default function HowToPlay() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-24 pt-16 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-        <div className="space-y-8">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 px-4 pb-16 pt-10 shadow-[0_45px_140px_-80px_rgba(0,174,255,0.75)] backdrop-blur-xl sm:px-8 lg:px-12">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 rounded-[inherit] border border-white/10"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-28 right-16 z-0 h-60 w-60 rounded-full bg-[radial-gradient(circle,_rgba(0,174,255,0.28),_transparent_70%)] blur"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute bottom-[-6rem] left-[-4rem] z-0 h-72 w-72 rounded-full bg-[radial-gradient(circle,_rgba(168,85,247,0.22),_transparent_70%)] blur-lg"
+          />
+          <div className="relative z-10 flex flex-col gap-16">
+            <div className="space-y-8">
           <div className="flex flex-row flex-wrap items-center gap-6">
             <div className="flex items-center justify-start gap-4">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
@@ -660,6 +674,8 @@ export default function HowToPlay() {
             </Link>
           </div>
         </section>
+          </div>
+        </div>
       </div>
     </div>
   );
