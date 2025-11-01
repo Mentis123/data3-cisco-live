@@ -240,27 +240,33 @@ export function TriviaWarmup({
 
   // Open overlay when deck is loaded - for ring mode, wait until attempt is created
   useEffect(() => {
+    console.log("[TriviaWarmup] useEffect triggered - selectedTrack:", selectedTrack?.id, "practiceDeck length:", practiceDeck?.length, "isDeckLoading:", isDeckLoading, "attemptId:", attemptId, "isCreatingAttempt:", isCreatingAttempt, "showOverlay:", showOverlay, "triviaCompleted:", triviaCompleted);
+
     if (!selectedTrack || !practiceDeck || practiceDeck.length === 0 || isDeckLoading) {
+      console.log("[TriviaWarmup] Early return - conditions not met");
       return;
     }
 
     // Don't re-open overlay if trivia has been completed
     if (triviaCompleted) {
+      console.log("[TriviaWarmup] Early return - trivia already completed");
       return;
     }
 
     // For dojo mode, open overlay immediately
     if (mode === "dojo") {
+      console.log("[TriviaWarmup] Dojo mode - opening overlay immediately");
       setShowOverlay(true);
       return;
     }
 
     // For ring mode, create attempt first, then open overlay
     if (mode === "ring" && email && !attemptId && !isCreatingAttempt) {
+      console.log("[TriviaWarmup] Starting attempt creation flow");
       const createAttempt = async () => {
         setIsCreatingAttempt(true);
         try {
-          console.log("[TriviaWarmup] Creating attempt for category:", selectedTrack.id);
+          console.log("[TriviaWarmup] Creating attempt for category:", selectedTrack.id, "email:", email);
           const response = await fetch("/api/trivia/attempts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -280,14 +286,19 @@ export function TriviaWarmup({
             | { attemptId?: unknown; attempt?: { id?: unknown }; message?: string }
             | null;
 
-          const payload = (await response.json().catch(() => null)) as StartAttemptResponse;
+          console.log("[TriviaWarmup] Response status:", response.status, response.statusText);
+          const payload = (await response.json().catch((err) => {
+            console.error("[TriviaWarmup] Failed to parse JSON response:", err);
+            return null;
+          })) as StartAttemptResponse;
+          console.log("[TriviaWarmup] Response payload:", JSON.stringify(payload, null, 2));
 
           if (response.status === 409) {
             const errorMessage =
               payload && typeof payload === "object" && "message" in payload
                 ? String((payload as { message?: string }).message)
                 : "You have already submitted for this category today";
-            console.warn("[TriviaWarmup] Duplicate attempt detected:", errorMessage);
+            console.warn("[TriviaWarmup] Duplicate attempt detected (409):", errorMessage);
             setAttemptError(errorMessage);
             setSelectedTrack(null);
             setIsCreatingAttempt(false);
@@ -299,35 +310,50 @@ export function TriviaWarmup({
               payload && typeof payload === "object" && "message" in payload
                 ? String((payload as { message?: string }).message)
                 : "Failed to start trivia attempt";
+            console.error("[TriviaWarmup] Response not OK:", response.status, message);
             throw new Error(message);
           }
 
           let nextAttemptId: string | null = null;
           if (payload && typeof payload === "object") {
+            console.log("[TriviaWarmup] Checking payload for attemptId - typeof payload.attemptId:", typeof payload.attemptId, "value:", payload.attemptId);
+
+            // Handle attemptId as string or number
             if (typeof payload.attemptId === "string") {
               nextAttemptId = payload.attemptId;
+              console.log("[TriviaWarmup] Found attemptId as string:", nextAttemptId);
+            } else if (typeof payload.attemptId === "number") {
+              nextAttemptId = String(payload.attemptId);
+              console.log("[TriviaWarmup] Found attemptId as number, converted to string:", nextAttemptId);
             } else if (payload.attempt && typeof payload.attempt === "object" && payload.attempt !== null) {
               const attempt = payload.attempt as { id?: unknown };
+              console.log("[TriviaWarmup] Checking nested attempt.id - typeof:", typeof attempt.id, "value:", attempt.id);
               if (typeof attempt.id === "string") {
                 nextAttemptId = attempt.id;
+                console.log("[TriviaWarmup] Found attempt.id as string:", nextAttemptId);
+              } else if (typeof attempt.id === "number") {
+                nextAttemptId = String(attempt.id);
+                console.log("[TriviaWarmup] Found attempt.id as number, converted to string:", nextAttemptId);
               }
             }
           }
 
           if (nextAttemptId) {
-            console.log("[TriviaWarmup] Successfully created attempt:", nextAttemptId);
+            console.log("[TriviaWarmup] ✅ Successfully created attempt:", nextAttemptId);
             setAttemptId(nextAttemptId);
             setIsCreatingAttempt(false);
             // Now open the overlay after successful attempt creation
+            console.log("[TriviaWarmup] Opening overlay now...");
             setShowOverlay(true);
           } else {
-            console.warn("[TriviaWarmup] Unable to determine attempt id from response", payload);
+            console.error("[TriviaWarmup] ❌ Unable to determine attempt id from response. Payload:", payload);
             throw new Error("Invalid attempt response");
           }
         } catch (error) {
-          console.error("[TriviaWarmup] Failed to create attempt:", error);
+          console.error("[TriviaWarmup] ❌ Failed to create attempt:", error);
           const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
           setAttemptError(message);
+          console.log("[TriviaWarmup] Clearing selectedTrack due to error");
           setSelectedTrack(null);
           setIsCreatingAttempt(false);
         }
@@ -336,9 +362,12 @@ export function TriviaWarmup({
       void createAttempt();
     } else if (mode === "ring" && attemptId && !showOverlay) {
       // If attempt already exists, open overlay (only if trivia not completed)
+      console.log("[TriviaWarmup] Attempt already exists, opening overlay - attemptId:", attemptId);
       setShowOverlay(true);
+    } else {
+      console.log("[TriviaWarmup] No action taken in useEffect - mode:", mode, "email:", !!email, "attemptId:", attemptId, "isCreatingAttempt:", isCreatingAttempt, "showOverlay:", showOverlay);
     }
-  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, attemptId, isCreatingAttempt, showOverlay, triviaCompleted]);
+  }, [selectedTrack, practiceDeck, isDeckLoading, mode, email, attemptId, isCreatingAttempt, showOverlay, triviaCompleted, firstName, lastName]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -386,7 +415,10 @@ export function TriviaWarmup({
               <button
                 key={track.id}
                 type="button"
-                onClick={() => setSelectedTrack(track)}
+                onClick={() => {
+                  console.log("[TriviaWarmup] 🎯 User selected track:", track.id, track.name);
+                  setSelectedTrack(track);
+                }}
                 className="group h-full rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition hover:border-white/30 hover:bg-white/10"
               >
                 <div className="flex items-center gap-3">
