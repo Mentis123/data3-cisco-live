@@ -1193,6 +1193,25 @@ export function createMemoryStorage() {
       return existing || null;
     },
 
+    async checkExistingRaffleEntry(
+      emailHash: string | null,
+      category: string,
+      raffleDate: string
+    ): Promise<boolean> {
+      if (!emailHash) {
+        return false;
+      }
+
+      const existing = raffleEntriesStore.find(
+        (entry) =>
+          entry.emailHash === emailHash &&
+          entry.category === category &&
+          entry.raffleDate === raffleDate
+      );
+
+      return !!existing;
+    },
+
     async createRaffleEntry(data: {
       emailHash: string;
       category: string;
