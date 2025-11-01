@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,17 +110,17 @@ export function TriviaWarmup({
   const [showOverlay, setShowOverlay] = useState(false);
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
   const [attemptId, setAttemptId] = useState<string | null>(null);
-  const [duplicateError, setDuplicateError] = useState<string | null>(null);
+  const [attemptError, setAttemptError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedTrack && attemptId) {
       setAttemptId(null);
     }
     // Clear duplicate error when track changes
-    if (!selectedTrack && duplicateError) {
-      setDuplicateError(null);
+    if (!selectedTrack && attemptError) {
+      setAttemptError(null);
     }
-  }, [selectedTrack, attemptId, duplicateError]);
+  }, [selectedTrack, attemptId, attemptError]);
 
   const tracks = useMemo(() => {
     return (Object.keys(triviaCardCategoryMeta) as TriviaCardCategory[]).map((key) => {
@@ -246,48 +244,70 @@ export function TriviaWarmup({
     if (mode === "ring" && email && !attemptId) {
       const createAttempt = async () => {
         try {
-          const response = await apiRequest("POST", "/api/trivia/attempts", {
-            category: selectedTrack.id,
-            mode: "ring",
-            email,
-            playerProfile: {
-              firstName,
-              lastName,
-            },
+          const response = await fetch("/api/trivia/attempts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              category: selectedTrack.id,
+              mode: "ring",
+              email,
+              playerProfile: {
+                firstName,
+                lastName,
+              },
+            }),
           });
 
-          // Check for 409 Conflict (duplicate submission)
+          type StartAttemptResponse =
+            | { attemptId?: unknown; attempt?: { id?: unknown }; message?: string }
+            | null;
+
+          const payload = (await response.json().catch(() => null)) as StartAttemptResponse;
+
           if (response.status === 409) {
-            const data = await response.json();
-            const errorMessage = data.message || "You have already submitted for this category today";
-            setDuplicateError(errorMessage);
+            const errorMessage =
+              payload && typeof payload === "object" && "message" in payload
+                ? String((payload as { message?: string }).message)
+                : "You have already submitted for this category today";
+            setAttemptError(errorMessage);
             setShowOverlay(false);
             setSelectedTrack(null);
             return;
           }
 
-          const data = await response.json();
-          const nextAttemptId =
-            typeof data.attemptId === "string"
-              ? data.attemptId
-              : data.attempt && typeof data.attempt.id === "string"
-              ? data.attempt.id
-              : null;
+          if (!response.ok) {
+            const message =
+              payload && typeof payload === "object" && "message" in payload
+                ? String((payload as { message?: string }).message)
+                : "Failed to start trivia attempt";
+            throw new Error(message);
+          }
+
+          let nextAttemptId: string | null = null;
+          if (payload && typeof payload === "object") {
+            if (typeof payload.attemptId === "string") {
+              nextAttemptId = payload.attemptId;
+            } else if (payload.attempt && typeof payload.attempt === "object" && payload.attempt !== null) {
+              const attempt = payload.attempt as { id?: unknown };
+              if (typeof attempt.id === "string") {
+                nextAttemptId = attempt.id;
+              }
+            }
+          }
 
           if (nextAttemptId) {
             setAttemptId(nextAttemptId);
             console.log("[TriviaWarmup] Created attempt:", nextAttemptId);
           } else {
-            console.warn("[TriviaWarmup] Unable to determine attempt id from response", data);
+            console.warn("[TriviaWarmup] Unable to determine attempt id from response", payload);
           }
         } catch (error) {
           console.error("[TriviaWarmup] Failed to create attempt:", error);
-          // Check if error response indicates duplicate
-          if (error && typeof error === 'object' && 'status' in error && error.status === 409) {
-            setDuplicateError("You have already submitted for this category today");
-            setShowOverlay(false);
-            setSelectedTrack(null);
-          }
+          const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
+          setAttemptError(message);
+          setShowOverlay(false);
+          setSelectedTrack(null);
         }
       };
 
@@ -310,11 +330,11 @@ export function TriviaWarmup({
             Pick the architecture you want to drill. {mode === "ring" ? "Each deck pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set for
             that track.
           </p>
-          {duplicateError && (
+          {attemptError && (
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
-              <p className="text-sm font-medium text-amber-200">{duplicateError}</p>
+              <p className="text-sm font-medium text-amber-200">{attemptError}</p>
               <p className="mt-1 text-xs text-amber-300/80">
-                You can only submit once per category per day. Try a different category or come back tomorrow!
+                If you've already entered this category today, pick another track — otherwise try again in a moment.
               </p>
             </div>
           )}
