@@ -898,8 +898,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-          <div className="flex flex-row flex-wrap items-center gap-6">
-            <div className="flex items-center justify-start gap-4">
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
                 <img
                   src={ringFullImage}
@@ -907,13 +907,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   className="h-full w-full object-cover"
                 />
               </div>
-            </div>
-            <div className="space-y-4 text-left sm:max-w-2xl">
               <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
-              <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
-              </p>
             </div>
+            <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
+              This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
+            </p>
           </div>
           <TriviaWarmup
             mode="ring"
