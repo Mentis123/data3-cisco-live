@@ -754,6 +754,29 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return existing || null;
     },
 
+    async checkExistingRaffleEntry(
+      emailHash: string | null,
+      category: string,
+      raffleDate: string
+    ): Promise<boolean> {
+      if (!emailHash) {
+        return false;
+      }
+
+      const existing = await db
+        .select()
+        .from(schema.raffleEntries)
+        .where(
+          and(
+            eq(schema.raffleEntries.emailHash, emailHash),
+            eq(schema.raffleEntries.category, category),
+            eq(schema.raffleEntries.raffleDate, raffleDate)
+          )
+        );
+
+      return existing.length > 0;
+    },
+
     async createRaffleEntry(data: {
       emailHash: string;
       category: string;
