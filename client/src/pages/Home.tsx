@@ -201,8 +201,8 @@ export default function Home() {
         let scrollAmount = 0;
         autoScrollIntervalRef.current = window.setInterval(() => {
           if (!userHasScrolledRef.current) {
-            scrollAmount += 1;
-            window.scrollBy(0, 1);
+            scrollAmount += 6;
+            window.scrollBy(0, 6);
 
             // Stop after scrolling ~300px or reaching bottom
             if (scrollAmount >= 300 || (window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
