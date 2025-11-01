@@ -348,14 +348,19 @@ export async function registerRoutes(
         playerProfile,
       });
 
+      log(`[Trivia] Created attempt ${attempt.id} for category ${attempt.category} in ${payload.mode} mode`);
+
       // Broadcast ring entry if it's a ring mode attempt
       if (payload.mode === "ring" && playerProfile) {
         const initials = `${playerProfile.firstName?.[0] || ''}${playerProfile.lastName?.[0] || ''}`.toUpperCase();
+        log(`[Trivia] Broadcasting ring entry for attempt ${attempt.id} with initials ${initials}`);
         broadcastRingEntry({
           attemptId: attempt.id,
           initials,
           category: attempt.category
         });
+      } else {
+        log(`[Trivia] Skipping ring entry broadcast: mode=${payload.mode}, hasPlayerProfile=${!!playerProfile}`);
       }
 
       res.json({

@@ -78,6 +78,12 @@ export default function StagingLeaderboard() {
     window.scrollTo(0, 0);
   }, []);
 
+  // Preload audio on component mount
+  useEffect(() => {
+    console.log('[StagingLeaderboard] Preloading audio...');
+    audioManager.preload();
+  }, []);
+
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
@@ -112,19 +118,28 @@ export default function StagingLeaderboard() {
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
     console.log('🥊 RING ENTRY:', entry);
 
-    // Play entry sounds (flash + announce)
-    audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    // Play entry sounds (flash + announce) - with better error handling
+    console.log('[StagingLeaderboard] Playing flash sound...');
+    audioManager.playFlashSound()
+      .then(() => console.log('[StagingLeaderboard] Flash sound played successfully'))
+      .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
+
     setTimeout(() => {
-      audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+      console.log('[StagingLeaderboard] Playing challenger sound...');
+      audioManager.playNewChallengerSound()
+        .then(() => console.log('[StagingLeaderboard] Challenger sound played successfully'))
+        .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
     }, 750);
 
     // Add to active challengers list
     setActiveChallengers(prev => {
       // Check if already exists
       if (prev.some(c => c.attemptId === entry.attemptId)) {
+        console.log('[StagingLeaderboard] Challenger already in list:', entry.attemptId);
         return prev;
       }
       // Add new challenger at the top
+      console.log('[StagingLeaderboard] Adding new challenger to list:', entry);
       return [{
         ...entry,
         timestamp: Date.now(),
@@ -173,21 +188,25 @@ export default function StagingLeaderboard() {
 
   // WebSocket for real-time updates
   useWebSocket((message) => {
-    console.log('WebSocket message received:', message);
+    console.log('[StagingLeaderboard] WebSocket message received:', message);
 
     if (message.type === "ringEntry") {
+      console.log('[StagingLeaderboard] Processing ringEntry event:', message.data);
       handleRingEntry(message.data);
     }
 
     if (message.type === "ringExit") {
+      console.log('[StagingLeaderboard] Processing ringExit event:', message.data);
       handleRingExit(message.data);
     }
 
     if (message.type === "raffleQualified") {
+      console.log('[StagingLeaderboard] Processing raffleQualified event:', message.data);
       handleRaffleQualified(message.data);
     }
 
     if (message.type === "scoreUpdate") {
+      console.log('[StagingLeaderboard] Processing scoreUpdate event:', message.data);
       // Handle score updates for leaderboard
       triggerScoreAnimation(message.data.id, message.data.finalScore ?? message.data.totalScore);
       refetch();
@@ -204,15 +223,18 @@ export default function StagingLeaderboard() {
   useEffect(() => {
     if (!data) {
       if (websocketsDisabled) {
+        console.log('[StagingLeaderboard] No data - clearing active challengers');
         setActiveChallengers([]);
       }
       return;
     }
 
     const activeEntries = data.activeChallengers ?? [];
+    console.log('[StagingLeaderboard] Processing API data - active challengers:', activeEntries);
 
     if (activeEntries.length === 0) {
       if (websocketsDisabled) {
+        console.log('[StagingLeaderboard] No active challengers from API');
         setActiveChallengers([]);
       }
       return;
@@ -241,6 +263,16 @@ export default function StagingLeaderboard() {
           };
         }
 
+        // New challenger from API - if WebSockets are disabled, play sounds here
+        if (websocketsDisabled && !previousById.has(entry.attemptId)) {
+          console.log('[StagingLeaderboard] New challenger detected from API (WebSockets disabled):', entry);
+          // Play sounds for new challengers when WebSockets are disabled
+          audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+          setTimeout(() => {
+            audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+          }, 750);
+        }
+
         return {
           attemptId: entry.attemptId,
           initials: entry.initials,
@@ -251,11 +283,15 @@ export default function StagingLeaderboard() {
       });
 
       if (websocketsDisabled) {
-        return nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
+        const sorted = nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
+        console.log('[StagingLeaderboard] Updating challengers (WebSockets disabled):', sorted);
+        return sorted;
       }
 
       const remaining = prev.filter((entry) => !nextIds.has(entry.attemptId));
-      return [...nextFromApi, ...remaining];
+      const combined = [...nextFromApi, ...remaining];
+      console.log('[StagingLeaderboard] Updating challengers (WebSockets enabled):', combined);
+      return combined;
     });
   }, [data, websocketsDisabled]);
 
