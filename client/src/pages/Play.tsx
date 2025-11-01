@@ -132,6 +132,18 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
 
   const selectedCategoryTheme = getCategoryTheme(selectedCategory);
 
+  const previewSubmission = isRing
+    ? state.submission ||
+      (state.problem && state.impact ? composeSubmission(state.problem, state.impact) : null)
+    : null;
+
+  const activeCategory = previewSubmission?.chosen_category ?? selectedCategory ?? null;
+  const activeCategoryLabel =
+    activeCategory && isTriviaCardCategory(activeCategory)
+      ? triviaCardCategoryMeta[activeCategory].name
+      : selectedCategoryLabel;
+  const activeCategoryTheme = getCategoryTheme(activeCategory || selectedCategory);
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -969,12 +981,12 @@ Just describe it naturally - what's the problem that needs solving?`
     const currentSubmission = editedSubmission || state.submission;
 
     if (isRing) {
-      const submissionCategory = currentSubmission?.chosen_category ?? selectedCategory;
+      const submissionCategory = currentSubmission?.chosen_category ?? activeCategory;
       const submissionTheme = getCategoryTheme(submissionCategory);
       const submissionCategoryLabel =
         submissionCategory && isTriviaCardCategory(submissionCategory)
           ? triviaCardCategoryMeta[submissionCategory].name
-          : selectedCategoryLabel;
+          : activeCategoryLabel;
 
       return (
         <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
@@ -1311,30 +1323,30 @@ Just describe it naturally - what's the problem that needs solving?`
           <div
             className="flex items-center justify-between rounded-2xl border px-4 py-3 text-sm"
             style={{
-              borderColor: selectedCategoryTheme.border,
-              backgroundColor: selectedCategoryTheme.background,
-              color: selectedCategoryTheme.text,
-              boxShadow: selectedCategoryTheme.shadow,
+              borderColor: activeCategoryTheme.border,
+              backgroundColor: activeCategoryTheme.background,
+              color: activeCategoryTheme.text,
+              boxShadow: activeCategoryTheme.shadow,
             }}
           >
             <div className="flex flex-col gap-1 text-left">
               <span
                 className="text-xs uppercase tracking-[0.25em]"
-                style={{ color: selectedCategoryTheme.subheading }}
+                style={{ color: activeCategoryTheme.subheading }}
               >
                 Trivia locked
               </span>
-              <span className="text-base font-semibold" style={{ color: selectedCategoryTheme.text }}>
+              <span className="text-base font-semibold" style={{ color: activeCategoryTheme.text }}>
                 {triviaScore}/60 locked in
-                {selectedCategoryLabel ? <span className="font-normal"> · {selectedCategoryLabel}</span> : null}
+                {activeCategoryLabel ? <span className="font-normal"> · {activeCategoryLabel}</span> : null}
               </span>
             </div>
             <Badge
               variant="outline"
               className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
               style={{
-                backgroundColor: selectedCategoryTheme.badgeBg,
-                color: selectedCategoryTheme.badgeText,
+                backgroundColor: activeCategoryTheme.badgeBg,
+                color: activeCategoryTheme.badgeText,
               }}
             >
               Official
@@ -1602,9 +1614,6 @@ Just describe it naturally - what's the problem that needs solving?`
   );
 
   if (isRing) {
-    const previewSubmission =
-      state.submission ||
-      (state.problem && state.impact ? composeSubmission(state.problem, state.impact) : null);
 
     const SprintMapCard = () => (
       <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
@@ -1736,47 +1745,47 @@ Just describe it naturally - what's the problem that needs solving?`
       </>
     );
 
-    return (
-      <>
-        <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
-          <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
-            {triviaScore !== null && (
-              <div
-                className="order-0 rounded-3xl border px-4 py-3 text-sm lg:col-span-3"
-                style={{
-                  borderColor: selectedCategoryTheme.border,
-                  backgroundColor: selectedCategoryTheme.background,
-                  color: selectedCategoryTheme.text,
-                  boxShadow: selectedCategoryTheme.shadow,
-                }}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="space-y-1">
-                    <p
-                      className="text-xs uppercase tracking-[0.3em]"
-                      style={{ color: selectedCategoryTheme.subheading }}
+        return (
+          <>
+            <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
+              <div className="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_#020617_0%,_#0b1120_65%)] text-slate-100">
+              <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:gap-6">
+              {triviaScore !== null && (
+                <div
+                  className="order-0 rounded-3xl border px-4 py-3 text-sm lg:col-span-3"
+                  style={{
+                    borderColor: activeCategoryTheme.border,
+                    backgroundColor: activeCategoryTheme.background,
+                    color: activeCategoryTheme.text,
+                    boxShadow: activeCategoryTheme.shadow,
+                  }}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <p
+                        className="text-xs uppercase tracking-[0.3em]"
+                        style={{ color: activeCategoryTheme.subheading }}
+                      >
+                        Trivia locked
+                      </p>
+                      <p className="text-base font-semibold" style={{ color: activeCategoryTheme.text }}>
+                        {triviaScore}/60 locked in
+                        {activeCategoryLabel ? <span className="font-normal"> · {activeCategoryLabel}</span> : null}
+                      </p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+                      style={{
+                        backgroundColor: activeCategoryTheme.badgeBg,
+                        color: activeCategoryTheme.badgeText,
+                      }}
                     >
-                      Trivia locked
-                    </p>
-                    <p className="text-base font-semibold" style={{ color: selectedCategoryTheme.text }}>
-                      {triviaScore}/60 locked in
-                      {submissionCategoryLabel ? <span className="font-normal"> · {submissionCategoryLabel}</span> : null}
-                    </p>
+                      Official entry
+                    </Badge>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className="rounded-full border-0 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
-                    style={{
-                      backgroundColor: selectedCategoryTheme.badgeBg,
-                      color: selectedCategoryTheme.badgeText,
-                    }}
-                  >
-                    Official entry
-                  </Badge>
                 </div>
-              </div>
-            )}
+              )}
             <section className="order-1 relative flex min-h-[60vh] flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl lg:overflow-hidden">
               <div className="relative border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
