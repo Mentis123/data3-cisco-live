@@ -442,7 +442,7 @@
     background: linear-gradient(-65deg, #0000 40%, #fff7 50%, #0000 70%);
     background-size: 200% 100%;
     background-repeat: no-repeat;
-    animation: shine-sweep 12s ease infinite;
+    animation: shine-sweep 4s ease infinite;
   }
 
   .nav-tile-button-top-white {
