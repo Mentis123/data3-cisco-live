@@ -37,7 +37,7 @@ const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { summary: string; descri
     description: "Can you recall the zero-trust stats before the countdown hits zero?",
   },
   HYBRID_DC: {
-    summary: "Hybrid cloud warm-up",
+    summary: "Hybrid cloud pressure test",
     description: "Prove you know our scale across data centres and elastic infrastructure.",
   },
   COLLAB_CX: {
@@ -115,6 +115,30 @@ export function TriviaWarmup({
   const [isCreatingAttempt, setIsCreatingAttempt] = useState(false);
   const [triviaCompleted, setTriviaCompleted] = useState(false);
   const [attemptQuestions, setAttemptQuestions] = useState<TriviaQuestion[]>([]);
+
+  const sanitizedEmail = useMemo(() => {
+    if (!email) {
+      return undefined;
+    }
+    const trimmed = email.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }, [email]);
+
+  const sanitizedFirstName = useMemo(() => {
+    if (!firstName) {
+      return undefined;
+    }
+    const trimmed = firstName.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }, [firstName]);
+
+  const sanitizedLastName = useMemo(() => {
+    if (!lastName) {
+      return undefined;
+    }
+    const trimmed = lastName.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }, [lastName]);
 
   useEffect(() => {
     if (!selectedTrack && attemptId) {
@@ -264,7 +288,7 @@ export function TriviaWarmup({
     }
 
     if (mode === "ring") {
-      if (!email) {
+      if (!sanitizedEmail) {
         return;
       }
 
@@ -280,11 +304,14 @@ export function TriviaWarmup({
               body: JSON.stringify({
                 category: selectedTrack.id,
                 mode: "ring",
-                email,
-                playerProfile: {
-                  firstName,
-                  lastName,
-                },
+                email: sanitizedEmail,
+                playerProfile:
+                  sanitizedFirstName || sanitizedLastName
+                    ? {
+                        ...(sanitizedFirstName ? { firstName: sanitizedFirstName } : {}),
+                        ...(sanitizedLastName ? { lastName: sanitizedLastName } : {}),
+                      }
+                    : undefined,
               }),
             });
 
@@ -371,7 +398,21 @@ export function TriviaWarmup({
         setShowOverlay(true);
       }
     }
-  }, [mode, selectedTrack, practiceDeck, isDeckLoading, triviaCompleted, email, attemptId, isCreatingAttempt, attemptError, showOverlay, attemptQuestions.length, firstName, lastName]);
+  }, [
+    mode,
+    selectedTrack,
+    practiceDeck,
+    isDeckLoading,
+    triviaCompleted,
+    sanitizedEmail,
+    attemptId,
+    isCreatingAttempt,
+    attemptError,
+    showOverlay,
+    attemptQuestions.length,
+    sanitizedFirstName,
+    sanitizedLastName,
+  ]);
 
   const categoriesErrorMessage =
     categoriesError instanceof Error ? categoriesError.message : null;
@@ -397,8 +438,8 @@ export function TriviaWarmup({
           <p className="text-xs uppercase tracking-[0.35em] text-slate-300/70">Choose your track</p>
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">Which tech will you defend?</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
-            Pick the architecture you want to drill. {mode === "ring" ? "Each deck pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set for
-            that track.
+            Pick the architecture you want to drill. {mode === "ring" ? "Each official run pulls" : "Each warm-up pulls"} curated Data#3 trivia from the live question set
+            for that track.
           </p>
           {attemptError && (
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
@@ -411,7 +452,7 @@ export function TriviaWarmup({
           {isCategoriesError && (
             <p className="text-xs text-amber-300/80">
               We couldn&apos;t confirm deck counts right now{categoriesErrorMessage ? ` (${categoriesErrorMessage})` : ""}, but every
-              track remains open for practice.
+              track remains open for {mode === "ring" ? "official runs" : "practice"}.
             </p>
           )}
         </div>
@@ -425,7 +466,7 @@ export function TriviaWarmup({
               ? "Deck counts unavailable — jump in"
               : isLoadingCategories
               ? "Loading question counts…"
-              : mode === "ring" ? "Trivia deck ready" : "Warm-up deck ready";
+              : mode === "ring" ? "Official deck ready" : "Warm-up deck ready";
 
             return (
               <button

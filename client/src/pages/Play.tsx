@@ -528,13 +528,21 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       }
       setShowOfficialRunConfirm(true);
     } else {
-      startSessionMutation.mutate({ firstName, lastName, email });
+      startSessionMutation.mutate({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim() || undefined,
+      });
     }
   };
 
   const handleConfirmOfficialRun = () => {
     setShowOfficialRunConfirm(false);
-    startSessionMutation.mutate({ firstName, lastName, email });
+    startSessionMutation.mutate({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim() || undefined,
+    });
   };
 
   // Registration view
