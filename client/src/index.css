@@ -443,6 +443,7 @@
     background-size: 200% 100%;
     background-repeat: no-repeat;
     animation: shine-sweep 7s ease infinite;
+    animation-delay: -100ms;
     pointer-events: none;
     z-index: 0;
   }

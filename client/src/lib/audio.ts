@@ -53,7 +53,7 @@ export class AudioManager {
     if (!this.buzzAudio) {
       this.buzzAudio = new Audio(buzzSoundFile);
       this.buzzAudio.preload = "auto";
-      this.buzzAudio.volume = 0.5; // 50% volume
+      this.buzzAudio.volume = 0.75; // 75% volume
       this.buzzAudio.muted = this.isMuted;
     }
   }
