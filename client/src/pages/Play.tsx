@@ -293,6 +293,8 @@ Just describe it naturally - what's the problem that needs solving?`
     onSuccess: (data) => {
       setIsSubmitting(false);
 
+      console.log('[Play] Received backend response:', data);
+
       // Store complete submission data for announcement page
       const submissionData = {
         id: `submission-${Date.now()}`,
@@ -312,11 +314,15 @@ Just describe it naturally - what's the problem that needs solving?`
         alreadyEntered: data.alreadyEntered,
       };
 
+      console.log('[Play] Storing submission data:', submissionData);
+
       sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
       sessionStorage.setItem(
         "playSubmissionAudio",
         JSON.stringify({ timestamp: Date.now() })
       );
+
+      console.log('[Play] Navigating to /announcement');
 
       // Navigate to announcement page
       setLocation('/announcement');

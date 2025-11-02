@@ -115,13 +115,27 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   };
 
   const getRankDisplay = (rank: number) => {
-    if (rank === 1) return { icon: "fa-crown", text: "1ST PLACE!", class: "text-yellow-400" };
-    if (rank === 2) return { icon: "fa-medal", text: "2ND PLACE!", class: "text-gray-300" };
-    if (rank === 3) return { icon: "fa-award", text: "3RD PLACE!", class: "text-orange-400" };
-    return { icon: "fa-trophy", text: `RANK #${rank}`, class: "text-[#78DCFF]" };
+    // Ensure rank is a valid number, default to 1 if not
+    const validRank = typeof rank === 'number' && rank > 0 ? rank : 1;
+
+    if (validRank === 1) return { icon: "fa-crown", text: "1ST PLACE!", class: "text-yellow-400" };
+    if (validRank === 2) return { icon: "fa-medal", text: "2ND PLACE!", class: "text-gray-300" };
+    if (validRank === 3) return { icon: "fa-award", text: "3RD PLACE!", class: "text-orange-400" };
+    return { icon: "fa-trophy", text: `RANK #${validRank}`, class: "text-[#78DCFF]" };
   };
 
   const rankDisplay = getRankDisplay(submission.rank);
+
+  console.log('[NewSubmissionAnnouncement] Rendering announcement:', {
+    finalScore,
+    pitchScore,
+    triviaScore,
+    rank: submission.rank,
+    rankDisplay,
+    botBar: submission.botBar,
+    isEligible: submission.isEligible,
+    subScores: submission.subScores
+  });
 
   const triviaScore =
     typeof submission.triviaScore === "number"
@@ -144,7 +158,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const finalScore =
     (triviaScore !== null || pitchScore !== null)
       ? Math.min(FINAL_MAX, Math.round(computedTotal))
-      : submission.totalScore;
+      : (typeof submission.totalScore === "number" ? submission.totalScore : 0);
   const FINAL_MAX = 100;
   const TRIVIA_MAX = 60;
   const PITCH_MAX = 40;
@@ -440,21 +454,40 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 // Component for use in routing (retrieves data from sessionStorage)
 export function NewSubmissionAnnouncementPage() {
   const [, setLocation] = useLocation();
-  
+
   // Retrieve submission data from sessionStorage
   const getSubmissionData = (): SubmissionData => {
     try {
       const storedData = sessionStorage.getItem('newSubmissionData');
+      console.log('[NewSubmissionAnnouncement] Raw sessionStorage data:', storedData);
+
       if (storedData) {
         const submissionData = JSON.parse(storedData);
+        console.log('[NewSubmissionAnnouncement] Parsed submission data:', submissionData);
+
+        // Validate and provide defaults for critical fields
+        const validatedData: SubmissionData = {
+          ...submissionData,
+          rank: typeof submissionData.rank === 'number' ? submissionData.rank : 1,
+          totalScore: typeof submissionData.totalScore === 'number' ? submissionData.totalScore : 0,
+          pitchScore: typeof submissionData.pitchScore === 'number' ? submissionData.pitchScore : null,
+          triviaScore: typeof submissionData.triviaScore === 'number' ? submissionData.triviaScore : null,
+          botBar: typeof submissionData.botBar === 'number' ? submissionData.botBar : undefined,
+          isEligible: typeof submissionData.isEligible === 'boolean' ? submissionData.isEligible : false,
+        };
+
+        console.log('[NewSubmissionAnnouncement] Validated submission data:', validatedData);
+
         // Clear the data after retrieving it
         sessionStorage.removeItem('newSubmissionData');
-        return submissionData;
+        return validatedData;
       }
     } catch (error) {
-      console.warn('Failed to retrieve submission data from sessionStorage:', error);
+      console.error('[NewSubmissionAnnouncement] Failed to retrieve submission data from sessionStorage:', error);
     }
-    
+
+    console.warn('[NewSubmissionAnnouncement] No stored data found, using fallback demo data');
+
     // Fallback to sample data if no stored data available
     return {
       id: "demo",
@@ -481,10 +514,12 @@ export function NewSubmissionAnnouncementPage() {
 
   const submissionData = getSubmissionData();
 
+  console.log('[NewSubmissionAnnouncement] Rendering with submission data:', submissionData);
+
   return (
-    <NewSubmissionAnnouncement 
-      submission={submissionData} 
-      onDismiss={() => setLocation('/leaderboard')} 
+    <NewSubmissionAnnouncement
+      submission={submissionData}
+      onDismiss={() => setLocation('/leaderboard')}
     />
   );
 }
