@@ -1841,26 +1841,28 @@ Just describe it naturally - what's the problem that needs solving?`
                 </div>
               )}
             <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
-              <div className="sticky top-0 z-20 border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="space-y-1 flex-1">
-                    <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
-                    <p className="text-sm text-slate-200/80">Three replies to build your case. Make them count.</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
-                      Step {state.step}/4
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowExitDialog(true)}
-                      className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:bg-white/10 hover:text-white"
-                      data-testid="button-exit-chat"
-                    >
-                      <i className="fas fa-door-open mr-2"></i>
-                      Exit
-                    </Button>
+              <div className="sticky top-0 z-20 border-b border-white/10 bg-slate-950">
+                <div className="bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-1 flex-1">
+                      <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
+                      <p className="text-sm text-slate-200/80">Three replies to build your case. Make them count.</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
+                        Step {state.step}/4
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowExitDialog(true)}
+                        className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:bg-white/10 hover:text-white"
+                        data-testid="button-exit-chat"
+                      >
+                        <i className="fas fa-door-open mr-2"></i>
+                        Exit
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
