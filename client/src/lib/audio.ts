@@ -14,6 +14,7 @@ export class AudioManager {
   private clickAudio: HTMLAudioElement | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
+  private isImmersive: boolean = false; // Default to immersive mode OFF
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -221,6 +222,27 @@ export class AudioManager {
 
   public isMutedState(): boolean {
     return this.isMuted;
+  }
+
+  public toggleImmersive(): boolean {
+    this.isImmersive = !this.isImmersive;
+    // When turning on immersive mode, automatically unmute
+    if (this.isImmersive && this.isMuted) {
+      this.setMute(false);
+    }
+    return this.isImmersive;
+  }
+
+  public setImmersive(immersive: boolean): void {
+    this.isImmersive = immersive;
+    // When turning on immersive mode, automatically unmute
+    if (this.isImmersive && this.isMuted) {
+      this.setMute(false);
+    }
+  }
+
+  public isImmersiveMode(): boolean {
+    return this.isImmersive;
   }
 
   private stopAll(): void {
