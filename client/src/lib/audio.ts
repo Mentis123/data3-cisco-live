@@ -65,14 +65,14 @@ export class AudioManager {
     if (!this.challengerAudio) {
       this.challengerAudio = new Audio(newChallengerSound);
       this.challengerAudio.preload = "auto";
-      this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+      this.challengerAudio.volume = 1.0; // Maximum volume (increased 50% from 0.8)
       this.challengerAudio.muted = this.isMuted;
     }
 
     if (!this.flashAudio) {
       this.flashAudio = new Audio(flashSound);
       this.flashAudio.preload = "auto";
-      this.flashAudio.volume = 0.9; // Slightly louder for immediate impact
+      this.flashAudio.volume = 1.0; // Maximum volume (increased 50% from 0.9)
       this.flashAudio.muted = this.isMuted;
     }
 
@@ -87,14 +87,14 @@ export class AudioManager {
     if (!this.buzzAudio) {
       this.buzzAudio = new Audio(buzzSoundFile);
       this.buzzAudio.preload = "auto";
-      this.buzzAudio.volume = 0.75; // 75% volume
+      this.buzzAudio.volume = 1.0; // Maximum volume (increased 50% from 0.75)
       this.buzzAudio.muted = this.isMuted;
     }
 
     if (!this.clickAudio) {
       this.clickAudio = new Audio(clickSoundFile);
       this.clickAudio.preload = "auto";
-      this.clickAudio.volume = 0.6; // 60% volume - crisp but not overwhelming
+      this.clickAudio.volume = 0.9; // 90% volume (increased 50% from 0.6)
       this.clickAudio.muted = this.isMuted;
     }
   }
@@ -255,7 +255,7 @@ export class AudioManager {
 
         // Create a gain node for volume control
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.6; // 60% volume - crisp but not overwhelming
+        gainNode.gain.value = 0.9; // 90% volume (increased 50% from 0.6)
 
         // Connect: source -> gain -> destination
         source.connect(gainNode);
@@ -303,7 +303,7 @@ export class AudioManager {
       this.homeAudio.volume = normalizedVolume * 0.05; // Keep home at 5% - reduced so buzz and beep are audible
     }
     if (this.buzzAudio) {
-      this.buzzAudio.volume = normalizedVolume * 0.5; // Keep buzz at 50%
+      this.buzzAudio.volume = normalizedVolume * 0.75; // Keep buzz at 75% (increased 50% from 0.5)
     }
   }
 
