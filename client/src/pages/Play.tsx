@@ -587,8 +587,26 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
       return;
     }
 
-    // For ring mode, validate terms acceptance before showing confirmation dialog
+    // For ring mode, validate email is required and valid
     if (isRing) {
+      if (!email.trim()) {
+        toast({
+          title: "Email Required",
+          description: "Please enter your email address. It's required for trivia attempts and raffle eligibility.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        toast({
+          title: "Invalid Email",
+          description: "Please enter a valid email address.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (!acceptedTerms) {
         setShowTermsError(true);
         setTimeout(() => setShowTermsError(false), 3000);
@@ -657,7 +675,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-semibold text-white/80">
-                      Email address
+                      Email address <span className="text-red-400">*</span>
                     </Label>
                     <Input
                       id="email"
@@ -667,9 +685,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       placeholder="your.name@company.com"
                       className="border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400"
                       data-testid="input-email"
+                      required
                     />
                     <p className="text-xs text-slate-300/70">
-                      Required for raffle eligibility. By submitting, you consent to being contacted if you win.
+                      Required for trivia attempts and raffle eligibility. By submitting, you consent to being contacted if you win.
                     </p>
                   </div>
 
