@@ -21,6 +21,13 @@ export default function Home() {
   // Gyroscope-based 3D tilt effect state
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
+  // Play home sound on mount
+  useEffect(() => {
+    audioManager.playHomeSound().catch(err => {
+      console.log('Home sound playback prevented by browser:', err);
+    });
+  }, []);
+
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
