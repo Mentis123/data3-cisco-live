@@ -128,10 +128,10 @@ function App() {
             // Get the href before any async operations
             const href = anchor.href;
 
-            // Wait 50ms for the sound to start, then navigate
+            // Wait 100ms for the full beep to play, then navigate
             setTimeout(() => {
               window.location.href = href;
-            }, 50);
+            }, 100);
           }
         }
       }
