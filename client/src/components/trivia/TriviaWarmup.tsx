@@ -270,11 +270,21 @@ export function TriviaWarmup({
     }
 
     if (mode === "ring") {
+      console.log("[TriviaWarmup] Ring mode - checking prerequisites:", {
+        sanitizedEmail,
+        attemptId,
+        isCreatingAttempt,
+        attemptError,
+        attemptQuestions: attemptQuestions.length
+      });
+
       if (!sanitizedEmail) {
+        console.warn("[TriviaWarmup] No sanitized email found - cannot create attempt");
         return;
       }
 
       if (!attemptId && !isCreatingAttempt && !attemptError) {
+        console.log("[TriviaWarmup] Starting attempt creation for track:", selectedTrack.id);
         const createAttempt = async () => {
           setIsCreatingAttempt(true);
           setAttemptQuestions([]);
