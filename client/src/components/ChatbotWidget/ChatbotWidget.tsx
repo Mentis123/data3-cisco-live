@@ -21,7 +21,7 @@ export function ChatbotWidget() {
         onClick={() => setIsOpen(true)}
         className={cn(
           "fixed bottom-4 right-4 z-50",
-          "h-14 w-14 rounded-full",
+          "h-12 w-12 rounded-full",
           "bg-primary text-primary-foreground",
           "shadow-lg hover:shadow-xl",
           "transition-all duration-300 ease-out",
