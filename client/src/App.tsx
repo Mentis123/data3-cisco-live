@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, useRouter } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -69,7 +69,7 @@ function Router() {
 }
 
 function App() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const homeSoundPlayedRef = useRef(false);
 
   // Play background hum on first user interaction
@@ -150,12 +150,13 @@ function App() {
             // Prevent default navigation
             event.preventDefault();
 
-            // Get the href before any async operations
-            const href = anchor.href;
+            // Get the pathname from the href (for client-side routing)
+            const url = new URL(anchor.href);
+            const targetPath = url.pathname + url.search + url.hash;
 
-            // Wait 100ms for the full beep to play, then navigate
+            // Wait 100ms for the full beep to play, then navigate using client-side routing
             setTimeout(() => {
-              window.location.href = href;
+              navigate(targetPath);
             }, 100);
             return;
           }
