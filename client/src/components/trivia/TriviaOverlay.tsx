@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { X } from "lucide-react";
 
 import {
@@ -40,6 +40,104 @@ export function TriviaOverlay({
   isShuffling,
 }: TriviaOverlayProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scaleState, setScaleState] = useState<{ scale: number; height: number }>({
+    scale: 1,
+    height: 0,
+  });
+
+  useEffect(() => {
+    let frame: number | null = null;
+
+    const updateScale = () => {
+      const containerEl = containerRef.current;
+      const contentEl = contentRef.current;
+
+      if (!containerEl || !contentEl) {
+        setScaleState((prev) => (prev.scale === 1 ? prev : { scale: 1, height: 0 }));
+        return;
+      }
+
+      const availableHeight = containerEl.clientHeight;
+      const naturalHeight = contentEl.scrollHeight;
+
+      if (availableHeight <= 0 || naturalHeight <= 0) {
+        setScaleState((prev) => (prev.scale === 1 ? prev : { scale: 1, height: 0 }));
+        return;
+      }
+
+      const verticalPadding = Math.max(24, Math.min(64, availableHeight * 0.08));
+      const usableHeight = availableHeight - verticalPadding;
+      const heightScale = usableHeight > 0 ? usableHeight / naturalHeight : availableHeight / naturalHeight;
+      const rawScale = Math.min(1, heightScale);
+      const nextScale = Number.isFinite(rawScale) && rawScale > 0 ? rawScale : 1;
+      const scaledHeight = naturalHeight * nextScale;
+
+      setScaleState((prev) => {
+        if (
+          Math.abs(prev.scale - nextScale) < 0.01 &&
+          Math.abs(prev.height - scaledHeight) < 1
+        ) {
+          return prev;
+        }
+        return { scale: nextScale, height: scaledHeight };
+      });
+    };
+
+    const queueUpdate = () => {
+      if (frame !== null) {
+        return;
+      }
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        updateScale();
+      });
+    };
+
+    queueUpdate();
+
+    const handleResize: ResizeObserverCallback = () => {
+      queueUpdate();
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(handleResize) : null;
+
+    if (resizeObserver) {
+      if (containerRef.current) {
+        resizeObserver.observe(containerRef.current);
+      }
+      if (contentRef.current) {
+        resizeObserver.observe(contentRef.current);
+      }
+    }
+
+    window.addEventListener("resize", queueUpdate);
+    window.addEventListener("orientationchange", queueUpdate);
+
+    return () => {
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+      window.removeEventListener("resize", queueUpdate);
+      window.removeEventListener("orientationchange", queueUpdate);
+      resizeObserver?.disconnect();
+    };
+  }, [mode, questions.length]);
+
+  const scaledWrapperStyle: CSSProperties | undefined =
+    scaleState.scale < 1
+      ? {
+          transform: `scale(${scaleState.scale})`,
+          transformOrigin: "top center",
+        }
+      : undefined;
+
+  const reservedStyle: CSSProperties | undefined =
+    scaleState.scale < 1 && scaleState.height > 0
+      ? { height: `${scaleState.height}px` }
+      : undefined;
 
   const handleExitClick = () => {
     setShowExitConfirm(true);
@@ -66,47 +164,56 @@ export function TriviaOverlay({
         </button>
 
         {/* Trivia game container */}
-        <div className="relative flex h-full w-full max-w-5xl items-center justify-center">
-          <TriviaGame
-            className="h-[calc(100svh-2.5rem)] w-full rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10 supports-[height:100dvh]:h-[calc(100dvh-2.5rem)]"
-            questions={questions}
-            track={track}
-            mode={mode}
-            onComplete={(score) => {
-              onComplete?.(score);
-            }}
-            completionRender={({ score, restart }) => (
-              <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">
-                {mode === "dojo" && onShuffle && (
-                  <Button
-                    onClick={() => {
-                      void onShuffle();
-                    }}
-                    disabled={isShuffling}
-                    className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-6 font-semibold text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] transition-all hover:scale-105 hover:shadow-[0_25px_80px_-45px_rgba(34,197,94,0.85)] active:scale-95 max-[480px]:w-full max-[480px]:text-sm"
-                  >
-                    {isShuffling ? "Shuffling…" : "Mix It Up"}
-                  </Button>
-                )}
-                {mode === "ring" && onContinue && (
-                  <Button
-                    onClick={() => onContinue(score)}
-                    className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
-                  >
-                    {continueLabel || "Pitch your project"}
-                  </Button>
-                )}
-                {mode === "dojo" && (
-                  <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
-                    Try Again
-                  </Button>
-                )}
-                <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
-                  Abandon attempt
-                </Button>
+        <div
+          ref={containerRef}
+          className="relative flex h-full w-full max-w-5xl items-center justify-center"
+        >
+          <div className="w-full max-w-[720px]" style={reservedStyle}>
+            <div style={scaledWrapperStyle}>
+              <div ref={contentRef} className="w-full max-w-[720px]">
+                <TriviaGame
+                  className="h-[calc(100svh-2.5rem)] w-full rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10 supports-[height:100dvh]:h-[calc(100dvh-2.5rem)]"
+                  questions={questions}
+                  track={track}
+                  mode={mode}
+                  onComplete={(score) => {
+                    onComplete?.(score);
+                  }}
+                  completionRender={({ score, restart }) => (
+                    <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">
+                      {mode === "dojo" && onShuffle && (
+                        <Button
+                          onClick={() => {
+                            void onShuffle();
+                          }}
+                          disabled={isShuffling}
+                          className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-6 font-semibold text-white shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] transition-all hover:scale-105 hover:shadow-[0_25px_80px_-45px_rgba(34,197,94,0.85)] active:scale-95 max-[480px]:w-full max-[480px]:text-sm"
+                        >
+                          {isShuffling ? "Shuffling…" : "Mix It Up"}
+                        </Button>
+                      )}
+                      {mode === "ring" && onContinue && (
+                        <Button
+                          onClick={() => onContinue(score)}
+                          className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
+                        >
+                          {continueLabel || "Pitch your project"}
+                        </Button>
+                      )}
+                      {mode === "dojo" && (
+                        <Button variant="secondary" onClick={restart} className="max-[480px]:w-full">
+                          Try Again
+                        </Button>
+                      )}
+                      <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
+                        Abandon attempt
+                      </Button>
+                    </div>
+                  )}
+                />
               </div>
-            )}
-          />
+            </div>
+          </div>
         </div>
       </div>
 
