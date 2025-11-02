@@ -12,6 +12,8 @@ export class AudioManager {
   private homeAudio: HTMLAudioElement | null = null;
   private buzzAudio: HTMLAudioElement | null = null;
   private clickAudio: HTMLAudioElement | null = null;
+  private audioContext: AudioContext | null = null;
+  private clickAudioBuffer: AudioBuffer | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
   private isImmersive: boolean = false; // Default to immersive mode OFF
@@ -24,6 +26,7 @@ export class AudioManager {
     }
 
     this.initializeAudioElements();
+    this.initializeWebAudio();
   }
 
   private initializeAudioElements() {
@@ -65,6 +68,43 @@ export class AudioManager {
       this.clickAudio.preload = "auto";
       this.clickAudio.volume = 0.6; // 60% volume - crisp but not overwhelming
       this.clickAudio.muted = this.isMuted;
+    }
+  }
+
+  private initializeWebAudio() {
+    if (!this.isAudioSupported) {
+      return;
+    }
+
+    try {
+      // Create AudioContext for Web Audio API
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        this.audioContext = new AudioContextClass();
+
+        // Load click sound as AudioBuffer for instant playback
+        this.loadClickAudioBuffer();
+      }
+    } catch (error) {
+      console.warn('Web Audio API not supported, falling back to HTMLAudioElement:', error);
+    }
+  }
+
+  private async loadClickAudioBuffer() {
+    if (!this.audioContext) {
+      return;
+    }
+
+    try {
+      // Fetch the click sound file
+      const response = await fetch(clickSoundFile);
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Decode the audio data into an AudioBuffer
+      this.clickAudioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      console.log('[AudioManager] Click sound AudioBuffer loaded and ready');
+    } catch (error) {
+      console.warn('Failed to load click AudioBuffer, falling back to HTMLAudioElement:', error);
     }
   }
 
@@ -148,11 +188,6 @@ export class AudioManager {
   }
 
   public playClickSound(): void {
-    if (!this.ensureAudioReady() || !this.clickAudio) {
-      console.log('[AudioManager] Click sound not ready');
-      return;
-    }
-
     // Click sounds should only play when immersive mode is enabled
     if (!this.isImmersive) {
       console.log('[AudioManager] Click sound skipped - immersive mode is off');
@@ -165,12 +200,46 @@ export class AudioManager {
       return;
     }
 
+    // Try Web Audio API first (much faster playback)
+    if (this.audioContext && this.clickAudioBuffer) {
+      try {
+        // Resume AudioContext if it's suspended (browser autoplay policy)
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+
+        // Create a new buffer source node (they're single-use)
+        const source = this.audioContext.createBufferSource();
+        source.buffer = this.clickAudioBuffer;
+
+        // Create a gain node for volume control
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = 0.6; // 60% volume - crisp but not overwhelming
+
+        // Connect: source -> gain -> destination
+        source.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        // Play immediately
+        source.start(0);
+        console.log('[AudioManager] Playing click sound via Web Audio API');
+        return;
+      } catch (error) {
+        console.warn('Web Audio API playback failed, falling back to HTMLAudioElement:', error);
+      }
+    }
+
+    // Fallback to HTMLAudioElement if Web Audio API is not available
+    if (!this.ensureAudioReady() || !this.clickAudio) {
+      console.log('[AudioManager] Click sound not ready');
+      return;
+    }
+
     // Reset to beginning if already playing
     this.clickAudio.currentTime = 0;
 
     // Play the click sound immediately (non-blocking)
-    // Using .catch() instead of try/catch to avoid any async delays
-    console.log('[AudioManager] Playing click sound');
+    console.log('[AudioManager] Playing click sound via HTMLAudioElement (fallback)');
     this.clickAudio.play().catch(error => {
       console.warn('Could not play click sound:', error);
       // Don't throw error - audio failure shouldn't break the app

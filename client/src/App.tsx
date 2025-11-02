@@ -100,19 +100,48 @@ function App() {
       const target = event.target as HTMLElement;
 
       // Check if the clicked element or any of its parents is a button or link
-      const isClickable = target.closest('button, a, [role="button"], [role="link"]');
+      const clickableElement = target.closest('button, a, [role="button"], [role="link"]');
 
-      if (isClickable) {
-        // audioManager.playClickSound() already checks for immersive mode and muted state
+      if (clickableElement) {
+        // Play the click sound
         audioManager.playClickSound();
+
+        // For links, add a small delay before navigation to ensure sound starts
+        const linkElement = clickableElement.closest('a[href]');
+        if (linkElement) {
+          const anchor = linkElement as HTMLAnchorElement;
+
+          // Only delay navigation for internal links (not external or special links)
+          const isInternalLink = anchor.href &&
+                                !anchor.target &&
+                                !anchor.href.startsWith('mailto:') &&
+                                !anchor.href.startsWith('tel:') &&
+                                !anchor.href.startsWith('javascript:') &&
+                                !event.ctrlKey &&
+                                !event.metaKey &&
+                                !event.shiftKey;
+
+          if (isInternalLink) {
+            // Prevent default navigation
+            event.preventDefault();
+
+            // Get the href before any async operations
+            const href = anchor.href;
+
+            // Wait 50ms for the sound to start, then navigate
+            setTimeout(() => {
+              window.location.href = href;
+            }, 50);
+          }
+        }
       }
     };
 
-    // Add global click listener
-    document.addEventListener('click', handleGlobalClick);
+    // Add global click listener with capture phase to intercept before other handlers
+    document.addEventListener('click', handleGlobalClick, true);
 
     return () => {
-      document.removeEventListener('click', handleGlobalClick);
+      document.removeEventListener('click', handleGlobalClick, true);
     };
   }, []);
 
