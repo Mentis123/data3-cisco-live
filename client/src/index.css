@@ -435,14 +435,16 @@
     transition: inherit;
   }
 
-  .nav-tile-button-inner::before {
-    content: "";
+  .nav-tile-button-shine {
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     background: linear-gradient(-65deg, #0000 40%, #fff7 50%, #0000 70%);
     background-size: 200% 100%;
     background-repeat: no-repeat;
     animation: shine-sweep 7s ease infinite;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .nav-tile-button-top-white {
@@ -458,6 +460,7 @@
       transparent 78%
     );
     transition: inherit;
+    z-index: 1;
   }
 
   .nav-tile-button-inner::after {
@@ -479,7 +482,7 @@
 
   .nav-tile-button-text {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     color: white;
     font-weight: 700;
     transition: inherit;
