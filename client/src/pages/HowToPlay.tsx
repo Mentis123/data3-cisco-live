@@ -113,7 +113,10 @@ export default function HowToPlay() {
             <AccordionItem value="step-1" className="border-b border-white/10 last:border-b-0">
               <AccordionTrigger className="px-6 text-left text-lg font-semibold text-white">
                 <span className="flex items-center gap-3">
-                  <Badge variant="outline" className="border-cyan-300/50 bg-cyan-500/10 text-xs uppercase tracking-[0.3em] text-cyan-200">
+                  <Badge
+                    variant="outline"
+                    className="border-cyan-300/50 bg-cyan-500/10 px-3 text-xs uppercase tracking-[0.2em] text-cyan-200 whitespace-nowrap"
+                  >
                     Step 1
                   </Badge>
                   <span>Choose your category</span>
@@ -241,7 +244,10 @@ export default function HowToPlay() {
             <AccordionItem value="step-3" className="border-b border-white/10 last:border-b-0">
               <AccordionTrigger className="px-6 text-left text-lg font-semibold text-white">
                 <span className="flex items-center gap-3">
-                  <Badge variant="outline" className="border-purple-300/50 bg-purple-500/10 text-xs uppercase tracking-[0.3em] text-purple-200">
+                  <Badge
+                    variant="outline"
+                    className="border-purple-300/50 bg-purple-500/10 px-3 text-xs uppercase tracking-[0.2em] text-purple-200 whitespace-nowrap"
+                  >
                     Step 3
                   </Badge>
                   <span>Pitch your solution</span>
@@ -318,7 +324,10 @@ export default function HowToPlay() {
             <AccordionItem value="step-4" className="border-b border-white/10 last:border-b-0">
               <AccordionTrigger className="px-6 text-left text-lg font-semibold text-white">
                 <span className="flex items-center gap-3">
-                  <Badge variant="outline" className="border-cyan-300/60 bg-cyan-500/10 text-xs uppercase tracking-[0.3em] text-cyan-200">
+                  <Badge
+                    variant="outline"
+                    className="border-cyan-300/60 bg-cyan-500/10 px-3 text-xs uppercase tracking-[0.2em] text-cyan-200 whitespace-nowrap"
+                  >
                     Step 4
                   </Badge>
                   <span>Beat the Bot Bar</span>
