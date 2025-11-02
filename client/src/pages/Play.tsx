@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { audioManager } from "@/lib/audio";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -323,6 +324,9 @@ Just describe it naturally - what's the problem that needs solving?`
       );
 
       console.log('[Play] Navigating to /announcement');
+
+      // Play click sound before navigation
+      audioManager.playClickSound();
 
       // Navigate to announcement page
       setLocation('/announcement');
@@ -743,7 +747,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 <Button
                   variant="ghost"
-                  onClick={() => setLocation(exitDestination)}
+                  onClick={() => {
+                    audioManager.playClickSound();
+                    setLocation(exitDestination);
+                  }}
                   className="w-full border border-white/10 bg-transparent text-slate-200 hover:bg-white/10"
                 >
                   <i className="fas fa-arrow-left mr-2"></i>
@@ -811,7 +818,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation(exitDestination)}
+              onClick={() => {
+                audioManager.playClickSound();
+                setLocation(exitDestination);
+              }}
               className="text-muted-foreground hover:text-foreground"
               data-testid="button-home-registration"
             >
@@ -1637,7 +1647,10 @@ Just describe it naturally - what's the problem that needs solving?`
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
-          <AlertDialogAction onClick={() => setLocation(exitDestination)}>
+          <AlertDialogAction onClick={() => {
+            audioManager.playClickSound();
+            setLocation(exitDestination);
+          }}>
             Exit to Home
           </AlertDialogAction>
         </AlertDialogFooter>

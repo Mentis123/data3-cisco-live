@@ -99,6 +99,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       if (onDismiss) {
         onDismiss();
       } else {
+        audioManager.playClickSound();
         setLocation('/leaderboard');
       }
     }, 15000); // Show for 15 seconds total
@@ -110,6 +111,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     if (onDismiss) {
       onDismiss();
     } else {
+      audioManager.playClickSound();
       setLocation('/leaderboard');
     }
   };
@@ -419,7 +421,10 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             <div className="announcement-slide-up" style={{ animationDelay: '2.1s' }}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button
-                  onClick={() => setLocation('/leaderboard')}
+                  onClick={() => {
+                    audioManager.playClickSound();
+                    setLocation('/leaderboard');
+                  }}
                   className="text-xl px-8 py-4 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
                   data-testid="button-view-leaderboard"
                 >
@@ -519,7 +524,10 @@ export function NewSubmissionAnnouncementPage() {
   return (
     <NewSubmissionAnnouncement
       submission={submissionData}
-      onDismiss={() => setLocation('/leaderboard')}
+      onDismiss={() => {
+        audioManager.playClickSound();
+        setLocation('/leaderboard');
+      }}
     />
   );
 }

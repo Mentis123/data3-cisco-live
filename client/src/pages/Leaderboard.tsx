@@ -172,9 +172,11 @@ export default function Leaderboard() {
 
     sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
 
+    audioManager.playClickSound();
     setLocation('/announcement');
 
     setTimeout(() => {
+      audioManager.playClickSound();
       setLocation(leaderboardPath);
     }, 10000);
 

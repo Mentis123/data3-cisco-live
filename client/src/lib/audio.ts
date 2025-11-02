@@ -2,6 +2,7 @@ import newChallengerSound from "@assets/new_challenger_1757850442377.mp3";
 import flashSound from "@assets/flash_1757855169590.mp3";
 import homeSoundFile from "@assets/home_sound.mp3";
 import buzzSoundFile from "@assets/buzz.mp3";
+import clickSoundFile from "@assets/click.mp3";
 
 // Audio manager for playing sound effects
 export class AudioManager {
@@ -10,6 +11,7 @@ export class AudioManager {
   private flashAudio: HTMLAudioElement | null = null;
   private homeAudio: HTMLAudioElement | null = null;
   private buzzAudio: HTMLAudioElement | null = null;
+  private clickAudio: HTMLAudioElement | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
 
@@ -56,6 +58,13 @@ export class AudioManager {
       this.buzzAudio.volume = 0.75; // 75% volume
       this.buzzAudio.muted = this.isMuted;
     }
+
+    if (!this.clickAudio) {
+      this.clickAudio = new Audio(clickSoundFile);
+      this.clickAudio.preload = "auto";
+      this.clickAudio.volume = 0.6; // 60% volume - crisp but not overwhelming
+      this.clickAudio.muted = this.isMuted;
+    }
   }
 
   private ensureAudioReady(): boolean {
@@ -63,11 +72,11 @@ export class AudioManager {
       return false;
     }
 
-    if (!this.challengerAudio || !this.flashAudio || !this.homeAudio || !this.buzzAudio) {
+    if (!this.challengerAudio || !this.flashAudio || !this.homeAudio || !this.buzzAudio || !this.clickAudio) {
       this.initializeAudioElements();
     }
 
-    return Boolean(this.challengerAudio && this.flashAudio && this.homeAudio && this.buzzAudio);
+    return Boolean(this.challengerAudio && this.flashAudio && this.homeAudio && this.buzzAudio && this.clickAudio);
   }
 
   public static getInstance(): AudioManager {
@@ -137,6 +146,21 @@ export class AudioManager {
     }
   }
 
+  public async playClickSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.clickAudio || this.isMuted) return;
+
+    try {
+      // Reset to beginning if already playing
+      this.clickAudio.currentTime = 0;
+
+      // Play the click sound
+      await this.clickAudio.play();
+    } catch (error) {
+      console.warn('Could not play click sound:', error);
+      // Don't throw error - audio failure shouldn't break the app
+    }
+  }
+
   public setVolume(volume: number): void {
     const normalizedVolume = Math.max(0, Math.min(1, volume));
     if (!this.ensureAudioReady()) {
@@ -190,6 +214,9 @@ export class AudioManager {
     if (this.buzzAudio) {
       this.buzzAudio.muted = this.isMuted;
     }
+    if (this.clickAudio) {
+      this.clickAudio.muted = this.isMuted;
+    }
   }
 
   public isMutedState(): boolean {
@@ -213,6 +240,10 @@ export class AudioManager {
       this.buzzAudio.pause();
       this.buzzAudio.currentTime = 0;
     }
+    if (this.clickAudio) {
+      this.clickAudio.pause();
+      this.clickAudio.currentTime = 0;
+    }
   }
 
   public preload(): void {
@@ -231,6 +262,9 @@ export class AudioManager {
     }
     if (this.buzzAudio) {
       this.buzzAudio.load();
+    }
+    if (this.clickAudio) {
+      this.clickAudio.load();
     }
   }
 }
