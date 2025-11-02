@@ -73,6 +73,8 @@ function App() {
         <Toaster />
         <ChatbotWidget />
         <VolumeToggle />
+        {/* Flash overlay for animations */}
+        <div id="flashOverlay" className="flash-overlay" />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>

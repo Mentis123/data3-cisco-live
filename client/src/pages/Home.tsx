@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import { audioManager } from "@/lib/audio";
+import { triggerFlashAndRise } from "@/lib/anim";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -41,6 +42,23 @@ export default function Home() {
       document.removeEventListener('click', playHomeSoundOnInteraction);
       document.removeEventListener('touchstart', playHomeSoundOnInteraction);
     };
+  }, []);
+
+  // Trigger flash animation when page loads
+  useEffect(() => {
+    const hasFlashedRef = sessionStorage.getItem('hasFlashedOnHome');
+
+    if (!hasFlashedRef) {
+      // Trigger flash after a short delay to let the page settle
+      const flashTimeout = setTimeout(() => {
+        triggerFlashAndRise(() => {
+          // Mark that we've shown the flash this session
+          sessionStorage.setItem('hasFlashedOnHome', 'true');
+        });
+      }, 800);
+
+      return () => clearTimeout(flashTimeout);
+    }
   }, []);
 
   // Initialize audio
