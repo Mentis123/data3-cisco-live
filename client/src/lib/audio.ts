@@ -11,7 +11,7 @@ export class AudioManager {
   private homeAudio: HTMLAudioElement | null = null;
   private buzzAudio: HTMLAudioElement | null = null;
   private isAudioSupported: boolean;
-  private isMuted: boolean = false;
+  private isMuted: boolean = true; // Default to muted (OFF)
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -32,12 +32,14 @@ export class AudioManager {
       this.challengerAudio = new Audio(newChallengerSound);
       this.challengerAudio.preload = "auto";
       this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+      this.challengerAudio.muted = this.isMuted;
     }
 
     if (!this.flashAudio) {
       this.flashAudio = new Audio(flashSound);
       this.flashAudio.preload = "auto";
       this.flashAudio.volume = 0.9; // Slightly louder for immediate impact
+      this.flashAudio.muted = this.isMuted;
     }
 
     if (!this.homeAudio) {
@@ -45,12 +47,14 @@ export class AudioManager {
       this.homeAudio.preload = "auto";
       this.homeAudio.volume = 0.2; // 20% volume
       this.homeAudio.loop = true; // Loop continuously
+      this.homeAudio.muted = this.isMuted;
     }
 
     if (!this.buzzAudio) {
       this.buzzAudio = new Audio(buzzSoundFile);
       this.buzzAudio.preload = "auto";
-      this.buzzAudio.volume = 0.5; // 50% volume as requested
+      this.buzzAudio.volume = 0.5; // 50% volume
+      this.buzzAudio.muted = this.isMuted;
     }
   }
 
@@ -104,13 +108,13 @@ export class AudioManager {
   }
 
   public async playHomeSound(): Promise<void> {
-    if (!this.ensureAudioReady() || !this.homeAudio || this.isMuted) return;
+    if (!this.ensureAudioReady() || !this.homeAudio) return;
 
     try {
       // Reset to beginning if already playing
       this.homeAudio.currentTime = 0;
 
-      // Play the home sound
+      // Play the home sound (will loop continuously, respects muted property)
       await this.homeAudio.play();
     } catch (error) {
       console.warn('Could not play home sound:', error);
@@ -156,10 +160,8 @@ export class AudioManager {
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
 
-    // Stop all currently playing audio when muting
-    if (this.isMuted) {
-      this.stopAll();
-    }
+    // Update muted state on all audio elements
+    this.updateMutedState();
 
     return this.isMuted;
   }
@@ -167,9 +169,26 @@ export class AudioManager {
   public setMute(muted: boolean): void {
     this.isMuted = muted;
 
-    // Stop all currently playing audio when muting
-    if (this.isMuted) {
-      this.stopAll();
+    // Update muted state on all audio elements
+    this.updateMutedState();
+  }
+
+  private updateMutedState(): void {
+    if (!this.ensureAudioReady()) {
+      return;
+    }
+
+    if (this.challengerAudio) {
+      this.challengerAudio.muted = this.isMuted;
+    }
+    if (this.flashAudio) {
+      this.flashAudio.muted = this.isMuted;
+    }
+    if (this.homeAudio) {
+      this.homeAudio.muted = this.isMuted;
+    }
+    if (this.buzzAudio) {
+      this.buzzAudio.muted = this.isMuted;
     }
   }
 

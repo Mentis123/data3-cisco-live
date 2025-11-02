@@ -4,7 +4,7 @@ import { audioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
 export function VolumeToggle() {
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Default to muted (OFF)
 
   useEffect(() => {
     // Initialize mute state from audioManager
