@@ -146,7 +146,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const activeCategoryTheme = getCategoryTheme(activeCategory || selectedCategory);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasUserInitiatedChatRef = useRef(false);
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
 
   // Email validation helper
   const isValidEmail = (email: string): boolean => {
@@ -154,10 +155,40 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     return emailRegex.test(email.trim());
   };
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [state.messages, isTyping]);
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+      setIsUserNearBottom(distanceFromBottom <= 120);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [registrationComplete, state.step, isRing]);
+
+  useEffect(() => {
+    if (state.messages.some((message) => message.role === "user")) {
+      hasUserInitiatedChatRef.current = true;
+    }
+
+    if (!hasUserInitiatedChatRef.current || !isUserNearBottom) {
+      return;
+    }
+
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [state.messages, isTyping, isUserNearBottom]);
 
   // Check for max inputs
   useEffect(() => {
@@ -349,6 +380,8 @@ Just describe it naturally - what's the problem that needs solving?`
     }
 
     const userMessage = currentMessage.trim();
+    hasUserInitiatedChatRef.current = true;
+    setIsUserNearBottom(true);
     setCurrentMessage("");
     setIsTyping(true);
 
@@ -1807,8 +1840,8 @@ Just describe it naturally - what's the problem that needs solving?`
                   </div>
                 </div>
               )}
-            <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl overflow-hidden">
-              <div className="relative border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
+            <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
+              <div className="sticky top-0 z-20 border-b border-white/10 bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div className="space-y-1 flex-1">
                     <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
@@ -1913,7 +1946,6 @@ Just describe it naturally - what's the problem that needs solving?`
                     </div>
                   </div>
                 )}
-                <div ref={messagesEndRef} />
               </div>
               <div className="sticky bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 sm:p-6 lg:static lg:bg-slate-950/60 lg:backdrop-blur-none backdrop-blur-xl">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -1978,54 +2010,56 @@ Just describe it naturally - what's the problem that needs solving?`
   return (
     <>
       <div className="min-h-screen min-h-[100dvh] bg-background text-foreground flex flex-col">
-        <div className="flex-1 flex flex-col safe-area-padding overflow-hidden">
-          <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
-            <Card className="glass-panel border-0 overflow-hidden flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col safe-area-padding">
+          <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col px-2 sm:px-4 py-4">
+            <Card className="glass-panel border-0 flex-1 flex flex-col">
               {/* Chat Header */}
-              <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground flex-shrink-0">
-                <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
-                <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
-                <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
-              <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                      <i className="fas fa-robot text-lg sm:text-2xl"></i>
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
-                    </div>
-                  </div>
+              <div className="sticky top-0 z-20 flex-shrink-0">
+                <div className="relative bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground">
+                  <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+                  <div className="absolute -top-12 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" aria-hidden="true" />
+                  <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+                  <div className="relative z-10 p-4 sm:p-6 space-y-3 sm:space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/15 border border-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                          <i className="fas fa-robot text-lg sm:text-2xl"></i>
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="text-xl sm:text-2xl font-semibold leading-tight">Sprint Coach</h3>
+                        </div>
+                      </div>
 
-                  <div className="ml-auto flex items-center gap-2">
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border border-white/30 bg-white/10 text-white/90 hover:bg-white/20"
-                      >
-                        <i className="fas fa-bolt mr-2"></i>
-                        Practice cards
-                      </Button>
-                    </DialogTrigger>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowExitDialog(true)}
-                      className="text-white/90 hover:text-white hover:bg-white/20"
-                      data-testid="button-exit-chat"
-                    >
-                      <i className="fas fa-home mr-2"></i>
-                      Exit
-                    </Button>
-                  </div>
-                </div>
+                      <div className="ml-auto flex items-center gap-2">
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border border-white/30 bg-white/10 text-white/90 hover:bg-white/20"
+                          >
+                            <i className="fas fa-bolt mr-2"></i>
+                            Practice cards
+                          </Button>
+                        </DialogTrigger>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowExitDialog(true)}
+                          className="text-white/90 hover:text-white hover:bg-white/20"
+                          data-testid="button-exit-chat"
+                        >
+                          <i className="fas fa-home mr-2"></i>
+                          Exit
+                        </Button>
+                      </div>
+                    </div>
 
-                <SprintStepper
-                  currentStep={state.step}
-                  completedSteps={state.completedSteps}
-                    onStepClick={handleStepClick}
-                  />
+                    <SprintStepper
+                      currentStep={state.step}
+                      completedSteps={state.completedSteps}
+                      onStepClick={handleStepClick}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -2075,7 +2109,6 @@ Just describe it naturally - what's the problem that needs solving?`
                     </div>
                   </div>
                 )}
-                <div ref={messagesEndRef} />
               </div>
 
               {/* Chat Input */}
