@@ -200,6 +200,21 @@ export class AudioManager {
     }
   }
 
+  public ensureHomeSoundPlaying(): void {
+    if (!this.ensureAudioReady() || !this.homeAudio) return;
+
+    // Only ensure playing if immersive mode is on and not muted
+    if (!this.isImmersive || this.isMuted) return;
+
+    // Check if the home sound is not playing
+    if (this.homeAudio.paused) {
+      console.log('[AudioManager] Home sound was paused, restarting...');
+      this.homeAudio.play().catch(err => {
+        console.warn('Could not restart home sound:', err);
+      });
+    }
+  }
+
   public async playBuzzSound(): Promise<void> {
     // Buzz sound should only play when immersive mode is enabled
     if (!this.isImmersive) {
