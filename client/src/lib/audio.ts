@@ -65,7 +65,7 @@ export class AudioManager {
     if (!this.challengerAudio) {
       this.challengerAudio = new Audio(newChallengerSound);
       this.challengerAudio.preload = "auto";
-      this.challengerAudio.volume = 0.8; // Loud but not overwhelming
+      this.challengerAudio.volume = 0.4; // Reduced by 50% from 0.8
       this.challengerAudio.muted = this.isMuted;
     }
 
@@ -79,7 +79,7 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.05; // 5% volume - reduced so buzz and beep are audible
+      this.homeAudio.volume = 0.075; // 7.5% volume (increased by 50% from 5%)
       this.homeAudio.loop = true; // Loop continuously
       this.homeAudio.muted = this.isMuted;
     }
@@ -315,7 +315,7 @@ export class AudioManager {
       this.flashAudio.volume = normalizedVolume;
     }
     if (this.homeAudio) {
-      this.homeAudio.volume = normalizedVolume * 0.05; // Keep home at 5% - reduced so buzz and beep are audible
+      this.homeAudio.volume = normalizedVolume * 0.075; // Keep home at 7.5% (increased by 50% from 5%)
     }
     if (this.buzzAudio) {
       this.buzzAudio.volume = normalizedVolume * 0.5; // Keep buzz at 50%

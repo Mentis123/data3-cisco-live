@@ -30,7 +30,7 @@ export default function Home() {
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
-    audioRef.current.volume = 0.2; // Reduced to half
+    audioRef.current.volume = 0.1; // Reduced by 50% from 0.2
     audioRef.current.playbackRate = 0.8; // Play at 80% speed
 
     // For mobile browsers, we need to prime the audio on user interaction
@@ -246,10 +246,10 @@ export default function Home() {
         if (audioRef.current) {
           // Add event listener to play new challenger sound after stone sliding sound ends
           audioRef.current.onended = () => {
-            // Play new challenger sound at reduced volume (40%)
+            // Play new challenger sound at reduced volume (20%, which is 50% quieter than the base 0.4)
             const originalVolume = audioManager['challengerAudio']?.volume;
             if (audioManager['challengerAudio']) {
-              audioManager['challengerAudio'].volume = 0.4;
+              audioManager['challengerAudio'].volume = 0.2;
             }
             audioManager.playNewChallengerSound().catch(err => {
               console.log('Challenger sound playback prevented by browser:', err);
