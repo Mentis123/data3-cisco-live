@@ -8,6 +8,18 @@ export function ImmersiveToggle() {
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
+    if (!showTooltip) return;
+
+    const timeout = window.setTimeout(() => {
+      setShowTooltip(false);
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [showTooltip]);
+
+  useEffect(() => {
     // Initialize immersive state from audioManager
     setIsImmersive(audioManager.isImmersiveMode());
   }, []);
