@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatNameToInitials } from "@/lib/utils";
+import { audioManager } from "@/lib/audio";
 
 interface SubmissionData {
   id: string;
@@ -70,6 +71,11 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
   // Animation sequence
   useEffect(() => {
+    // Play buzz sound immediately when flash animation starts
+    audioManager.playBuzzSound().catch(err => {
+      console.log('Buzz sound playback prevented by browser:', err);
+    });
+
     const timer1 = setTimeout(() => {
       setAnimationPhase('reveal');
       setShowContent(true);

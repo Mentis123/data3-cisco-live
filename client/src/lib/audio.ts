@@ -43,7 +43,8 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.5; // 50% volume as requested
+      this.homeAudio.volume = 0.2; // 20% volume
+      this.homeAudio.loop = true; // Loop continuously
     }
 
     if (!this.buzzAudio) {
@@ -145,7 +146,7 @@ export class AudioManager {
       this.flashAudio.volume = normalizedVolume;
     }
     if (this.homeAudio) {
-      this.homeAudio.volume = normalizedVolume * 0.5; // Keep home at 50%
+      this.homeAudio.volume = normalizedVolume * 0.2; // Keep home at 20%
     }
     if (this.buzzAudio) {
       this.buzzAudio.volume = normalizedVolume * 0.5; // Keep buzz at 50%
