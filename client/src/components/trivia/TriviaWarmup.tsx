@@ -496,6 +496,11 @@ export function TriviaWarmup({
     );
   }
 
+  // In ring mode, hide the component after trivia is completed to let parent take over
+  if (mode === "ring" && triviaCompleted) {
+    return null;
+  }
+
   if (!selectedTrack) {
     return (
       <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
