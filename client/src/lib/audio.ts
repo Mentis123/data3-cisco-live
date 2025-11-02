@@ -16,7 +16,7 @@ export class AudioManager {
   private clickAudioBuffer: AudioBuffer | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
-  private isImmersive: boolean = false; // Default to immersive mode OFF
+  private isImmersive: boolean = false; // Will be loaded from localStorage
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -25,8 +25,36 @@ export class AudioManager {
       return;
     }
 
+    // Load immersive mode state from localStorage
+    this.loadImmersiveState();
+
     this.initializeAudioElements();
     this.initializeWebAudio();
+  }
+
+  private loadImmersiveState(): void {
+    try {
+      const savedState = localStorage.getItem('immersiveMode');
+      if (savedState !== null) {
+        this.isImmersive = savedState === 'true';
+        // If immersive mode was on, unmute audio
+        if (this.isImmersive) {
+          this.isMuted = false;
+        }
+        console.log('[AudioManager] Loaded immersive state from localStorage:', this.isImmersive);
+      }
+    } catch (error) {
+      console.warn('[AudioManager] Failed to load immersive state from localStorage:', error);
+    }
+  }
+
+  private saveImmersiveState(): void {
+    try {
+      localStorage.setItem('immersiveMode', String(this.isImmersive));
+      console.log('[AudioManager] Saved immersive state to localStorage:', this.isImmersive);
+    } catch (error) {
+      console.warn('[AudioManager] Failed to save immersive state to localStorage:', error);
+    }
   }
 
   private initializeAudioElements() {
@@ -173,7 +201,19 @@ export class AudioManager {
   }
 
   public async playBuzzSound(): Promise<void> {
-    if (!this.ensureAudioReady() || !this.buzzAudio || this.isMuted) return;
+    // Buzz sound should only play when immersive mode is enabled
+    if (!this.isImmersive) {
+      console.log('[AudioManager] Buzz sound skipped - immersive mode is off');
+      return;
+    }
+
+    // Respect the muted state
+    if (this.isMuted) {
+      console.log('[AudioManager] Buzz sound skipped - audio is muted');
+      return;
+    }
+
+    if (!this.ensureAudioReady() || !this.buzzAudio) return;
 
     try {
       // Reset to beginning if already playing
@@ -181,6 +221,7 @@ export class AudioManager {
 
       // Play the buzz sound
       await this.buzzAudio.play();
+      console.log('[AudioManager] Playing buzz sound');
     } catch (error) {
       console.warn('Could not play buzz sound:', error);
       // Don't throw error - audio failure shouldn't break the app
@@ -328,6 +369,9 @@ export class AudioManager {
       this.stopAll();
     }
 
+    // Save state to localStorage
+    this.saveImmersiveState();
+
     return this.isImmersive;
   }
 
@@ -348,6 +392,9 @@ export class AudioManager {
       this.setMute(true);
       this.stopAll();
     }
+
+    // Save state to localStorage
+    this.saveImmersiveState();
   }
 
   public isImmersiveMode(): boolean {
