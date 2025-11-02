@@ -80,7 +80,7 @@ export default function Home() {
   // Align buzz sound with navigation tile shine animation
   useEffect(() => {
     const ANIMATION_DURATION = 7000; // 7 seconds as defined in CSS
-    const BUZZ_LEAD_TIME = 100; // Play buzz 100ms before the shine sweep
+    const BUZZ_LEAD_TIME = 200; // Play buzz 200ms before the shine sweep
 
     const scheduleBuzzSound = () => {
       if (!userInteractedRef.current) {
