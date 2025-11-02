@@ -153,22 +153,25 @@ export class AudioManager {
       return;
     }
 
-    // Click sounds are UI feedback and should always play,
-    // regardless of immersive mode state
-    try {
-      // Temporarily unmute for click sound if needed
-      const wasClickMuted = this.clickAudio.muted;
-      this.clickAudio.muted = false;
+    // Click sounds should only play when immersive mode is enabled
+    if (!this.isImmersive) {
+      console.log('[AudioManager] Click sound skipped - immersive mode is off');
+      return;
+    }
 
+    // Respect the muted state
+    if (this.isMuted) {
+      console.log('[AudioManager] Click sound skipped - audio is muted');
+      return;
+    }
+
+    try {
       // Reset to beginning if already playing
       this.clickAudio.currentTime = 0;
 
       // Play the click sound
       console.log('[AudioManager] Playing click sound');
       await this.clickAudio.play();
-
-      // Restore previous muted state
-      this.clickAudio.muted = wasClickMuted;
     } catch (error) {
       console.warn('Could not play click sound:', error);
       // Don't throw error - audio failure shouldn't break the app
@@ -241,11 +244,15 @@ export class AudioManager {
     this.isImmersive = !this.isImmersive;
 
     if (this.isImmersive) {
-      console.log('[AudioManager] Immersive mode ON - unmuting audio');
+      console.log('[AudioManager] Immersive mode ON - unmuting audio and restarting home sound');
       // When turning on immersive mode, automatically unmute
       if (this.isMuted) {
         this.setMute(false);
       }
+      // Restart the background hum
+      this.playHomeSound().catch(err => {
+        console.log('Home sound playback prevented by browser:', err);
+      });
     } else {
       console.log('[AudioManager] Immersive mode OFF - muting and stopping all sounds');
       // When turning off immersive mode, mute and stop all sounds
@@ -264,6 +271,10 @@ export class AudioManager {
       if (this.isMuted) {
         this.setMute(false);
       }
+      // Restart the background hum
+      this.playHomeSound().catch(err => {
+        console.log('Home sound playback prevented by browser:', err);
+      });
     } else {
       // When turning off immersive mode, mute and stop all sounds
       this.setMute(true);
