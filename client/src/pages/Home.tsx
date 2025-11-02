@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import { audioManager } from "@/lib/audio";
-import { triggerFlashAndRise } from "@/lib/anim";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -19,6 +18,8 @@ export default function Home() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioReadyRef = useRef(false);
   const homeSoundPlayedRef = useRef(false);
+  const userInteractedRef = useRef(false);
+  const lastBuzzTimeRef = useRef(0);
 
   // Gyroscope-based 3D tilt effect state
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -26,6 +27,7 @@ export default function Home() {
   // Play home sound on first user interaction
   useEffect(() => {
     const playHomeSoundOnInteraction = () => {
+      userInteractedRef.current = true;
       if (!homeSoundPlayedRef.current) {
         homeSoundPlayedRef.current = true;
         audioManager.playHomeSound().catch(err => {
@@ -44,23 +46,6 @@ export default function Home() {
     };
   }, []);
 
-  // Trigger flash animation when page loads
-  useEffect(() => {
-    const hasFlashedRef = sessionStorage.getItem('hasFlashedOnHome');
-
-    if (!hasFlashedRef) {
-      // Trigger flash after a short delay to let the page settle
-      const flashTimeout = setTimeout(() => {
-        triggerFlashAndRise(() => {
-          // Mark that we've shown the flash this session
-          sessionStorage.setItem('hasFlashedOnHome', 'true');
-        });
-      }, 800);
-
-      return () => clearTimeout(flashTimeout);
-    }
-  }, []);
-
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/sliding_stone.mp3');
@@ -74,6 +59,7 @@ export default function Home() {
         audioRef.current.load();
         audioReadyRef.current = true;
       }
+      userInteractedRef.current = true;
     };
 
     // Listen for first user interaction to enable audio (required for mobile)
@@ -87,6 +73,37 @@ export default function Home() {
       }
       document.removeEventListener('touchstart', enableAudio);
       document.removeEventListener('click', enableAudio);
+    };
+  }, []);
+
+  // Align buzz sound with navigation tile shine animation
+  useEffect(() => {
+    const handleShineSweep = () => {
+      if (!userInteractedRef.current) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastBuzzTimeRef.current < 600) {
+        return;
+      }
+      lastBuzzTimeRef.current = now;
+
+      audioManager.playBuzzSound().catch(err => {
+        console.log('Buzz sound playback prevented by browser:', err);
+      });
+    };
+
+    const shineElements = Array.from(document.querySelectorAll('.nav-tile-button-shine')) as HTMLElement[];
+
+    shineElements.forEach(element => {
+      element.addEventListener('animationiteration', handleShineSweep);
+    });
+
+    return () => {
+      shineElements.forEach(element => {
+        element.removeEventListener('animationiteration', handleShineSweep);
+      });
     };
   }, []);
 
@@ -389,6 +406,7 @@ export default function Home() {
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <button className="nav-tile-button pointer-events-none">
                       <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-shine" aria-hidden="true"></div>
                         <div className="nav-tile-button-top-white"></div>
                         <span className="nav-tile-button-text text-2xl sm:text-3xl">Training Dojo</span>
                       </div>
@@ -425,6 +443,7 @@ export default function Home() {
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <button className="nav-tile-button pointer-events-none">
                       <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-shine" aria-hidden="true"></div>
                         <div className="nav-tile-button-top-white"></div>
                         <span className="nav-tile-button-text text-2xl sm:text-3xl">Enter the Ring</span>
                       </div>
@@ -461,6 +480,7 @@ export default function Home() {
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <button className="nav-tile-button pointer-events-none">
                       <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-shine" aria-hidden="true"></div>
                         <div className="nav-tile-button-top-white"></div>
                         <span className="nav-tile-button-text text-2xl sm:text-3xl">How to Play</span>
                       </div>
@@ -497,6 +517,7 @@ export default function Home() {
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <button className="nav-tile-button pointer-events-none">
                       <div className="nav-tile-button-inner">
+                        <div className="nav-tile-button-shine" aria-hidden="true"></div>
                         <div className="nav-tile-button-top-white"></div>
                         <span className="nav-tile-button-text text-2xl sm:text-3xl">View Leaderboard</span>
                       </div>
