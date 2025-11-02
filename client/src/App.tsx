@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -69,6 +69,7 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
   const homeSoundPlayedRef = useRef(false);
 
   // Play background hum on first user interaction
@@ -93,20 +94,44 @@ function App() {
     };
   }, []);
 
+  // Ensure home sound persists across page changes
+  // This fixes the issue where home_sound.mp3 would stop when navigating between pages
+  useEffect(() => {
+    // When the route changes, check if we need to resume the home sound
+    if (homeSoundPlayedRef.current && audioManager.isImmersiveMode()) {
+      // Small delay to ensure the page transition is complete
+      const resumeTimer = setTimeout(() => {
+        audioManager.ensureHomeSoundPlaying();
+      }, 50);
+
+      return () => clearTimeout(resumeTimer);
+    }
+  }, [location]);
+
   // Global click sound handler for all buttons and links
   // This persists across page navigations and plays the full sound
   useEffect(() => {
+    const processedEvents = new WeakSet<Event>();
+
     const handleGlobalClick = (event: MouseEvent) => {
+      // Skip if this event was already processed (prevents infinite loop)
+      if (processedEvents.has(event)) {
+        return;
+      }
+
       const target = event.target as HTMLElement;
 
       // Check if the clicked element or any of its parents is a button or link
       const clickableElement = target.closest('button, a, [role="button"], [role="link"]');
 
       if (clickableElement) {
+        // Mark this event as processed
+        processedEvents.add(event);
+
         // Play the click sound
         audioManager.playClickSound();
 
-        // For links, add a small delay before navigation to ensure sound starts
+        // For links, add a small delay before navigation to ensure sound plays
         const linkElement = clickableElement.closest('a[href]');
         if (linkElement) {
           const anchor = linkElement as HTMLAnchorElement;
@@ -132,7 +157,30 @@ function App() {
             setTimeout(() => {
               window.location.href = href;
             }, 100);
+            return;
           }
+        }
+
+        // For buttons, intercept the click and delay it slightly to ensure sound plays
+        // This applies to ALL buttons, including navigation buttons
+        if (clickableElement.tagName === 'BUTTON') {
+          // Stop propagation to prevent immediate onClick execution
+          event.stopPropagation();
+          event.preventDefault();
+
+          // Wait 100ms for the beep to play, then re-trigger the click
+          setTimeout(() => {
+            // Create a new click event that will trigger the original onClick handlers
+            const newEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            });
+            // Mark the new event as processed to avoid re-processing
+            processedEvents.add(newEvent);
+            // Dispatch the new event to the button
+            clickableElement.dispatchEvent(newEvent);
+          }, 100);
         }
       }
     };
