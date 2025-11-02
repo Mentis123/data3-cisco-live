@@ -397,7 +397,7 @@ export function TriviaGame({
   return (
     <Card
       className={cn(
-        "relative flex h-full w-full flex-col overflow-hidden border-white/10 bg-slate-900/70 text-white backdrop-blur",
+        "relative flex w-full flex-col overflow-hidden border-white/10 bg-slate-900/70 text-white backdrop-blur",
         "max-[520px]:rounded-2xl",
         className,
       )}
