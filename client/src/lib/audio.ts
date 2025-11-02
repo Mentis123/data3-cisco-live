@@ -147,7 +147,7 @@ export class AudioManager {
     }
   }
 
-  public async playClickSound(): Promise<void> {
+  public playClickSound(): void {
     if (!this.ensureAudioReady() || !this.clickAudio) {
       console.log('[AudioManager] Click sound not ready');
       return;
@@ -165,17 +165,16 @@ export class AudioManager {
       return;
     }
 
-    try {
-      // Reset to beginning if already playing
-      this.clickAudio.currentTime = 0;
+    // Reset to beginning if already playing
+    this.clickAudio.currentTime = 0;
 
-      // Play the click sound
-      console.log('[AudioManager] Playing click sound');
-      await this.clickAudio.play();
-    } catch (error) {
+    // Play the click sound immediately (non-blocking)
+    // Using .catch() instead of try/catch to avoid any async delays
+    console.log('[AudioManager] Playing click sound');
+    this.clickAudio.play().catch(error => {
       console.warn('Could not play click sound:', error);
       // Don't throw error - audio failure shouldn't break the app
-    }
+    });
   }
 
   public setVolume(volume: number): void {

@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
 
 import { Data3Logo } from "@/components/Data3Logo";
 import { audioManager } from "@/lib/audio";
@@ -24,21 +23,6 @@ export default function Home() {
 
   // Gyroscope-based 3D tilt effect state
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  // Track immersive mode state for test button
-  const [isImmersive, setIsImmersive] = useState(false);
-
-  // Check immersive mode state on mount and set up interval to check
-  useEffect(() => {
-    const checkImmersiveMode = () => {
-      setIsImmersive(audioManager.isImmersiveMode());
-    };
-
-    checkImmersiveMode();
-    const interval = setInterval(checkImmersiveMode, 100);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Note: Home sound now plays globally from App.tsx
   // This allows it to persist across page navigations
@@ -400,44 +384,6 @@ export default function Home() {
             <p className="text-lg sm:text-xl text-data3-white/90">Practice in the Dojo.</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Hit the Ring when you're ready.</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry.</p>
-          </div>
-
-          {/* Sound Test Button */}
-          <div className="pt-4">
-            <button
-              onClick={() => {
-                if (isImmersive) {
-                  audioManager.playClickSound();
-                }
-              }}
-              disabled={!isImmersive}
-              className={`
-                px-6 py-3 rounded-lg font-semibold text-base sm:text-lg
-                transition-all duration-200 ease-out
-                flex items-center gap-3 mx-auto
-                ${isImmersive
-                  ? 'bg-data3-light-blue text-data3-blue-black hover:bg-data3-aqua hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-data3-light-blue/30'
-                  : 'bg-gray-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                }
-              `}
-            >
-              {isImmersive ? (
-                <>
-                  <Volume2 className="h-5 w-5" />
-                  <span>Test Click Sound</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="h-5 w-5" />
-                  <span>Enable Immersive Mode to Test Sound</span>
-                </>
-              )}
-            </button>
-            {!isImmersive && (
-              <p className="text-sm text-data3-grey mt-2">
-                Click the sparkle icon in the bottom left to enable immersive mode
-              </p>
-            )}
           </div>
         </section>
 
