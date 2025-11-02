@@ -1,6 +1,13 @@
+import { audioManager } from './audio';
+
 export function triggerFlashAndRise(callback: () => void): void {
   const flashOverlay = document.getElementById('flashOverlay');
   if (!flashOverlay) return;
+
+  // Play buzz sound with the flash animation
+  audioManager.playBuzzSound().catch(err => {
+    console.log('Buzz sound playback prevented by browser:', err);
+  });
 
   // Flash effect - twice at 70% opacity for 120ms each
   flashOverlay.style.opacity = '0.7';
