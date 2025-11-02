@@ -157,6 +157,29 @@ interface PersistedChatSession {
 
 async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
   try {
+    // Ensure pgcrypto is available for gen_random_uuid defaults. Some environments (including
+    // freshly provisioned Neon projects) do not enable it automatically which causes insert
+    // statements to fail with "function gen_random_uuid() does not exist". Creating the
+    // extension up front is idempotent and guarantees that the UUID defaults defined in our
+    // schema succeed even if the database migrations have not been executed yet.
+    await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
+
+    // Ensure a minimal users table exists. Production databases that were created prior to the
+    // trivia rework were missing the table entirely which meant we could not hash and persist
+    // ring-mode competitors. Rather than relying on an external migration step, create the
+    // table on startup when it is absent so that trivia attempts can be recorded reliably.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "users" (
+        "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
+        "email_hash" text NOT NULL UNIQUE,
+        "first_name" text,
+        "last_name" text,
+        "company" text,
+        "role" text,
+        "created_at" timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+
     await db.execute(
       sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "marketing_opt_in" boolean NOT NULL DEFAULT false`,
     );
@@ -166,6 +189,16 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
       sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "consent_captured_at" timestamptz`,
     );
     await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "attempt_day" date`);
+    await db.execute(sql`
+      UPDATE "attempts"
+      SET "attempt_day" = DATE("started_at" AT TIME ZONE 'UTC')
+      WHERE "attempt_day" IS NULL
+    `);
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "idx_attempts_ring_daily"
+      ON "attempts" ("email_hash", "category", "attempt_day")
+      WHERE "mode" = 'ring'
+    `);
     await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "bot_bar" integer`);
     await db.execute(
       sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "card_set_version" integer DEFAULT 1`,
@@ -304,6 +337,56 @@ function parseSessionMessages(value: unknown): SessionMessage[] {
   }
 
   return [];
+}
+
+function parseDeckSnapshot(value: unknown): TriviaCardSnapshot | null {
+  if (!value) {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    try {
+      return parseDeckSnapshot(JSON.parse(value));
+    } catch {
+      return null;
+    }
+  }
+
+  if (Array.isArray(value)) {
+    const result: TriviaCardSnapshot = [];
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object") {
+        continue;
+      }
+
+      const item = entry as Record<string, unknown>;
+      const itemId = typeof item.itemId === "string" ? item.itemId : null;
+      const choices = Array.isArray(item.choices)
+        ? item.choices.filter((choice): choice is string => typeof choice === "string")
+        : null;
+      const correctIndex = typeof item.correctIndex === "number" ? item.correctIndex : null;
+      const dropIndex = typeof item.dropIndex === "number" ? item.dropIndex : null;
+
+      if (!itemId || !choices) {
+        continue;
+      }
+
+      result.push({
+        itemId,
+        choices,
+        correctIndex: correctIndex ?? 0,
+        dropIndex: dropIndex ?? 0,
+      });
+    }
+
+    return result.length ? result : null;
+  }
+
+  if (typeof value === "object" && value != null && "value" in value) {
+    return parseDeckSnapshot((value as { value: unknown }).value);
+  }
+
+  return null;
 }
 
 function mapChatSession(row: ChatSession): PersistedChatSession {
@@ -480,6 +563,43 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     return { cards, snapshot, maxVersion };
   };
 
+  const rehydrateTriviaDeck = async (snapshot: TriviaCardSnapshot): Promise<TriviaCardPayload[]> => {
+    if (!snapshot.length) {
+      return [];
+    }
+
+    const itemIds = Array.from(new Set(snapshot.map((entry) => entry.itemId)));
+    const items = await db
+      .select()
+      .from(triviaItems)
+      .where(inArray(triviaItems.id, itemIds));
+    const itemMap = new Map(items.map((item) => [item.id, item]));
+
+    const cards: TriviaCardPayload[] = [];
+    for (const entry of snapshot) {
+      const item = itemMap.get(entry.itemId);
+      if (!item) {
+        throw new Error(`Failed to rehydrate trivia card ${entry.itemId}`);
+      }
+
+      cards.push({
+        id: item.id,
+        category: item.category,
+        stem: item.stem,
+        choices: entry.choices,
+        correctIndex: typeof entry.correctIndex === "number" ? entry.correctIndex : 0,
+        dropIndex: typeof entry.dropIndex === "number" ? entry.dropIndex : 0,
+        hint9s: item.hint9s,
+        difficulty: item.difficulty ?? 2,
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        explanation: item.explanation ?? null,
+        version: item.version ?? 1,
+      });
+    }
+
+    return cards;
+  };
+
   return {
     async createChatSession({
       participantId,
@@ -609,33 +729,117 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async startTriviaAttempt(options: StartTriviaAttemptOptions) {
       const deckSize = options.deckSize ?? TRIVIA_ROUND_SIZE;
-      const { cards, snapshot, maxVersion } = await buildTriviaDeck(options.category, deckSize);
       const { emailHash } = await ensureUserRecord(options.email, options.playerProfile);
       const now = new Date();
       const attemptDay = computeAttemptDay(now);
 
-      const [attempt] = await db
-        .insert(attempts)
-        .values({
-          emailHash,
-          category: options.category,
-          mode: options.mode,
-          marketingOptIn: !!options.marketingOptIn,
-          cardSetVersion: maxVersion,
-          deckSnapshot: snapshot,
-        })
-        .returning();
+      const loadExistingRingAttempt = async (): Promise<Attempt | null> => {
+        if (!emailHash) {
+          return null;
+        }
 
-      if (!attempt) {
-        throw new Error("Failed to create trivia attempt");
+        const [existing] = await db
+          .select()
+          .from(attempts)
+          .where(
+            and(
+              eq(attempts.mode, "ring"),
+              eq(attempts.emailHash, emailHash),
+              eq(attempts.category, options.category),
+              eq(attempts.attemptDay, attemptDay),
+            ),
+          )
+          .orderBy(desc(attempts.startedAt))
+          .limit(1);
+
+        return existing ?? null;
+      };
+
+      const duplicateAttemptError = () => {
+        const err = new Error(
+          "You have already completed your run for this category today. Please select a different technology track if available.",
+        ) as Error & { code?: string };
+        err.code = "ALREADY_SUBMITTED";
+        return err;
+      };
+
+      if (options.mode === "ring" && emailHash) {
+        const existingAttempt = await loadExistingRingAttempt();
+        if (existingAttempt) {
+          if (existingAttempt.endedAt) {
+            throw duplicateAttemptError();
+          }
+
+          const existingSnapshot = parseDeckSnapshot(existingAttempt.deckSnapshot);
+          if (!existingSnapshot) {
+            throw new Error(`Existing trivia attempt ${existingAttempt.id} is missing a deck snapshot`);
+          }
+
+          const cards = await rehydrateTriviaDeck(existingSnapshot);
+          const attemptRecord = {
+            ...existingAttempt,
+            attemptDay: existingAttempt.attemptDay ?? attemptDay,
+          } satisfies Attempt;
+
+          return { attempt: attemptRecord, cards, snapshot: existingSnapshot } satisfies TriviaAttemptResult;
+        }
       }
 
-      const attemptRecord = {
-        ...attempt,
-        attemptDay: attempt.attemptDay ?? attemptDay,
-      } satisfies Attempt;
+      const { cards, snapshot, maxVersion } = await buildTriviaDeck(options.category, deckSize);
 
-      return { attempt: attemptRecord, cards, snapshot } satisfies TriviaAttemptResult;
+      try {
+        const [attempt] = await db
+          .insert(attempts)
+          .values({
+            emailHash,
+            category: options.category,
+            mode: options.mode,
+            marketingOptIn: !!options.marketingOptIn,
+            cardSetVersion: maxVersion,
+            deckSnapshot: snapshot,
+            attemptDay,
+          })
+          .returning();
+
+        if (!attempt) {
+          throw new Error("Failed to create trivia attempt");
+        }
+
+        const attemptRecord = {
+          ...attempt,
+          attemptDay: attempt.attemptDay ?? attemptDay,
+        } satisfies Attempt;
+
+        return { attempt: attemptRecord, cards, snapshot } satisfies TriviaAttemptResult;
+      } catch (error) {
+        if (options.mode === "ring" && emailHash && (error as { code?: string }).code === "23505") {
+          const existingAttempt = await loadExistingRingAttempt();
+          if (existingAttempt) {
+            if (existingAttempt.endedAt) {
+              throw duplicateAttemptError();
+            }
+
+            const existingSnapshot = parseDeckSnapshot(existingAttempt.deckSnapshot);
+            if (!existingSnapshot) {
+              throw error;
+            }
+
+            const existingCards = await rehydrateTriviaDeck(existingSnapshot);
+            const attemptRecord = {
+              ...existingAttempt,
+              attemptDay: existingAttempt.attemptDay ?? attemptDay,
+            } satisfies Attempt;
+
+            return {
+              attempt: attemptRecord,
+              cards: existingCards,
+              snapshot: existingSnapshot,
+            } satisfies TriviaAttemptResult;
+          }
+        }
+
+        throw error;
+      }
     },
 
     async completeTriviaAttempt(options: CompleteTriviaAttemptOptions) {
