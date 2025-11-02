@@ -554,6 +554,7 @@ export function TriviaWarmup({
                     src={dojoFullImage}
                     alt="Training Dojo"
                     className="absolute inset-0 h-full w-full object-cover"
+                    style={{ transform: 'scale(1.8)' }}
                   />
                 </div>
                 <div className="space-y-3 text-left">
