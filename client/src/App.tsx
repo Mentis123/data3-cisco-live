@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ChatbotWidget } from "@/components/ChatbotWidget";
 import { ImmersiveToggle } from "@/components/VolumeToggle";
+import { audioManager } from "@/lib/audio";
+import { useEffect, useRef } from "react";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
 import StagingLeaderboard from "@/pages/StagingLeaderboard";
@@ -67,6 +69,30 @@ function Router() {
 }
 
 function App() {
+  const homeSoundPlayedRef = useRef(false);
+
+  // Play background hum on first user interaction
+  // This makes the sound persist across all pages
+  useEffect(() => {
+    const playHomeSoundOnInteraction = () => {
+      if (!homeSoundPlayedRef.current) {
+        homeSoundPlayedRef.current = true;
+        audioManager.playHomeSound().catch(err => {
+          console.log('Home sound playback prevented by browser:', err);
+        });
+      }
+    };
+
+    // Listen for first user interaction
+    document.addEventListener('click', playHomeSoundOnInteraction, { once: true });
+    document.addEventListener('touchstart', playHomeSoundOnInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener('click', playHomeSoundOnInteraction);
+      document.removeEventListener('touchstart', playHomeSoundOnInteraction);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
