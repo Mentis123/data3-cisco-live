@@ -3,7 +3,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage, storageKind } from "./storage/index.js";
 import { createDatabaseFeedbackStorage, createJSONFeedbackStorage } from "./storage/feedback.js";
-import { db, hasDatabase } from "./db.js";
+import { db, hasDatabase, warmupDatabase, withRetry } from "./db.js";
 import { log } from "./logging.js";
 import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
@@ -225,6 +225,15 @@ export async function registerRoutes(
     setupWebSocket(httpServer);
   }
 
+  // Warm up database connection on startup to prevent cold start issues
+  if (hasDatabase) {
+    log("[db] Warming up database connection...");
+    const warmedUp = await warmupDatabase();
+    if (!warmedUp) {
+      log("[db] Warning: Database warmup failed, may experience connection issues");
+    }
+  }
+
   // Serve static files
   app.use('/static', (req, res, next) => {
     const filePath = path.join(process.cwd(), 'static', req.path);
@@ -310,67 +319,105 @@ export async function registerRoutes(
 
   app.post("/api/trivia/attempts", async (req, res) => {
     try {
+      // Validate request payload first
       const payload = startTriviaAttemptSchema.parse(req.body);
       if (payload.mode === "ring" && !payload.email) {
         return res.status(400).json({ message: "Email is required for ring attempts" });
       }
 
-      // Check for existing raffle entry for this email + category + day
-      if (payload.email && payload.mode === "ring") {
-        const emailHash = hashEmail(payload.email);
-        const today = new Date().toISOString().split('T')[0];
-        const hasRaffleEntry = await storage.checkExistingRaffleEntry?.(
-          emailHash,
-          payload.category,
-          today
-        );
+      // Wrap database operations in retry logic
+      const result = await withRetry(async () => {
+        // Check for existing raffle entry for this email + category + day
+        if (payload.email && payload.mode === "ring") {
+          const emailHash = hashEmail(payload.email);
+          const today = new Date().toISOString().split('T')[0];
+          const hasRaffleEntry = await storage.checkExistingRaffleEntry?.(
+            emailHash,
+            payload.category,
+            today
+          );
 
-        if (hasRaffleEntry) {
-          return res.status(409).json({
-            message: "You have already completed your run for this category today. Please select a different technology track if available.",
-            alreadySubmitted: true
-          });
-        }
-      }
-
-      const playerProfile = payload.playerProfile
-        ? {
-            firstName: payload.playerProfile.firstName ?? null,
-            lastName: payload.playerProfile.lastName ?? null,
-            company: payload.playerProfile.company ?? null,
-            role: payload.playerProfile.role ?? null,
+          if (hasRaffleEntry) {
+            // Throw a special error that we'll catch and handle with 409
+            const err = new Error("You have already completed your run for this category today. Please select a different technology track if available.");
+            (err as any).code = 'ALREADY_SUBMITTED';
+            throw err;
           }
-        : undefined;
+        }
 
-      const { attempt, cards } = await storage.startTriviaAttempt({
-        ...payload,
-        playerProfile,
-      });
+        const playerProfile = payload.playerProfile
+          ? {
+              firstName: payload.playerProfile.firstName ?? null,
+              lastName: payload.playerProfile.lastName ?? null,
+              company: payload.playerProfile.company ?? null,
+              role: payload.playerProfile.role ?? null,
+            }
+          : undefined;
 
-      log(`[Trivia] Created attempt ${attempt.id} for category ${attempt.category} in ${payload.mode} mode`);
-
-      // Broadcast ring entry if it's a ring mode attempt
-      if (payload.mode === "ring" && playerProfile) {
-        const initials = `${playerProfile.firstName?.[0] || ''}${playerProfile.lastName?.[0] || ''}`.toUpperCase();
-        log(`[Trivia] Broadcasting ring entry for attempt ${attempt.id} with initials ${initials}`);
-        broadcastRingEntry({
-          attemptId: attempt.id,
-          initials,
-          category: attempt.category
+        const { attempt, cards } = await storage.startTriviaAttempt({
+          ...payload,
+          playerProfile,
         });
-      } else {
-        log(`[Trivia] Skipping ring entry broadcast: mode=${payload.mode}, hasPlayerProfile=${!!playerProfile}`);
+
+        log(`[Trivia] Created attempt ${attempt.id} for category ${attempt.category} in ${payload.mode} mode`);
+
+        // Broadcast ring entry if it's a ring mode attempt
+        if (payload.mode === "ring" && playerProfile) {
+          const initials = `${playerProfile.firstName?.[0] || ''}${playerProfile.lastName?.[0] || ''}`.toUpperCase();
+          log(`[Trivia] Broadcasting ring entry for attempt ${attempt.id} with initials ${initials}`);
+          broadcastRingEntry({
+            attemptId: attempt.id,
+            initials,
+            category: attempt.category
+          });
+        } else {
+          log(`[Trivia] Skipping ring entry broadcast: mode=${payload.mode}, hasPlayerProfile=${!!playerProfile}`);
+        }
+
+        return {
+          attemptId: attempt.id,
+          category: attempt.category,
+          mode: attempt.mode,
+          cards,
+        };
+      }, 3, "start trivia attempt");
+
+      res.json(result);
+    } catch (error: any) {
+      // Handle validation errors (from zod)
+      if (error instanceof z.ZodError) {
+        log(`[Trivia] Validation error starting trivia attempt: ${error.message}`);
+        return res.status(400).json({ message: "Invalid request data" });
       }
 
-      res.json({
-        attemptId: attempt.id,
-        category: attempt.category,
-        mode: attempt.mode,
-        cards,
-      });
-    } catch (error) {
+      // Handle duplicate submission
+      if (error?.code === 'ALREADY_SUBMITTED') {
+        log(`[Trivia] Duplicate submission attempt: ${error.message}`);
+        return res.status(409).json({
+          message: error.message,
+          alreadySubmitted: true
+        });
+      }
+
+      // Log database errors with more detail
       const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
-      res.status(400).json({ message });
+      log(`[Trivia] Error starting trivia attempt: ${message}`, error);
+
+      // Return 503 for database connectivity issues, 500 for other errors
+      const isConnectivityError =
+        error?.code === 'ECONNREFUSED' ||
+        error?.code === 'ETIMEDOUT' ||
+        error?.message?.includes('connection') ||
+        error?.message?.includes('timeout');
+
+      if (isConnectivityError) {
+        return res.status(503).json({
+          message: "Database temporarily unavailable, please try again",
+          retryable: true
+        });
+      }
+
+      res.status(500).json({ message: "Failed to start trivia attempt" });
     }
   });
 
