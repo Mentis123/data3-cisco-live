@@ -32,6 +32,7 @@ import {
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 import ringFullImage from "@assets/ringfull.jpg";
 import { SprintStepper } from "@/components/SprintStepper";
+import { RingVideoModal } from "@/components/RingVideoModal";
 import { SprintProvider, useSprint, isSubmitCommand, advanceToNextStep, goToStep } from "@/features/sprint/context";
 import { expandProblem, quantifyImpact, composeSubmission, inferMissingData } from "@/features/sprint/compose";
 import type { SprintStep } from "@/features/sprint/types";
@@ -106,6 +107,8 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const isRing = variant === "ring";
   const exitDestination = isRing ? "/" : "/old";
   const [hasCompletedTrivia, setHasCompletedTrivia] = useState(!isRing);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -323,13 +326,20 @@ Just describe it naturally - what's the problem that needs solving?`
         JSON.stringify({ timestamp: Date.now() })
       );
 
-      console.log('[Play] Navigating to /announcement');
+      // Check if we should show the video modal (Ring mode + Immersive mode ON)
+      if (isRing && audioManager.isImmersiveMode()) {
+        console.log('[Play] Immersive mode ON - showing video modal');
+        setIsWinner(data.isEligible || false);
+        setShowVideoModal(true);
+      } else {
+        console.log('[Play] Navigating to /announcement');
 
-      // Play click sound before navigation
-      audioManager.playClickSound();
+        // Play click sound before navigation
+        audioManager.playClickSound();
 
-      // Navigate to announcement page
-      setLocation('/announcement');
+        // Navigate to announcement page
+        setLocation('/announcement');
+      }
     },
     onError: (error) => {
       setIsSubmitting(false);
@@ -2184,6 +2194,18 @@ Just describe it naturally - what's the problem that needs solving?`
       </div>
       {exitDialog}
       {triviaDeckDialog}
+
+      {/* Ring Video Modal - shown in Ring mode with Immersive mode ON */}
+      {showVideoModal && (
+        <RingVideoModal
+          isWinner={isWinner}
+          onComplete={() => {
+            setShowVideoModal(false);
+            audioManager.playClickSound();
+            setLocation('/announcement');
+          }}
+        />
+      )}
     </>
   );
 

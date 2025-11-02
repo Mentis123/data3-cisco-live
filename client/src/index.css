@@ -584,6 +584,11 @@
   }
 }
 
+/* Video modal fade-in animation */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
 @keyframes dramaticPulse {
   0%, 100% {
     transform: scale(1);
