@@ -35,13 +35,15 @@ interface NewSubmissionAnnouncementProps {
   onDismiss?: () => void;
 }
 
-// Consistent color scheme for all categories
+const BRAND_PRIMARY = "#00AEFF";
+
+// Consistent color scheme for all categories aligned to Data#3 palette
 const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#6CC04A",            // Green
-  COLLAB_CX: "#FF6B35",            // Orange
-  OBSERVABILITY: "#9B59B6",        // Purple
-  EDGE_IOT: "#F39C12"              // Yellow
+  SECURE_CONNECTIVITY: BRAND_PRIMARY,
+  HYBRID_DC: BRAND_PRIMARY,
+  COLLAB_CX: BRAND_PRIMARY,
+  OBSERVABILITY: BRAND_PRIMARY,
+  EDGE_IOT: BRAND_PRIMARY
 };
 
 const CATEGORY_NAMES = {
@@ -65,7 +67,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const [showContent, setShowContent] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<'flash' | 'reveal' | 'display'>('flash');
 
-  const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || "#00BCF2";
+  const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || BRAND_PRIMARY;
   const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
   const categoryIcon = CATEGORY_ICONS[submission.category as keyof typeof CATEGORY_ICONS] || "fa-star";
 
@@ -116,7 +118,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     if (rank === 1) return { icon: "fa-crown", text: "1ST PLACE!", class: "text-yellow-400" };
     if (rank === 2) return { icon: "fa-medal", text: "2ND PLACE!", class: "text-gray-300" };
     if (rank === 3) return { icon: "fa-award", text: "3RD PLACE!", class: "text-orange-400" };
-    return { icon: "fa-trophy", text: `RANK #${rank}`, class: "text-primary" };
+    return { icon: "fa-trophy", text: `RANK #${rank}`, class: "text-[#78DCFF]" };
   };
 
   const rankDisplay = getRankDisplay(submission.rank);
@@ -136,12 +138,19 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
         : null;
 
   const pitchScore = derivedPitchScore;
+  const computedTotal =
+    (triviaScore ?? 0) +
+    (pitchScore ?? 0);
+  const finalScore =
+    (triviaScore !== null || pitchScore !== null)
+      ? Math.min(FINAL_MAX, Math.round(computedTotal))
+      : submission.totalScore;
   const FINAL_MAX = 100;
   const TRIVIA_MAX = 60;
   const PITCH_MAX = 40;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
       {/* Flash overlay during flash phase */}
       {animationPhase === 'flash' && (
         <div className="absolute inset-0 announcement-strobe" 
@@ -160,7 +169,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {/* NEW SUBMISSION Header */}
             <div className="space-y-4">
               <div className="announcement-pulse">
-                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-primary drop-shadow-2xl">
+                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-[#78DCFF] drop-shadow-2xl">
                   NEW
                 </h1>
                 <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white drop-shadow-2xl -mt-4">
@@ -168,7 +177,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 </h1>
               </div>
               
-              <div className="flex justify-center items-center gap-4 text-4xl md:text-6xl text-primary/80">
+              <div className="flex justify-center items-center gap-4 text-4xl md:text-6xl text-[#78DCFF]/80">
                 <div className="announcement-bounce">🚀</div>
                 <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
                 <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
@@ -177,17 +186,17 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Participant Name */}
             <div className="announcement-slide-up" style={{ animationDelay: '0.5s' }}>
-              <Card className="glass-panel border-2 border-primary/30 bg-background/80 max-w-4xl mx-auto">
+              <Card className="glass-panel border-2 border-[#78DCFF]/40 bg-data3-blue-black/40 max-w-4xl mx-auto">
                 <CardContent className="p-8">
                   <div className="flex items-center justify-center gap-6 mb-6">
-                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center">
-                      <i className="fas fa-user text-4xl text-primary"></i>
+                    <div className="w-20 h-20 rounded-full bg-[#78DCFF]/20 flex items-center justify-center">
+                      <i className="fas fa-user text-4xl text-[#78DCFF]"></i>
                     </div>
                     <div>
                       <h2 className="text-4xl md:text-6xl font-bold text-white">
                         {formatNameToInitials(submission.participantName)}
                       </h2>
-                      <p className="text-xl md:text-2xl text-primary/80">has joined the leaderboard!</p>
+                      <p className="text-xl md:text-2xl text-[#78DCFF]/80">has joined the leaderboard!</p>
                     </div>
                   </div>
                 </CardContent>
@@ -197,7 +206,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {/* Score Display */}
             <div className="announcement-slide-up" style={{ animationDelay: '0.8s' }}>
               <Card className="glass-panel border-2 max-w-3xl mx-auto"
-                    style={{ 
+                    style={{
                       borderColor: `${categoryColor}50`,
                       backgroundColor: `${categoryColor}08`
                     }}>
@@ -207,7 +216,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                       <div className="announcement-score-pulse">
                         <p className="text-2xl md:text-3xl text-white/80 font-semibold mb-2">FINAL SCORE</p>
                         <p className="text-7xl md:text-9xl font-black text-white drop-shadow-2xl">
-                          {submission.totalScore}
+                          {finalScore}
                         </p>
                         <p className="text-3xl md:text-4xl text-white/60">/{FINAL_MAX}</p>
                         <p className="text-base md:text-lg text-white/60 mt-2">
@@ -231,7 +240,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Trivia & Pitch Breakdown */}
             <div className="announcement-slide-up" style={{ animationDelay: '1.0s' }}>
-              <Card className="glass-panel border-2 max-w-3xl mx-auto border-primary/30 bg-background/70">
+              <Card className="glass-panel border-2 max-w-3xl mx-auto border-[#78DCFF]/40 bg-data3-blue-black/40">
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                     <div className="space-y-2">
@@ -263,7 +272,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {submission.botBar !== undefined && (
               <div className="announcement-slide-up" style={{ animationDelay: '1.1s' }}>
                 <Card className={`glass-panel border-2 max-w-4xl mx-auto ${
-                  submission.isEligible ? 'border-green-500/50 bg-green-500/10' : 'border-orange-500/50 bg-orange-500/10'
+                  submission.isEligible ? 'border-green-400/50 bg-green-500/10' : 'border-orange-400/50 bg-orange-500/10'
                 }`}>
                   <CardContent className="p-8">
                     <div className="text-center space-y-4">
@@ -276,7 +285,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-xl md:text-2xl text-white/90">
-                            Your score of <span className="font-bold text-green-400">{submission.totalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
+                            Your score of <span className="font-bold text-green-400">{finalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
                           </p>
                           {submission.raffleEntered && (
                             <div className="mt-6 pt-6 border-t border-green-500/30">
@@ -309,7 +318,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-xl md:text-2xl text-white/90">
-                            Your score of <span className="font-bold">{submission.totalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
+                            Your score of <span className="font-bold">{finalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
                           </p>
                           <p className="text-lg md:text-xl text-white/70 mt-4">
                             Try again to beat the bot and enter the raffle!
@@ -326,7 +335,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
               <Card className="glass-panel border-2 max-w-4xl mx-auto"
                     style={{
-                      borderColor: categoryColor,
+                      borderColor: `${categoryColor}AA`,
                       backgroundColor: `${categoryColor}15`
                     }}>
                 <CardContent className="p-8">
@@ -358,10 +367,10 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {/* Subscore Breakdown */}
             {submission.subScores && (
               <div className="announcement-slide-up" style={{ animationDelay: '1.7s' }}>
-                <Card className="glass-panel border border-primary/20 max-w-5xl mx-auto">
+                <Card className="glass-panel border border-[#78DCFF]/30 max-w-5xl mx-auto bg-data3-blue-black/40">
                   <CardContent className="p-6">
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">
-                      <i className="fas fa-chart-bar mr-3 text-primary"></i>
+                      <i className="fas fa-chart-bar mr-3 text-[#78DCFF]"></i>
                       Pitch Criteria Breakdown
                     </h3>
                     <p className="text-sm md:text-base text-white/60 text-center mb-6">
@@ -375,11 +384,11 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                         return (
                           <div key={key} className="text-center announcement-subscore-pop"
                                style={{ animationDelay: `${1.9 + index * 0.1}s` }}>
-                            <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                            <div className="bg-[#78DCFF]/10 rounded-lg p-4 border border-[#78DCFF]/30">
                               <p className="text-sm text-white/80 mb-2">
                                 {label}
                               </p>
-                              <p className="text-2xl md:text-3xl font-bold text-primary">
+                              <p className="text-2xl md:text-3xl font-bold text-[#78DCFF]">
                                 {value}/8
                               </p>
                             </div>
@@ -397,7 +406,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button
                   onClick={() => setLocation('/leaderboard')}
-                  className="text-xl px-8 py-4 bg-primary hover:bg-primary/90"
+                  className="text-xl px-8 py-4 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
                   data-testid="button-view-leaderboard"
                 >
                   <i className="fas fa-trophy mr-3"></i>
@@ -405,8 +414,8 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 </Button>
                 <Button
                   onClick={handleDismiss}
-                  variant="outline" 
-                  className="text-xl px-8 py-4 border-primary/50 text-primary hover:bg-primary/10"
+                  variant="outline"
+                  className="text-xl px-8 py-4 border-[#78DCFF]/50 text-[#78DCFF] hover:bg-[#78DCFF]/10"
                   data-testid="button-dismiss-announcement"
                 >
                   <i className="fas fa-times mr-3"></i>
