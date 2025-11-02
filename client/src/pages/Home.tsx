@@ -17,15 +17,30 @@ export default function Home() {
   const userHasScrolledRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioReadyRef = useRef(false);
+  const homeSoundPlayedRef = useRef(false);
 
   // Gyroscope-based 3D tilt effect state
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  // Play home sound on mount
+  // Play home sound on first user interaction
   useEffect(() => {
-    audioManager.playHomeSound().catch(err => {
-      console.log('Home sound playback prevented by browser:', err);
-    });
+    const playHomeSoundOnInteraction = () => {
+      if (!homeSoundPlayedRef.current) {
+        homeSoundPlayedRef.current = true;
+        audioManager.playHomeSound().catch(err => {
+          console.log('Home sound playback prevented by browser:', err);
+        });
+      }
+    };
+
+    // Listen for first user interaction
+    document.addEventListener('click', playHomeSoundOnInteraction, { once: true });
+    document.addEventListener('touchstart', playHomeSoundOnInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener('click', playHomeSoundOnInteraction);
+      document.removeEventListener('touchstart', playHomeSoundOnInteraction);
+    };
   }, []);
 
   // Initialize audio
