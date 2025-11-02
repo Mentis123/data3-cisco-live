@@ -401,7 +401,15 @@ export async function registerRoutes(
 
       // Log database errors with more detail
       const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
-      log(`[Trivia] Error starting trivia attempt: ${message}`, error);
+      const errorDetails = {
+        message: message,
+        code: error?.code,
+        name: error?.name,
+        stack: error?.stack?.split('\n').slice(0, 3).join('\n'), // First 3 lines of stack
+      };
+
+      console.error('[Trivia] Error starting trivia attempt:', errorDetails);
+      log(`[Trivia] Error starting trivia attempt: ${message}`);
 
       // Return 503 for database connectivity issues, 500 for other errors
       const isConnectivityError =
@@ -417,7 +425,12 @@ export async function registerRoutes(
         });
       }
 
-      res.status(500).json({ message: "Failed to start trivia attempt" });
+      // Return error message in development, generic in production
+      const errorMessage = process.env.NODE_ENV === 'development'
+        ? message
+        : "Failed to start trivia attempt";
+
+      res.status(500).json({ message: errorMessage });
     }
   });
 

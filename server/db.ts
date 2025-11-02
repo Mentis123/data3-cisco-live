@@ -7,9 +7,7 @@ import * as schema from "../shared/schema.js";
 
 neonConfig.webSocketConstructor = ws;
 
-// Configure fetch with timeout to prevent hanging connections
-neonConfig.fetchConnectionCache = true;
-
+// Note: fetchConnectionCache is now always enabled by default in newer versions
 let pool: Pool | null = null;
 let db: NeonDatabase<typeof schema> | null = null;
 
@@ -84,22 +82,48 @@ export async function withRetry<T>(
       const isLastAttempt = attempt === maxRetries - 1;
 
       // Check if error is a connection/network issue worth retrying
+      const errorMessage = error?.message?.toLowerCase() || '';
+      const errorCode = error?.code || '';
+
       const isRetryableError =
-        error?.code === 'ECONNREFUSED' ||
-        error?.code === 'ETIMEDOUT' ||
-        error?.code === 'ENOTFOUND' ||
-        error?.message?.includes('connection') ||
-        error?.message?.includes('timeout') ||
-        error?.message?.includes('network');
+        errorCode === 'ECONNREFUSED' ||
+        errorCode === 'ETIMEDOUT' ||
+        errorCode === 'ENOTFOUND' ||
+        errorCode === 'ECONNRESET' ||
+        errorCode === 'EPIPE' ||
+        errorCode === 'PROTOCOL_CONNECTION_LOST' ||
+        errorCode === '57P01' || // Neon: admin_shutdown
+        errorCode === '57P03' || // Neon: cannot_connect_now
+        errorCode === '08006' || // Neon: connection_failure
+        errorCode === '08003' || // Neon: connection_does_not_exist
+        errorCode === '08000' || // Neon: connection_exception
+        errorMessage.includes('connection') ||
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('timed out') ||
+        errorMessage.includes('network') ||
+        errorMessage.includes('suspended') ||
+        errorMessage.includes('connect') ||
+        errorMessage.includes('econnrefused') ||
+        errorMessage.includes('socket') ||
+        errorMessage.includes('refused') ||
+        errorMessage.includes('unavailable');
 
       if (!isRetryableError || isLastAttempt) {
+        // Log non-retryable errors for debugging
+        if (!isRetryableError) {
+          console.error(`[db] Non-retryable error in ${operationName}:`, {
+            code: errorCode,
+            message: error?.message,
+            name: error?.name,
+          });
+        }
         throw error;
       }
 
       const waitTime = Math.pow(2, attempt) * 500; // Exponential backoff: 500ms, 1s, 2s
       console.warn(
-        `[db] ${operationName} attempt ${attempt + 1} failed with retryable error, retrying in ${waitTime}ms...`,
-        error.message
+        `[db] ${operationName} attempt ${attempt + 1}/${maxRetries} failed with retryable error, retrying in ${waitTime}ms...`,
+        { code: errorCode, message: error?.message }
       );
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
