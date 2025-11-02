@@ -153,18 +153,22 @@ export class AudioManager {
       return;
     }
 
-    if (this.isMuted) {
-      console.log('[AudioManager] Click sound blocked - audio is muted');
-      return;
-    }
-
+    // Click sounds are UI feedback and should always play,
+    // regardless of immersive mode state
     try {
+      // Temporarily unmute for click sound if needed
+      const wasClickMuted = this.clickAudio.muted;
+      this.clickAudio.muted = false;
+
       // Reset to beginning if already playing
       this.clickAudio.currentTime = 0;
 
       // Play the click sound
       console.log('[AudioManager] Playing click sound');
       await this.clickAudio.play();
+
+      // Restore previous muted state
+      this.clickAudio.muted = wasClickMuted;
     } catch (error) {
       console.warn('Could not play click sound:', error);
       // Don't throw error - audio failure shouldn't break the app
