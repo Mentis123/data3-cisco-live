@@ -95,14 +95,24 @@ export default function Home() {
     };
 
     const shineElements = Array.from(document.querySelectorAll('.nav-tile-button-shine')) as HTMLElement[];
+    // The shine animation duration is configured in client/src/index.css via the
+    // `nav-tile-button-shine` class using the `shine-sweep` keyframes (7s cycle).
+    const animationEvents: Array<keyof HTMLElementEventMap> = [
+      'animationstart',
+      'animationiteration',
+    ];
 
     shineElements.forEach(element => {
-      element.addEventListener('animationiteration', handleShineSweep);
+      animationEvents.forEach(eventType => {
+        element.addEventListener(eventType, handleShineSweep);
+      });
     });
 
     return () => {
       shineElements.forEach(element => {
-        element.removeEventListener('animationiteration', handleShineSweep);
+        animationEvents.forEach(eventType => {
+          element.removeEventListener(eventType, handleShineSweep);
+        });
       });
     };
   }, []);
