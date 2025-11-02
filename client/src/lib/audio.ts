@@ -87,7 +87,7 @@ export class AudioManager {
     if (!this.buzzAudio) {
       this.buzzAudio = new Audio(buzzSoundFile);
       this.buzzAudio.preload = "auto";
-      this.buzzAudio.volume = 0.75; // 75% volume
+      this.buzzAudio.volume = 1.0; // 100% volume (increased by 50% from 0.75)
       this.buzzAudio.muted = this.isMuted;
     }
 
@@ -318,7 +318,7 @@ export class AudioManager {
       this.homeAudio.volume = normalizedVolume * 0.075; // Keep home at 7.5% (increased by 50% from 5%)
     }
     if (this.buzzAudio) {
-      this.buzzAudio.volume = normalizedVolume * 0.5; // Keep buzz at 50%
+      this.buzzAudio.volume = normalizedVolume * 0.75; // Keep buzz at 75% (increased by 50% from 0.5)
     }
   }
 
