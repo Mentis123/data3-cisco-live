@@ -79,7 +79,7 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.2; // 20% volume
+      this.homeAudio.volume = 0.05; // 5% volume - reduced so buzz and beep are audible
       this.homeAudio.loop = true; // Loop continuously
       this.homeAudio.muted = this.isMuted;
     }
@@ -300,7 +300,7 @@ export class AudioManager {
       this.flashAudio.volume = normalizedVolume;
     }
     if (this.homeAudio) {
-      this.homeAudio.volume = normalizedVolume * 0.2; // Keep home at 20%
+      this.homeAudio.volume = normalizedVolume * 0.05; // Keep home at 5% - reduced so buzz and beep are audible
     }
     if (this.buzzAudio) {
       this.buzzAudio.volume = normalizedVolume * 0.5; // Keep buzz at 50%
