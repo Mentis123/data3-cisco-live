@@ -20,6 +20,7 @@ export default function Home() {
   const homeSoundPlayedRef = useRef(false);
   const userInteractedRef = useRef(false);
   const lastBuzzTimeRef = useRef(0);
+  const buzzTimeoutRef = useRef<number | null>(null);
 
   // Gyroscope-based 3D tilt effect state
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -78,7 +79,10 @@ export default function Home() {
 
   // Align buzz sound with navigation tile shine animation
   useEffect(() => {
-    const handleShineSweep = () => {
+    const ANIMATION_DURATION = 7000; // 7 seconds as defined in CSS
+    const BUZZ_LEAD_TIME = 100; // Play buzz 100ms before the shine sweep
+
+    const scheduleBuzzSound = () => {
       if (!userInteractedRef.current) {
         return;
       }
@@ -92,6 +96,21 @@ export default function Home() {
       audioManager.playBuzzSound().catch(err => {
         console.log('Buzz sound playback prevented by browser:', err);
       });
+    };
+
+    const handleShineSweep = () => {
+      if (!userInteractedRef.current) {
+        return;
+      }
+
+      // Schedule the buzz sound to play 100ms before the next animation iteration
+      if (buzzTimeoutRef.current !== null) {
+        clearTimeout(buzzTimeoutRef.current);
+      }
+
+      buzzTimeoutRef.current = window.setTimeout(() => {
+        scheduleBuzzSound();
+      }, ANIMATION_DURATION - BUZZ_LEAD_TIME);
     };
 
     const shineElements = Array.from(document.querySelectorAll('.nav-tile-button-shine')) as HTMLElement[];
@@ -109,6 +128,9 @@ export default function Home() {
     });
 
     return () => {
+      if (buzzTimeoutRef.current !== null) {
+        clearTimeout(buzzTimeoutRef.current);
+      }
       shineElements.forEach(element => {
         animationEvents.forEach(eventType => {
           element.removeEventListener(eventType, handleShineSweep);
