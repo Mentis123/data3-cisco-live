@@ -895,53 +895,55 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   if (isRing && registrationComplete && !hasCompletedTrivia) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-          <div className="flex flex-col gap-4 sm:gap-6">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
-                <img
-                  src={ringFullImage}
-                  alt="Ring"
-                  className="h-full w-full object-cover"
-                />
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+            <div className="flex flex-col gap-4 sm:gap-6">
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
+                  <img
+                    src={ringFullImage}
+                    alt="Ring"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
               </div>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
+              <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
+                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
+              </p>
             </div>
-            <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-              This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
-            </p>
-          </div>
-          <TriviaWarmup
-            mode="ring"
-            exitHref={exitDestination}
-            email={email}
-            firstName={firstName}
-            lastName={lastName}
-            onContinue={(score?: number, category?: string, attemptId?: string) => {
-              setHasCompletedTrivia(true);
-              if (score !== undefined) {
-                setTriviaScore(score);
-              }
-              if (category) {
-                setSelectedCategory(category);
-              }
-              if (attemptId) {
-                setTriviaAttemptId(attemptId);
-              }
+            <TriviaWarmup
+              mode="ring"
+              className="flex-1"
+              exitHref={exitDestination}
+              email={email}
+              firstName={firstName}
+              lastName={lastName}
+              onContinue={(score?: number, category?: string, attemptId?: string) => {
+                setHasCompletedTrivia(true);
+                if (score !== undefined) {
+                  setTriviaScore(score);
+                }
+                if (category) {
+                  setSelectedCategory(category);
+                }
+                if (attemptId) {
+                  setTriviaAttemptId(attemptId);
+                }
 
-              // Trigger boot-up sequence before adding the initial message
-              setIsBooting(true);
+                // Trigger boot-up sequence before adding the initial message
+                setIsBooting(true);
 
-              setTimeout(() => {
-                setIsBooting(false);
-
-                // Add the coach message after boot sequence completes
                 setTimeout(() => {
-                  dispatch({
-                    type: 'ADD_MESSAGE',
-                    payload: {
-                      role: "assistant",
-                      content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
+                  setIsBooting(false);
+
+                  // Add the coach message after boot sequence completes
+                  setTimeout(() => {
+                    dispatch({
+                      type: 'ADD_MESSAGE',
+                      payload: {
+                        role: "assistant",
+                        content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
 
 Now let's move to your **Project Pitch** — the core of your Beat the Bot entry.
 
@@ -956,25 +958,25 @@ Tell me about a specific business challenge that:
 • Impacts productivity
 
 Just describe it naturally - what's the problem that needs solving?`
-                    }
-                  });
-                }, 300);
-              }, 2500);
-            }}
-            className="h-full"
-          />
+                      }
+                    });
+                  }, 300);
+                }, 2500);
+              }}
+            />
 
-          <div className="flex flex-wrap gap-3">
-            <Link href="/">
-              <Button variant="secondary" className="backdrop-blur">
-                Back to home
-              </Button>
-            </Link>
-            <Link href="/dojo">
-              <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-                Train in the Dojo
-              </Button>
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/">
+                <Button variant="secondary" className="backdrop-blur">
+                  Back to home
+                </Button>
+              </Link>
+              <Link href="/dojo">
+                <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
+                  Train in the Dojo
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -1310,10 +1312,10 @@ Just describe it naturally - what's the problem that needs solving?`
               </div>
             </div>
           </div>
-          </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-foreground flex flex-col p-4 sm:p-6 lg:p-8">
