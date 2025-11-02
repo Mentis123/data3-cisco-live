@@ -93,6 +93,29 @@ function App() {
     };
   }, []);
 
+  // Global click sound handler for all buttons and links
+  // This persists across page navigations and plays the full sound
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // Check if the clicked element or any of its parents is a button or link
+      const isClickable = target.closest('button, a, [role="button"], [role="link"]');
+
+      if (isClickable) {
+        // audioManager.playClickSound() already checks for immersive mode and muted state
+        audioManager.playClickSound();
+      }
+    };
+
+    // Add global click listener
+    document.addEventListener('click', handleGlobalClick);
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
