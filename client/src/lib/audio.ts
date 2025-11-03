@@ -409,25 +409,6 @@ export class AudioManager {
     });
   }
 
-  public setVolume(volume: number): void {
-    const normalizedVolume = Math.max(0, Math.min(1, volume));
-    if (!this.ensureAudioReady()) {
-      return;
-    }
-
-    if (this.challengerAudio) {
-      this.challengerAudio.volume = normalizedVolume;
-    }
-    if (this.flashAudio) {
-      this.flashAudio.volume = normalizedVolume;
-    }
-    if (this.homeAudio) {
-      this.homeAudio.volume = normalizedVolume * 0.075; // Keep home at 7.5% (increased by 50% from 5%)
-    }
-    if (this.buzzAudio) {
-      this.buzzAudio.volume = normalizedVolume * 0.75; // Keep buzz at 75% (increased by 50% from 0.5)
-    }
-  }
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
@@ -633,8 +614,18 @@ export class AudioManager {
 
     // Update music audio elements with new volume (sound effects stay at full volume)
     if (this.homeAudio) {
-      this.homeAudio.volume = 0.075 * this.musicVolume;
-      console.log('[AudioManager] Home audio volume updated to:', this.homeAudio.volume);
+      const newVolume = 0.075 * this.musicVolume;
+      this.homeAudio.volume = newVolume;
+      console.log('[AudioManager] Home audio volume updated to:', this.homeAudio.volume,
+        'playing:', !this.homeAudio.paused, 'muted:', this.homeAudio.muted);
+
+      // If home audio should be playing but isn't, restart it
+      if (this.isImmersive && !this.isMuted && this.musicEnabled && this.homeAudio.paused) {
+        console.log('[AudioManager] Home audio was paused during volume change, restarting...');
+        this.homeAudio.play().catch(err => {
+          console.warn('Could not restart home sound after volume change:', err);
+        });
+      }
     }
 
     this.dispatchMusicVolumeChange();
