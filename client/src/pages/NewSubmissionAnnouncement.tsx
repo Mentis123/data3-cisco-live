@@ -93,26 +93,14 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     };
   }, []);
 
-  // Auto-dismiss after showing for a while
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (onDismiss) {
-        onDismiss();
-      } else {
-        audioManager.playClickSound();
-        setLocation('/leaderboard');
-      }
-    }, 15000); // Show for 15 seconds total
-
-    return () => clearTimeout(timer);
-  }, [onDismiss, setLocation]);
+  // No auto-dismiss - user must manually continue
 
   const handleDismiss = () => {
     if (onDismiss) {
       onDismiss();
     } else {
       audioManager.playClickSound();
-      setLocation('/leaderboard');
+      setLocation('/leaderboard/staging');
     }
   };
 
@@ -423,7 +411,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 <Button
                   onClick={() => {
                     audioManager.playClickSound();
-                    setLocation('/leaderboard');
+                    setLocation('/leaderboard/staging');
                   }}
                   className="text-xl px-8 py-4 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
                   data-testid="button-view-leaderboard"
@@ -443,12 +431,6 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               </div>
             </div>
 
-            {/* Auto-dismiss countdown */}
-            <div className="text-center text-white/60 text-lg">
-              <i className="fas fa-clock mr-2"></i>
-              Auto-closing in a few seconds...
-            </div>
-            
           </div>
         )}
       </div>

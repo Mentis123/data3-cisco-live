@@ -328,12 +328,11 @@ Just describe it naturally - what's the problem that needs solving?`
           JSON.stringify({ timestamp: Date.now() })
         );
 
-        // Check if we should show the video modal (Ring mode + Immersive mode ON)
-        const immersiveMode = audioManager.isImmersiveMode();
-        console.log('[Play] isRing:', isRing, 'immersiveMode:', immersiveMode);
+        // Check if we should show the video modal (Ring mode only)
+        console.log('[Play] isRing:', isRing, 'isEligible:', data.isEligible);
 
-        if (isRing && immersiveMode) {
-          console.log('[Play] Immersive mode ON - showing video modal');
+        if (isRing) {
+          console.log('[Play] Ring mode - showing video modal');
           setIsWinner(data.isEligible || false);
           setShowVideoModal(true);
 
@@ -347,7 +346,7 @@ Just describe it naturally - what's the problem that needs solving?`
             }
           }, 15000);
         } else {
-          console.log('[Play] Navigating to /announcement');
+          console.log('[Play] Classic mode - navigating to /announcement');
 
           // Play click sound before navigation
           audioManager.playClickSound();
