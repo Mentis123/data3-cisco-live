@@ -615,13 +615,13 @@ export async function registerRoutes(
       let isEligible = false;
       let raffleResult: { success: boolean; alreadyExists?: boolean } | null = null;
 
-      if (triviaAttemptId) {
+      if (persistedTriviaAttemptId) {
         try {
           // Attach submission to trivia attempt
-          await storage.attachSubmissionToTriviaAttempt(triviaAttemptId, submission.id);
+          await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
 
           // Get trivia attempt to retrieve trivia score
-          const attempt = await storage.getTriviaAttempt?.(triviaAttemptId);
+          const attempt = await storage.getTriviaAttempt?.(persistedTriviaAttemptId);
           if (attempt) {
             triviaScore = attempt.totalScore || 0;
             combinedScore = triviaScore + pitchScore;
@@ -640,7 +640,7 @@ export async function registerRoutes(
                 raffleResult = await storage.createRaffleEntry({
                   emailHash: session.emailHash,
                   category,
-                  attemptId: triviaAttemptId,
+                  attemptId: persistedTriviaAttemptId,
                   raffleDate: today,
                 });
               }
@@ -658,7 +658,7 @@ export async function registerRoutes(
           }
         } catch (error) {
           console.warn(
-            `[trivia] Failed to process trivia attempt ${triviaAttemptId}:`,
+            `[trivia] Failed to process trivia attempt ${persistedTriviaAttemptId}:`,
             error,
           );
         }
