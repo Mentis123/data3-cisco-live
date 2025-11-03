@@ -1631,6 +1631,100 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
+  async getActiveRingAttemptsDetailed(): Promise<Array<{
+    attemptId: string;
+    initials: string;
+    category: string;
+    startedAt: string;
+    emailHash: string;
+    firstName: string | null;
+    lastName: string | null;
+    elapsedMinutes: number;
+  }>> {
+    try {
+      const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+
+      const rows = await db
+        .select({
+          attemptId: attempts.id,
+          category: attempts.category,
+          startedAt: attempts.startedAt,
+          emailHash: attempts.emailHash,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(attempts)
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.endedAt),
+            gt(attempts.startedAt, cutoff),
+          ),
+        )
+        .orderBy(desc(attempts.startedAt));
+
+      return rows.map((row) => {
+        const firstInitial = row.firstName?.trim()?.[0] ?? "";
+        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const fallback = row.attemptId.slice(0, 2).toUpperCase();
+        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+        const startedAt = row.startedAt ? new Date(row.startedAt) : new Date();
+        const elapsedMinutes = Math.floor((Date.now() - startedAt.getTime()) / (1000 * 60));
+
+        return {
+          attemptId: row.attemptId,
+          category: row.category,
+          startedAt: row.startedAt ? row.startedAt.toISOString() : new Date().toISOString(),
+          initials,
+          emailHash: row.emailHash ?? '',
+          firstName: row.firstName,
+          lastName: row.lastName,
+          elapsedMinutes,
+        };
+      });
+    } catch (error) {
+      console.warn('[getActiveRingAttemptsDetailed] Error fetching active ring attempts:', error);
+      return [];
+    }
+  },
+
+  async forceEndRingAttempt(attemptId: string): Promise<void> {
+    try {
+      await db
+        .update(attempts)
+        .set({ endedAt: new Date() })
+        .where(eq(attempts.id, attemptId));
+    } catch (error) {
+      console.error('[forceEndRingAttempt] Error ending ring attempt:', error);
+      throw error;
+    }
+  },
+
+  async clearStaleRingAttempts(): Promise<number> {
+    try {
+      const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+
+      const result = await db
+        .update(attempts)
+        .set({ endedAt: new Date() })
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.endedAt),
+            lt(attempts.startedAt, cutoff),
+          ),
+        );
+
+      // Drizzle returns an array of updated rows, so we can get the count
+      return Array.isArray(result) ? result.length : 0;
+    } catch (error) {
+      console.error('[clearStaleRingAttempts] Error clearing stale ring attempts:', error);
+      throw error;
+    }
+  },
+
     async getRecentSubmission(): Promise<any> {
     try {
       const [result] = await db

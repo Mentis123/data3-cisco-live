@@ -1385,6 +1385,77 @@ export function createMemoryStorage() {
       return active;
     },
 
+    async getActiveRingAttemptsDetailed(): Promise<Array<{
+      attemptId: string;
+      initials: string;
+      category: string;
+      startedAt: string;
+      emailHash: string;
+      firstName: string | null;
+      lastName: string | null;
+      elapsedMinutes: number;
+    }>> {
+      const cutoff = Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000;
+
+      const active = triviaAttemptsStore
+        .filter((attempt) =>
+          attempt.mode === "ring"
+          && !attempt.endedAt
+          && attempt.startedAt instanceof Date
+          && attempt.startedAt.getTime() >= cutoff,
+        )
+        .map((attempt) => {
+          const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
+          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
+          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const fallback = attempt.id.slice(0, 2).toUpperCase();
+          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+          const startedAt = attempt.startedAt instanceof Date ? attempt.startedAt : new Date();
+          const elapsedMinutes = Math.floor((Date.now() - startedAt.getTime()) / (1000 * 60));
+
+          return {
+            attemptId: attempt.id,
+            category: attempt.category,
+            startedAt: startedAt.toISOString(),
+            initials,
+            emailHash: attempt.emailHash ?? '',
+            firstName: user?.firstName ?? null,
+            lastName: user?.lastName ?? null,
+            elapsedMinutes,
+          };
+        })
+        .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+
+      return active;
+    },
+
+    async forceEndRingAttempt(attemptId: string): Promise<void> {
+      const attempt = triviaAttemptsStore.find((a) => a.id === attemptId);
+      if (attempt) {
+        attempt.endedAt = new Date();
+      }
+    },
+
+    async clearStaleRingAttempts(): Promise<number> {
+      const cutoff = Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000;
+      let count = 0;
+
+      triviaAttemptsStore.forEach((attempt) => {
+        if (
+          attempt.mode === "ring"
+          && !attempt.endedAt
+          && attempt.startedAt instanceof Date
+          && attempt.startedAt.getTime() < cutoff
+        ) {
+          attempt.endedAt = new Date();
+          count++;
+        }
+      });
+
+      return count;
+    },
+
     async getRecentSubmission(): Promise<any> {
       if (submissionsStore.length === 0) return null;
       const submission = submissionsStore[0];
