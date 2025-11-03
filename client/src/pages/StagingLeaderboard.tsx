@@ -9,6 +9,7 @@ import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
 import { formatNameToInitials } from "@/lib/utils";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
 
@@ -36,6 +37,8 @@ interface DashboardData {
   topCategoryStats: any[];
   topCategory: string;
   activeChallengers?: ActiveChallengerPayload[];
+  triviaChallengers?: ActiveChallengerPayload[];
+  projectPitchChallengers?: ActiveChallengerPayload[];
 }
 
 interface ActiveChallenger {
@@ -88,7 +91,10 @@ export default function StagingLeaderboard() {
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
+  const [activeView, setActiveView] = useState<"rankings" | "wordcloud" | "categories">("rankings");
   const [activeChallengers, setActiveChallengers] = useState<ActiveChallenger[]>([]);
+  const [triviaChallengers, setTriviaChallengers] = useState<ActiveChallenger[]>([]);
+  const [projectPitchChallengers, setProjectPitchChallengers] = useState<ActiveChallenger[]>([]);
   const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
 
@@ -134,22 +140,32 @@ export default function StagingLeaderboard() {
         .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
     }, 750);
 
-    // Add to active challengers list
-    setActiveChallengers(prev => {
+    const now = Date.now();
+    const newChallenger = {
+      ...entry,
+      timestamp: now,
+      fading: false,
+      lastSeenInApi: now
+    };
+
+    // Add to trivia challengers list (new entries always start with trivia)
+    setTriviaChallengers(prev => {
       // Check if already exists
       if (prev.some(c => c.attemptId === entry.attemptId)) {
-        console.log('[StagingLeaderboard] Challenger already in list:', entry.attemptId);
+        console.log('[StagingLeaderboard] Challenger already in trivia list:', entry.attemptId);
         return prev;
       }
       // Add new challenger at the top
-      console.log('[StagingLeaderboard] Adding new challenger to list:', entry);
-      const now = Date.now();
-      return [{
-        ...entry,
-        timestamp: now,
-        fading: false,
-        lastSeenInApi: now
-      }, ...prev];
+      console.log('[StagingLeaderboard] Adding new challenger to trivia list:', entry);
+      return [newChallenger, ...prev];
+    });
+
+    // Also add to active challengers list for backward compatibility
+    setActiveChallengers(prev => {
+      if (prev.some(c => c.attemptId === entry.attemptId)) {
+        return prev;
+      }
+      return [newChallenger, ...prev];
     });
   };
 
@@ -157,8 +173,22 @@ export default function StagingLeaderboard() {
   const handleRingExit = (data: { attemptId: string; qualified: boolean }) => {
     console.log('🚪 RING EXIT:', data);
 
-    // Mark challenger as fading
+    // Mark challenger as fading in all lists
     setActiveChallengers(prev =>
+      prev.map(challenger =>
+        challenger.attemptId === data.attemptId
+          ? { ...challenger, fading: true }
+          : challenger
+      )
+    );
+    setTriviaChallengers(prev =>
+      prev.map(challenger =>
+        challenger.attemptId === data.attemptId
+          ? { ...challenger, fading: true }
+          : challenger
+      )
+    );
+    setProjectPitchChallengers(prev =>
       prev.map(challenger =>
         challenger.attemptId === data.attemptId
           ? { ...challenger, fading: true }
@@ -169,6 +199,12 @@ export default function StagingLeaderboard() {
     // Remove after fade animation (2 seconds)
     setTimeout(() => {
       setActiveChallengers(prev =>
+        prev.filter(c => c.attemptId !== data.attemptId)
+      );
+      setTriviaChallengers(prev =>
+        prev.filter(c => c.attemptId !== data.attemptId)
+      );
+      setProjectPitchChallengers(prev =>
         prev.filter(c => c.attemptId !== data.attemptId)
       );
     }, 2000);
@@ -230,52 +266,49 @@ export default function StagingLeaderboard() {
       if (websocketsDisabled) {
         console.log('[StagingLeaderboard] No data - clearing active challengers');
         setActiveChallengers([]);
+        setTriviaChallengers([]);
+        setProjectPitchChallengers([]);
       }
       return;
     }
 
     const activeEntries = data.activeChallengers ?? [];
-    console.log('[StagingLeaderboard] Processing API data - active challengers:', activeEntries);
+    const triviaEntries = data.triviaChallengers ?? [];
+    const projectPitchEntries = data.projectPitchChallengers ?? [];
 
-    if (activeEntries.length === 0) {
-      if (websocketsDisabled) {
-        console.log('[StagingLeaderboard] No active challengers from API');
-        setActiveChallengers([]);
-      } else {
-        // Even with WebSockets enabled, clear stale challengers
-        setActiveChallengers((prev) => {
+    console.log('[StagingLeaderboard] Processing API data - trivia:', triviaEntries.length, 'pitch:', projectPitchEntries.length);
+
+    // Helper function to process challenger arrays
+    const processChallengers = (
+      entries: ActiveChallengerPayload[],
+      prev: ActiveChallenger[],
+      listName: string
+    ): ActiveChallenger[] => {
+      if (entries.length === 0) {
+        if (websocketsDisabled) {
+          return [];
+        } else {
+          // Clear stale challengers
           const now = Date.now();
-          const STALE_THRESHOLD = 15000; // 15 seconds (3 polling cycles at 5s each)
-          const filtered = prev.filter((entry) => {
+          const STALE_THRESHOLD = 15000;
+          return prev.filter((entry) => {
             const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
-            if (timeSinceLastSeen > STALE_THRESHOLD) {
-              console.log(`[StagingLeaderboard] Removing stale challenger ${entry.attemptId} - not seen in API for ${timeSinceLastSeen}ms`);
-              return false;
-            }
-            return true;
+            return timeSinceLastSeen <= STALE_THRESHOLD;
           });
-          if (filtered.length !== prev.length) {
-            console.log('[StagingLeaderboard] Cleared stale challengers, remaining:', filtered);
-          }
-          return filtered;
-        });
+        }
       }
-      return;
-    }
 
-    setActiveChallengers((prev) => {
       const now = Date.now();
-      const STALE_THRESHOLD = 15000; // 15 seconds (3 polling cycles)
-
+      const STALE_THRESHOLD = 15000;
       const toTimestamp = (iso: string) => {
         const value = new Date(iso).getTime();
         return Number.isFinite(value) ? value : Date.now();
       };
 
       const previousById = new Map(prev.map((entry) => [entry.attemptId, entry]));
-      const nextIds = new Set(activeEntries.map((entry) => entry.attemptId));
+      const nextIds = new Set(entries.map((entry) => entry.attemptId));
 
-      const nextFromApi = activeEntries.map((entry) => {
+      const nextFromApi = entries.map((entry) => {
         const existing = previousById.get(entry.attemptId);
         const timestamp = toTimestamp(entry.startedAt);
 
@@ -286,14 +319,13 @@ export default function StagingLeaderboard() {
             category: entry.category,
             timestamp,
             fading: websocketsDisabled ? false : existing.fading,
-            lastSeenInApi: now, // Update last seen timestamp
+            lastSeenInApi: now,
           };
         }
 
-        // New challenger from API - if WebSockets are disabled, play sounds here
+        // New challenger from API
         if (websocketsDisabled && !previousById.has(entry.attemptId)) {
-          console.log('[StagingLeaderboard] New challenger detected from API (WebSockets disabled):', entry);
-          // Play sounds for new challengers when WebSockets are disabled
+          console.log(`[StagingLeaderboard] New challenger detected in ${listName} (WebSockets disabled):`, entry);
           audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
           setTimeout(() => {
             audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
@@ -306,38 +338,124 @@ export default function StagingLeaderboard() {
           category: entry.category,
           timestamp,
           fading: false,
-          lastSeenInApi: now, // Set initial last seen timestamp
+          lastSeenInApi: now,
         };
       });
 
       if (websocketsDisabled) {
-        const sorted = nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
-        console.log('[StagingLeaderboard] Updating challengers (WebSockets disabled):', sorted);
-        return sorted;
+        return nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
       }
 
       // When WebSockets are enabled, keep challengers not in API ONLY if seen recently
       const remaining = prev.filter((entry) => {
         if (nextIds.has(entry.attemptId)) {
-          return false; // Already in nextFromApi
-        }
-
-        const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
-        if (timeSinceLastSeen > STALE_THRESHOLD) {
-          console.log(`[StagingLeaderboard] Removing stale challenger ${entry.attemptId} - not in API for ${timeSinceLastSeen}ms`);
           return false;
         }
-
-        // Keep for now, but it's not in the latest API response
-        console.log(`[StagingLeaderboard] Keeping challenger ${entry.attemptId} - not in API but seen ${timeSinceLastSeen}ms ago`);
-        return true;
+        const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+        return timeSinceLastSeen <= STALE_THRESHOLD;
       });
 
-      const combined = [...nextFromApi, ...remaining];
-      console.log('[StagingLeaderboard] Updating challengers (WebSockets enabled):', combined);
-      return combined;
-    });
+      return [...nextFromApi, ...remaining];
+    };
+
+    // Update trivia challengers
+    setTriviaChallengers((prev) => processChallengers(triviaEntries, prev, 'trivia'));
+
+    // Update project pitch challengers
+    setProjectPitchChallengers((prev) => processChallengers(projectPitchEntries, prev, 'pitch'));
+
+    // Keep the old activeChallengers for backward compatibility
+    if (activeEntries.length === 0) {
+      if (websocketsDisabled) {
+        setActiveChallengers([]);
+      }
+    } else {
+      setActiveChallengers((prev) => {
+        const now = Date.now();
+        const STALE_THRESHOLD = 15000;
+        const toTimestamp = (iso: string) => {
+          const value = new Date(iso).getTime();
+          return Number.isFinite(value) ? value : Date.now();
+        };
+        const previousById = new Map(prev.map((entry) => [entry.attemptId, entry]));
+        const nextIds = new Set(activeEntries.map((entry) => entry.attemptId));
+
+        const nextFromApi = activeEntries.map((entry) => {
+          const existing = previousById.get(entry.attemptId);
+          const timestamp = toTimestamp(entry.startedAt);
+          if (existing) {
+            return {
+              ...existing,
+              initials: entry.initials,
+              category: entry.category,
+              timestamp,
+              fading: websocketsDisabled ? false : existing.fading,
+              lastSeenInApi: now,
+            };
+          }
+          return {
+            attemptId: entry.attemptId,
+            initials: entry.initials,
+            category: entry.category,
+            timestamp,
+            fading: false,
+            lastSeenInApi: now,
+          };
+        });
+
+        if (websocketsDisabled) {
+          return nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        const remaining = prev.filter((entry) => {
+          if (nextIds.has(entry.attemptId)) return false;
+          const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+          return timeSinceLastSeen <= STALE_THRESHOLD;
+        });
+
+        return [...nextFromApi, ...remaining];
+      });
+    }
   }, [data, websocketsDisabled]);
+
+  // Auto-rotate views on left side (rankings, wordcloud, categories)
+  useEffect(() => {
+    if (!displayData) return;
+
+    const getAvailableViews = () => {
+      const views: Array<"rankings" | "wordcloud" | "categories"> = [];
+
+      // Always include rankings
+      views.push("rankings");
+
+      // Only add other views if they have content
+      if (displayData.wordCloud.length > 0) {
+        views.push("wordcloud");
+      }
+      if (Object.keys(displayData.categoryStats).length > 0 && Object.values(displayData.categoryStats).some(v => v > 0)) {
+        views.push("categories");
+      }
+
+      return views;
+    };
+
+    const availableViews = getAvailableViews();
+    let currentIndex = availableViews.indexOf(activeView);
+
+    // If current view is not available, show rankings
+    if (currentIndex === -1) {
+      setActiveView("rankings");
+      return;
+    }
+
+    // Cycle through views every 10 seconds
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % availableViews.length;
+      setActiveView(availableViews[currentIndex]);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [displayData, activeView]);
 
   // Handle error state
   if (error && !displayData) {
@@ -474,8 +592,273 @@ export default function StagingLeaderboard() {
     );
   };
 
+  const renderChallengerCard = (challenger: ActiveChallenger, stageLabel: string, stageIcon: string) => {
+    const categoryColor = CATEGORY_COLORS[challenger.category as keyof typeof CATEGORY_COLORS] || '#00BCF2';
+    const categoryName = CATEGORY_NAMES[challenger.category as keyof typeof CATEGORY_NAMES];
+
+    return (
+      <div
+        key={challenger.attemptId}
+        className={`p-4 rounded-xl border-2 backdrop-blur-xl transition-all duration-1000 ${
+          challenger.fading
+            ? 'opacity-0 translate-y-4'
+            : 'opacity-100 translate-y-0'
+        }`}
+        style={{
+          borderColor: `${categoryColor}60`,
+          backgroundColor: `${categoryColor}15`
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white"
+            style={{ backgroundColor: categoryColor }}
+          >
+            {challenger.initials}
+          </div>
+          <div className="flex-1">
+            <p className="text-white font-bold text-lg">{stageLabel}</p>
+            <Badge
+              className="text-xs mt-1"
+              style={{ backgroundColor: `${categoryColor}40`, color: categoryColor }}
+            >
+              {categoryName}
+            </Badge>
+          </div>
+          <div className="text-[#78DCFF]/60">
+            <i className={`${stageIcon} text-2xl`}></i>
+  const renderWordCloud = () => {
+    if (displayData.wordCloud.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center py-8">
+          <i className="fas fa-cloud text-4xl text-[#78DCFF]/50 mb-4"></i>
+          <p className="text-lg font-semibold text-white/70">No theme data yet!</p>
+          <p className="text-sm text-[#78DCFF]/60 mt-2">
+            Come back when solutions are submitted to see the most common themes
+          </p>
+        </div>
+      );
+    }
+
+    const maxValue = Math.max(...displayData.wordCloud.map(w => w.value));
+
+    return (
+      <div className="relative w-full h-full flex items-center justify-center min-h-[400px]">
+        {/* Background effects matching staging theme */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-[#00AEFF] rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-[#78DCFF] rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-[#7300FF] rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        {/* Word cloud with organic positioning */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          {displayData.wordCloud.slice(0, 8).map((word, index) => {
+            let size: number;
+            let opacity: number;
+            let zIndex: number;
+            let x: number;
+            let y: number;
+
+            if (index === 0) {
+              // Biggest word - centered
+              opacity = 1;
+              zIndex = 30;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40"
+                    style={{
+                      fontSize: 'clamp(24px, 9vw, 56px)',
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            } else if (index < 5) {
+              // Next 4 words - scattered around center
+              size = 32;
+              opacity = 0.95;
+              zIndex = 20;
+
+              const positions = [
+                { x: -150, y: -80 },
+                { x: 160, y: -60 },
+                { x: -140, y: 90 },
+                { x: 150, y: 70 }
+              ];
+
+              const pos = positions[index - 1];
+              x = pos.x;
+              y = pos.y;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                    style={{
+                      fontSize: `${size}px`,
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            } else {
+              // Remaining 3 words - outer layer
+              size = 24;
+              opacity = 0.8;
+              zIndex = 10;
+
+              const outerPositions = [
+                { x: -200, y: -120 },
+                { x: 0, y: 150 },
+                { x: 180, y: -100 }
+              ];
+
+              const pos = outerPositions[index - 5];
+              x = pos.x;
+              y = pos.y;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                    style={{
+                      fontSize: `${size}px`,
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            }
+          }).filter(Boolean)}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCategoryStats = () => {
+    const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => ({
+      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
+      value: count,
+      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || '#00AEFF'
+    })).filter(item => item.value > 0);
+
+    const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
+
+    if (totalSubmissions === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center py-8">
+          <i className="fas fa-chart-pie text-4xl text-[#78DCFF]/50 mb-4"></i>
+          <p className="text-lg font-semibold text-white/70">No category data yet!</p>
+          <p className="text-sm text-[#78DCFF]/60 mt-2">
+            Come back when solutions are submitted to see the distribution
+          </p>
+        </div>
+      );
+    }
+
+    const chartRadius = 100;
+    const chartHeight = 300;
+
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 h-full py-4">
+        {/* Pie Chart */}
+        <div className="w-full flex justify-center">
+          <PieChart width={300} height={chartHeight}>
+            <Pie
+              data={categoryData}
+              cx="50%"
+              cy="50%"
+              outerRadius={chartRadius}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {categoryData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number, name: string) => {
+                const percent = ((value / totalSubmissions) * 100).toFixed(1);
+                return [`${value} submissions (${percent}%)`, name];
+              }}
+            />
+          </PieChart>
+        </div>
+
+        {/* Legend with percentages and counts */}
+        <div className="w-full max-w-xl mx-auto px-4">
+          <div className="space-y-2">
+            {categoryData.map((entry) => {
+              const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
+              return (
+                <div key={entry.name} className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded flex-shrink-0"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-sm font-medium text-white truncate">{entry.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#78DCFF]/80 whitespace-nowrap">
+                    {percent}% ({entry.value})
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderActiveChallengers = () => {
-    if (activeChallengers.length === 0) {
+    const hasTrivia = triviaChallengers.length > 0;
+    const hasPitch = projectPitchChallengers.length > 0;
+
+    if (!hasTrivia && !hasPitch) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center py-8">
           <i className="fas fa-users text-4xl text-[#78DCFF]/50 mb-4"></i>
@@ -488,47 +871,54 @@ export default function StagingLeaderboard() {
     }
 
     return (
-      <div className="space-y-3">
-        {activeChallengers.map((challenger) => {
-          const categoryColor = CATEGORY_COLORS[challenger.category as keyof typeof CATEGORY_COLORS] || '#00BCF2';
-          const categoryName = CATEGORY_NAMES[challenger.category as keyof typeof CATEGORY_NAMES];
-
-          return (
-            <div
-              key={challenger.attemptId}
-              className={`p-4 rounded-xl border-2 backdrop-blur-xl transition-all duration-1000 ${
-                challenger.fading
-                  ? 'opacity-0 translate-y-4'
-                  : 'opacity-100 translate-y-0'
-              }`}
-              style={{
-                borderColor: `${categoryColor}60`,
-                backgroundColor: `${categoryColor}15`
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white"
-                  style={{ backgroundColor: categoryColor }}
-                >
-                  {challenger.initials}
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold text-lg">In The Ring</p>
-                  <Badge
-                    className="text-xs mt-1"
-                    style={{ backgroundColor: `${categoryColor}40`, color: categoryColor }}
-                  >
-                    {categoryName}
-                  </Badge>
-                </div>
-                <div className="text-[#78DCFF]/60">
-                  <i className="fas fa-fist-raised text-2xl"></i>
-                </div>
-              </div>
+      <div className="space-y-6">
+        {/* Trivia Challenge Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+            <i className="fas fa-brain text-[#00BCF2]"></i>
+            <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider">
+              Trivia Challenge
+            </h3>
+            <span className="ml-auto text-xs text-[#78DCFF]/60">
+              {triviaChallengers.length} {triviaChallengers.length === 1 ? 'Challenger' : 'Challengers'}
+            </span>
+          </div>
+          {hasTrivia ? (
+            <div className="space-y-3">
+              {triviaChallengers.map((challenger) =>
+                renderChallengerCard(challenger, "Trivia Challenge", "fas fa-brain")
+              )}
             </div>
-          );
-        })}
+          ) : (
+            <div className="text-center py-4 text-sm text-white/50">
+              No one in trivia right now
+            </div>
+          )}
+        </div>
+
+        {/* Project Pitch Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+            <i className="fas fa-lightbulb text-[#FFD700]"></i>
+            <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider">
+              Project Pitch
+            </h3>
+            <span className="ml-auto text-xs text-[#78DCFF]/60">
+              {projectPitchChallengers.length} {projectPitchChallengers.length === 1 ? 'Challenger' : 'Challengers'}
+            </span>
+          </div>
+          {hasPitch ? (
+            <div className="space-y-3">
+              {projectPitchChallengers.map((challenger) =>
+                renderChallengerCard(challenger, "Project Pitch", "fas fa-lightbulb")
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-4 text-sm text-white/50">
+              No one in pitch phase right now
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -604,21 +994,49 @@ export default function StagingLeaderboard() {
               <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#007BC3]/10 blur-[160px]"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center">
-                <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
-                  Live Rankings
-                </p>
-                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                  Top 10
-                </CardTitle>
-                <p className="mt-2 text-sm text-[#78DCFF]/80">
-                  {displayData.leaderboard.length > 0
-                    ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
-                    : 'Waiting for first submission'}
-                </p>
+                {activeView === "rankings" && (
+                  <>
+                    <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
+                      Live Rankings
+                    </p>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      Top 10
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      {displayData.leaderboard.length > 0
+                        ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
+                        : 'Waiting for first submission'}
+                    </p>
+                  </>
+                )}
+                {activeView === "wordcloud" && (
+                  <>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      <i className="fas fa-cloud text-[#00AEFF] mr-3"></i>
+                      Popular Themes
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      Most mentioned across submissions
+                    </p>
+                  </>
+                )}
+                {activeView === "categories" && (
+                  <>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      <i className="fas fa-chart-pie text-[#6CC04A] mr-3"></i>
+                      Problem Categories
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      Distribution by category
+                    </p>
+                  </>
+                )}
               </CardHeader>
 
               <CardContent className="relative z-10 pb-8">
-                {renderLeaderboard()}
+                {activeView === "rankings" && renderLeaderboard()}
+                {activeView === "wordcloud" && renderWordCloud()}
+                {activeView === "categories" && renderCategoryStats()}
               </CardContent>
             </Card>
           </div>
@@ -640,7 +1058,7 @@ export default function StagingLeaderboard() {
                   In The Ring
                 </CardTitle>
                 <p className="mt-2 text-sm text-[#9B9BFF]/70">
-                  {activeChallengers.length} {activeChallengers.length === 1 ? 'Challenger' : 'Challengers'}
+                  {triviaChallengers.length + projectPitchChallengers.length} {(triviaChallengers.length + projectPitchChallengers.length) === 1 ? 'Challenger' : 'Challengers'}
                 </p>
               </CardHeader>
 

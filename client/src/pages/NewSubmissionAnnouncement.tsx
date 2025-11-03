@@ -217,26 +217,28 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
         </div>
       )}
 
-      {/* Main content */}
-      <div className="min-h-screen flex items-center justify-center p-4">
-        {showContent && (
-          <div className={`w-full max-w-6xl mx-auto text-center space-y-8 ${
-            animationPhase === 'reveal' ? 'announcement-reveal' : 
-            animationPhase === 'display' ? 'announcement-display' : ''
-          }`}>
+      {/* Main content with frame container like dojo */}
+      <div className="flex min-h-screen p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-4 sm:gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+            {showContent && (
+              <div className={`text-center space-y-4 sm:space-y-6 ${
+                animationPhase === 'reveal' ? 'announcement-reveal' :
+                animationPhase === 'display' ? 'announcement-display' : ''
+              }`}>
             
             {/* NEW SUBMISSION Header */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="announcement-pulse">
-                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-[#78DCFF] drop-shadow-2xl">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#78DCFF] drop-shadow-2xl">
                   NEW
                 </h1>
-                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white drop-shadow-2xl -mt-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-2xl -mt-2">
                   SUBMISSION!
                 </h1>
               </div>
-              
-              <div className="flex justify-center items-center gap-4 text-4xl md:text-6xl text-[#78DCFF]/80">
+
+              <div className="flex justify-center items-center gap-2 sm:gap-3 text-xl sm:text-2xl md:text-3xl text-[#78DCFF]/80">
                 <div className="announcement-bounce">🚀</div>
                 <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
                 <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
@@ -245,17 +247,17 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Participant Name */}
             <div className="announcement-slide-up" style={{ animationDelay: '0.5s' }}>
-              <Card className="glass-panel border-2 border-[#78DCFF]/40 bg-data3-blue-black/40 max-w-4xl mx-auto">
-                <CardContent className="p-8">
-                  <div className="flex items-center justify-center gap-6 mb-6">
-                    <div className="w-20 h-20 rounded-full bg-[#78DCFF]/20 flex items-center justify-center">
-                      <i className="fas fa-user text-4xl text-[#78DCFF]"></i>
+              <Card className="glass-panel border-2 border-[#78DCFF]/40 bg-data3-blue-black/40">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#78DCFF]/20 flex items-center justify-center flex-shrink-0">
+                      <i className="fas fa-user text-xl sm:text-2xl text-[#78DCFF]"></i>
                     </div>
-                    <div>
-                      <h2 className="text-4xl md:text-6xl font-bold text-white">
+                    <div className="text-left">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                         {formatNameToInitials(submission.participantName)}
                       </h2>
-                      <p className="text-xl md:text-2xl text-[#78DCFF]/80">has joined the leaderboard!</p>
+                      <p className="text-sm sm:text-base md:text-lg text-[#78DCFF]/80">has joined the leaderboard!</p>
                     </div>
                   </div>
                 </CardContent>
@@ -264,30 +266,30 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Score Display */}
             <div className="announcement-slide-up" style={{ animationDelay: '0.8s' }}>
-              <Card className="glass-panel border-2 max-w-3xl mx-auto"
+              <Card className="glass-panel border-2"
                     style={{
                       borderColor: `${categoryColor}50`,
                       backgroundColor: `${categoryColor}08`
                     }}>
-                <CardContent className="p-8">
-                  <div className="flex items-center justify-between">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="text-center flex-1">
                       <div className="announcement-score-pulse">
-                        <p className="text-2xl md:text-3xl text-white/80 font-semibold mb-2">FINAL SCORE</p>
-                        <p className="text-7xl md:text-9xl font-black text-white drop-shadow-2xl">
+                        <p className="text-sm sm:text-base md:text-lg text-white/80 font-semibold mb-1">FINAL SCORE</p>
+                        <p className="text-4xl sm:text-5xl md:text-6xl font-black text-white drop-shadow-2xl">
                           {finalScore}
                         </p>
-                        <p className="text-3xl md:text-4xl text-white/60">/{FINAL_MAX}</p>
-                        <p className="text-base md:text-lg text-white/60 mt-2">
+                        <p className="text-xl sm:text-2xl md:text-3xl text-white/60">/{FINAL_MAX}</p>
+                        <p className="text-xs sm:text-sm text-white/60 mt-1">
                           {TRIVIA_MAX} trivia + {PITCH_MAX} pitch points
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="text-center flex-1">
                       <div className="announcement-rank-glow">
-                        <i className={`fas ${rankDisplay.icon} text-5xl md:text-7xl ${rankDisplay.class} mb-4`}></i>
-                        <p className={`text-3xl md:text-4xl font-black ${rankDisplay.class} drop-shadow-lg`}>
+                        <i className={`fas ${rankDisplay.icon} text-3xl sm:text-4xl md:text-5xl ${rankDisplay.class} mb-2`}></i>
+                        <p className={`text-xl sm:text-2xl md:text-3xl font-black ${rankDisplay.class} drop-shadow-lg`}>
                           {rankDisplay.text}
                         </p>
                       </div>
@@ -299,28 +301,28 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Trivia & Pitch Breakdown */}
             <div className="announcement-slide-up" style={{ animationDelay: '1.0s' }}>
-              <Card className="glass-panel border-2 max-w-3xl mx-auto border-[#78DCFF]/40 bg-data3-blue-black/40">
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-                    <div className="space-y-2">
-                      <p className="text-sm md:text-base text-white/70 uppercase tracking-[0.3em]">
+              <Card className="glass-panel border-2 border-[#78DCFF]/40 bg-data3-blue-black/40">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
+                    <div className="space-y-1">
+                      <p className="text-xs sm:text-sm text-white/70 uppercase tracking-[0.2em]">
                         Trivia Score
                       </p>
-                      <p className="text-4xl md:text-5xl font-black text-white">
+                      <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
                         {triviaScore !== null ? triviaScore : "—"}
-                        <span className="text-white/60 text-2xl md:text-3xl">/{TRIVIA_MAX}</span>
+                        <span className="text-white/60 text-lg sm:text-xl md:text-2xl">/{TRIVIA_MAX}</span>
                       </p>
-                      <p className="text-sm text-white/60">Fast-fire quiz performance</p>
+                      <p className="text-xs text-white/60">Fast-fire quiz</p>
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm md:text-base text-white/70 uppercase tracking-[0.3em]">
+                    <div className="space-y-1">
+                      <p className="text-xs sm:text-sm text-white/70 uppercase tracking-[0.2em]">
                         Pitch Score
                       </p>
-                      <p className="text-4xl md:text-5xl font-black text-white">
+                      <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
                         {pitchScore !== null ? pitchScore : "—"}
-                        <span className="text-white/60 text-2xl md:text-3xl">/{PITCH_MAX}</span>
+                        <span className="text-white/60 text-lg sm:text-xl md:text-2xl">/{PITCH_MAX}</span>
                       </p>
-                      <p className="text-sm text-white/60">5 criteria × 8 points each</p>
+                      <p className="text-xs text-white/60">5 criteria × 8 pts</p>
                     </div>
                   </div>
                 </CardContent>
@@ -330,38 +332,38 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {/* Beat the Bot & Raffle Status */}
             {submission.botBar !== undefined && (
               <div className="announcement-slide-up" style={{ animationDelay: '1.1s' }}>
-                <Card className={`glass-panel border-2 max-w-4xl mx-auto ${
+                <Card className={`glass-panel border-2 ${
                   submission.isEligible ? 'border-green-400/50 bg-green-500/10' : 'border-orange-400/50 bg-orange-500/10'
                 }`}>
-                  <CardContent className="p-8">
-                    <div className="text-center space-y-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="text-center space-y-2 sm:space-y-3">
                       {submission.isEligible ? (
                         <>
-                          <div className="flex items-center justify-center gap-4 mb-4">
-                            <i className="fas fa-check-circle text-5xl text-green-400"></i>
-                            <h3 className="text-4xl md:text-5xl font-black text-green-400">
+                          <div className="flex items-center justify-center gap-2 sm:gap-3">
+                            <i className="fas fa-check-circle text-2xl sm:text-3xl md:text-4xl text-green-400"></i>
+                            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-green-400">
                               YOU BEAT THE BOT!
                             </h3>
                           </div>
-                          <p className="text-xl md:text-2xl text-white/90">
+                          <p className="text-sm sm:text-base md:text-lg text-white/90">
                             Your score of <span className="font-bold text-green-400">{finalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
                           </p>
                           {submission.raffleEntered && (
-                            <div className="mt-6 pt-6 border-t border-green-500/30">
-                              <div className="flex items-center justify-center gap-3 mb-2">
-                                <i className="fas fa-ticket-alt text-4xl text-yellow-400"></i>
-                                <h4 className="text-3xl md:text-4xl font-bold text-yellow-400">
+                            <div className="mt-3 pt-3 border-t border-green-500/30">
+                              <div className="flex items-center justify-center gap-2">
+                                <i className="fas fa-ticket-alt text-xl sm:text-2xl text-yellow-400"></i>
+                                <h4 className="text-base sm:text-lg md:text-xl font-bold text-yellow-400">
                                   RAFFLE ENTRY CONFIRMED!
                                 </h4>
                               </div>
-                              <p className="text-lg md:text-xl text-white/80">
+                              <p className="text-xs sm:text-sm md:text-base text-white/80 mt-1">
                                 You've been entered into today's raffle for this category!
                               </p>
                             </div>
                           )}
                           {submission.alreadyEntered && (
-                            <div className="mt-6 pt-6 border-t border-green-500/30">
-                              <p className="text-lg md:text-xl text-white/70">
+                            <div className="mt-3 pt-3 border-t border-green-500/30">
+                              <p className="text-xs sm:text-sm md:text-base text-white/70">
                                 <i className="fas fa-info-circle mr-2"></i>
                                 You were already entered in this category's raffle today
                               </p>
@@ -370,16 +372,16 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                         </>
                       ) : (
                         <>
-                          <div className="flex items-center justify-center gap-4 mb-4">
-                            <i className="fas fa-robot text-5xl text-orange-400"></i>
-                            <h3 className="text-4xl md:text-5xl font-black text-orange-400">
+                          <div className="flex items-center justify-center gap-2 sm:gap-3">
+                            <i className="fas fa-robot text-2xl sm:text-3xl md:text-4xl text-orange-400"></i>
+                            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-orange-400">
                               BOT BAR NOT BEATEN
                             </h3>
                           </div>
-                          <p className="text-xl md:text-2xl text-white/90">
+                          <p className="text-sm sm:text-base md:text-lg text-white/90">
                             Your score of <span className="font-bold">{finalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
                           </p>
-                          <p className="text-lg md:text-xl text-white/70 mt-4">
+                          <p className="text-xs sm:text-sm md:text-base text-white/70 mt-2">
                             Try again to beat the bot and enter the raffle!
                           </p>
                         </>
@@ -392,31 +394,31 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Category Display */}
             <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
-              <Card className="glass-panel border-2 max-w-4xl mx-auto"
+              <Card className="glass-panel border-2"
                     style={{
                       borderColor: `${categoryColor}AA`,
                       backgroundColor: `${categoryColor}15`
                     }}>
-                <CardContent className="p-8">
+                <CardContent className="p-4 sm:p-6">
                   <div className="text-center">
-                    <div className="announcement-category-icon mb-6">
-                      <div className="w-24 h-24 rounded-full mx-auto flex items-center justify-center"
+                    <div className="announcement-category-icon mb-3">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center"
                            style={{ backgroundColor: `${categoryColor}30` }}>
-                        <i className={`fas ${categoryIcon} text-5xl`}
+                        <i className={`fas ${categoryIcon} text-2xl sm:text-3xl`}
                            style={{ color: categoryColor }}></i>
                       </div>
                     </div>
 
                     <Badge
                       variant="secondary"
-                      className="text-2xl md:text-3xl px-8 py-4 mb-4 text-white font-bold"
+                      className="text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 mb-2 text-white font-bold"
                       style={{ backgroundColor: categoryColor }}
                     >
                       {categoryName}
                     </Badge>
 
-                    <p className="text-xl md:text-2xl text-white/80">
-                      Solution category automatically assigned based on content analysis
+                    <p className="text-xs sm:text-sm md:text-base text-white/80">
+                      Solution category automatically assigned
                     </p>
                   </div>
                 </CardContent>
@@ -426,16 +428,16 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             {/* Subscore Breakdown */}
             {submission.subScores && (
               <div className="announcement-slide-up" style={{ animationDelay: '1.7s' }}>
-                <Card className="glass-panel border border-[#78DCFF]/30 max-w-5xl mx-auto bg-data3-blue-black/40">
-                  <CardContent className="p-6">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">
-                      <i className="fas fa-chart-bar mr-3 text-[#78DCFF]"></i>
+                <Card className="glass-panel border border-[#78DCFF]/30 bg-data3-blue-black/40">
+                  <CardContent className="p-3 sm:p-4">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1 text-center">
+                      <i className="fas fa-chart-bar mr-2 text-[#78DCFF]"></i>
                       Pitch Criteria Breakdown
                     </h3>
-                    <p className="text-sm md:text-base text-white/60 text-center mb-6">
-                      Each criterion is scored on a 0–8 scale by the judging panel
+                    <p className="text-xs text-white/60 text-center mb-3">
+                      Each criterion scored 0–8
                     </p>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
                       {Object.entries(submission.subScores).map(([key, value], index) => {
                         const label = key
                           .replace(/_/g, ' ')
@@ -443,11 +445,11 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                         return (
                           <div key={key} className="text-center announcement-subscore-pop"
                                style={{ animationDelay: `${1.9 + index * 0.1}s` }}>
-                            <div className="bg-[#78DCFF]/10 rounded-lg p-4 border border-[#78DCFF]/30">
-                              <p className="text-sm text-white/80 mb-2">
+                            <div className="bg-[#78DCFF]/10 rounded-lg p-2 sm:p-3 border border-[#78DCFF]/30">
+                              <p className="text-xs text-white/80 mb-1">
                                 {label}
                               </p>
-                              <p className="text-2xl md:text-3xl font-bold text-[#78DCFF]">
+                              <p className="text-lg sm:text-xl md:text-2xl font-bold text-[#78DCFF]">
                                 {value}/8
                               </p>
                             </div>
@@ -462,32 +464,34 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
             {/* Action Buttons */}
             <div className="announcement-slide-up" style={{ animationDelay: '2.1s' }}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
                 <Button
                   onClick={() => {
                     audioManager.playClickSound();
                     setLocation('/leaderboard/staging');
                   }}
-                  className="text-xl px-8 py-4 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
+                  className="text-sm sm:text-base md:text-lg px-4 py-2 sm:px-6 sm:py-3 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
                   data-testid="button-view-leaderboard"
                 >
-                  <i className="fas fa-trophy mr-3"></i>
+                  <i className="fas fa-trophy mr-2"></i>
                   View Full Leaderboard
                 </Button>
                 <Button
                   onClick={handleDismiss}
                   variant="outline"
-                  className="text-xl px-8 py-4 border-[#78DCFF]/50 text-[#78DCFF] hover:bg-[#78DCFF]/10"
+                  className="text-sm sm:text-base md:text-lg px-4 py-2 sm:px-6 sm:py-3 border-[#78DCFF]/50 text-[#78DCFF] hover:bg-[#78DCFF]/10"
                   data-testid="button-dismiss-announcement"
                 >
-                  <i className="fas fa-times mr-3"></i>
+                  <i className="fas fa-times mr-2"></i>
                   Dismiss
                 </Button>
               </div>
             </div>
 
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

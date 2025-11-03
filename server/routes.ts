@@ -792,8 +792,13 @@ export async function registerRoutes(
         throw new Error(`Failed to fetch data3 stats: ${error instanceof Error ? error.message : String(error)}`);
       }
 
+      let triviaChallengers, projectPitchChallengers;
       try {
-        log("[dashboard-data] Fetching active challengers");
+        log("[dashboard-data] Fetching active challengers by stage");
+        const challengersByStage = await storage.getActiveRingAttemptsByStage();
+        triviaChallengers = challengersByStage.triviaChallengers;
+        projectPitchChallengers = challengersByStage.projectPitchChallengers;
+        // Keep backwards compatibility
         activeChallengers = await storage.getActiveRingAttempts();
       } catch (error) {
         log(`[dashboard-data] Error fetching active challengers: ${error}`);
@@ -838,6 +843,8 @@ export async function registerRoutes(
         topCategoryStats: topCategoryData3Stats,
         topCategory: categoryForStats, // Use the category that matches the stats being shown
         activeChallengers,
+        triviaChallengers,
+        projectPitchChallengers,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to get dashboard data";
@@ -1174,6 +1181,28 @@ export async function registerRoutes(
       res.json(entries);
     } catch (error) {
       res.status(500).json({ message: "Failed to get raffle entries" });
+    }
+  });
+
+  app.delete("/api/beta-admin/raffle-entries/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      await storage.deleteRaffleEntry(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete raffle entry" });
+    }
+  });
+
+  app.get("/api/beta-admin/bot-bar-stats", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const stats = await storage.getBotBarStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get bot bar stats" });
     }
   });
 
