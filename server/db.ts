@@ -4,10 +4,10 @@ import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import { sql } from "drizzle-orm";
 import * as schema from "../shared/schema.js";
 
-// IMPORTANT: Do NOT configure WebSocket for serverless environments
-// The @neondatabase/serverless package uses HTTP fetch by default, which is
-// the recommended and most stable approach for serverless platforms like Vercel.
-// WebSocket connections cause "Cannot set property message" errors in serverless.
+// IMPORTANT: Explicitly disable WebSocket for serverless environments
+// The @neondatabase/serverless package tries to use WebSocket by default, which causes
+// "Cannot set property message" errors in serverless environments like Vercel.
+// We must explicitly configure it to use HTTP fetch instead.
 
 // Detect if running in serverless environment
 const isServerless = !!(
@@ -16,12 +16,15 @@ const isServerless = !!(
   process.env.VERCEL_ENV
 );
 
-if (!isServerless) {
-  // For local development, we can optionally use WebSocket (but HTTP fetch works fine too)
-  console.log('[db] Running in local development mode');
+if (isServerless) {
+  // For serverless (Vercel, AWS Lambda), explicitly disable WebSocket and use HTTP fetch
+  // This prevents the "Cannot set property message" error
+  neonConfig.webSocketConstructor = undefined;
+  neonConfig.fetchConnectionCache = true;
+  console.log('[db] Running in serverless environment - WebSocket disabled, using HTTP fetch for database connections');
 } else {
-  // For serverless (Vercel, AWS Lambda), use HTTP fetch (no configuration needed)
-  console.log('[db] Running in serverless environment - using HTTP fetch for database connections');
+  // For local development, we can use WebSocket or HTTP fetch (both work fine)
+  console.log('[db] Running in local development mode');
 }
 
 let pool: Pool | null = null;
