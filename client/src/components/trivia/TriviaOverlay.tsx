@@ -204,8 +204,12 @@ export function TriviaOverlay({
                           Try Again
                         </Button>
                       )}
-                      <Button variant="outline" onClick={handleExitClick} className="max-[480px]:w-full">
-                        Abandon attempt
+                      <Button
+                        variant="outline"
+                        onClick={mode === "dojo" ? onExit : handleExitClick}
+                        className="max-[480px]:w-full"
+                      >
+                        {mode === "dojo" ? "Return to Dojo" : "Abandon attempt"}
                       </Button>
                     </div>
                   )}
