@@ -252,6 +252,21 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
         "created_at" timestamptz NOT NULL DEFAULT now()
       )
     `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "word_cloud_entries" (
+        "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
+        "word" text NOT NULL,
+        "count" integer NOT NULL DEFAULT 1,
+        "source" text NOT NULL DEFAULT 'manual',
+        "active" boolean NOT NULL DEFAULT true,
+        "created_at" timestamptz NOT NULL DEFAULT now(),
+        "updated_at" timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "idx_word_cloud_entries_active" ON "word_cloud_entries" ("active")
+    `);
   } catch (error) {
     console.error("[db] Failed to ensure trivia schema:", error);
   }
@@ -1512,11 +1527,17 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       processText(submission.solutionText);
     });
 
-    // Get manual word cloud entries from the database
-    const manualEntries = await db
-      .select()
-      .from(schema.wordCloudEntries)
-      .where(eq(schema.wordCloudEntries.active, true));
+    // Get manual word cloud entries from the database (with error handling for missing table)
+    let manualEntries: Array<{ word: string; count: number }> = [];
+    try {
+      manualEntries = await db
+        .select()
+        .from(schema.wordCloudEntries)
+        .where(eq(schema.wordCloudEntries.active, true));
+    } catch (error) {
+      console.warn('[wordCloud] Failed to fetch manual word cloud entries, table may not exist:', error);
+      // Continue without manual entries if table doesn't exist
+    }
 
     // Add manual entries to the technology counts, giving them their specified weight
     manualEntries.forEach(entry => {
@@ -1569,83 +1590,98 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getActiveRingAttempts(): Promise<Array<{ attemptId: string; initials: string; category: string; startedAt: string }>> {
-    const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+    try {
+      const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
 
-    const rows = await db
-      .select({
-        attemptId: attempts.id,
-        category: attempts.category,
-        startedAt: attempts.startedAt,
-        firstName: users.firstName,
-        lastName: users.lastName,
-      })
-      .from(attempts)
-      .leftJoin(users, eq(attempts.emailHash, users.emailHash))
-      .where(
-        and(
-          eq(attempts.mode, "ring"),
-          isNull(attempts.endedAt),
-          gt(attempts.startedAt, cutoff),
-        ),
-      )
-      .orderBy(desc(attempts.startedAt));
+      const rows = await db
+        .select({
+          attemptId: attempts.id,
+          category: attempts.category,
+          startedAt: attempts.startedAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(attempts)
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.endedAt),
+            gt(attempts.startedAt, cutoff),
+          ),
+        )
+        .orderBy(desc(attempts.startedAt));
 
-    return rows.map((row) => {
-      const firstInitial = row.firstName?.trim()?.[0] ?? "";
-      const lastInitial = row.lastName?.trim()?.[0] ?? "";
-      const fallback = row.attemptId.slice(0, 2).toUpperCase();
-      const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+      return rows.map((row) => {
+        const firstInitial = row.firstName?.trim()?.[0] ?? "";
+        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const fallback = row.attemptId.slice(0, 2).toUpperCase();
+        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
 
-      return {
-        attemptId: row.attemptId,
-        category: row.category,
-        startedAt: row.startedAt ? row.startedAt.toISOString() : new Date().toISOString(),
-        initials,
-      };
-    });
+        return {
+          attemptId: row.attemptId,
+          category: row.category,
+          startedAt: row.startedAt ? row.startedAt.toISOString() : new Date().toISOString(),
+          initials,
+        };
+      });
+    } catch (error) {
+      console.warn('[getActiveRingAttempts] Error fetching active ring attempts:', error);
+      return [];
+    }
   },
 
     async getRecentSubmission(): Promise<any> {
-    const [result] = await db
-      .select({
-        id: submissions.id,
-        participantId: submissions.participantId,
-        category: submissions.category,
-        solutionText: submissions.solutionText,
-        structuredJson: submissions.structuredJson,
-        subScores: submissions.subScores,
-        totalScore: submissions.totalScore,
-        evaluationNotes: submissions.evaluationNotes,
-        createdAt: submissions.createdAt,
-        name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
-      })
-      .from(submissions)
-      .innerJoin(participants, eq(submissions.participantId, participants.id))
-      .orderBy(desc(submissions.createdAt))
-      .limit(1);
-    
-    if (!result) return null;
-    
-    // Parse JSON strings for subScores and structuredJson
-    return {
-      ...result,
-      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
-      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
-    };
+    try {
+      const [result] = await db
+        .select({
+          id: submissions.id,
+          participantId: submissions.participantId,
+          category: submissions.category,
+          solutionText: submissions.solutionText,
+          structuredJson: submissions.structuredJson,
+          subScores: submissions.subScores,
+          totalScore: submissions.totalScore,
+          evaluationNotes: submissions.evaluationNotes,
+          createdAt: submissions.createdAt,
+          name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
+        })
+        .from(submissions)
+        .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .orderBy(desc(submissions.createdAt))
+        .limit(1);
+
+      if (!result) return null;
+
+      // Parse JSON strings for subScores and structuredJson
+      return {
+        ...result,
+        subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+        structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+      };
+    } catch (error) {
+      console.warn('[getRecentSubmission] Error fetching recent submission:', error);
+      return null;
+    }
   },
 
     async getTopProblemCategory(): Promise<string> {
-    const [result] = await db
-      .select({
-        category: submissions.category,
-        count: sql<number>`count(*)::int`,
-      })
-      .from(submissions)
-      .groupBy(submissions.category)
-      .orderBy(desc(sql`count(*)`))
-      .limit(1);
-    
-    return result?.category || "SECURE_CONNECTIVITY";
+    try {
+      const [result] = await db
+        .select({
+          category: submissions.category,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(submissions)
+        .groupBy(submissions.category)
+        .orderBy(desc(sql`count(*)`))
+        .limit(1);
+
+      return result?.category || "SECURE_CONNECTIVITY";
+    } catch (error) {
+      console.warn('[getTopProblemCategory] Error fetching top category, returning default:', error);
+      return "SECURE_CONNECTIVITY";
+    }
   },
 
     async clearDatabase(): Promise<void> {
