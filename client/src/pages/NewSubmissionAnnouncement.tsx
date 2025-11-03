@@ -462,7 +462,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               </div>
             )}
 
-            {/* Action Buttons */}
+            {/* Action Button */}
             <div className="announcement-slide-up" style={{ animationDelay: '2.1s' }}>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
                 <Button
