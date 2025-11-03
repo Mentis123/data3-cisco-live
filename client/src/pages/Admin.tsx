@@ -85,9 +85,9 @@ interface ScoredSubmission {
   subScores: {
     clarity: number;
     impact: number;
-    kpi_strength: number;
-    execution: number;
-    confidence: number;
+    technology_fit: number;
+    feasibility: number;
+    business_value: number;
   };
   evaluationNotes: string | null;
   createdAt: string;
@@ -101,9 +101,9 @@ interface SubmissionDetails {
   subScores: {
     clarity: number;
     impact: number;
-    kpi_strength: number;
-    execution: number;
-    confidence: number;
+    technology_fit: number;
+    feasibility: number;
+    business_value: number;
   };
   solutionText: string;
   structuredJson: any;
@@ -808,7 +808,7 @@ function ScoredSubmissionsTab() {
                     <td className="py-3 px-2">
                       <div className="font-bold text-lg">{entry.totalScore}/100</div>
                       <div className="text-xs text-muted-foreground">
-                        C:{entry.subScores.clarity} I:{entry.subScores.impact} K:{entry.subScores.kpi_strength} E:{entry.subScores.execution} Cf:{entry.subScores.confidence}
+                        C:{entry.subScores.clarity} I:{entry.subScores.impact} T:{entry.subScores.technology_fit} F:{entry.subScores.feasibility} B:{entry.subScores.business_value}
                       </div>
                     </td>
                     <td className="py-3 px-2">
@@ -883,21 +883,21 @@ function ScoredSubmissionsTab() {
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">KPI Strength</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.kpi_strength)}`}>
-                        {submissionDetails.subScores.kpi_strength}/8
+                      <div className="text-sm text-muted-foreground mb-1">Technology Fit</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.technology_fit)}`}>
+                        {submissionDetails.subScores.technology_fit}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Execution</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.execution)}`}>
-                        {submissionDetails.subScores.execution}/8
+                      <div className="text-sm text-muted-foreground mb-1">Feasibility</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.feasibility)}`}>
+                        {submissionDetails.subScores.feasibility}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Confidence</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.confidence)}`}>
-                        {submissionDetails.subScores.confidence}/8
+                      <div className="text-sm text-muted-foreground mb-1">Business Value</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.business_value)}`}>
+                        {submissionDetails.subScores.business_value}/8
                       </div>
                     </div>
                     <div className="bg-primary/10 rounded-lg p-3">
