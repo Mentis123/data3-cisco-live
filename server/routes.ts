@@ -221,8 +221,13 @@ export async function registerRoutes(
   const { server = null, enableWebSocket = true } = options;
   const httpServer = server ?? (enableWebSocket ? createServer(app) : null);
 
+  log(`[Routes] Registering routes - enableWebSocket: ${enableWebSocket}, httpServer: ${!!httpServer}`);
+
   if (enableWebSocket && httpServer) {
+    log('[Routes] Setting up WebSocket server...');
     setupWebSocket(httpServer);
+  } else {
+    log('[Routes] Skipping WebSocket setup');
   }
 
   // Warm up database connection on startup to prevent cold start issues
