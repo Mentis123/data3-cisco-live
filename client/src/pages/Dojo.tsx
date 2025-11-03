@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ const dojoExperiences: Record<DojoExperienceId, {
 };
 
 export default function Dojo({ params }: DojoRouteProps) {
+  const [, setLocation] = useLocation();
   const rawMode = params?.mode;
   const fallbackMode: DojoExperienceId = "trivia-cards";
   const mode = rawMode
@@ -79,25 +80,23 @@ export default function Dojo({ params }: DojoRouteProps) {
           </div>
 
           <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
-            <Link href="/play">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
-              >
-                Enter the Ring Now
-              </Button>
-            </Link>
-            <Link href="/">
-              <Button
-                size="lg"
-                variant="ghost"
-                className={BACK_TO_HOME_BUTTON_CLASSES}
-              >
-                <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
-                <span>Back to Home</span>
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setLocation("/play")}
+              className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+            >
+              Enter the Ring Now
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setLocation("/")}
+              className={BACK_TO_HOME_BUTTON_CLASSES}
+            >
+              <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+              <span>Back to Home</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -145,25 +144,23 @@ export default function Dojo({ params }: DojoRouteProps) {
         </div>
 
         <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
-          <Link href="/play">
-            <Button
-              size="lg"
-              variant="outline"
-              className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
-            >
-              Enter the Ring Now
-            </Button>
-          </Link>
-          <Link href="/">
-            <Button
-              size="lg"
-              variant="ghost"
-              className={BACK_TO_HOME_BUTTON_CLASSES}
-            >
-              <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
-              <span>Back to Home</span>
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => setLocation("/play")}
+            className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+          >
+            Enter the Ring Now
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => setLocation("/")}
+            className={BACK_TO_HOME_BUTTON_CLASSES}
+          >
+            <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+            <span>Back to Home</span>
+          </Button>
         </div>
       </div>
     </div>
