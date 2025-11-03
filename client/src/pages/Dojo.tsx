@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TriviaWarmup } from "@/components/trivia";
+import { BACK_TO_HOME_BUTTON_CLASSES, BACK_TO_HOME_ICON_CLASSES } from "@/constants/buttons";
 import NotFound from "@/pages/not-found";
 import dojoFullImage from "@assets/dojofull.jpg";
 
@@ -91,9 +92,10 @@ export default function Dojo({ params }: DojoRouteProps) {
               <Button
                 size="lg"
                 variant="ghost"
-                className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+                className={BACK_TO_HOME_BUTTON_CLASSES}
               >
-                Back to Home
+                <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+                <span>Back to Home</span>
               </Button>
             </Link>
           </div>
@@ -156,9 +158,10 @@ export default function Dojo({ params }: DojoRouteProps) {
             <Button
               size="lg"
               variant="ghost"
-              className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+              className={BACK_TO_HOME_BUTTON_CLASSES}
             >
-              Back to Home
+              <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+              <span>Back to Home</span>
             </Button>
           </Link>
         </div>
