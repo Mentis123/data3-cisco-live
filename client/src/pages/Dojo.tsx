@@ -75,28 +75,27 @@ export default function Dojo({ params }: DojoRouteProps) {
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
           <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
             <TriviaWarmup mode="dojo" className="flex-1" />
-          </div>
-
-          <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
-            <Link href="/play">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
-              >
-                Enter the Ring Now
-              </Button>
-            </Link>
-            <Link href="/">
-              <Button
-                size="lg"
-                variant="ghost"
-                className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
-              >
-                <i className="fas fa-home mr-2"></i>
-                Back to Home
-              </Button>
-            </Link>
+            <div className="mx-auto mt-8 grid w-full max-w-md gap-3 sm:grid-cols-2">
+              <Link href="/play">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+                >
+                  Enter the Ring Now
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="w-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
+                >
+                  <i className="fas fa-home mr-2"></i>
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -141,9 +140,7 @@ export default function Dojo({ params }: DojoRouteProps) {
             </ul>
           </CardContent>
         </Card>
-        </div>
-
-        <div className="mx-auto mt-10 grid w-full max-w-md gap-3 sm:grid-cols-2">
+        <div className="mx-auto mt-8 grid w-full max-w-md gap-3 sm:grid-cols-2">
           <Link href="/play">
             <Button
               size="lg"
@@ -163,6 +160,7 @@ export default function Dojo({ params }: DojoRouteProps) {
               Back to Home
             </Button>
           </Link>
+        </div>
         </div>
       </div>
     </div>
