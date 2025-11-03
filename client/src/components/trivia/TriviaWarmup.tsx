@@ -289,130 +289,134 @@ export function TriviaWarmup({
           setIsCreatingAttempt(true);
           setAttemptQuestions([]);
 
-          // Retry logic for handling intermittent database issues
-          const maxRetries = 3;
-          let lastError: Error | null = null;
+          try {
+            // Retry logic for handling intermittent database issues
+            const maxRetries = 3;
+            let lastError: Error | null = null;
 
-          for (let attempt = 0; attempt < maxRetries; attempt++) {
-            try {
-              if (attempt > 0) {
-                // Exponential backoff: 1s, 2s, 4s
-                const waitTime = Math.pow(2, attempt - 1) * 1000;
-                console.log(`[TriviaWarmup] Retrying attempt creation (${attempt + 1}/${maxRetries}) after ${waitTime}ms...`);
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-              }
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+              try {
+                if (attempt > 0) {
+                  // Exponential backoff: 1s, 2s, 4s
+                  const waitTime = Math.pow(2, attempt - 1) * 1000;
+                  console.log(`[TriviaWarmup] Retrying attempt creation (${attempt + 1}/${maxRetries}) after ${waitTime}ms...`);
+                  await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
 
-              const response = await fetch("/api/trivia/attempts", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                  category: selectedTrack.id,
-                  mode: "ring",
-                  email: sanitizedEmail,
-                  playerProfile:
-                    sanitizedFirstName || sanitizedLastName
-                      ? {
-                          ...(sanitizedFirstName ? { firstName: sanitizedFirstName } : {}),
-                          ...(sanitizedLastName ? { lastName: sanitizedLastName } : {}),
-                        }
-                      : undefined,
-                }),
-              });
+                const response = await fetch("/api/trivia/attempts", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({
+                    category: selectedTrack.id,
+                    mode: "ring",
+                    email: sanitizedEmail,
+                    playerProfile:
+                      sanitizedFirstName || sanitizedLastName
+                        ? {
+                            ...(sanitizedFirstName ? { firstName: sanitizedFirstName } : {}),
+                            ...(sanitizedLastName ? { lastName: sanitizedLastName } : {}),
+                          }
+                        : undefined,
+                  }),
+                });
 
-              type StartAttemptResponse =
-                | {
-                    attemptId?: unknown;
-                    attempt?: { id?: unknown } | null;
-                    cards?: unknown;
-                    message?: string;
-                    retryable?: boolean;
-                  }
-                | null;
+                type StartAttemptResponse =
+                  | {
+                      attemptId?: unknown;
+                      attempt?: { id?: unknown } | null;
+                      cards?: unknown;
+                      message?: string;
+                      retryable?: boolean;
+                    }
+                  | null;
 
-              const payload = (await response.json().catch(() => null)) as StartAttemptResponse;
+                const payload = (await response.json().catch(() => null)) as StartAttemptResponse;
 
-              if (response.status === 409) {
-                const errorMessage =
-                  payload && typeof payload === "object" && "message" in payload
-                    ? String((payload as { message?: string }).message)
-                    : "You have already submitted for this category today";
-                setAttemptError(errorMessage);
-                setSelectedTrack(null);
-                setIsCreatingAttempt(false);
-                return;
-              }
-
-              // Retry on 503 (database temporarily unavailable)
-              if (response.status === 503) {
-                const isRetryable = payload && typeof payload === "object" && "retryable" in payload && payload.retryable;
-                if (isRetryable && attempt < maxRetries - 1) {
-                  console.log(`[TriviaWarmup] Database temporarily unavailable (503), will retry...`);
-                  lastError = new Error(
+                if (response.status === 409) {
+                  const errorMessage =
                     payload && typeof payload === "object" && "message" in payload
                       ? String((payload as { message?: string }).message)
-                      : "Database temporarily unavailable"
-                  );
-                  continue; // Retry
+                      : "You have already submitted for this category today";
+                  setAttemptError(errorMessage);
+                  setSelectedTrack(null);
+                  return;
                 }
-              }
 
-              if (!response.ok) {
-                const message =
-                  payload && typeof payload === "object" && "message" in payload
-                    ? String((payload as { message?: string }).message)
-                    : "Failed to start trivia attempt";
-                throw new Error(message);
-              }
-
-            let nextAttemptId: string | null = null;
-            if (payload && typeof payload === "object") {
-              if (typeof payload.attemptId === "string") {
-                nextAttemptId = payload.attemptId;
-              } else if (typeof payload.attemptId === "number") {
-                nextAttemptId = String(payload.attemptId);
-              } else if (payload.attempt && typeof payload.attempt === "object" && payload.attempt !== null) {
-                const attempt = payload.attempt as { id?: unknown };
-                if (typeof attempt.id === "string") {
-                  nextAttemptId = attempt.id;
-                } else if (typeof attempt.id === "number") {
-                  nextAttemptId = String(attempt.id);
+                // Retry on 503 (database temporarily unavailable)
+                if (response.status === 503) {
+                  const isRetryable = payload && typeof payload === "object" && "retryable" in payload && payload.retryable;
+                  if (isRetryable && attempt < maxRetries - 1) {
+                    console.log(`[TriviaWarmup] Database temporarily unavailable (503), will retry...`);
+                    lastError = new Error(
+                      payload && typeof payload === "object" && "message" in payload
+                        ? String((payload as { message?: string }).message)
+                        : "Database temporarily unavailable"
+                    );
+                    continue; // Retry
+                  }
                 }
+
+                if (!response.ok) {
+                  const message =
+                    payload && typeof payload === "object" && "message" in payload
+                      ? String((payload as { message?: string }).message)
+                      : "Failed to start trivia attempt";
+                  throw new Error(message);
+                }
+
+                let nextAttemptId: string | null = null;
+                if (payload && typeof payload === "object") {
+                  if (typeof payload.attemptId === "string") {
+                    nextAttemptId = payload.attemptId;
+                  } else if (typeof payload.attemptId === "number") {
+                    nextAttemptId = String(payload.attemptId);
+                  } else if (payload.attempt && typeof payload.attempt === "object" && payload.attempt !== null) {
+                    const attempt = payload.attempt as { id?: unknown };
+                    if (typeof attempt.id === "string") {
+                      nextAttemptId = attempt.id;
+                    } else if (typeof attempt.id === "number") {
+                      nextAttemptId = String(attempt.id);
+                    }
+                  }
+                }
+
+                const rawCards =
+                  payload && typeof payload === "object" && Array.isArray((payload as { cards?: unknown }).cards)
+                    ? ((payload as { cards: unknown[] }).cards).filter(isDeckCard)
+                    : [];
+
+                if (!nextAttemptId) {
+                  throw new Error("Invalid attempt response");
+                }
+
+                if (rawCards.length === 0) {
+                  throw new Error("No trivia cards returned for this attempt");
+                }
+
+                setAttemptId(nextAttemptId);
+                setAttemptQuestions(rawCards.map(triviaCardToQuestion));
+                setAttemptError(null);
+                setIsCreatingAttempt(false);
+                setShowOverlay(true);
+                return; // Success - exit retry loop
+              } catch (error) {
+                lastError = error instanceof Error ? error : new Error("Failed to start trivia attempt");
+
+                // If it's the last attempt, throw to be caught by outer catch
+                if (attempt === maxRetries - 1) {
+                  throw lastError;
+                }
+
+                console.log(`[TriviaWarmup] Attempt ${attempt + 1} failed:`, lastError.message);
               }
             }
 
-            const rawCards =
-              payload && typeof payload === "object" && Array.isArray((payload as { cards?: unknown }).cards)
-                ? ((payload as { cards: unknown[] }).cards).filter(isDeckCard)
-                : [];
-
-            if (!nextAttemptId) {
-              throw new Error("Invalid attempt response");
-            }
-
-            if (rawCards.length === 0) {
-              throw new Error("No trivia cards returned for this attempt");
-            }
-
-              setAttemptId(nextAttemptId);
-              setAttemptQuestions(rawCards.map(triviaCardToQuestion));
-              setAttemptError(null);
-              setShowOverlay(true);
-              return; // Success - exit retry loop
-            } catch (error) {
-              lastError = error instanceof Error ? error : new Error("Failed to start trivia attempt");
-
-              // If it's the last attempt, throw to be caught by outer catch
-              if (attempt === maxRetries - 1) {
-                throw lastError;
-              }
-
-              console.log(`[TriviaWarmup] Attempt ${attempt + 1} failed:`, lastError.message);
-            }
+            // If we get here, all retries failed
+            throw lastError || new Error("Failed to start trivia attempt after multiple retries");
+          } finally {
+            setIsCreatingAttempt(false);
           }
-
-          // If we get here, all retries failed
-          throw lastError || new Error("Failed to start trivia attempt after multiple retries");
         };
 
         void createAttempt().catch((error) => {
@@ -422,7 +426,6 @@ export function TriviaWarmup({
           setAttemptQuestions([]);
           setShowOverlay(false);
           setSelectedTrack(null);
-          setIsCreatingAttempt(false);
         });
         return;
       }
