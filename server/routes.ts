@@ -1029,6 +1029,40 @@ export async function registerRoutes(
     }
   });
 
+  // Staging Leaderboard Admin endpoints
+  app.get("/api/admin/staging/active-challengers", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const challengers = await storage.getActiveRingAttemptsDetailed();
+      res.json(challengers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get active challengers" });
+    }
+  });
+
+  app.delete("/api/admin/staging/active-challenger/:attemptId", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      await storage.forceEndRingAttempt(req.params.attemptId);
+      res.json({ message: "Challenger removed successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove challenger" });
+    }
+  });
+
+  app.post("/api/admin/staging/clear-stale", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const count = await storage.clearStaleRingAttempts();
+      res.json({ message: `Cleared ${count} stale challengers`, count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to clear stale challengers" });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/reset", async (req, res) => {
     try {

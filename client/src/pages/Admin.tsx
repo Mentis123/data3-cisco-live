@@ -121,6 +121,17 @@ interface WordCloudEntry {
   updatedAt: string;
 }
 
+interface ActiveChallenger {
+  attemptId: string;
+  initials: string;
+  category: string;
+  startedAt: string;
+  emailHash: string;
+  firstName: string | null;
+  lastName: string | null;
+  elapsedMinutes: number;
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",
   "HYBRID_DC": "bg-[#6CC04A]",
@@ -1413,6 +1424,177 @@ function WordCloudTab() {
   );
 }
 
+function StagingLeaderboardTab() {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem("adminKey") || "";
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const { data: challengers, isLoading, refetch } = useQuery<ActiveChallenger[]>({
+    queryKey: ["/api/admin/staging/active-challengers"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/staging/active-challengers", {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch active challengers");
+      return response.json();
+    },
+    refetchInterval: 5000, // Auto-refresh every 5 seconds
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async (attemptId: string) => {
+      const response = await fetch(`/api/admin/staging/active-challenger/${attemptId}`, {
+        method: "DELETE",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to remove challenger");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      setDeleteConfirmId(null);
+      toast({ title: "Challenger removed successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to remove challenger", variant: "destructive" });
+    },
+  });
+
+  const clearStaleMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/admin/staging/clear-stale", {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to clear stale challengers");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      toast({ title: `Cleared ${data.count} stale challengers` });
+    },
+    onError: () => {
+      toast({ title: "Failed to clear stale challengers", variant: "destructive" });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">Loading active challengers...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const activeCount = challengers?.length || 0;
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Active Challengers ({activeCount})</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Users currently "in the ring" on the staging leaderboard
+              </p>
+            </div>
+            <Button
+              onClick={() => clearStaleMutation.mutate()}
+              variant="outline"
+              disabled={clearStaleMutation.isPending || activeCount === 0}
+            >
+              Clear Stale Entries
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!challengers || challengers.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No active challengers
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3 font-medium">Initials</th>
+                    <th className="text-left p-3 font-medium">Name</th>
+                    <th className="text-left p-3 font-medium">Category</th>
+                    <th className="text-left p-3 font-medium">Started</th>
+                    <th className="text-left p-3 font-medium">Elapsed</th>
+                    <th className="text-left p-3 font-medium">Email Hash</th>
+                    <th className="text-right p-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {challengers.map((challenger) => (
+                    <tr key={challenger.attemptId} className="border-b hover:bg-muted/50">
+                      <td className="p-3 font-mono">{challenger.initials}</td>
+                      <td className="p-3">
+                        {challenger.firstName && challenger.lastName
+                          ? `${challenger.firstName} ${challenger.lastName}`
+                          : <span className="text-muted-foreground">N/A</span>}
+                      </td>
+                      <td className="p-3">
+                        <Badge className={CATEGORY_COLORS[challenger.category]}>
+                          {CATEGORY_NAMES[challenger.category] || challenger.category}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-sm text-muted-foreground">
+                        {new Date(challenger.startedAt).toLocaleString()}
+                      </td>
+                      <td className="p-3">
+                        <span className={challenger.elapsedMinutes > 10 ? "text-destructive font-medium" : ""}>
+                          {challenger.elapsedMinutes}m
+                        </span>
+                      </td>
+                      <td className="p-3 font-mono text-xs text-muted-foreground">
+                        {challenger.emailHash.slice(0, 12)}...
+                      </td>
+                      <td className="p-3 text-right">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setDeleteConfirmId(challenger.attemptId)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Challenger</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to force-end this challenger's ring attempt? This will remove them from the "In The Ring" display on the staging leaderboard.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteConfirmId && removeMutation.mutate(deleteConfirmId)}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -1493,6 +1675,7 @@ export default function Admin() {
             <TabsTrigger value="raffle">Raffle Entries</TabsTrigger>
             <TabsTrigger value="submissions">Scored Submissions</TabsTrigger>
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
+            <TabsTrigger value="staging">Staging Leaderboard</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -1513,6 +1696,10 @@ export default function Admin() {
 
           <TabsContent value="wordcloud">
             <WordCloudTab />
+          </TabsContent>
+
+          <TabsContent value="staging">
+            <StagingLeaderboardTab />
           </TabsContent>
         </Tabs>
       </div>
