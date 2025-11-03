@@ -62,21 +62,23 @@ export function SettingsMenu() {
             isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-16 pointer-events-none"
           )}
         >
-          {/* Feedback Button */}
+          {/* Music/Video Volume Dial */}
           <button
-            onClick={handleFeedbackClick}
+            onClick={handleVolumeChange}
             className={cn(
               "h-12 w-12 rounded-full",
-              "bg-primary text-primary-foreground",
+              "bg-gradient-to-br from-purple-500 to-pink-500",
+              "text-white",
               "shadow-lg hover:shadow-xl",
               "transition-all duration-300 ease-out",
               "hover:scale-110 active:scale-95",
               "flex items-center justify-center",
-              "border-2 border-primary/20"
+              "border-2 border-purple-400/50",
+              "font-bold text-sm"
             )}
-            aria-label="Open feedback"
+            aria-label={`Music/Video volume ${volumePercent}% relative to sound effects`}
           >
-            <MessageSquare className="h-6 w-6" />
+            {volumePercent}%
           </button>
 
           {/* Music Toggle */}
@@ -121,23 +123,21 @@ export function SettingsMenu() {
             )}
           </button>
 
-          {/* Music/Video Volume Dial */}
+          {/* Feedback Button */}
           <button
-            onClick={handleVolumeChange}
+            onClick={handleFeedbackClick}
             className={cn(
               "h-12 w-12 rounded-full",
-              "bg-gradient-to-br from-purple-500 to-pink-500",
-              "text-white",
+              "bg-primary text-primary-foreground",
               "shadow-lg hover:shadow-xl",
               "transition-all duration-300 ease-out",
               "hover:scale-110 active:scale-95",
               "flex items-center justify-center",
-              "border-2 border-purple-400/50",
-              "font-bold text-sm"
+              "border-2 border-primary/20"
             )}
-            aria-label={`Music/Video volume ${volumePercent}% relative to sound effects`}
+            aria-label="Open feedback"
           >
-            {volumePercent}%
+            <MessageSquare className="h-6 w-6" />
           </button>
         </div>
 
@@ -146,13 +146,14 @@ export function SettingsMenu() {
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "h-12 w-12 rounded-full",
-            "bg-gradient-to-br from-gray-700 to-gray-800",
-            "text-white",
             "shadow-lg hover:shadow-xl",
             "transition-all duration-300 ease-out",
             "hover:scale-110 active:scale-95",
             "flex items-center justify-center",
-            "border-2 border-gray-600/50"
+            "border-2",
+            isOpen
+              ? "bg-gray-800/80 border-[#00AEFF]/50 text-[#00AEFF]"
+              : "bg-gradient-to-br from-gray-700 to-gray-800 text-white border-gray-600/50"
           )}
           aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
         >

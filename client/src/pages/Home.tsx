@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
-import { audioManager } from "@/lib/audio";
+import { audioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -29,9 +29,27 @@ export default function Home() {
 
   // Initialize audio
   useEffect(() => {
+    const baseVolume = 0.1; // Reduced by 50% from 0.2
     audioRef.current = new Audio('/sliding_stone.mp3');
-    audioRef.current.volume = 0.1; // Reduced by 50% from 0.2
     audioRef.current.playbackRate = 0.8; // Play at 80% speed
+
+    const applyVolume = (volume: number) => {
+      if (!audioRef.current) {
+        return;
+      }
+
+      const clampedVolume = Math.max(0, Math.min(1, volume));
+      audioRef.current.volume = baseVolume * clampedVolume;
+    };
+
+    applyVolume(audioManager.getMusicVolume());
+
+    const handleVolumeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<number>;
+      applyVolume(customEvent.detail);
+    };
+
+    window.addEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
 
     // For mobile browsers, we need to prime the audio on user interaction
     const enableAudio = () => {
@@ -52,6 +70,7 @@ export default function Home() {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      window.removeEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
       document.removeEventListener('touchstart', enableAudio);
       document.removeEventListener('click', enableAudio);
     };

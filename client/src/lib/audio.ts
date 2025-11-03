@@ -4,6 +4,8 @@ import homeSoundFile from "@assets/home_sound.mp3";
 import buzzSoundFile from "@assets/buzz.mp3";
 import clickSoundFile from "@assets/click.mp3";
 
+export const MUSIC_VOLUME_CHANGE_EVENT = "data3:music-volume-change";
+
 // Audio manager for playing sound effects
 export class AudioManager {
   private static instance: AudioManager;
@@ -20,6 +22,17 @@ export class AudioManager {
   private musicEnabled: boolean = true; // Music on/off
   private soundsEnabled: boolean = true; // Sound effects on/off
   private musicVolume: number = 1.0; // Music/video volume relative to sound effects (0.0 to 1.0, default 100%)
+  private dispatchMusicVolumeChange(): void {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(MUSIC_VOLUME_CHANGE_EVENT, {
+        detail: this.musicVolume,
+      })
+    );
+  }
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -608,6 +621,7 @@ export class AudioManager {
       this.homeAudio.volume = 0.075 * this.musicVolume;
     }
 
+    this.dispatchMusicVolumeChange();
     this.saveAudioSettings();
   }
 
