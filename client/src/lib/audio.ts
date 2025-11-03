@@ -17,6 +17,9 @@ export class AudioManager {
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
   private isImmersive: boolean = false; // Will be loaded from localStorage
+  private musicEnabled: boolean = true; // Music on/off
+  private soundsEnabled: boolean = true; // Sound effects on/off
+  private masterVolume: number = 1.0; // Master volume (0.0 to 1.0, default 100%)
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -43,6 +46,27 @@ export class AudioManager {
         }
         console.log('[AudioManager] Loaded immersive state from localStorage:', this.isImmersive);
       }
+
+      // Load music enabled state
+      const musicState = localStorage.getItem('musicEnabled');
+      if (musicState !== null) {
+        this.musicEnabled = musicState === 'true';
+      }
+
+      // Load sounds enabled state
+      const soundsState = localStorage.getItem('soundsEnabled');
+      if (soundsState !== null) {
+        this.soundsEnabled = soundsState === 'true';
+      }
+
+      // Load master volume
+      const volumeState = localStorage.getItem('masterVolume');
+      if (volumeState !== null) {
+        this.masterVolume = parseFloat(volumeState);
+        if (isNaN(this.masterVolume) || this.masterVolume < 0 || this.masterVolume > 1) {
+          this.masterVolume = 1.0;
+        }
+      }
     } catch (error) {
       console.warn('[AudioManager] Failed to load immersive state from localStorage:', error);
     }
@@ -54,6 +78,17 @@ export class AudioManager {
       console.log('[AudioManager] Saved immersive state to localStorage:', this.isImmersive);
     } catch (error) {
       console.warn('[AudioManager] Failed to save immersive state to localStorage:', error);
+    }
+  }
+
+  private saveAudioSettings(): void {
+    try {
+      localStorage.setItem('musicEnabled', String(this.musicEnabled));
+      localStorage.setItem('soundsEnabled', String(this.soundsEnabled));
+      localStorage.setItem('masterVolume', String(this.masterVolume));
+      console.log('[AudioManager] Saved audio settings to localStorage');
+    } catch (error) {
+      console.warn('[AudioManager] Failed to save audio settings to localStorage:', error);
     }
   }
 
@@ -79,7 +114,7 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.075; // 7.5% volume (increased by 50% from 5%)
+      this.homeAudio.volume = 0.075 * this.masterVolume; // 7.5% volume with master volume applied
       this.homeAudio.loop = true; // Loop continuously
       this.homeAudio.muted = this.isMuted;
     }
@@ -158,9 +193,18 @@ export class AudioManager {
   public async playFlashSound(): Promise<void> {
     if (!this.ensureAudioReady() || !this.flashAudio || this.isMuted) return;
 
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Flash sound skipped - sound effects are disabled');
+      return;
+    }
+
     try {
       // Reset to beginning if already playing
       this.flashAudio.currentTime = 0;
+
+      // Apply master volume
+      this.flashAudio.volume = 0.9 * this.masterVolume;
 
       // Play the flash sound immediately
       await this.flashAudio.play();
@@ -173,9 +217,18 @@ export class AudioManager {
   public async playNewChallengerSound(): Promise<void> {
     if (!this.ensureAudioReady() || !this.challengerAudio || this.isMuted) return;
 
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Challenger sound skipped - sound effects are disabled');
+      return;
+    }
+
     try {
       // Reset to beginning if already playing
       this.challengerAudio.currentTime = 0;
+
+      // Apply master volume
+      this.challengerAudio.volume = 0.4 * this.masterVolume;
 
       // Play the challenger sound
       await this.challengerAudio.play();
@@ -188,9 +241,18 @@ export class AudioManager {
   public async playHomeSound(): Promise<void> {
     if (!this.ensureAudioReady() || !this.homeAudio) return;
 
+    // Don't play if music is disabled
+    if (!this.musicEnabled) {
+      console.log('[AudioManager] Home sound skipped - music is disabled');
+      return;
+    }
+
     try {
       // Reset to beginning if already playing
       this.homeAudio.currentTime = 0;
+
+      // Apply master volume
+      this.homeAudio.volume = 0.075 * this.masterVolume;
 
       // Play the home sound (will loop continuously, respects muted property)
       await this.homeAudio.play();
@@ -203,12 +265,14 @@ export class AudioManager {
   public ensureHomeSoundPlaying(): void {
     if (!this.ensureAudioReady() || !this.homeAudio) return;
 
-    // Only ensure playing if immersive mode is on and not muted
-    if (!this.isImmersive || this.isMuted) return;
+    // Only ensure playing if immersive mode is on and not muted and music is enabled
+    if (!this.isImmersive || this.isMuted || !this.musicEnabled) return;
 
     // Check if the home sound is not playing
     if (this.homeAudio.paused) {
       console.log('[AudioManager] Home sound was paused, restarting...');
+      // Apply master volume before playing
+      this.homeAudio.volume = 0.075 * this.masterVolume;
       this.homeAudio.play().catch(err => {
         console.warn('Could not restart home sound:', err);
       });
@@ -228,11 +292,20 @@ export class AudioManager {
       return;
     }
 
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Buzz sound skipped - sound effects are disabled');
+      return;
+    }
+
     if (!this.ensureAudioReady() || !this.buzzAudio) return;
 
     try {
       // Reset to beginning if already playing
       this.buzzAudio.currentTime = 0;
+
+      // Apply master volume
+      this.buzzAudio.volume = 1.0 * this.masterVolume;
 
       // Play the buzz sound
       await this.buzzAudio.play();
@@ -256,6 +329,12 @@ export class AudioManager {
       return;
     }
 
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Click sound skipped - sound effects are disabled');
+      return;
+    }
+
     // Try Web Audio API first (much faster playback)
     if (this.audioContext && this.clickAudioBuffer) {
       try {
@@ -270,7 +349,7 @@ export class AudioManager {
 
         // Create a gain node for volume control
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.6; // 60% volume - crisp but not overwhelming
+        gainNode.gain.value = 0.6 * this.masterVolume; // Apply master volume
 
         // Connect: source -> gain -> destination
         source.connect(gainNode);
@@ -293,6 +372,9 @@ export class AudioManager {
 
     // Reset to beginning if already playing
     this.clickAudio.currentTime = 0;
+
+    // Apply master volume
+    this.clickAudio.volume = 0.6 * this.masterVolume;
 
     // Play the click sound immediately (non-blocking)
     console.log('[AudioManager] Playing click sound via HTMLAudioElement (fallback)');
@@ -459,6 +541,94 @@ export class AudioManager {
     if (this.clickAudio) {
       this.clickAudio.load();
     }
+  }
+
+  // Music control methods
+  public toggleMusic(): boolean {
+    this.musicEnabled = !this.musicEnabled;
+    console.log('[AudioManager] Music toggled:', this.musicEnabled);
+
+    // If music is disabled, stop the home sound
+    if (!this.musicEnabled && this.homeAudio) {
+      this.homeAudio.pause();
+    } else if (this.musicEnabled && this.isImmersive && !this.isMuted) {
+      // If music is enabled and immersive mode is on, restart home sound
+      this.ensureHomeSoundPlaying();
+    }
+
+    this.saveAudioSettings();
+    return this.musicEnabled;
+  }
+
+  public setMusic(enabled: boolean): void {
+    this.musicEnabled = enabled;
+    console.log('[AudioManager] Music set to:', this.musicEnabled);
+
+    // If music is disabled, stop the home sound
+    if (!this.musicEnabled && this.homeAudio) {
+      this.homeAudio.pause();
+    } else if (this.musicEnabled && this.isImmersive && !this.isMuted) {
+      // If music is enabled and immersive mode is on, restart home sound
+      this.ensureHomeSoundPlaying();
+    }
+
+    this.saveAudioSettings();
+  }
+
+  public isMusicEnabled(): boolean {
+    return this.musicEnabled;
+  }
+
+  // Sound effects control methods
+  public toggleSounds(): boolean {
+    this.soundsEnabled = !this.soundsEnabled;
+    console.log('[AudioManager] Sound effects toggled:', this.soundsEnabled);
+    this.saveAudioSettings();
+    return this.soundsEnabled;
+  }
+
+  public setSounds(enabled: boolean): void {
+    this.soundsEnabled = enabled;
+    console.log('[AudioManager] Sound effects set to:', this.soundsEnabled);
+    this.saveAudioSettings();
+  }
+
+  public isSoundsEnabled(): boolean {
+    return this.soundsEnabled;
+  }
+
+  // Master volume control methods
+  public setMasterVolume(volume: number): void {
+    // Clamp volume between 0 and 1
+    this.masterVolume = Math.max(0, Math.min(1, volume));
+    console.log('[AudioManager] Master volume set to:', this.masterVolume);
+
+    // Update all audio elements with new volume
+    if (this.homeAudio) {
+      this.homeAudio.volume = 0.075 * this.masterVolume;
+    }
+    if (this.flashAudio) {
+      this.flashAudio.volume = 0.9 * this.masterVolume;
+    }
+    if (this.challengerAudio) {
+      this.challengerAudio.volume = 0.4 * this.masterVolume;
+    }
+    if (this.buzzAudio) {
+      this.buzzAudio.volume = 1.0 * this.masterVolume;
+    }
+    if (this.clickAudio) {
+      this.clickAudio.volume = 0.6 * this.masterVolume;
+    }
+
+    this.saveAudioSettings();
+  }
+
+  public getMasterVolume(): number {
+    return this.masterVolume;
+  }
+
+  public getMasterVolumePercent(): number {
+    return Math.round(this.masterVolume * 100);
   }
 }
 

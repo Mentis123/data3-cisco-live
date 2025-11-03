@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ChatbotWidget } from "@/components/ChatbotWidget";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import { ImmersiveToggle } from "@/components/VolumeToggle";
 import { audioManager } from "@/lib/audio";
 import { useEffect, useRef } from "react";
@@ -198,7 +198,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <ChatbotWidget />
+        <SettingsMenu />
         <ImmersiveToggle />
         {/* Flash overlay for animations */}
         <div id="flashOverlay" className="flash-overlay" />
