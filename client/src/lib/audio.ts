@@ -48,9 +48,13 @@ export class AudioManager {
     // Load immersive mode state from localStorage
     this.loadImmersiveState();
 
-    this.initializeAudioElements();
+    // IMPORTANT: Initialize Web Audio and detect volume control support BEFORE initializing audio elements
+    // This ensures that on mobile devices, we know to use Web Audio API before creating the audio elements
     this.initializeWebAudio();
     this.detectVolumeControlSupport();
+
+    // Now initialize audio elements with the correct volume control method
+    this.initializeAudioElements();
   }
 
   private loadImmersiveState(): void {
