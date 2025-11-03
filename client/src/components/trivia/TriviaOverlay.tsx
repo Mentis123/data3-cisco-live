@@ -42,16 +42,9 @@ export function TriviaOverlay({
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [scaleState, setScaleState] = useState<{
-    scale: number;
-    height: number;
-    width: number;
-    naturalWidth: number;
-  }>({
+  const [scaleState, setScaleState] = useState<{ scale: number; height: number }>({
     scale: 1,
     height: 0,
-    width: 0,
-    naturalWidth: 0,
   });
 
   useEffect(() => {
@@ -62,70 +55,33 @@ export function TriviaOverlay({
       const contentEl = contentRef.current;
 
       if (!containerEl || !contentEl) {
-        setScaleState((prev) =>
-          prev.scale === 1
-            ? prev
-            : {
-                scale: 1,
-                height: 0,
-                width: 0,
-                naturalWidth: 0,
-              },
-        );
+        setScaleState((prev) => (prev.scale === 1 ? prev : { scale: 1, height: 0 }));
         return;
       }
 
       const availableHeight = containerEl.clientHeight;
-      const availableWidth = containerEl.clientWidth;
       const naturalHeight = contentEl.scrollHeight;
-      const naturalWidth = contentEl.scrollWidth;
 
-      if (
-        availableHeight <= 0 ||
-        availableWidth <= 0 ||
-        naturalHeight <= 0 ||
-        naturalWidth <= 0
-      ) {
-        setScaleState((prev) =>
-          prev.scale === 1
-            ? prev
-            : {
-                scale: 1,
-                height: 0,
-                width: 0,
-                naturalWidth: 0,
-              },
-        );
+      if (availableHeight <= 0 || naturalHeight <= 0) {
+        setScaleState((prev) => (prev.scale === 1 ? prev : { scale: 1, height: 0 }));
         return;
       }
 
       const verticalPadding = Math.max(24, Math.min(64, availableHeight * 0.08));
-      const horizontalPadding = Math.max(16, Math.min(48, availableWidth * 0.06));
       const usableHeight = availableHeight - verticalPadding;
-      const usableWidth = availableWidth - horizontalPadding;
-      const heightScale =
-        usableHeight > 0 ? usableHeight / naturalHeight : availableHeight / naturalHeight;
-      const widthScale = usableWidth > 0 ? usableWidth / naturalWidth : availableWidth / naturalWidth;
-      const rawScale = Math.min(1, heightScale, widthScale);
+      const heightScale = usableHeight > 0 ? usableHeight / naturalHeight : availableHeight / naturalHeight;
+      const rawScale = Math.min(1, heightScale);
       const nextScale = Number.isFinite(rawScale) && rawScale > 0 ? rawScale : 1;
       const scaledHeight = naturalHeight * nextScale;
-      const scaledWidth = naturalWidth * nextScale;
 
       setScaleState((prev) => {
         if (
           Math.abs(prev.scale - nextScale) < 0.01 &&
-          Math.abs(prev.height - scaledHeight) < 1 &&
-          Math.abs(prev.width - scaledWidth) < 1 &&
-          Math.abs(prev.naturalWidth - naturalWidth) < 1
+          Math.abs(prev.height - scaledHeight) < 1
         ) {
           return prev;
         }
-        return {
-          scale: nextScale,
-          height: scaledHeight,
-          width: scaledWidth,
-          naturalWidth,
-        };
+        return { scale: nextScale, height: scaledHeight };
       });
     };
 
@@ -175,21 +131,12 @@ export function TriviaOverlay({
       ? {
           transform: `scale(${scaleState.scale})`,
           transformOrigin: "top center",
-          width:
-            scaleState.naturalWidth > 0 ? `${scaleState.naturalWidth}px` : undefined,
-          maxWidth: "100%",
         }
       : undefined;
 
   const reservedStyle: CSSProperties | undefined =
     scaleState.scale < 1 && scaleState.height > 0
-      ? {
-          height: `${scaleState.height}px`,
-          width: scaleState.width > 0 ? `${scaleState.width}px` : undefined,
-          maxWidth: "100%",
-          margin: "0 auto",
-          overflow: "hidden",
-        }
+      ? { height: `${scaleState.height}px` }
       : undefined;
 
   const handleExitClick = () => {
