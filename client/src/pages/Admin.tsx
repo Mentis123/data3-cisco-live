@@ -1056,6 +1056,7 @@ function ScoredSubmissionsTab() {
 function RaffleTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const { data: entries, isLoading } = useQuery<RaffleEntry[]>({
     queryKey: ["/api/beta-admin/raffle-entries"],
@@ -1065,6 +1066,25 @@ function RaffleTab() {
       });
       if (!response.ok) throw new Error("Failed to fetch raffle entries");
       return response.json();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/beta-admin/raffle-entries/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to delete raffle entry");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/raffle-entries"] });
+      setDeleteConfirmId(null);
+      toast({ title: "Raffle entry deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete raffle entry", variant: "destructive" });
     },
   });
 
@@ -1164,18 +1184,252 @@ function RaffleTab() {
                       {new Date(entry.createdAt).toLocaleString()}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-mono text-muted-foreground">
-                      {entry.emailHash.slice(0, 16)}...
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-sm font-mono text-muted-foreground">
+                        {entry.emailHash.slice(0, 16)}...
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Raffle Date: {entry.raffleDate}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Raffle Date: {entry.raffleDate}
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDeleteConfirmId(entry.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
           </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this raffle entry? This action cannot be undone.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function BotBarStatsTab() {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem("adminKey") || "";
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  const { data: stats, isLoading } = useQuery<Array<{
+    date: string;
+    category: string;
+    botBar: number;
+    totalAttempts: number;
+    eligibleCount: number;
+    ineligibleCount: number;
+    avgTotalScore: number;
+  }>>({
+    queryKey: ["/api/beta-admin/bot-bar-stats"],
+    queryFn: async () => {
+      const response = await fetch("/api/beta-admin/bot-bar-stats", {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch bot bar stats");
+      return response.json();
+    },
+  });
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading bot bar statistics...</div>;
+  }
+
+  // Get unique categories
+  const categories = ["all", ...new Set(stats?.map(s => s.category) || [])];
+
+  // Filter data by selected category
+  const filteredStats = selectedCategory === "all"
+    ? stats
+    : stats?.filter(s => s.category === selectedCategory);
+
+  // Group by date for combined view
+  const groupedByDate = filteredStats?.reduce((acc, stat) => {
+    const existing = acc.find(item => item.date === stat.date);
+    if (existing) {
+      existing.totalAttempts += stat.totalAttempts;
+      existing.eligibleCount += stat.eligibleCount;
+      existing.ineligibleCount += stat.ineligibleCount;
+      existing.avgTotalScore = (existing.avgTotalScore + stat.avgTotalScore) / 2;
+      existing.botBar = (existing.botBar + stat.botBar) / 2;
+    } else {
+      acc.push({ ...stat });
+    }
+    return acc;
+  }, [] as typeof filteredStats) || [];
+
+  // Sort by date
+  const sortedData = selectedCategory === "all"
+    ? groupedByDate.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    : (filteredStats || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold">Bot Bar Statistics</h2>
+          <p className="text-muted-foreground">Timeline of bot bar thresholds and pass/fail rates</p>
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat === "all" ? "All Categories" : cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Attempts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {sortedData.reduce((sum, s) => sum + s.totalAttempts, 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Eligible (Passed)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">
+              {sortedData.reduce((sum, s) => sum + s.eligibleCount, 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Ineligible (Failed)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-600">
+              {sortedData.reduce((sum, s) => sum + s.ineligibleCount, 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Bot Bar</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {sortedData.length > 0
+                ? (sortedData.reduce((sum, s) => sum + s.botBar, 0) / sortedData.length).toFixed(1)
+                : 0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bot Bar Timeline Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Bot Bar Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[400px]">
+            {sortedData.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                No data available for the selected category
+              </div>
+            ) : (
+              <div className="w-full h-full">
+                <p className="text-sm text-muted-foreground mb-4">
+                  The bot bar is the threshold score participants must exceed to be eligible for raffle entries.
+                  Green bars show eligible participants, red bars show ineligible participants, and the line shows the bot bar threshold over time.
+                </p>
+                <div className="space-y-4">
+                  {sortedData.map((stat, index) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <div>
+                          <span className="font-medium">{new Date(stat.date).toLocaleDateString()}</span>
+                          {stat.category && <Badge className="ml-2">{stat.category}</Badge>}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Bot Bar: <span className="font-bold">{stat.botBar}</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <div className="text-muted-foreground">Total Attempts</div>
+                          <div className="text-xl font-bold">{stat.totalAttempts}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Eligible</div>
+                          <div className="text-xl font-bold text-green-600">{stat.eligibleCount}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {((stat.eligibleCount / stat.totalAttempts) * 100).toFixed(1)}%
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Ineligible</div>
+                          <div className="text-xl font-bold text-red-600">{stat.ineligibleCount}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {((stat.ineligibleCount / stat.totalAttempts) * 100).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <div className="flex h-8 rounded overflow-hidden">
+                          <div
+                            className="bg-green-500 flex items-center justify-center text-white text-xs"
+                            style={{ width: `${(stat.eligibleCount / stat.totalAttempts) * 100}%` }}
+                          >
+                            {stat.eligibleCount > 0 && `${stat.eligibleCount}`}
+                          </div>
+                          <div
+                            className="bg-red-500 flex items-center justify-center text-white text-xs"
+                            style={{ width: `${(stat.ineligibleCount / stat.totalAttempts) * 100}%` }}
+                          >
+                            {stat.ineligibleCount > 0 && `${stat.ineligibleCount}`}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -1676,6 +1930,7 @@ export default function Admin() {
             <TabsTrigger value="submissions">Scored Submissions</TabsTrigger>
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
             <TabsTrigger value="staging">Staging Leaderboard</TabsTrigger>
+            <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -1700,6 +1955,10 @@ export default function Admin() {
 
           <TabsContent value="staging">
             <StagingLeaderboardTab />
+          </TabsContent>
+
+          <TabsContent value="botbarstats">
+            <BotBarStatsTab />
           </TabsContent>
         </Tabs>
       </div>
