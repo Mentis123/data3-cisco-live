@@ -44,6 +44,7 @@ interface ActiveChallenger {
   category: string;
   timestamp: number;
   fading: boolean;
+  lastSeenInApi?: number; // Track when we last saw this in API response for cleanup
 }
 
 // Consistent color scheme for all categories
@@ -142,10 +143,12 @@ export default function StagingLeaderboard() {
       }
       // Add new challenger at the top
       console.log('[StagingLeaderboard] Adding new challenger to list:', entry);
+      const now = Date.now();
       return [{
         ...entry,
-        timestamp: Date.now(),
-        fading: false
+        timestamp: now,
+        fading: false,
+        lastSeenInApi: now
       }, ...prev];
     });
   };
@@ -238,11 +241,32 @@ export default function StagingLeaderboard() {
       if (websocketsDisabled) {
         console.log('[StagingLeaderboard] No active challengers from API');
         setActiveChallengers([]);
+      } else {
+        // Even with WebSockets enabled, clear stale challengers
+        setActiveChallengers((prev) => {
+          const now = Date.now();
+          const STALE_THRESHOLD = 15000; // 15 seconds (3 polling cycles at 5s each)
+          const filtered = prev.filter((entry) => {
+            const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+            if (timeSinceLastSeen > STALE_THRESHOLD) {
+              console.log(`[StagingLeaderboard] Removing stale challenger ${entry.attemptId} - not seen in API for ${timeSinceLastSeen}ms`);
+              return false;
+            }
+            return true;
+          });
+          if (filtered.length !== prev.length) {
+            console.log('[StagingLeaderboard] Cleared stale challengers, remaining:', filtered);
+          }
+          return filtered;
+        });
       }
       return;
     }
 
     setActiveChallengers((prev) => {
+      const now = Date.now();
+      const STALE_THRESHOLD = 15000; // 15 seconds (3 polling cycles)
+
       const toTimestamp = (iso: string) => {
         const value = new Date(iso).getTime();
         return Number.isFinite(value) ? value : Date.now();
@@ -262,6 +286,7 @@ export default function StagingLeaderboard() {
             category: entry.category,
             timestamp,
             fading: websocketsDisabled ? false : existing.fading,
+            lastSeenInApi: now, // Update last seen timestamp
           };
         }
 
@@ -281,6 +306,7 @@ export default function StagingLeaderboard() {
           category: entry.category,
           timestamp,
           fading: false,
+          lastSeenInApi: now, // Set initial last seen timestamp
         };
       });
 
@@ -290,7 +316,23 @@ export default function StagingLeaderboard() {
         return sorted;
       }
 
-      const remaining = prev.filter((entry) => !nextIds.has(entry.attemptId));
+      // When WebSockets are enabled, keep challengers not in API ONLY if seen recently
+      const remaining = prev.filter((entry) => {
+        if (nextIds.has(entry.attemptId)) {
+          return false; // Already in nextFromApi
+        }
+
+        const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+        if (timeSinceLastSeen > STALE_THRESHOLD) {
+          console.log(`[StagingLeaderboard] Removing stale challenger ${entry.attemptId} - not in API for ${timeSinceLastSeen}ms`);
+          return false;
+        }
+
+        // Keep for now, but it's not in the latest API response
+        console.log(`[StagingLeaderboard] Keeping challenger ${entry.attemptId} - not in API but seen ${timeSinceLastSeen}ms ago`);
+        return true;
+      });
+
       const combined = [...nextFromApi, ...remaining];
       console.log('[StagingLeaderboard] Updating challengers (WebSockets enabled):', combined);
       return combined;
