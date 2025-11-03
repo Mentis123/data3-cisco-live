@@ -314,6 +314,12 @@ export class AudioManager {
     if (!this.ensureAudioReady() || !this.buzzAudio) return;
 
     try {
+      // If the audio element has an error, reload it to reset the state
+      if (this.buzzAudio.error) {
+        console.log('[AudioManager] Buzz audio in error state, reloading...');
+        this.buzzAudio.load();
+      }
+
       // Reset to beginning if already playing
       this.buzzAudio.currentTime = 0;
 
@@ -325,6 +331,12 @@ export class AudioManager {
       console.log('[AudioManager] Playing buzz sound');
     } catch (error) {
       console.warn('Could not play buzz sound:', error);
+      // Try to recover by reloading the audio element for next time
+      try {
+        this.buzzAudio.load();
+      } catch (loadError) {
+        console.warn('Could not reload buzz audio:', loadError);
+      }
       // Don't throw error - audio failure shouldn't break the app
     }
   }
@@ -616,9 +628,13 @@ export class AudioManager {
     this.musicVolume = Math.max(0, Math.min(1, volume));
     console.log('[AudioManager] Music/video volume set to:', this.musicVolume);
 
+    // Ensure audio elements are ready before updating volume
+    this.ensureAudioReady();
+
     // Update music audio elements with new volume (sound effects stay at full volume)
     if (this.homeAudio) {
       this.homeAudio.volume = 0.075 * this.musicVolume;
+      console.log('[AudioManager] Home audio volume updated to:', this.homeAudio.volume);
     }
 
     this.dispatchMusicVolumeChange();
