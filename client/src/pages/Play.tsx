@@ -51,6 +51,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { TriviaWarmup } from "@/components/trivia";
+import { BACK_TO_HOME_BUTTON_CLASSES, BACK_TO_HOME_ICON_CLASSES } from "@/constants/buttons";
 
 type CategoryTheme = {
   border: string;
@@ -776,14 +777,15 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 <Button
                   variant="ghost"
+                  size="lg"
                   onClick={() => {
                     audioManager.playClickSound();
                     setLocation(exitDestination);
                   }}
-                  className="w-full border border-white/10 bg-transparent text-slate-200 hover:bg-white/10"
+                  className={BACK_TO_HOME_BUTTON_CLASSES}
                 >
-                  <i className="fas fa-arrow-left mr-2"></i>
-                  Back to home
+                  <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+                  <span>Back to Home</span>
                 </Button>
 
                 <p className="text-xs text-center text-slate-400">
@@ -1045,8 +1047,13 @@ Just describe it naturally - what's the problem that needs solving?`
 
             <div className="flex flex-wrap gap-3">
               <Link href="/">
-                <Button variant="secondary" className="backdrop-blur">
-                  Back to home
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={BACK_TO_HOME_BUTTON_CLASSES}
+                >
+                  <i className={BACK_TO_HOME_ICON_CLASSES} aria-hidden="true" />
+                  <span>Back to Home</span>
                 </Button>
               </Link>
               <Link href="/dojo">
