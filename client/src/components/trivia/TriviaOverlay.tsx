@@ -152,7 +152,7 @@ export function TriviaOverlay({
     <>
       {/* Full screen overlay backdrop */}
       <div
-        className="fixed inset-0 z-50 flex min-h-[100svh] items-center justify-center bg-slate-950/95 px-4 pt-[max(env(safe-area-inset-top),1.25rem)] pb-[max(env(safe-area-inset-bottom),1.25rem)] backdrop-blur-md sm:px-6"
+        className="fixed inset-0 z-50 flex min-h-[100svh] items-start justify-center bg-slate-950/95 px-4 pt-[max(env(safe-area-inset-top),1.25rem)] pb-[max(env(safe-area-inset-bottom),1.25rem)] backdrop-blur-md sm:items-center sm:px-6"
       >
         {/* Exit button */}
         <button
