@@ -98,13 +98,15 @@ export default function Leaderboard() {
   const leaderboardPath = isOldRoute ? "/old/leaderboard" : "/leaderboard";
 
   // Fetch dashboard data early so dependent callbacks always have refetch available
-  const { data, isLoading, refetch } = useQuery<DashboardData>({
+  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["dashboard-data"],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/dashboard-data");
       return response.json();
     },
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const triggerScoreAnimation = useCallback((entryId: string, score?: number | null) => {
@@ -526,6 +528,41 @@ export default function Leaderboard() {
     
     return () => clearTimeout(timer);
   }, [newSubmissionTime]);
+
+    // Handle error state
+    if (error && !displayData) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+          <div className="portrait-leaderboard mx-auto flex w-full flex-1 flex-col">
+            <div className="flex flex-1 flex-col gap-10 px-4 pb-20 pt-12 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+              <div className="relative overflow-hidden rounded-[32px] border border-red-500/30 bg-slate-950/70 px-4 pb-16 pt-12 shadow-[0_45px_140px_-80px_rgba(239,68,68,0.75)] backdrop-blur-xl sm:px-8 lg:px-12">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-0 rounded-[inherit] border border-red-500/20"
+                />
+                <div className="relative z-10 flex min-h-[260px] flex-col items-center justify-center gap-4 text-center">
+                  <i className="fas fa-exclamation-triangle text-5xl text-red-400 mb-2"></i>
+                  <div className="space-y-3">
+                    <p className="text-xl font-semibold text-white">Failed to load leaderboard</p>
+                    <p className="text-sm text-red-100/80 max-w-md">
+                      {error instanceof Error ? error.message : 'An unexpected error occurred'}
+                    </p>
+                    <Button
+                      onClick={() => refetch()}
+                      variant="outline"
+                      className="mt-4 border-red-400/40 hover:bg-red-500/20"
+                    >
+                      <i className="fas fa-sync-alt mr-2"></i>
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (isLoading || !displayData) {
       return (
