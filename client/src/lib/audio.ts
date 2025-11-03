@@ -19,7 +19,7 @@ export class AudioManager {
   private isImmersive: boolean = false; // Will be loaded from localStorage
   private musicEnabled: boolean = true; // Music on/off
   private soundsEnabled: boolean = true; // Sound effects on/off
-  private masterVolume: number = 1.0; // Master volume (0.0 to 1.0, default 100%)
+  private musicVolume: number = 1.0; // Music/video volume relative to sound effects (0.0 to 1.0, default 100%)
 
   private constructor() {
     this.isAudioSupported = typeof window !== "undefined" && typeof Audio !== "undefined";
@@ -59,12 +59,12 @@ export class AudioManager {
         this.soundsEnabled = soundsState === 'true';
       }
 
-      // Load master volume
-      const volumeState = localStorage.getItem('masterVolume');
+      // Load music volume (relative to sound effects)
+      const volumeState = localStorage.getItem('musicVolume');
       if (volumeState !== null) {
-        this.masterVolume = parseFloat(volumeState);
-        if (isNaN(this.masterVolume) || this.masterVolume < 0 || this.masterVolume > 1) {
-          this.masterVolume = 1.0;
+        this.musicVolume = parseFloat(volumeState);
+        if (isNaN(this.musicVolume) || this.musicVolume < 0 || this.musicVolume > 1) {
+          this.musicVolume = 1.0;
         }
       }
     } catch (error) {
@@ -85,7 +85,7 @@ export class AudioManager {
     try {
       localStorage.setItem('musicEnabled', String(this.musicEnabled));
       localStorage.setItem('soundsEnabled', String(this.soundsEnabled));
-      localStorage.setItem('masterVolume', String(this.masterVolume));
+      localStorage.setItem('musicVolume', String(this.musicVolume));
       console.log('[AudioManager] Saved audio settings to localStorage');
     } catch (error) {
       console.warn('[AudioManager] Failed to save audio settings to localStorage:', error);
@@ -114,7 +114,7 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.075 * this.masterVolume; // 7.5% volume with master volume applied
+      this.homeAudio.volume = 0.075 * this.musicVolume; // 7.5% volume with music volume applied
       this.homeAudio.loop = true; // Loop continuously
       this.homeAudio.muted = this.isMuted;
     }
@@ -203,8 +203,8 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.flashAudio.currentTime = 0;
 
-      // Apply master volume
-      this.flashAudio.volume = 0.9 * this.masterVolume;
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.flashAudio.volume = 0.9;
 
       // Play the flash sound immediately
       await this.flashAudio.play();
@@ -227,8 +227,8 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.challengerAudio.currentTime = 0;
 
-      // Apply master volume
-      this.challengerAudio.volume = 0.4 * this.masterVolume;
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.challengerAudio.volume = 0.4;
 
       // Play the challenger sound
       await this.challengerAudio.play();
@@ -251,8 +251,8 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.homeAudio.currentTime = 0;
 
-      // Apply master volume
-      this.homeAudio.volume = 0.075 * this.masterVolume;
+      // Apply music volume (relative to sound effects)
+      this.homeAudio.volume = 0.075 * this.musicVolume;
 
       // Play the home sound (will loop continuously, respects muted property)
       await this.homeAudio.play();
@@ -271,8 +271,8 @@ export class AudioManager {
     // Check if the home sound is not playing
     if (this.homeAudio.paused) {
       console.log('[AudioManager] Home sound was paused, restarting...');
-      // Apply master volume before playing
-      this.homeAudio.volume = 0.075 * this.masterVolume;
+      // Apply music volume before playing
+      this.homeAudio.volume = 0.075 * this.musicVolume;
       this.homeAudio.play().catch(err => {
         console.warn('Could not restart home sound:', err);
       });
@@ -304,8 +304,8 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.buzzAudio.currentTime = 0;
 
-      // Apply master volume
-      this.buzzAudio.volume = 1.0 * this.masterVolume;
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.buzzAudio.volume = 1.0;
 
       // Play the buzz sound
       await this.buzzAudio.play();
@@ -349,7 +349,7 @@ export class AudioManager {
 
         // Create a gain node for volume control
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.6 * this.masterVolume; // Apply master volume
+        gainNode.gain.value = 0.6; // Sound effects are NOT affected by music volume
 
         // Connect: source -> gain -> destination
         source.connect(gainNode);
@@ -373,8 +373,8 @@ export class AudioManager {
     // Reset to beginning if already playing
     this.clickAudio.currentTime = 0;
 
-    // Apply master volume
-    this.clickAudio.volume = 0.6 * this.masterVolume;
+    // Sound effects are NOT affected by music volume - stay at full volume
+    this.clickAudio.volume = 0.6;
 
     // Play the click sound immediately (non-blocking)
     console.log('[AudioManager] Playing click sound via HTMLAudioElement (fallback)');
@@ -597,38 +597,26 @@ export class AudioManager {
     return this.soundsEnabled;
   }
 
-  // Master volume control methods
-  public setMasterVolume(volume: number): void {
+  // Music/video volume control methods (relative to sound effects)
+  public setMusicVolume(volume: number): void {
     // Clamp volume between 0 and 1
-    this.masterVolume = Math.max(0, Math.min(1, volume));
-    console.log('[AudioManager] Master volume set to:', this.masterVolume);
+    this.musicVolume = Math.max(0, Math.min(1, volume));
+    console.log('[AudioManager] Music/video volume set to:', this.musicVolume);
 
-    // Update all audio elements with new volume
+    // Update music audio elements with new volume (sound effects stay at full volume)
     if (this.homeAudio) {
-      this.homeAudio.volume = 0.075 * this.masterVolume;
-    }
-    if (this.flashAudio) {
-      this.flashAudio.volume = 0.9 * this.masterVolume;
-    }
-    if (this.challengerAudio) {
-      this.challengerAudio.volume = 0.4 * this.masterVolume;
-    }
-    if (this.buzzAudio) {
-      this.buzzAudio.volume = 1.0 * this.masterVolume;
-    }
-    if (this.clickAudio) {
-      this.clickAudio.volume = 0.6 * this.masterVolume;
+      this.homeAudio.volume = 0.075 * this.musicVolume;
     }
 
     this.saveAudioSettings();
   }
 
-  public getMasterVolume(): number {
-    return this.masterVolume;
+  public getMusicVolume(): number {
+    return this.musicVolume;
   }
 
-  public getMasterVolumePercent(): number {
-    return Math.round(this.masterVolume * 100);
+  public getMusicVolumePercent(): number {
+    return Math.round(this.musicVolume * 100);
   }
 }
 

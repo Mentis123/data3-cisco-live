@@ -24,7 +24,7 @@ export function SettingsMenu() {
   useEffect(() => {
     setMusicEnabled(audioManager.isMusicEnabled());
     setSoundsEnabled(audioManager.isSoundsEnabled());
-    setVolumePercent(audioManager.getMasterVolumePercent());
+    setVolumePercent(audioManager.getMusicVolumePercent());
   }, []);
 
   const handleToggleMusic = () => {
@@ -44,7 +44,7 @@ export function SettingsMenu() {
     const newVolume = VOLUME_STEPS[nextIndex];
 
     setVolumePercent(newVolume);
-    audioManager.setMasterVolume(newVolume / 100);
+    audioManager.setMusicVolume(newVolume / 100);
   };
 
   const handleFeedbackClick = () => {
@@ -121,7 +121,7 @@ export function SettingsMenu() {
             )}
           </button>
 
-          {/* Volume Dial */}
+          {/* Music/Video Volume Dial */}
           <button
             onClick={handleVolumeChange}
             className={cn(
@@ -135,7 +135,7 @@ export function SettingsMenu() {
               "border-2 border-purple-400/50",
               "font-bold text-sm"
             )}
-            aria-label={`Volume ${volumePercent}%`}
+            aria-label={`Music/Video volume ${volumePercent}% relative to sound effects`}
           >
             {volumePercent}%
           </button>
