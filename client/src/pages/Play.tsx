@@ -296,50 +296,67 @@ Just describe it naturally - what's the problem that needs solving?`
       return response.json();
     },
     onSuccess: (data) => {
-      setIsSubmitting(false);
+      try {
+        setIsSubmitting(false);
 
-      console.log('[Play] Received backend response:', data);
+        console.log('[Play] Received backend response:', data);
 
-      // Store complete submission data for announcement page
-      const submissionData = {
-        id: `submission-${Date.now()}`,
-        participantName: `${firstName} ${lastName.charAt(0)}.`,
-        firstName,
-        lastName,
-        category: data.category || 'SECURE_CONNECTIVITY',
-        totalScore: data.finalScore,
-        pitchScore: data.pitchScore,
-        triviaScore: data.triviaScore,
-        rank: data.rank,
-        subScores: data.subscores,
-        createdAt: new Date().toISOString(),
-        botBar: data.botBar,
-        isEligible: data.isEligible,
-        raffleEntered: data.raffleEntered,
-        alreadyEntered: data.alreadyEntered,
-      };
+        // Store complete submission data for announcement page
+        const submissionData = {
+          id: `submission-${Date.now()}`,
+          participantName: `${firstName} ${lastName.charAt(0)}.`,
+          firstName,
+          lastName,
+          category: data.category || 'SECURE_CONNECTIVITY',
+          totalScore: data.finalScore,
+          pitchScore: data.pitchScore,
+          triviaScore: data.triviaScore,
+          rank: data.rank,
+          subScores: data.subscores,
+          createdAt: new Date().toISOString(),
+          botBar: data.botBar,
+          isEligible: data.isEligible,
+          raffleEntered: data.raffleEntered,
+          alreadyEntered: data.alreadyEntered,
+        };
 
-      console.log('[Play] Storing submission data:', submissionData);
+        console.log('[Play] Storing submission data:', submissionData);
 
-      sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
-      sessionStorage.setItem(
-        "playSubmissionAudio",
-        JSON.stringify({ timestamp: Date.now() })
-      );
+        sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
+        sessionStorage.setItem(
+          "playSubmissionAudio",
+          JSON.stringify({ timestamp: Date.now() })
+        );
 
-      // Check if we should show the video modal (Ring mode + Immersive mode ON)
-      if (isRing && audioManager.isImmersiveMode()) {
-        console.log('[Play] Immersive mode ON - showing video modal');
-        setIsWinner(data.isEligible || false);
-        setShowVideoModal(true);
-      } else {
-        console.log('[Play] Navigating to /announcement');
+        // Check if we should show the video modal (Ring mode + Immersive mode ON)
+        const immersiveMode = audioManager.isImmersiveMode();
+        console.log('[Play] isRing:', isRing, 'immersiveMode:', immersiveMode);
 
-        // Play click sound before navigation
-        audioManager.playClickSound();
+        if (isRing && immersiveMode) {
+          console.log('[Play] Immersive mode ON - showing video modal');
+          setIsWinner(data.isEligible || false);
+          setShowVideoModal(true);
+        } else {
+          console.log('[Play] Navigating to /announcement');
 
-        // Navigate to announcement page
-        setLocation('/announcement');
+          // Play click sound before navigation
+          audioManager.playClickSound();
+
+          // Navigate to announcement page
+          // Use setTimeout to ensure navigation happens after state updates
+          setTimeout(() => {
+            console.log('[Play] Executing navigation to /announcement');
+            setLocation('/announcement');
+          }, 100);
+        }
+      } catch (error) {
+        console.error('[Play] Error in onSuccess handler:', error);
+        // Even if there's an error, try to navigate to announcement page
+        setIsSubmitting(false);
+        setTimeout(() => {
+          console.log('[Play] Fallback navigation to /announcement after error');
+          setLocation('/announcement');
+        }, 100);
       }
     },
     onError: (error) => {
@@ -2226,9 +2243,22 @@ Just describe it naturally - what's the problem that needs solving?`
         <RingVideoModal
           isWinner={isWinner}
           onComplete={() => {
-            setShowVideoModal(false);
-            audioManager.playClickSound();
-            setLocation('/announcement');
+            try {
+              console.log('[Play] Video modal complete - navigating to /announcement');
+              setShowVideoModal(false);
+              audioManager.playClickSound();
+              // Use setTimeout to ensure navigation happens after state updates
+              setTimeout(() => {
+                console.log('[Play] Executing navigation to /announcement from video modal');
+                setLocation('/announcement');
+              }, 100);
+            } catch (error) {
+              console.error('[Play] Error in video modal onComplete:', error);
+              setShowVideoModal(false);
+              setTimeout(() => {
+                setLocation('/announcement');
+              }, 100);
+            }
           }}
         />
       )}
