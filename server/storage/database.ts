@@ -2091,6 +2091,37 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return entries;
     },
 
+    async deleteRaffleEntry(id: string) {
+      // Hard delete - actually remove the raffle entry
+      await db.delete(schema.raffleEntries).where(eq(schema.raffleEntries.id, id));
+    },
+
+    async getBotBarStats() {
+      // Get bot bar statistics grouped by date and category
+      const stats = await db
+        .select({
+          date: sql<string>`DATE(${attempts.startedAt})`.as('date'),
+          category: attempts.category,
+          botBar: attempts.botBar,
+          totalAttempts: sql<number>`COUNT(*)`.as('total_attempts'),
+          eligibleCount: sql<number>`SUM(CASE WHEN ${attempts.eligible} = true THEN 1 ELSE 0 END)`.as('eligible_count'),
+          ineligibleCount: sql<number>`SUM(CASE WHEN ${attempts.eligible} = false AND ${attempts.botBar} IS NOT NULL THEN 1 ELSE 0 END)`.as('ineligible_count'),
+          avgTotalScore: sql<number>`AVG(${attempts.totalScore})`.as('avg_total_score'),
+        })
+        .from(attempts)
+        .where(
+          and(
+            eq(attempts.mode, 'ring'),
+            eq(attempts.ringComplete, true),
+            isNull(attempts.endedAt) === false
+          )
+        )
+        .groupBy(sql`DATE(${attempts.startedAt})`, attempts.category, attempts.botBar)
+        .orderBy(sql`DATE(${attempts.startedAt}) DESC`, attempts.category);
+
+      return stats;
+    },
+
     async getWordCloudEntries() {
       const entries = await db
         .select()

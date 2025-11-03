@@ -1177,6 +1177,28 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/beta-admin/raffle-entries/:id", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      await storage.deleteRaffleEntry(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete raffle entry" });
+    }
+  });
+
+  app.get("/api/beta-admin/bot-bar-stats", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const stats = await storage.getBotBarStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get bot bar stats" });
+    }
+  });
+
   // Word Cloud Management endpoints
   app.get("/api/beta-admin/word-cloud", async (req, res) => {
     try {
