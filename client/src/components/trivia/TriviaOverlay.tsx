@@ -26,6 +26,7 @@ interface TriviaOverlayProps {
   onContinue?: (score?: number) => void;
   onShuffle?: () => Promise<void> | void;
   isShuffling?: boolean;
+  isSavingScore?: boolean;
 }
 
 export function TriviaOverlay({
@@ -38,6 +39,7 @@ export function TriviaOverlay({
   onContinue,
   onShuffle,
   isShuffling,
+  isSavingScore,
 }: TriviaOverlayProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -194,9 +196,10 @@ export function TriviaOverlay({
                       {mode === "ring" && onContinue && (
                         <Button
                           onClick={() => onContinue(score)}
+                          disabled={isSavingScore}
                           className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
                         >
-                          {continueLabel || "Pitch your project"}
+                          {isSavingScore ? "Saving score..." : (continueLabel || "Pitch your project")}
                         </Button>
                       )}
                       {mode === "dojo" && (
@@ -207,6 +210,7 @@ export function TriviaOverlay({
                       <Button
                         variant="outline"
                         onClick={mode === "dojo" ? onExit : handleExitClick}
+                        disabled={isSavingScore}
                         className="max-[480px]:w-full"
                       >
                         {mode === "dojo" ? "Return to Dojo" : "Abandon attempt"}
