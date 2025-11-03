@@ -10,6 +10,7 @@ interface RingVideoModalProps {
 export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const gainNodeCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -17,7 +18,20 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
 
     const handleCanPlay = () => {
       setIsLoaded(true);
-      video.volume = audioManager.getMusicVolume();
+
+      // Set up Web Audio API for mobile or direct volume for desktop
+      if (audioManager.isUsingWebAudioForVolume()) {
+        // Use Web Audio API with GainNode for mobile volume control
+        const result = audioManager.createGainNodeForElement(video, 1.0);
+        if (result) {
+          gainNodeCleanupRef.current = result.cleanup;
+          console.log('[RingVideoModal] Using Web Audio API for video volume control');
+        }
+      } else {
+        // Use direct volume property for desktop
+        video.volume = audioManager.getMusicVolume();
+      }
+
       video.play().catch(err => {
         console.error('Failed to play video:', err);
         // If video fails to play, proceed anyway after a short delay
@@ -43,12 +57,22 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('ended', handleEnded);
       video.removeEventListener('error', handleError);
+      if (gainNodeCleanupRef.current) {
+        gainNodeCleanupRef.current();
+        gainNodeCleanupRef.current = null;
+      }
     };
   }, [onComplete]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    // Only set up volume change listener if NOT using Web Audio API
+    // (Web Audio API handles volume changes internally)
+    if (audioManager.isUsingWebAudioForVolume()) {
+      return;
+    }
 
     const applyVolume = (volume: number) => {
       video.volume = Math.max(0, Math.min(1, volume));

@@ -16,6 +16,8 @@ export class AudioManager {
   private clickAudio: HTMLAudioElement | null = null;
   private audioContext: AudioContext | null = null;
   private clickAudioBuffer: AudioBuffer | null = null;
+  private homeAudioGainNode: GainNode | null = null;
+  private homeAudioSourceNode: MediaElementAudioSourceNode | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
   private isImmersive: boolean = false; // Will be loaded from localStorage
@@ -23,6 +25,7 @@ export class AudioManager {
   private soundsEnabled: boolean = true; // Sound effects on/off
   private musicVolume: number = 1.0; // Music/video volume relative to sound effects (0.0 to 1.0, default 100%)
   private volumeControlSupported: boolean = true; // Whether programmatic volume control is supported
+  private useWebAudioForVolume: boolean = false; // Whether to use Web Audio API for volume control on mobile
   private dispatchMusicVolumeChange(): void {
     if (typeof window === "undefined") {
       return;
@@ -129,9 +132,31 @@ export class AudioManager {
     if (!this.homeAudio) {
       this.homeAudio = new Audio(homeSoundFile);
       this.homeAudio.preload = "auto";
-      this.homeAudio.volume = 0.075 * this.musicVolume; // 7.5% volume with music volume applied
+      this.homeAudio.volume = this.useWebAudioForVolume ? 1.0 : 0.075 * this.musicVolume; // Use full volume if Web Audio API will control it
       this.homeAudio.loop = true; // Loop continuously
       this.homeAudio.muted = this.isMuted;
+
+      // Set up Web Audio API routing for volume control on mobile
+      if (this.useWebAudioForVolume && this.audioContext) {
+        try {
+          // Create a MediaElementSourceNode from the audio element
+          this.homeAudioSourceNode = this.audioContext.createMediaElementSource(this.homeAudio);
+
+          // Create a GainNode for volume control
+          this.homeAudioGainNode = this.audioContext.createGain();
+          this.homeAudioGainNode.gain.value = 0.075 * this.musicVolume; // 7.5% volume with music volume applied
+
+          // Connect: source -> gain -> destination
+          this.homeAudioSourceNode.connect(this.homeAudioGainNode);
+          this.homeAudioGainNode.connect(this.audioContext.destination);
+
+          console.log('[AudioManager] Home audio routed through Web Audio API for volume control');
+        } catch (error) {
+          console.warn('[AudioManager] Failed to set up Web Audio API routing for home audio:', error);
+          // Fall back to direct volume control
+          this.homeAudio.volume = 0.075 * this.musicVolume;
+        }
+      }
     }
 
     if (!this.buzzAudio) {
@@ -170,8 +195,30 @@ export class AudioManager {
 
   private detectVolumeControlSupport(): void {
     // Test if programmatic volume control is supported
-    // On iOS and some mobile browsers, the volume property is read-only
+    // On iOS and some mobile browsers, the volume property accepts values but doesn't actually control playback
+    // However, we can use Web Audio API with GainNode as a workaround on mobile devices
     try {
+      const userAgent = navigator.userAgent;
+
+      // Check for iOS devices (iPhone, iPad, iPod)
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+
+      // Check for Android devices
+      const isAndroid = /Android/.test(userAgent);
+
+      // Check for mobile browsers in general
+      const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+
+      // On mobile devices, use Web Audio API with GainNode for volume control
+      // This works on iOS, Android, and other mobile browsers
+      if (isIOS || isAndroid || isMobile) {
+        this.useWebAudioForVolume = true;
+        this.volumeControlSupported = true; // We can control volume via Web Audio API
+        console.log('[AudioManager] Using Web Audio API for volume control on mobile device');
+        return;
+      }
+
+      // For desktop browsers, test if volume property can actually be changed
       const testAudio = new Audio();
       const originalVolume = testAudio.volume;
       testAudio.volume = 0.5;
@@ -292,8 +339,19 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.homeAudio.currentTime = 0;
 
-      // Apply music volume (relative to sound effects)
-      this.homeAudio.volume = 0.075 * this.musicVolume;
+      // Apply music volume
+      if (this.useWebAudioForVolume && this.homeAudioGainNode) {
+        // Use Web Audio API GainNode for volume control (mobile)
+        this.homeAudioGainNode.gain.value = 0.075 * this.musicVolume;
+      } else {
+        // Use direct volume property (desktop)
+        this.homeAudio.volume = 0.075 * this.musicVolume;
+      }
+
+      // Resume AudioContext if suspended (required for mobile)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
 
       // Play the home sound (will loop continuously, respects muted property)
       await this.homeAudio.play();
@@ -312,8 +370,23 @@ export class AudioManager {
     // Check if the home sound is not playing
     if (this.homeAudio.paused) {
       console.log('[AudioManager] Home sound was paused, restarting...');
+
       // Apply music volume before playing
-      this.homeAudio.volume = 0.075 * this.musicVolume;
+      if (this.useWebAudioForVolume && this.homeAudioGainNode) {
+        // Use Web Audio API GainNode for volume control (mobile)
+        this.homeAudioGainNode.gain.value = 0.075 * this.musicVolume;
+      } else {
+        // Use direct volume property (desktop)
+        this.homeAudio.volume = 0.075 * this.musicVolume;
+      }
+
+      // Resume AudioContext if suspended (required for mobile)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume().catch(err => {
+          console.warn('Could not resume AudioContext:', err);
+        });
+      }
+
       this.homeAudio.play().catch(err => {
         console.warn('Could not restart home sound:', err);
       });
@@ -637,36 +710,40 @@ export class AudioManager {
     this.musicVolume = Math.max(0, Math.min(1, volume));
     console.log('[AudioManager] Music/video volume set to:', this.musicVolume);
 
-    // Warn if volume control is not supported (e.g., iOS)
-    if (!this.volumeControlSupported) {
-      console.warn('[AudioManager] Programmatic volume control is not supported on this device. Users must use device volume buttons.');
-    }
-
     // Ensure audio elements are ready before updating volume
     this.ensureAudioReady();
 
-    // Update music audio elements with new volume (sound effects stay at full volume)
-    // Note: On iOS and some mobile browsers, this may not have any effect
-    if (this.homeAudio) {
-      const newVolume = 0.075 * this.musicVolume;
-      this.homeAudio.volume = newVolume;
-      console.log('[AudioManager] Home audio volume updated to:', this.homeAudio.volume,
-        'playing:', !this.homeAudio.paused, 'muted:', this.homeAudio.muted);
-
-      // If home audio should be playing but isn't, restart it
-      if (this.isImmersive && !this.isMuted && this.musicEnabled && this.homeAudio.paused) {
-        console.log('[AudioManager] Home audio was paused during volume change, restarting...');
-        this.homeAudio.play().catch(err => {
-          console.warn('Could not restart home sound after volume change:', err);
-        });
+    // Update volume using Web Audio API GainNode on mobile, or direct volume property on desktop
+    if (this.useWebAudioForVolume) {
+      // Use Web Audio API GainNode for volume control (works on mobile)
+      if (this.homeAudioGainNode) {
+        const newVolume = 0.075 * this.musicVolume;
+        this.homeAudioGainNode.gain.value = newVolume;
+        console.log('[AudioManager] Home audio gain updated to:', this.homeAudioGainNode.gain.value,
+          'via Web Audio API');
+      }
+    } else {
+      // Use direct volume property control (desktop browsers)
+      if (this.homeAudio) {
+        const newVolume = 0.075 * this.musicVolume;
+        this.homeAudio.volume = newVolume;
+        console.log('[AudioManager] Home audio volume updated to:', this.homeAudio.volume,
+          'playing:', !this.homeAudio.paused, 'muted:', this.homeAudio.muted);
       }
     }
 
+    // If home audio should be playing but isn't, restart it
+    if (this.homeAudio && this.isImmersive && !this.isMuted && this.musicEnabled && this.homeAudio.paused) {
+      console.log('[AudioManager] Home audio was paused during volume change, restarting...');
+      this.homeAudio.play().catch(err => {
+        console.warn('Could not restart home sound after volume change:', err);
+      });
+    }
+
     // Dispatch event to update video and other audio elements
-    // Note: On iOS and some mobile browsers, these elements may not respond to programmatic volume changes
     this.dispatchMusicVolumeChange();
 
-    // Save settings to localStorage (will be applied on desktop/supported devices)
+    // Save settings to localStorage
     this.saveAudioSettings();
   }
 
@@ -680,6 +757,67 @@ export class AudioManager {
 
   public isVolumeControlSupported(): boolean {
     return this.volumeControlSupported;
+  }
+
+  public isUsingWebAudioForVolume(): boolean {
+    return this.useWebAudioForVolume;
+  }
+
+  public getAudioContext(): AudioContext | null {
+    return this.audioContext;
+  }
+
+  /**
+   * Creates a GainNode-based volume control for an audio or video element
+   * This is useful for components that need to control volume on mobile devices
+   *
+   * @param element The HTMLAudioElement or HTMLVideoElement to control
+   * @param baseVolume The base volume level (0.0 to 1.0)
+   * @returns An object with the GainNode and a cleanup function, or null if not using Web Audio
+   */
+  public createGainNodeForElement(
+    element: HTMLAudioElement | HTMLVideoElement,
+    baseVolume: number = 1.0
+  ): { gainNode: GainNode; cleanup: () => void } | null {
+    if (!this.useWebAudioForVolume || !this.audioContext) {
+      return null;
+    }
+
+    try {
+      // Create a MediaElementSourceNode from the element
+      const sourceNode = this.audioContext.createMediaElementSource(element);
+
+      // Create a GainNode for volume control
+      const gainNode = this.audioContext.createGain();
+      gainNode.gain.value = baseVolume * this.musicVolume;
+
+      // Connect: source -> gain -> destination
+      sourceNode.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      console.log('[AudioManager] Created GainNode for element, initial volume:', gainNode.gain.value);
+
+      // Listen for volume changes and update the gain
+      const handleVolumeChange = (event: Event) => {
+        const customEvent = event as CustomEvent<number>;
+        gainNode.gain.value = baseVolume * customEvent.detail;
+        console.log('[AudioManager] GainNode volume updated to:', gainNode.gain.value);
+      };
+
+      window.addEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+
+      // Return cleanup function
+      const cleanup = () => {
+        window.removeEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+        sourceNode.disconnect();
+        gainNode.disconnect();
+      };
+
+      return { gainNode, cleanup };
+    } catch (error) {
+      console.warn('[AudioManager] Failed to create GainNode for element:', error);
+      return null;
+    }
   }
 }
 
