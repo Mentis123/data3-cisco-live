@@ -67,7 +67,7 @@ export function TriviaOverlay({
         return;
       }
 
-      const verticalPadding = Math.max(24, Math.min(64, availableHeight * 0.08));
+      const verticalPadding = Math.max(12, Math.min(32, availableHeight * 0.04));
       const usableHeight = availableHeight - verticalPadding;
       const heightScale = usableHeight > 0 ? usableHeight / naturalHeight : availableHeight / naturalHeight;
       const rawScale = Math.min(1, heightScale);
@@ -152,24 +152,22 @@ export function TriviaOverlay({
     <>
       {/* Full screen overlay backdrop */}
       <div
-        className="fixed inset-0 z-50 flex min-h-[100svh] items-start justify-center bg-slate-950/95 px-4 pt-[max(env(safe-area-inset-top),1.25rem)] pb-[max(env(safe-area-inset-bottom),1.25rem)] backdrop-blur-md sm:items-center sm:px-6"
+        className="fixed inset-0 z-50 flex min-h-[100svh] items-center justify-center bg-slate-950/95 px-3 pt-[max(env(safe-area-inset-top),0.25rem)] pb-[max(env(safe-area-inset-bottom),0.25rem)] backdrop-blur-md sm:px-6"
       >
-        {/* Exit button */}
-        <button
-          onClick={handleExitClick}
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-white/40 hover:bg-white/20 sm:right-6 sm:top-6"
-          aria-label="Exit trivia"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
         {/* Trivia game container */}
         <div
           ref={containerRef}
           className="relative flex h-full w-full max-w-5xl items-center justify-center"
         >
           <div className="w-full max-w-[720px]" style={reservedStyle}>
-            <div style={scaledWrapperStyle}>
+            <div style={scaledWrapperStyle} className="relative">
+              <button
+                onClick={handleExitClick}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-white/40 hover:bg-white/20 sm:right-5 sm:top-5"
+                aria-label="Exit trivia"
+              >
+                <X className="h-5 w-5" />
+              </button>
               <div ref={contentRef} className="w-full max-w-[720px]">
                 <TriviaGame
                   className="w-full rounded-3xl border-white/15 bg-slate-900/70 shadow-[0_45px_140px_-80px_rgba(56,189,248,0.75)] backdrop-blur-xl sm:border-white/10"
