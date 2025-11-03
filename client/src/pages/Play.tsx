@@ -336,6 +336,16 @@ Just describe it naturally - what's the problem that needs solving?`
           console.log('[Play] Immersive mode ON - showing video modal');
           setIsWinner(data.isEligible || false);
           setShowVideoModal(true);
+
+          // Fallback: If modal doesn't navigate within 15 seconds, force navigation
+          setTimeout(() => {
+            console.log('[Play] Fallback timer: Checking if still on Play page...');
+            if (window.location.pathname.includes('/play') || window.location.pathname.includes('/ring-play')) {
+              console.warn('[Play] Modal did not complete - forcing navigation to /announcement');
+              setShowVideoModal(false);
+              setLocation('/announcement');
+            }
+          }, 15000);
         } else {
           console.log('[Play] Navigating to /announcement');
 

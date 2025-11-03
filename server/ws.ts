@@ -5,21 +5,35 @@ let wss: WebSocketServer | null = null;
 const clients = new Set<WebSocket>();
 
 export function setupWebSocket(server: Server): void {
-  wss = new WebSocketServer({ server, path: '/ws' });
-  clients.clear();
+  console.log('[WebSocket] Initializing WebSocket server...');
+  try {
+    wss = new WebSocketServer({ server, path: '/ws' });
+    clients.clear();
 
-  wss.on('connection', (ws: WebSocket) => {
-    clients.add(ws);
-    
-    ws.on('close', () => {
-      clients.delete(ws);
+    console.log('[WebSocket] WebSocket server initialized successfully on path /ws');
+
+    wss.on('connection', (ws: WebSocket) => {
+      console.log('[WebSocket] New client connected. Total clients:', clients.size + 1);
+      clients.add(ws);
+
+      ws.on('close', () => {
+        clients.delete(ws);
+        console.log('[WebSocket] Client disconnected. Total clients:', clients.size);
+      });
+
+      ws.on('error', (error) => {
+        console.error('[WebSocket] Client error:', error);
+        clients.delete(ws);
+      });
     });
-    
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      clients.delete(ws);
+
+    wss.on('error', (error) => {
+      console.error('[WebSocket] Server error:', error);
     });
-  });
+  } catch (error) {
+    console.error('[WebSocket] Failed to initialize WebSocket server:', error);
+    throw error;
+  }
 }
 
 export function broadcastScoreUpdate(entry: {
@@ -56,7 +70,8 @@ export function broadcastRingEntry(entry: {
   category: string;
 }): void {
   if (!wss) {
-    console.warn('[WebSocket] Cannot broadcast ringEntry - WebSocket server not initialized');
+    console.warn('[WebSocket] Cannot broadcast ringEntry - WebSocket server not initialized. This may be expected in serverless environments.');
+    console.warn('[WebSocket] Entry details:', entry);
     return;
   }
 

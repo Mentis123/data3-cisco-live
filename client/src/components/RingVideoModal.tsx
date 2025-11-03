@@ -12,11 +12,19 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const gainNodeCleanupRef = useRef<(() => void) | null>(null);
 
+  console.log('[RingVideoModal] Component mounted - isWinner:', isWinner);
+
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      console.error('[RingVideoModal] Video ref is null!');
+      return;
+    }
+
+    console.log('[RingVideoModal] Setting up video element:', video.src);
 
     const handleCanPlay = () => {
+      console.log('[RingVideoModal] Video can play - loading complete');
       setIsLoaded(true);
 
       // Set up Web Audio API for mobile or direct volume for desktop
@@ -29,24 +37,39 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         }
       } else {
         // Use direct volume property for desktop
+        console.log('[RingVideoModal] Using direct volume control:', audioManager.getMusicVolume());
         video.volume = audioManager.getMusicVolume();
       }
 
+      console.log('[RingVideoModal] Starting video playback...');
       video.play().catch(err => {
-        console.error('Failed to play video:', err);
+        console.error('[RingVideoModal] Failed to play video:', err);
         // If video fails to play, proceed anyway after a short delay
-        setTimeout(onComplete, 1000);
+        setTimeout(() => {
+          console.log('[RingVideoModal] Completing due to playback error');
+          onComplete();
+        }, 1000);
       });
     };
 
     const handleEnded = () => {
+      console.log('[RingVideoModal] Video playback ended - completing');
       onComplete();
     };
 
     const handleError = (e: Event) => {
-      console.error('Video error:', e);
+      const target = e.target as HTMLVideoElement;
+      const error = target.error;
+      console.error('[RingVideoModal] Video error:', {
+        code: error?.code,
+        message: error?.message,
+        src: target.src
+      });
       // If video fails to load, proceed anyway after a short delay
-      setTimeout(onComplete, 1000);
+      setTimeout(() => {
+        console.log('[RingVideoModal] Completing due to video load error');
+        onComplete();
+      }, 1000);
     };
 
     video.addEventListener('canplay', handleCanPlay);
@@ -96,6 +119,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
     ? "/attached_assets/ring_winner.mp4"
     : "/attached_assets/ring_loser.mp4";
 
+  console.log('[RingVideoModal] Rendering modal - src:', videoSrc, 'isLoaded:', isLoaded);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
       {/* Loading indicator */}
@@ -103,7 +128,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         <div className="absolute inset-0 flex items-center justify-center bg-data3-blue-black">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 border-4 border-[#00AEFF] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-white text-xl">Loading...</p>
+            <p className="text-white text-xl">Loading video...</p>
+            <p className="text-white text-sm opacity-70">Result: {isWinner ? 'Winner!' : 'Thanks for playing!'}</p>
           </div>
         </div>
       )}
