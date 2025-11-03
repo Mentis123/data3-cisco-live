@@ -22,6 +22,7 @@ export class AudioManager {
   private musicEnabled: boolean = true; // Music on/off
   private soundsEnabled: boolean = true; // Sound effects on/off
   private musicVolume: number = 1.0; // Music/video volume relative to sound effects (0.0 to 1.0, default 100%)
+  private volumeControlSupported: boolean = true; // Whether programmatic volume control is supported
   private dispatchMusicVolumeChange(): void {
     if (typeof window === "undefined") {
       return;
@@ -46,6 +47,7 @@ export class AudioManager {
 
     this.initializeAudioElements();
     this.initializeWebAudio();
+    this.detectVolumeControlSupport();
   }
 
   private loadImmersiveState(): void {
@@ -163,6 +165,32 @@ export class AudioManager {
       }
     } catch (error) {
       console.warn('Web Audio API not supported, falling back to HTMLAudioElement:', error);
+    }
+  }
+
+  private detectVolumeControlSupport(): void {
+    // Test if programmatic volume control is supported
+    // On iOS and some mobile browsers, the volume property is read-only
+    try {
+      const testAudio = new Audio();
+      const originalVolume = testAudio.volume;
+      testAudio.volume = 0.5;
+
+      // Check if the volume actually changed
+      if (Math.abs(testAudio.volume - 0.5) > 0.01) {
+        // Volume didn't change, programmatic control is not supported
+        this.volumeControlSupported = false;
+        console.log('[AudioManager] Programmatic volume control not supported on this device');
+      } else {
+        this.volumeControlSupported = true;
+        console.log('[AudioManager] Programmatic volume control is supported');
+      }
+
+      // Restore original volume
+      testAudio.volume = originalVolume;
+    } catch (error) {
+      console.warn('[AudioManager] Error detecting volume control support:', error);
+      this.volumeControlSupported = false;
     }
   }
 
@@ -609,10 +637,16 @@ export class AudioManager {
     this.musicVolume = Math.max(0, Math.min(1, volume));
     console.log('[AudioManager] Music/video volume set to:', this.musicVolume);
 
+    // Warn if volume control is not supported (e.g., iOS)
+    if (!this.volumeControlSupported) {
+      console.warn('[AudioManager] Programmatic volume control is not supported on this device. Users must use device volume buttons.');
+    }
+
     // Ensure audio elements are ready before updating volume
     this.ensureAudioReady();
 
     // Update music audio elements with new volume (sound effects stay at full volume)
+    // Note: On iOS and some mobile browsers, this may not have any effect
     if (this.homeAudio) {
       const newVolume = 0.075 * this.musicVolume;
       this.homeAudio.volume = newVolume;
@@ -628,7 +662,11 @@ export class AudioManager {
       }
     }
 
+    // Dispatch event to update video and other audio elements
+    // Note: On iOS and some mobile browsers, these elements may not respond to programmatic volume changes
     this.dispatchMusicVolumeChange();
+
+    // Save settings to localStorage (will be applied on desktop/supported devices)
     this.saveAudioSettings();
   }
 
@@ -638,6 +676,10 @@ export class AudioManager {
 
   public getMusicVolumePercent(): number {
     return Math.round(this.musicVolume * 100);
+  }
+
+  public isVolumeControlSupported(): boolean {
+    return this.volumeControlSupported;
   }
 }
 

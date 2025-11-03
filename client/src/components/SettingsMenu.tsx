@@ -19,12 +19,14 @@ export function SettingsMenu() {
   const [musicEnabled, setMusicEnabled] = useState(true);
   const [soundsEnabled, setSoundsEnabled] = useState(true);
   const [volumePercent, setVolumePercent] = useState(100);
+  const [volumeControlSupported, setVolumeControlSupported] = useState(true);
 
   // Initialize state from audioManager
   useEffect(() => {
     setMusicEnabled(audioManager.isMusicEnabled());
     setSoundsEnabled(audioManager.isSoundsEnabled());
     setVolumePercent(audioManager.getMusicVolumePercent());
+    setVolumeControlSupported(audioManager.isVolumeControlSupported());
   }, []);
 
   const handleToggleMusic = () => {
@@ -63,23 +65,44 @@ export function SettingsMenu() {
           )}
         >
           {/* Music/Video Volume Dial */}
-          <button
-            onClick={handleVolumeChange}
-            className={cn(
-              "h-12 w-12 rounded-full",
-              "bg-gradient-to-br from-purple-500 to-pink-500",
-              "text-white",
-              "shadow-lg hover:shadow-xl",
-              "transition-all duration-300 ease-out",
-              "hover:scale-110 active:scale-95",
-              "flex items-center justify-center",
-              "border-2 border-purple-400/50",
-              "font-bold text-sm"
-            )}
-            aria-label={`Music/Video volume ${volumePercent}% relative to sound effects`}
-          >
-            {volumePercent}%
-          </button>
+          {volumeControlSupported ? (
+            <button
+              onClick={handleVolumeChange}
+              className={cn(
+                "h-12 w-12 rounded-full",
+                "bg-gradient-to-br from-purple-500 to-pink-500",
+                "text-white",
+                "shadow-lg hover:shadow-xl",
+                "transition-all duration-300 ease-out",
+                "hover:scale-110 active:scale-95",
+                "flex items-center justify-center",
+                "border-2 border-purple-400/50",
+                "font-bold text-sm"
+              )}
+              aria-label={`Music/Video volume ${volumePercent}% relative to sound effects`}
+            >
+              {volumePercent}%
+            </button>
+          ) : (
+            <div
+              className={cn(
+                "h-12 w-12 rounded-full",
+                "bg-gradient-to-br from-gray-600 to-gray-700",
+                "text-gray-400",
+                "shadow-lg",
+                "transition-all duration-300 ease-out",
+                "flex items-center justify-center",
+                "border-2 border-gray-500/50",
+                "font-bold text-xs",
+                "cursor-not-allowed",
+                "relative group"
+              )}
+              aria-label="Use device volume buttons to adjust audio volume"
+              title="Use device volume buttons"
+            >
+              <Volume2 className="h-5 w-5" />
+            </div>
+          )}
 
           {/* Music Toggle */}
           <button
