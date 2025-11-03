@@ -19,9 +19,9 @@ interface SubmissionData {
   subScores?: {
     clarity: number;
     impact: number;
-    kpi_strength: number;
-    execution: number;
-    confidence: number;
+    technology_fit: number;
+    feasibility: number;
+    business_value: number;
   };
   createdAt: string;
   botBar?: number;
@@ -128,17 +128,6 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
   const rankDisplay = getRankDisplay(submission.rank);
 
-  console.log('[NewSubmissionAnnouncement] Rendering announcement:', {
-    finalScore,
-    pitchScore,
-    triviaScore,
-    rank: submission.rank,
-    rankDisplay,
-    botBar: submission.botBar,
-    isEligible: submission.isEligible,
-    subScores: submission.subScores
-  });
-
   const triviaScore =
     typeof submission.triviaScore === "number"
       ? submission.triviaScore
@@ -157,13 +146,24 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const computedTotal =
     (triviaScore ?? 0) +
     (pitchScore ?? 0);
+  const FINAL_MAX = 100;
+  const TRIVIA_MAX = 60;
+  const PITCH_MAX = 40;
   const finalScore =
     (triviaScore !== null || pitchScore !== null)
       ? Math.min(FINAL_MAX, Math.round(computedTotal))
       : (typeof submission.totalScore === "number" ? submission.totalScore : 0);
-  const FINAL_MAX = 100;
-  const TRIVIA_MAX = 60;
-  const PITCH_MAX = 40;
+
+  console.log('[NewSubmissionAnnouncement] Rendering announcement:', {
+    finalScore,
+    pitchScore,
+    triviaScore,
+    rank: submission.rank,
+    rankDisplay,
+    botBar: submission.botBar,
+    isEligible: submission.isEligible,
+    subScores: submission.subScores
+  });
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
@@ -507,9 +507,9 @@ export function NewSubmissionAnnouncementPage() {
       subScores: {
         clarity: 7,
         impact: 7,
-        kpi_strength: 7,
-        execution: 7,
-        confidence: 8
+        technology_fit: 7,
+        feasibility: 7,
+        business_value: 8
       },
       botBar: 70,
       isEligible: true,

@@ -21,9 +21,9 @@ interface DetailedEntry {
   subScores: {
     clarity: number;
     impact: number;
-    kpi_strength: number;
-    execution: number;
-    confidence: number;
+    technology_fit: number;
+    feasibility: number;
+    business_value: number;
   };
   evaluationNotes: string | null;
   createdAt: string;
@@ -37,9 +37,9 @@ interface SubmissionDetails {
   subScores: {
     clarity: number;
     impact: number;
-    kpi_strength: number;
-    execution: number;
-    confidence: number;
+    technology_fit: number;
+    feasibility: number;
+    business_value: number;
   };
   solutionText: string;
   structuredJson: any;
@@ -1070,21 +1070,21 @@ export default function AdminLeaderboard() {
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">KPI Strength (Baselines &amp; Targets)</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.kpi_strength)}`}>
-                        {submissionDetails.subScores.kpi_strength}/8
+                      <div className="text-sm text-muted-foreground mb-1">Technology Fit</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.technology_fit)}`}>
+                        {submissionDetails.subScores.technology_fit}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Execution (Action Plan)</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.execution)}`}>
-                        {submissionDetails.subScores.execution}/8
+                      <div className="text-sm text-muted-foreground mb-1">Feasibility</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.feasibility)}`}>
+                        {submissionDetails.subScores.feasibility}/8
                       </div>
                     </div>
                     <div className="bg-muted rounded-lg p-3">
-                      <div className="text-sm text-muted-foreground mb-1">Confidence (Risks &amp; Follow-ups)</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.confidence)}`}>
-                        {submissionDetails.subScores.confidence}/8
+                      <div className="text-sm text-muted-foreground mb-1">Business Value</div>
+                      <div className={`text-2xl font-bold ${getScoreColor(submissionDetails.subScores.business_value)}`}>
+                        {submissionDetails.subScores.business_value}/8
                       </div>
                     </div>
                     <div className="bg-primary/10 rounded-lg p-3">
