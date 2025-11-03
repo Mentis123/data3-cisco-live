@@ -9,6 +9,7 @@ import { triviaCardCategoryMeta, isTriviaCardCategory, type TriviaCardCategory }
 import { cn } from "@/lib/utils";
 
 import { TriviaOverlay } from "./TriviaOverlay";
+import type { TriviaAnswer } from "./TriviaGame";
 import {
   triviaCardToQuestion,
   type TriviaDeckCard,
@@ -668,12 +669,31 @@ export function TriviaWarmup({
             setShowOverlay(false);
             setSelectedTrack(null);
           }}
-          onComplete={async (score) => {
-            console.log(`[TriviaWarmup] Completed with score: ${score}`);
+          onComplete={async (score, answers) => {
+            console.log(`[TriviaWarmup] Completed with score: ${score}, answers:`, answers);
 
-            // Note: Full answer submission requires TriviaGame to expose individual answers
-            // For now, the attempt is created and attemptId is passed to submission
-            // The backend will calculate score from the submission's trivia attempt
+            // Submit answers to backend for ring mode
+            if (mode === "ring" && attemptId && answers.length > 0) {
+              try {
+                console.log(`[TriviaWarmup] Submitting ${answers.length} answers for attempt ${attemptId}`);
+                const response = await fetch(`/api/trivia/attempts/${attemptId}/complete`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({ answers }),
+                });
+
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  console.error("[TriviaWarmup] Failed to submit trivia answers:", errorData);
+                } else {
+                  const result = await response.json();
+                  console.log("[TriviaWarmup] Trivia answers submitted successfully:", result);
+                }
+              } catch (error) {
+                console.error("[TriviaWarmup] Error submitting trivia answers:", error);
+              }
+            }
           }}
           continueLabel={continueLabel}
           onContinue={(score?: number) => {
