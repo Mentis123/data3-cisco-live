@@ -1063,7 +1063,7 @@ Just describe it naturally - what's the problem that needs solving?`
 
   const triviaDeckDialog = (
     <Dialog open={triviaDeckOpen} onOpenChange={setTriviaDeckOpen}>
-      <DialogContent className="max-w-4xl border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto border border-white/10 bg-slate-950/95 text-white backdrop-blur-xl">
         <DialogHeader className="space-y-2">
         <DialogTitle className="text-2xl font-semibold text-white">Practice trivia cards</DialogTitle>
           <DialogDescription className="text-sm text-slate-300">
