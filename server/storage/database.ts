@@ -188,12 +188,12 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
     await db.execute(
       sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "consent_captured_at" timestamptz`,
     );
-    await db.execute(sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "attempt_day" date`);
-    await db.execute(sql`
-      UPDATE "attempts"
-      SET "attempt_day" = DATE("started_at" AT TIME ZONE 'UTC')
-      WHERE "attempt_day" IS NULL
-    `);
+
+    // NOTE: attempt_day should be created as a GENERATED ALWAYS column from the schema:
+    // attempt_day date GENERATED ALWAYS AS (DATE(started_at AT TIME ZONE 'UTC')) STORED
+    // If your database doesn't have this column, apply the beta-two-left-tango-schema.sql
+    // We do NOT add it here as a regular column because we can't insert values into GENERATED columns.
+
     await db.execute(sql`
       CREATE UNIQUE INDEX IF NOT EXISTS "idx_attempts_ring_daily"
       ON "attempts" ("email_hash", "category", "attempt_day")
@@ -776,12 +776,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           }
 
           const cards = await rehydrateTriviaDeck(existingSnapshot);
-          const attemptRecord = {
-            ...existingAttempt,
-            attemptDay: existingAttempt.attemptDay ?? attemptDay,
-          } satisfies Attempt;
 
-          return { attempt: attemptRecord, cards, snapshot: existingSnapshot } satisfies TriviaAttemptResult;
+          return { attempt: existingAttempt, cards, snapshot: existingSnapshot } satisfies TriviaAttemptResult;
         }
       }
 
@@ -797,7 +793,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             marketingOptIn: !!options.marketingOptIn,
             cardSetVersion: maxVersion,
             deckSnapshot: snapshot,
-            attemptDay,
+            // attemptDay is a GENERATED column in the database, computed from started_at
           })
           .returning();
 
@@ -805,12 +801,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           throw new Error("Failed to create trivia attempt");
         }
 
-        const attemptRecord = {
-          ...attempt,
-          attemptDay: attempt.attemptDay ?? attemptDay,
-        } satisfies Attempt;
-
-        return { attempt: attemptRecord, cards, snapshot } satisfies TriviaAttemptResult;
+        return { attempt, cards, snapshot } satisfies TriviaAttemptResult;
       } catch (error) {
         if (options.mode === "ring" && emailHash && (error as { code?: string }).code === "23505") {
           const existingAttempt = await loadExistingRingAttempt();
@@ -825,13 +816,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             }
 
             const existingCards = await rehydrateTriviaDeck(existingSnapshot);
-            const attemptRecord = {
-              ...existingAttempt,
-              attemptDay: existingAttempt.attemptDay ?? attemptDay,
-            } satisfies Attempt;
 
             return {
-              attempt: attemptRecord,
+              attempt: existingAttempt,
               cards: existingCards,
               snapshot: existingSnapshot,
             } satisfies TriviaAttemptResult;
