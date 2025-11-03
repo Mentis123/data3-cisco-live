@@ -21,7 +21,24 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       return;
     }
 
-    console.log('[RingVideoModal] Setting up video element:', video.src);
+    console.log('[RingVideoModal] Setting up video element. Current src:', video.src);
+
+    // Add detailed loading event listeners for debugging
+    const handleLoadStart = () => {
+      console.log('[RingVideoModal] Video load started');
+    };
+
+    const handleLoadedMetadata = () => {
+      console.log('[RingVideoModal] Video metadata loaded - duration:', video.duration);
+    };
+
+    const handleLoadedData = () => {
+      console.log('[RingVideoModal] Video data loaded');
+    };
+
+    // Explicitly load the video to trigger loading
+    console.log('[RingVideoModal] Calling video.load()');
+    video.load();
 
     const handleCanPlay = () => {
       console.log('[RingVideoModal] Video can play - loading complete');
@@ -75,11 +92,17 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       }, 1000);
     };
 
+    video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('ended', handleEnded);
     video.addEventListener('error', handleError);
 
     return () => {
+      video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('ended', handleEnded);
       video.removeEventListener('error', handleError);
@@ -88,7 +111,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         gainNodeCleanupRef.current = null;
       }
     };
-  }, [onComplete]);
+  }, [onComplete, isWinner]);
 
   useEffect(() => {
     const video = videoRef.current;
