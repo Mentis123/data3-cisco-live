@@ -854,12 +854,20 @@ export default function StagingLeaderboard() {
               </p>
             </div>
           </div>
-          <Link href="/leaderboard">
-            <Button variant="outline" size="sm">
-              <i className="fas fa-arrow-left mr-2"></i>
-              Back to Main
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/">
+              <Button className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
+                <i className="fas fa-home mr-2"></i>
+                Home
+              </Button>
+            </Link>
+            <Link href="/leaderboard">
+              <Button variant="outline" size="sm">
+                <i className="fas fa-arrow-left mr-2"></i>
+                Back to Main
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Split Screen Layout */}

@@ -405,28 +405,19 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               </div>
             )}
 
-            {/* Action Buttons */}
+            {/* Action Button */}
             <div className="announcement-slide-up" style={{ animationDelay: '2.1s' }}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex justify-center items-center">
                 <Button
                   onClick={() => {
                     audioManager.playClickSound();
                     setLocation('/leaderboard/staging');
                   }}
                   className="text-xl px-8 py-4 bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
-                  data-testid="button-view-leaderboard"
+                  data-testid="button-bye-for-now"
                 >
-                  <i className="fas fa-trophy mr-3"></i>
-                  View Full Leaderboard
-                </Button>
-                <Button
-                  onClick={handleDismiss}
-                  variant="outline"
-                  className="text-xl px-8 py-4 border-[#78DCFF]/50 text-[#78DCFF] hover:bg-[#78DCFF]/10"
-                  data-testid="button-dismiss-announcement"
-                >
-                  <i className="fas fa-times mr-3"></i>
-                  Dismiss
+                  <i className="fas fa-hand-peace mr-3"></i>
+                  Bye for Now
                 </Button>
               </div>
             </div>
