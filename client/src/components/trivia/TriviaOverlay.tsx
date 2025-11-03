@@ -158,7 +158,7 @@ export function TriviaOverlay({
         {/* Trivia game container */}
         <div
           ref={containerRef}
-          className="relative flex w-full max-w-5xl justify-center sm:h-full"
+          className="relative flex h-full w-full max-w-5xl items-start justify-center sm:items-center"
         >
           <div className="w-full max-w-[720px]" style={reservedStyle}>
             <div style={scaledWrapperStyle} className="relative">
