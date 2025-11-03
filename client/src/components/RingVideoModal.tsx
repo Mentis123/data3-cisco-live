@@ -30,6 +30,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       // Set up Web Audio API for mobile or direct volume for desktop
       if (audioManager.isUsingWebAudioForVolume()) {
         // Use Web Audio API with GainNode for mobile volume control
+        // Video stays muted, audio routed through Web Audio API
         const result = audioManager.createGainNodeForElement(video, 1.0);
         if (result) {
           gainNodeCleanupRef.current = result.cleanup;
@@ -37,8 +38,10 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         }
       } else {
         // Use direct volume property for desktop
-        console.log('[RingVideoModal] Using direct volume control:', audioManager.getMusicVolume());
+        // Unmute the video so we can hear it through the video element
+        video.muted = false;
         video.volume = audioManager.getMusicVolume();
+        console.log('[RingVideoModal] Using direct volume control:', audioManager.getMusicVolume());
       }
 
       console.log('[RingVideoModal] Starting video playback...');
@@ -141,13 +144,14 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
           <div className="absolute -inset-4 bg-gradient-to-r from-[#00AEFF]/20 via-[#00AEFF]/40 to-[#00AEFF]/20 rounded-lg blur-xl"></div>
           <div className="absolute -inset-2 bg-gradient-to-r from-data3-blue-black via-[#00AEFF]/30 to-data3-blue-black rounded-lg"></div>
 
-          {/* Video element */}
+          {/* Video element - start muted to ensure autoplay works */}
           <video
             ref={videoRef}
             src={videoSrc}
             className="relative w-full h-full rounded-lg shadow-2xl object-contain bg-black"
             playsInline
             preload="auto"
+            muted
           />
         </div>
       </div>

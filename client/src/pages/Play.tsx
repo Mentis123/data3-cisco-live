@@ -2247,7 +2247,7 @@ Just describe it naturally - what's the problem that needs solving?`
       {exitDialog}
       {triviaDeckDialog}
 
-      {/* Ring Video Modal - shown in Ring mode with Immersive mode ON */}
+      {/* Ring Video Modal - shown in Ring mode when submission completes */}
       {showVideoModal && (
         <RingVideoModal
           isWinner={isWinner}
