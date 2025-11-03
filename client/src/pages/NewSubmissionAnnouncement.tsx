@@ -66,17 +66,26 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const [, setLocation] = useLocation();
   const [showContent, setShowContent] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<'flash' | 'reveal' | 'display'>('flash');
+  const [showReadyPrompt, setShowReadyPrompt] = useState(true);
 
   const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || BRAND_PRIMARY;
   const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
   const categoryIcon = CATEGORY_ICONS[submission.category as keyof typeof CATEGORY_ICONS] || "fa-star";
 
-  // Animation sequence
-  useEffect(() => {
-    // Play buzz sound immediately when flash animation starts
+  // Handle user clicking to start the animation sequence
+  const handleStartAnimation = () => {
+    setShowReadyPrompt(false);
+
+    // Play buzz sound after user interaction
     audioManager.playBuzzSound().catch(err => {
       console.log('Buzz sound playback prevented by browser:', err);
     });
+  };
+
+  // Animation sequence - only starts after user interaction
+  useEffect(() => {
+    // Don't start animations until user has clicked
+    if (showReadyPrompt) return;
 
     const timer1 = setTimeout(() => {
       setAnimationPhase('reveal');
@@ -91,7 +100,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, []);
+  }, [showReadyPrompt]);
 
   // No auto-dismiss - user must manually continue
 
@@ -155,9 +164,55 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
+      {/* Ready prompt - requires user interaction to start animations/audio */}
+      {showReadyPrompt && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-data3-blue-black/95 backdrop-blur-sm cursor-pointer"
+          onClick={handleStartAnimation}
+        >
+          <div className="text-center space-y-8 animate-fade-in">
+            {/* Pulsing icon */}
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-[#00AEFF]/30 blur-3xl animate-pulse"></div>
+              <div className="relative w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-[#00AEFF] to-[#0088CC] flex items-center justify-center animate-pulse">
+                <i className="fas fa-trophy text-6xl text-white"></i>
+              </div>
+            </div>
+
+            {/* Text content */}
+            <div className="space-y-4">
+              <h2 className="text-5xl md:text-6xl font-black text-white">
+                Results Ready!
+              </h2>
+              <p className="text-xl md:text-2xl text-[#78DCFF]">
+                Click to see how you performed
+              </p>
+            </div>
+
+            {/* Click prompt button */}
+            <button
+              onClick={handleStartAnimation}
+              className="group relative px-12 py-6 bg-gradient-to-r from-[#00AEFF] to-[#0088CC] hover:from-[#2CC8FF] hover:to-[#00AEFF] text-white text-2xl font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-2xl"
+            >
+              <span className="flex items-center gap-3">
+                <i className="fas fa-play"></i>
+                View Results
+                <i className="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+              </span>
+            </button>
+
+            {/* Hint text */}
+            <p className="text-sm text-white/50 animate-pulse">
+              <i className="fas fa-hand-pointer mr-2"></i>
+              Tap anywhere to continue
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Flash overlay during flash phase */}
-      {animationPhase === 'flash' && (
-        <div className="absolute inset-0 announcement-strobe" 
+      {animationPhase === 'flash' && !showReadyPrompt && (
+        <div className="absolute inset-0 announcement-strobe"
              style={{ backgroundColor: categoryColor }}>
         </div>
       )}
