@@ -1631,6 +1631,71 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
+  async getActiveRingAttemptsByStage(): Promise<{
+    triviaChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }>;
+    projectPitchChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }>;
+  }> {
+    try {
+      const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+
+      const rows = await db
+        .select({
+          attemptId: attempts.id,
+          category: attempts.category,
+          startedAt: attempts.startedAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          passed: attempts.passed,
+        })
+        .from(attempts)
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.endedAt),
+            gt(attempts.startedAt, cutoff),
+          ),
+        )
+        .orderBy(desc(attempts.startedAt));
+
+      const triviaChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }> = [];
+      const projectPitchChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }> = [];
+
+      rows.forEach((row) => {
+        const firstInitial = row.firstName?.trim()?.[0] ?? "";
+        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const fallback = row.attemptId.slice(0, 2).toUpperCase();
+        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+        const challenger = {
+          attemptId: row.attemptId,
+          category: row.category,
+          startedAt: row.startedAt ? row.startedAt.toISOString() : new Date().toISOString(),
+          initials,
+        };
+
+        // If passed is false, they're still on trivia
+        // If passed is true, they've completed trivia and are on project pitch
+        if (row.passed) {
+          projectPitchChallengers.push(challenger);
+        } else {
+          triviaChallengers.push(challenger);
+        }
+      });
+
+      return {
+        triviaChallengers,
+        projectPitchChallengers,
+      };
+    } catch (error) {
+      console.warn('[getActiveRingAttemptsByStage] Error fetching active ring attempts by stage:', error);
+      return {
+        triviaChallengers: [],
+        projectPitchChallengers: [],
+      };
+    }
+  },
+
   async getActiveRingAttemptsDetailed(): Promise<Array<{
     attemptId: string;
     initials: string;

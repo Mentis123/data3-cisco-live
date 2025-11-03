@@ -1385,6 +1385,59 @@ export function createMemoryStorage() {
       return active;
     },
 
+    async getActiveRingAttemptsByStage(): Promise<{
+      triviaChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }>;
+      projectPitchChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }>;
+    }> {
+      const cutoff = Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000;
+
+      const triviaChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }> = [];
+      const projectPitchChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }> = [];
+
+      triviaAttemptsStore
+        .filter((attempt) =>
+          attempt.mode === "ring"
+          && !attempt.endedAt
+          && attempt.startedAt instanceof Date
+          && attempt.startedAt.getTime() >= cutoff,
+        )
+        .forEach((attempt) => {
+          const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
+          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
+          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const fallback = attempt.id.slice(0, 2).toUpperCase();
+          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+
+          const startedAtIso = attempt.startedAt instanceof Date
+            ? attempt.startedAt.toISOString()
+            : new Date().toISOString();
+
+          const challenger = {
+            attemptId: attempt.id,
+            category: attempt.category,
+            startedAt: startedAtIso,
+            initials,
+          };
+
+          // If passed is false, they're still on trivia
+          // If passed is true, they've completed trivia and are on project pitch
+          if (attempt.passed) {
+            projectPitchChallengers.push(challenger);
+          } else {
+            triviaChallengers.push(challenger);
+          }
+        });
+
+      // Sort both arrays by startedAt (newest first)
+      triviaChallengers.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+      projectPitchChallengers.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+
+      return {
+        triviaChallengers,
+        projectPitchChallengers,
+      };
+    },
+
     async getActiveRingAttemptsDetailed(): Promise<Array<{
       attemptId: string;
       initials: string;
