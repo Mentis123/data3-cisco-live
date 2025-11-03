@@ -84,7 +84,7 @@ export default function HowToPlay() {
           />
           <div className="relative z-10 flex flex-col gap-16">
             <div className="space-y-8">
-          <div className="flex flex-col items-center gap-6 sm:flex-row">
+          <div className="flex items-center gap-4 sm:gap-6">
             <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
               <img
                 src={howitworksFullImage}
@@ -92,7 +92,7 @@ export default function HowToPlay() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="flex-1 space-y-4 text-center sm:text-left">
+            <div className="flex-1">
               <h2 className="text-4xl font-semibold sm:text-5xl">How to Play</h2>
             </div>
           </div>
