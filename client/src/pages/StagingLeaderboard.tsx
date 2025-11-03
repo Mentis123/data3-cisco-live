@@ -9,6 +9,7 @@ import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
 import { formatNameToInitials } from "@/lib/utils";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
 
@@ -88,6 +89,7 @@ export default function StagingLeaderboard() {
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
+  const [activeView, setActiveView] = useState<"rankings" | "wordcloud" | "categories">("rankings");
   const [activeChallengers, setActiveChallengers] = useState<ActiveChallenger[]>([]);
   const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
@@ -339,6 +341,45 @@ export default function StagingLeaderboard() {
     });
   }, [data, websocketsDisabled]);
 
+  // Auto-rotate views on left side (rankings, wordcloud, categories)
+  useEffect(() => {
+    if (!displayData) return;
+
+    const getAvailableViews = () => {
+      const views: Array<"rankings" | "wordcloud" | "categories"> = [];
+
+      // Always include rankings
+      views.push("rankings");
+
+      // Only add other views if they have content
+      if (displayData.wordCloud.length > 0) {
+        views.push("wordcloud");
+      }
+      if (Object.keys(displayData.categoryStats).length > 0 && Object.values(displayData.categoryStats).some(v => v > 0)) {
+        views.push("categories");
+      }
+
+      return views;
+    };
+
+    const availableViews = getAvailableViews();
+    let currentIndex = availableViews.indexOf(activeView);
+
+    // If current view is not available, show rankings
+    if (currentIndex === -1) {
+      setActiveView("rankings");
+      return;
+    }
+
+    // Cycle through views every 10 seconds
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % availableViews.length;
+      setActiveView(availableViews[currentIndex]);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [displayData, activeView]);
+
   // Handle error state
   if (error && !displayData) {
     return (
@@ -474,6 +515,233 @@ export default function StagingLeaderboard() {
     );
   };
 
+  const renderWordCloud = () => {
+    if (displayData.wordCloud.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center py-8">
+          <i className="fas fa-cloud text-4xl text-[#78DCFF]/50 mb-4"></i>
+          <p className="text-lg font-semibold text-white/70">No theme data yet!</p>
+          <p className="text-sm text-[#78DCFF]/60 mt-2">
+            Come back when solutions are submitted to see the most common themes
+          </p>
+        </div>
+      );
+    }
+
+    const maxValue = Math.max(...displayData.wordCloud.map(w => w.value));
+
+    return (
+      <div className="relative w-full h-full flex items-center justify-center min-h-[400px]">
+        {/* Background effects matching staging theme */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-[#00AEFF] rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-[#78DCFF] rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-[#7300FF] rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        {/* Word cloud with organic positioning */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          {displayData.wordCloud.slice(0, 8).map((word, index) => {
+            let size: number;
+            let opacity: number;
+            let zIndex: number;
+            let x: number;
+            let y: number;
+
+            if (index === 0) {
+              // Biggest word - centered
+              opacity = 1;
+              zIndex = 30;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40"
+                    style={{
+                      fontSize: 'clamp(24px, 9vw, 56px)',
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            } else if (index < 5) {
+              // Next 4 words - scattered around center
+              size = 32;
+              opacity = 0.95;
+              zIndex = 20;
+
+              const positions = [
+                { x: -150, y: -80 },
+                { x: 160, y: -60 },
+                { x: -140, y: 90 },
+                { x: 150, y: 70 }
+              ];
+
+              const pos = positions[index - 1];
+              x = pos.x;
+              y = pos.y;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                    style={{
+                      fontSize: `${size}px`,
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            } else {
+              // Remaining 3 words - outer layer
+              size = 24;
+              opacity = 0.8;
+              zIndex = 10;
+
+              const outerPositions = [
+                { x: -200, y: -120 },
+                { x: 0, y: 150 },
+                { x: 180, y: -100 }
+              ];
+
+              const pos = outerPositions[index - 5];
+              x = pos.x;
+              y = pos.y;
+
+              return (
+                <div
+                  key={word.text}
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    zIndex,
+                  }}
+                >
+                  <span
+                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                    style={{
+                      fontSize: `${size}px`,
+                      opacity,
+                      textShadow: '0 0 10px rgba(0, 174, 255, 0.5)',
+                    }}
+                  >
+                    {word.text}
+                    <span className="hidden sm:inline ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                  </span>
+                </div>
+              );
+            }
+          }).filter(Boolean)}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCategoryStats = () => {
+    const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => ({
+      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
+      value: count,
+      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || '#00AEFF'
+    })).filter(item => item.value > 0);
+
+    const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
+
+    if (totalSubmissions === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center py-8">
+          <i className="fas fa-chart-pie text-4xl text-[#78DCFF]/50 mb-4"></i>
+          <p className="text-lg font-semibold text-white/70">No category data yet!</p>
+          <p className="text-sm text-[#78DCFF]/60 mt-2">
+            Come back when solutions are submitted to see the distribution
+          </p>
+        </div>
+      );
+    }
+
+    const chartRadius = 100;
+    const chartHeight = 300;
+
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 h-full py-4">
+        {/* Pie Chart */}
+        <div className="w-full flex justify-center">
+          <PieChart width={300} height={chartHeight}>
+            <Pie
+              data={categoryData}
+              cx="50%"
+              cy="50%"
+              outerRadius={chartRadius}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {categoryData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number, name: string) => {
+                const percent = ((value / totalSubmissions) * 100).toFixed(1);
+                return [`${value} submissions (${percent}%)`, name];
+              }}
+            />
+          </PieChart>
+        </div>
+
+        {/* Legend with percentages and counts */}
+        <div className="w-full max-w-xl mx-auto px-4">
+          <div className="space-y-2">
+            {categoryData.map((entry) => {
+              const percent = ((entry.value / totalSubmissions) * 100).toFixed(0);
+              return (
+                <div key={entry.name} className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded flex-shrink-0"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-sm font-medium text-white truncate">{entry.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#78DCFF]/80 whitespace-nowrap">
+                    {percent}% ({entry.value})
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderActiveChallengers = () => {
     if (activeChallengers.length === 0) {
       return (
@@ -604,21 +872,49 @@ export default function StagingLeaderboard() {
               <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#007BC3]/10 blur-[160px]"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center">
-                <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
-                  Live Rankings
-                </p>
-                <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                  Top 10
-                </CardTitle>
-                <p className="mt-2 text-sm text-[#78DCFF]/80">
-                  {displayData.leaderboard.length > 0
-                    ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
-                    : 'Waiting for first submission'}
-                </p>
+                {activeView === "rankings" && (
+                  <>
+                    <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
+                      Live Rankings
+                    </p>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      Top 10
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      {displayData.leaderboard.length > 0
+                        ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
+                        : 'Waiting for first submission'}
+                    </p>
+                  </>
+                )}
+                {activeView === "wordcloud" && (
+                  <>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      <i className="fas fa-cloud text-[#00AEFF] mr-3"></i>
+                      Popular Themes
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      Most mentioned across submissions
+                    </p>
+                  </>
+                )}
+                {activeView === "categories" && (
+                  <>
+                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                      <i className="fas fa-chart-pie text-[#6CC04A] mr-3"></i>
+                      Problem Categories
+                    </CardTitle>
+                    <p className="mt-2 text-sm text-[#78DCFF]/80">
+                      Distribution by category
+                    </p>
+                  </>
+                )}
               </CardHeader>
 
               <CardContent className="relative z-10 pb-8">
-                {renderLeaderboard()}
+                {activeView === "rankings" && renderLeaderboard()}
+                {activeView === "wordcloud" && renderWordCloud()}
+                {activeView === "categories" && renderCategoryStats()}
               </CardContent>
             </Card>
           </div>
