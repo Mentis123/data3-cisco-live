@@ -375,28 +375,18 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
       {/* Main Content Container with Frame */}
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-32 pt-4 sm:px-6 sm:pt-6 lg:px-8 transition-all duration-500 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-        {/* Hero Section: Data3 Logo (left) + Tagline (center) + Cisco Live Logo (right) */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4 w-full">
+        {/* Hero Section: Data3 Logo (centered) */}
+        <div className="flex items-center justify-center w-full">
           <img
             src="/Data3_Logo_Blue_Blue_Boxed-01.png"
             alt="Data#3"
-            className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 flex-shrink-0"
-            style={{ minWidth: "50px" }}
-          />
-          <h1 className="text-center text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-data3-white font-light tracking-wide flex-1 min-w-0 px-2 sm:px-4 leading-snug">
-            Delivering the Digital Future
-          </h1>
-          <img
-            src="/cisco_live.png"
-            alt="Cisco Live"
-            className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 flex-shrink-0"
-            style={{ minWidth: "50px" }}
+            className="h-12 w-auto sm:h-16 md:h-20 lg:h-24"
           />
         </div>
 
         {/* "Beat the Bot" Section */}
         <section className="space-y-6 text-center">
-          <p className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-data3-pale-blue">
+          <p className="text-3xl sm:text-3xl md:text-4xl lg:text-4xl font-bold text-data3-pale-blue">
             Beat the Bot
           </p>
           <div className="space-y-2">
@@ -591,11 +581,6 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-3">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <img
-                  src="/Data3_Logo_Blue_Blue_Boxed-01.png"
-                  alt="Data#3"
-                  className="h-12 w-auto"
-                />
                 <Link href="/admin">
                   <button
                     className="px-2 py-1 text-transparent transition-colors hover:text-muted-foreground/10"
@@ -637,7 +622,7 @@ export default function Home() {
           </div>
           <div className="mt-8 pt-8 border-t border-data3-pale-blue/10 text-center">
             <p className="text-sm text-data3-grey">
-              © 2025 Data#3. Experience vibe coded by our resident{" "}
+              © 2025 <Data3Logo />. Experience vibe coded by our resident{" "}
               <a
                 href="https://www.linkedin.com/in/adam-aka-mentis"
                 target="_blank"
