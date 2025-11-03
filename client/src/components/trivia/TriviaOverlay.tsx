@@ -67,7 +67,8 @@ export function TriviaOverlay({
         return;
       }
 
-      const verticalPadding = Math.max(12, Math.min(32, availableHeight * 0.04));
+      // Minimal padding - just enough for safe areas
+      const verticalPadding = 8;
       const usableHeight = availableHeight - verticalPadding;
       const heightScale = usableHeight > 0 ? usableHeight / naturalHeight : availableHeight / naturalHeight;
       const rawScale = Math.min(1, heightScale);
@@ -152,12 +153,12 @@ export function TriviaOverlay({
     <>
       {/* Full screen overlay backdrop */}
       <div
-        className="fixed inset-0 z-50 flex min-h-[100svh] items-center justify-center bg-slate-950/95 px-3 pt-[max(env(safe-area-inset-top),0.25rem)] pb-[max(env(safe-area-inset-bottom),0.25rem)] backdrop-blur-md sm:px-6"
+        className="fixed inset-0 z-50 flex min-h-[100svh] items-start justify-center bg-slate-950/95 px-3 pt-[max(env(safe-area-inset-top),0.5rem)] pb-[max(env(safe-area-inset-bottom),0.5rem)] backdrop-blur-md sm:items-center sm:px-6"
       >
         {/* Trivia game container */}
         <div
           ref={containerRef}
-          className="relative flex w-full max-w-5xl items-center justify-center"
+          className="relative flex h-full w-full max-w-5xl justify-center"
         >
           <div className="w-full max-w-[720px]" style={reservedStyle}>
             <div style={scaledWrapperStyle} className="relative">
