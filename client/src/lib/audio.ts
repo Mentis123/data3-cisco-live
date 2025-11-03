@@ -166,7 +166,7 @@ export class AudioManager {
     if (!this.buzzAudio) {
       this.buzzAudio = new Audio(buzzSoundFile);
       this.buzzAudio.preload = "auto";
-      this.buzzAudio.volume = 1.0; // 100% volume (increased by 50% from 0.75)
+      this.buzzAudio.volume = 0.7; // 70% volume (reduced by 30% from 1.0)
       this.buzzAudio.muted = this.isMuted;
     }
 
@@ -429,7 +429,7 @@ export class AudioManager {
       this.buzzAudio.currentTime = 0;
 
       // Sound effects are NOT affected by music volume - stay at full volume
-      this.buzzAudio.volume = 1.0;
+      this.buzzAudio.volume = 0.7;
 
       // Play the buzz sound
       await this.buzzAudio.play();
