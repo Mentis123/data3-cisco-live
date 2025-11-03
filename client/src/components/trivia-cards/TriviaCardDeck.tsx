@@ -110,7 +110,7 @@ export function TriviaCardDeck({ cards, variant = "full", className }: TriviaCar
   return (
     <Card
       className={cn(
-        "flex h-full flex-col border-white/10 bg-white/5 text-white shadow-[0_25px_120px_-60px_rgba(56,189,248,0.55)] backdrop-blur",
+        "flex flex-col border-white/10 bg-white/5 text-white shadow-[0_25px_120px_-60px_rgba(56,189,248,0.55)] backdrop-blur",
         isCompact ? "p-4" : "p-6 sm:p-8",
         className
       )}
