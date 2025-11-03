@@ -742,28 +742,88 @@ export async function registerRoutes(
   // New dashboard data endpoint
   app.get("/api/dashboard-data", async (req, res) => {
     try {
-      const [leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats, activeChallengers] = await Promise.all([
-        storage.getLeaderboard(10),
-        storage.getWordCloudData(),
-        storage.getCategoryStats(),
-        storage.getRecentSubmission(),
-        storage.getData3Stats(),
-        storage.getActiveRingAttempts(),
-      ]);
+      log("[dashboard-data] Starting to fetch dashboard data");
 
-      const topCategory = await storage.getTopProblemCategory();
-      
+      // Fetch data with individual error handling to identify which call fails
+      let leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats, activeChallengers;
+
+      try {
+        log("[dashboard-data] Fetching leaderboard");
+        leaderboard = await storage.getLeaderboard(10);
+      } catch (error) {
+        log(`[dashboard-data] Error fetching leaderboard: ${error}`);
+        throw new Error(`Failed to fetch leaderboard: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        log("[dashboard-data] Fetching word cloud");
+        wordCloud = await storage.getWordCloudData();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching word cloud: ${error}`);
+        throw new Error(`Failed to fetch word cloud: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        log("[dashboard-data] Fetching category stats");
+        categoryStats = await storage.getCategoryStats();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching category stats: ${error}`);
+        throw new Error(`Failed to fetch category stats: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        log("[dashboard-data] Fetching recent submission");
+        recentSubmission = await storage.getRecentSubmission();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching recent submission: ${error}`);
+        throw new Error(`Failed to fetch recent submission: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        log("[dashboard-data] Fetching data3 stats");
+        data3Stats = await storage.getData3Stats();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching data3 stats: ${error}`);
+        throw new Error(`Failed to fetch data3 stats: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        log("[dashboard-data] Fetching active challengers");
+        activeChallengers = await storage.getActiveRingAttempts();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching active challengers: ${error}`);
+        throw new Error(`Failed to fetch active challengers: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      let topCategory;
+      try {
+        log("[dashboard-data] Fetching top category");
+        topCategory = await storage.getTopProblemCategory();
+      } catch (error) {
+        log(`[dashboard-data] Error fetching top category: ${error}`);
+        throw new Error(`Failed to fetch top category: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
       // Use recent submission's category for stats if available, otherwise use top category
       const categoryForStats = recentSubmission?.category || topCategory;
-      const topCategoryData3Stats = await storage.getData3Stats(
-        categoryForStats === "SECURE_CONNECTIVITY" ? "SECURE_CONNECTIVITY" :
-        categoryForStats === "HYBRID_DC" ? "HYBRID_DC" :
-        categoryForStats === "OBSERVABILITY" ? "OBSERVABILITY" :
-        categoryForStats === "COLLAB_CX" ? "COLLAB_CX" :
-        categoryForStats === "EDGE_IOT" ? "EDGE_IOT" :
-        "GENERAL" // Default to GENERAL instead of EXPERTISE
-      );
 
+      let topCategoryData3Stats;
+      try {
+        log(`[dashboard-data] Fetching top category data3 stats for category: ${categoryForStats}`);
+        topCategoryData3Stats = await storage.getData3Stats(
+          categoryForStats === "SECURE_CONNECTIVITY" ? "SECURE_CONNECTIVITY" :
+          categoryForStats === "HYBRID_DC" ? "HYBRID_DC" :
+          categoryForStats === "OBSERVABILITY" ? "OBSERVABILITY" :
+          categoryForStats === "COLLAB_CX" ? "COLLAB_CX" :
+          categoryForStats === "EDGE_IOT" ? "EDGE_IOT" :
+          "GENERAL" // Default to GENERAL instead of EXPERTISE
+        );
+      } catch (error) {
+        log(`[dashboard-data] Error fetching top category data3 stats: ${error}`);
+        throw new Error(`Failed to fetch top category data3 stats: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      log("[dashboard-data] Successfully fetched all dashboard data");
       res.json({
         leaderboard,
         wordCloud,
@@ -775,7 +835,9 @@ export async function registerRoutes(
         activeChallengers,
       });
     } catch (error) {
-      res.status(500).json({ message: "Failed to get dashboard data" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to get dashboard data";
+      log(`[dashboard-data] Error: ${errorMessage}`);
+      res.status(500).json({ message: errorMessage });
     }
   });
 
