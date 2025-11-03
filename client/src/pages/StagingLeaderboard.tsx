@@ -92,13 +92,15 @@ export default function StagingLeaderboard() {
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
 
   // Fetch dashboard data
-  const { data, isLoading, refetch } = useQuery<DashboardData>({
+  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["dashboard-data"],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/dashboard-data");
       return response.json();
     },
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const triggerScoreAnimation = (entryId: string, score?: number | null) => {
@@ -294,6 +296,29 @@ export default function StagingLeaderboard() {
       return combined;
     });
   }, [data, websocketsDisabled]);
+
+  // Handle error state
+  if (error && !displayData) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <i className="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+          <p className="text-xl font-semibold mb-2">Failed to load staging leaderboard</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            {error instanceof Error ? error.message : 'An unexpected error occurred'}
+          </p>
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            className="border-red-400/40 hover:bg-red-500/20"
+          >
+            <i className="fas fa-sync-alt mr-2"></i>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !displayData) {
     return (
