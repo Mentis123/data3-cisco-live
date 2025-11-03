@@ -110,6 +110,7 @@ export function TriviaWarmup({
   const [isCreatingAttempt, setIsCreatingAttempt] = useState(false);
   const [triviaCompleted, setTriviaCompleted] = useState(false);
   const [attemptQuestions, setAttemptQuestions] = useState<TriviaQuestion[]>([]);
+  const [isSavingScore, setIsSavingScore] = useState(false);
 
   const sanitizedEmail = useMemo(() => {
     if (!email) {
@@ -674,6 +675,7 @@ export function TriviaWarmup({
 
             // Submit answers to backend for ring mode
             if (mode === "ring" && attemptId && answers.length > 0) {
+              setIsSavingScore(true);
               try {
                 console.log(`[TriviaWarmup] Submitting ${answers.length} answers for attempt ${attemptId}`);
                 const response = await fetch(`/api/trivia/attempts/${attemptId}/complete`, {
@@ -686,17 +688,26 @@ export function TriviaWarmup({
                 if (!response.ok) {
                   const errorData = await response.json().catch(() => ({}));
                   console.error("[TriviaWarmup] Failed to submit trivia answers:", errorData);
+                  // Even on error, we set isSavingScore to false so user isn't stuck
+                  setIsSavingScore(false);
                 } else {
                   const result = await response.json();
                   console.log("[TriviaWarmup] Trivia answers submitted successfully:", result);
+                  setIsSavingScore(false);
                 }
               } catch (error) {
                 console.error("[TriviaWarmup] Error submitting trivia answers:", error);
+                setIsSavingScore(false);
               }
             }
           }}
           continueLabel={continueLabel}
           onContinue={(score?: number) => {
+            // Prevent continuing if score is still being saved
+            if (isSavingScore) {
+              console.log("[TriviaWarmup] Cannot continue - score is still being saved");
+              return;
+            }
             console.log("[TriviaWarmup] Trivia completed, calling parent onContinue");
             setTriviaCompleted(true);
             setShowOverlay(false);
@@ -705,6 +716,7 @@ export function TriviaWarmup({
               onContinue(score, selectedTrack?.id, attemptId || undefined);
             }
           }}
+          isSavingScore={isSavingScore}
           onShuffle={async () => {
             if (isShuffleRequested || isDeckFetching || !selectedTrack) {
               return;
