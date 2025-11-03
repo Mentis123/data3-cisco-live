@@ -19,6 +19,7 @@ export default function Home() {
   const audioReadyRef = useRef(false);
   const userInteractedRef = useRef(false);
   const lastBuzzTimeRef = useRef(0);
+  const gainNodeCleanupRef = useRef<(() => void) | null>(null);
   const buzzTimeoutRef = useRef<number | null>(null);
 
   // Gyroscope-based 3D tilt effect state
@@ -33,23 +34,34 @@ export default function Home() {
     audioRef.current = new Audio('/sliding_stone.mp3');
     audioRef.current.playbackRate = 0.8; // Play at 80% speed
 
-    const applyVolume = (volume: number) => {
-      if (!audioRef.current) {
-        return;
+    // Set up Web Audio API for mobile or direct volume for desktop
+    if (audioManager.isUsingWebAudioForVolume()) {
+      // Use Web Audio API with GainNode for mobile volume control
+      const result = audioManager.createGainNodeForElement(audioRef.current, baseVolume);
+      if (result) {
+        gainNodeCleanupRef.current = result.cleanup;
+        console.log('[Home] Using Web Audio API for sliding stone audio volume control');
       }
+    } else {
+      // Use direct volume property for desktop
+      const applyVolume = (volume: number) => {
+        if (!audioRef.current) {
+          return;
+        }
 
-      const clampedVolume = Math.max(0, Math.min(1, volume));
-      audioRef.current.volume = baseVolume * clampedVolume;
-    };
+        const clampedVolume = Math.max(0, Math.min(1, volume));
+        audioRef.current.volume = baseVolume * clampedVolume;
+      };
 
-    applyVolume(audioManager.getMusicVolume());
+      applyVolume(audioManager.getMusicVolume());
 
-    const handleVolumeChange = (event: Event) => {
-      const customEvent = event as CustomEvent<number>;
-      applyVolume(customEvent.detail);
-    };
+      const handleVolumeChange = (event: Event) => {
+        const customEvent = event as CustomEvent<number>;
+        applyVolume(customEvent.detail);
+      };
 
-    window.addEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+      window.addEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+    }
 
     // For mobile browsers, we need to prime the audio on user interaction
     const enableAudio = () => {
@@ -70,7 +82,11 @@ export default function Home() {
         audioRef.current.pause();
         audioRef.current = null;
       }
-      window.removeEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+      if (gainNodeCleanupRef.current) {
+        gainNodeCleanupRef.current();
+        gainNodeCleanupRef.current = null;
+      }
+      window.removeEventListener(MUSIC_VOLUME_CHANGE_EVENT, () => {});
       document.removeEventListener('touchstart', enableAudio);
       document.removeEventListener('click', enableAudio);
     };
