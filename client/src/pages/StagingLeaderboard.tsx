@@ -627,6 +627,12 @@ export default function StagingLeaderboard() {
           </div>
           <div className="text-[#78DCFF]/60">
             <i className={`${stageIcon} text-2xl`}></i>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderWordCloud = () => {
     if (displayData.wordCloud.length === 0) {
       return (
