@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-import { TriviaGame } from "./TriviaGame";
+import { TriviaGame, type TriviaAnswer } from "./TriviaGame";
 import type { TriviaQuestion, TriviaTrackMeta } from "./utils";
 
 interface TriviaOverlayProps {
@@ -21,7 +21,7 @@ interface TriviaOverlayProps {
   track: TriviaTrackMeta;
   mode: "dojo" | "ring";
   onExit: () => void;
-  onComplete?: (score: number) => void;
+  onComplete?: (score: number, answers: TriviaAnswer[]) => void;
   continueLabel?: string;
   onContinue?: (score?: number) => void;
   onShuffle?: () => Promise<void> | void;
@@ -175,8 +175,8 @@ export function TriviaOverlay({
                   questions={questions}
                   track={track}
                   mode={mode}
-                  onComplete={(score) => {
-                    onComplete?.(score);
+                  onComplete={(score, answers) => {
+                    onComplete?.(score, answers);
                   }}
                   completionRender={({ score, restart }) => (
                     <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">

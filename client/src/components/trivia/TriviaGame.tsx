@@ -21,11 +21,20 @@ type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete"
 type TriviaMode = "dojo" | "ring";
 
 /**
+ * Answer record for submission to backend
+ */
+export interface TriviaAnswer {
+  itemId: string;
+  choiceIndex: number;
+  elapsedMs: number;
+}
+
+/**
  * Props for the TriviaGame component
  * @param questions - Array of trivia questions to display (typically 5)
  * @param track - Category metadata (name, colors, descriptions)
  * @param className - Optional CSS classes for styling
- * @param onComplete - Callback fired when all questions are answered, receives final score
+ * @param onComplete - Callback fired when all questions are answered, receives final score and answers
  * @param completionRender - Custom render function for completion screen
  * @param mode - "dojo" (training) or "ring" (official) mode
  */
@@ -33,7 +42,7 @@ interface TriviaGameProps {
   questions: TriviaQuestion[];
   track: TriviaTrackMeta;
   className?: string;
-  onComplete?: (score: number) => void;
+  onComplete?: (score: number, answers: TriviaAnswer[]) => void;
   completionRender?: (context: { score: number; restart: () => void }) => React.ReactNode;
   mode?: TriviaMode;
 }
@@ -91,6 +100,7 @@ export function TriviaGame({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [completionAnnounced, setCompletionAnnounced] = useState(false);
   const [continueAvailable, setContinueAvailable] = useState(false);
+  const [answers, setAnswers] = useState<TriviaAnswer[]>([]);
 
   const frameRef = useRef<number | null>(null);
 
@@ -111,6 +121,7 @@ export function TriviaGame({
   const resetGame = () => {
     setScore(0);
     setCompletionAnnounced(false);
+    setAnswers([]);
     resetForQuestion(0);
   };
 
@@ -272,9 +283,9 @@ export function TriviaGame({
   useEffect(() => {
     if (phase === "complete" && !completionAnnounced) {
       setCompletionAnnounced(true);
-      onComplete?.(score);
+      onComplete?.(score, answers);
     }
-  }, [phase, completionAnnounced, onComplete, score]);
+  }, [phase, completionAnnounced, onComplete, score, answers]);
 
   const handleChoice = (index: number) => {
     if (phase !== "playing" || answered || !currentQuestion) {
@@ -285,6 +296,14 @@ export function TriviaGame({
     const timeElapsed = QUESTION_TIME - timeLeft;
     const tierPoints = getTierPoints(timeElapsed);
     const earned = correct ? tierPoints : 0;
+
+    // Record this answer for backend submission
+    const answer: TriviaAnswer = {
+      itemId: currentQuestion.id,
+      choiceIndex: index,
+      elapsedMs: Math.round(timeElapsed * 1000), // Convert to milliseconds
+    };
+    setAnswers((prev) => [...prev, answer]);
 
     setScore((prev) => prev + earned);
     setEarnedPoints(earned);
