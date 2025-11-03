@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { audioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
+
 interface RingVideoModalProps {
   isWinner: boolean;
   onComplete: () => void;
@@ -15,6 +17,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
 
     const handleCanPlay = () => {
       setIsLoaded(true);
+      video.volume = audioManager.getMusicVolume();
       video.play().catch(err => {
         console.error('Failed to play video:', err);
         // If video fails to play, proceed anyway after a short delay
@@ -42,6 +45,28 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       video.removeEventListener('error', handleError);
     };
   }, [onComplete]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const applyVolume = (volume: number) => {
+      video.volume = Math.max(0, Math.min(1, volume));
+    };
+
+    applyVolume(audioManager.getMusicVolume());
+
+    const handleVolumeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<number>;
+      applyVolume(customEvent.detail);
+    };
+
+    window.addEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+
+    return () => {
+      window.removeEventListener(MUSIC_VOLUME_CHANGE_EVENT, handleVolumeChange);
+    };
+  }, []);
 
   const videoSrc = isWinner
     ? "/attached_assets/ring_winner.mp4"
