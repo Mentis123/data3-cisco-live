@@ -737,7 +737,9 @@ export async function registerRoutes(
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const category = req.query.category as string | undefined;
-      const leaderboard = await storage.getLeaderboard(limit, category);
+      // Default to today's date in YYYY-MM-DD format, or use the provided date
+      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+      const leaderboard = await storage.getLeaderboard(limit, category, filterDate);
       res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ message: "Failed to get leaderboard" });
@@ -749,12 +751,15 @@ export async function registerRoutes(
     try {
       log("[dashboard-data] Starting to fetch dashboard data");
 
+      // Default to today's date in YYYY-MM-DD format, or use the provided date
+      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+
       // Fetch data with individual error handling to identify which call fails
       let leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats, activeChallengers;
 
       try {
         log("[dashboard-data] Fetching leaderboard");
-        leaderboard = await storage.getLeaderboard(10);
+        leaderboard = await storage.getLeaderboard(10, undefined, filterDate);
       } catch (error) {
         log(`[dashboard-data] Error fetching leaderboard: ${error}`);
         throw new Error(`Failed to fetch leaderboard: ${error instanceof Error ? error.message : String(error)}`);
@@ -1019,7 +1024,9 @@ export async function registerRoutes(
   // Admin endpoint to get full leaderboard with details
   app.get("/api/admin/leaderboard", async (req, res) => {
     try {
-      const leaderboard = await storage.getDetailedLeaderboard();
+      // Default to today's date in YYYY-MM-DD format, or use the provided date
+      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+      const leaderboard = await storage.getDetailedLeaderboard(100, filterDate);
       res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ message: "Failed to get detailed leaderboard" });
