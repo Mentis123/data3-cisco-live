@@ -43,7 +43,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/play" component={RingPlay} />
         <Route path="/ring" component={RingPlay} />
-        <Route path="/leaderboard" component={Leaderboard} />
+        <Route path="/leaderboard" component={StagingLeaderboard} />
         <Route path="/leaderboard/staging" component={StagingLeaderboard} />
         <Route path="/leaderboard/ideas" component={LeaderboardIdeas} />
         <Route path="/admin" component={Admin} />

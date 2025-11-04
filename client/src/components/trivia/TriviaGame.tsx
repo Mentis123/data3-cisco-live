@@ -154,6 +154,9 @@ export function TriviaGame({
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
+
+      // Auto-scroll to top when trivia starts
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [phase]);
 

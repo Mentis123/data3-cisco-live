@@ -297,7 +297,7 @@ Just describe it naturally - what's the problem that needs solving?`
     },
     onSuccess: (data) => {
       try {
-        setIsSubmitting(false);
+        // Keep isSubmitting true until we navigate away to prevent button from re-enabling
 
         console.log('[Play] Received backend response:', data);
 
@@ -328,40 +328,29 @@ Just describe it naturally - what's the problem that needs solving?`
           JSON.stringify({ timestamp: Date.now() })
         );
 
-        // Check if we should show the video modal (Ring mode only)
-        console.log('[Play] isRing:', isRing, 'isEligible:', data.isEligible);
-
+        // Store video state for Ring mode (to be triggered on "View Results" click)
         if (isRing) {
-          console.log('[Play] Ring mode - showing video modal');
-          setIsWinner(data.isEligible || false);
-          setShowVideoModal(true);
-
-          // Fallback: If modal doesn't navigate within 15 seconds, force navigation
-          setTimeout(() => {
-            console.log('[Play] Fallback timer: Checking if still on Play page...');
-            if (window.location.pathname.includes('/play') || window.location.pathname.includes('/ring-play')) {
-              console.warn('[Play] Modal did not complete - forcing navigation to /announcement');
-              setShowVideoModal(false);
-              setLocation('/announcement');
-            }
-          }, 15000);
-        } else {
-          console.log('[Play] Classic mode - navigating to /announcement');
-
-          // Play click sound before navigation
-          audioManager.playClickSound();
-
-          // Navigate to announcement page
-          // Use setTimeout to ensure navigation happens after state updates
-          setTimeout(() => {
-            console.log('[Play] Executing navigation to /announcement');
-            setLocation('/announcement');
-          }, 100);
+          sessionStorage.setItem('shouldShowVideo', JSON.stringify({
+            isWinner: data.isEligible || false,
+            timestamp: Date.now()
+          }));
         }
+
+        console.log('[Play] Navigating to /announcement');
+
+        // Play click sound before navigation
+        audioManager.playClickSound();
+
+        // Navigate to announcement page
+        // Use setTimeout to ensure navigation happens after state updates
+        setTimeout(() => {
+          console.log('[Play] Executing navigation to /announcement');
+          setLocation('/announcement');
+        }, 100);
       } catch (error) {
         console.error('[Play] Error in onSuccess handler:', error);
         // Even if there's an error, try to navigate to announcement page
-        setIsSubmitting(false);
+        // Keep isSubmitting true until navigation
         setTimeout(() => {
           console.log('[Play] Fallback navigation to /announcement after error');
           setLocation('/announcement');
@@ -1858,25 +1847,6 @@ Just describe it naturally - what's the problem that needs solving?`
               <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
 
-                {/* Ring Header Section */}
-                <div className="flex flex-col gap-4 sm:gap-6">
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
-                      <img
-                        src={ringFullImage}
-                        alt="Ring"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <h1 className="text-4xl font-semibold sm:text-5xl">Project Pitch</h1>
-                      <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-                        You crushed the trivia with {triviaScore}/60 points. Now craft your winning business case — this is what separates you from the Bot Bar!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="flex w-full flex-col gap-4">
               {triviaScore !== null && (
                 <div
@@ -1899,23 +1869,20 @@ Just describe it naturally - what's the problem that needs solving?`
                         {triviaScore}/60 Points Locked
                       </p>
                       {activeCategoryLabel && (
-                        <p className="text-sm text-data3-pale-blue/70">
-                          Category: {activeCategoryLabel}
-                        </p>
+                        <Badge
+                          className="rounded-full border-0 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em]"
+                          style={{
+                            backgroundColor: activeCategoryTheme.badgeBg,
+                            color: activeCategoryTheme.badgeText,
+                          }}
+                        >
+                          {activeCategoryLabel}
+                        </Badge>
                       )}
                     </div>
                     <div className="flex flex-col items-center gap-2">
-                      <Badge
-                        className="rounded-full border-0 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em]"
-                        style={{
-                          backgroundColor: activeCategoryTheme.badgeBg,
-                          color: activeCategoryTheme.badgeText,
-                        }}
-                      >
+                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-data3-pale-blue">
                         ⚡ One Step Away
-                      </Badge>
-                      <p className="text-xs text-data3-pale-blue/70">
-                        Beat the Bot Bar to win!
                       </p>
                     </div>
                   </div>
@@ -1949,7 +1916,7 @@ Just describe it naturally - what's the problem that needs solving?`
               </div>
               <div
                 ref={chatContainerRef}
-                className="flex-1 space-y-4 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-6"
+                className="flex-1 space-y-4 overflow-y-auto p-4 pb-6 sm:p-6 sm:pb-6"
                 data-testid="chat-messages"
               >
                 {isBooting ? (
