@@ -990,8 +990,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
   if (isRing && registrationComplete && !hasCompletedTrivia) {
     return (
       <div className="flex min-h-screen min-h-[100dvh] flex-col bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
-          <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+        <div className="mx-auto flex w-full max-w-5xl flex-col">
+          <div className="flex flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
             <div className="flex flex-col gap-4 sm:gap-6">
               <div className="flex items-center gap-4 sm:gap-6">
                 <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-white/10 bg-white/10 shadow-2xl shadow-cyan-500/20 ring-2 ring-cyan-400/20 sm:h-32 sm:w-32">
@@ -1009,7 +1009,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
             </div>
             <TriviaWarmup
               mode="ring"
-              className="flex-1"
+              className="w-full"
               exitHref={exitDestination}
               email={email}
               firstName={firstName}
