@@ -50,7 +50,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       // Set up Web Audio API for mobile or direct volume for desktop
       if (audioManager.isUsingWebAudioForVolume()) {
         // Use Web Audio API with GainNode for mobile volume control
-        // Video stays muted, audio routed through Web Audio API
+        // IMPORTANT: Unmute the video so audio flows through Web Audio API graph
+        video.muted = false;
         const result = audioManager.createGainNodeForElement(video, 1.0);
         if (result) {
           gainNodeCleanupRef.current = result.cleanup;
