@@ -10,6 +10,7 @@ interface RingVideoModalProps {
 export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [shouldStartMuted, setShouldStartMuted] = useState(true);
   const gainNodeCleanupRef = useRef<(() => void) | null>(null);
 
   console.log('[RingVideoModal] Component mounted - isWinner:', isWinner);
@@ -66,6 +67,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       }
 
       console.log('[RingVideoModal] Starting video playback...');
+      // Ensure React doesn't immediately re-apply the muted attribute
+      setShouldStartMuted(false);
       video.play().catch(err => {
         console.error('[RingVideoModal] Failed to play video:', err);
         // Resume background music and proceed anyway after a short delay
@@ -183,7 +186,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
             className="relative w-full h-full rounded-lg shadow-2xl object-contain bg-black"
             playsInline
             preload="auto"
-            muted
+            muted={shouldStartMuted}
           />
         </div>
       </div>
