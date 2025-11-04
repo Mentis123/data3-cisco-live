@@ -122,14 +122,14 @@ export class AudioManager {
     if (!this.challengerAudio) {
       this.challengerAudio = new Audio(newChallengerSound);
       this.challengerAudio.preload = "auto";
-      this.challengerAudio.volume = 0.4; // Reduced by 50% from 0.8
+      this.challengerAudio.volume = 0.2; // Reduced by 50% to 0.2
       this.challengerAudio.muted = this.isMuted;
     }
 
     if (!this.flashAudio) {
       this.flashAudio = new Audio(flashSound);
       this.flashAudio.preload = "auto";
-      this.flashAudio.volume = 0.9; // Slightly louder for immediate impact
+      this.flashAudio.volume = 0.45; // Reduced by 50% from 0.9
       this.flashAudio.muted = this.isMuted;
     }
 
@@ -296,7 +296,7 @@ export class AudioManager {
       this.flashAudio.currentTime = 0;
 
       // Sound effects are NOT affected by music volume - stay at full volume
-      this.flashAudio.volume = 0.9;
+      this.flashAudio.volume = 0.45;
 
       // Play the flash sound immediately
       await this.flashAudio.play();
@@ -320,7 +320,7 @@ export class AudioManager {
       this.challengerAudio.currentTime = 0;
 
       // Sound effects are NOT affected by music volume - stay at full volume
-      this.challengerAudio.volume = 0.4;
+      this.challengerAudio.volume = 0.2;
 
       // Play the challenger sound
       await this.challengerAudio.play();
