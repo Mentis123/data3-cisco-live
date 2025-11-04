@@ -464,15 +464,15 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     if (existing) {
       if (Object.keys(normalizedProfile).length > 0) {
-        await db.update(users).set(normalizedProfile).where(eq(users.emailHash, emailHash));
-        return { user: { ...existing, ...normalizedProfile }, emailHash };
+        await db.update(users).set({ ...normalizedProfile, email }).where(eq(users.emailHash, emailHash));
+        return { user: { ...existing, ...normalizedProfile, email }, emailHash };
       }
       return { user: existing, emailHash };
     }
 
     const [created] = await db
       .insert(users)
-      .values({ emailHash, ...normalizedProfile })
+      .values({ emailHash, email, ...normalizedProfile })
       .returning();
     return { user: created, emailHash };
   };
@@ -2293,6 +2293,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             ...winnerEntry[0],
             firstName: winnerUser[0]?.firstName || null,
             lastName: winnerUser[0]?.lastName || null,
+            email: winnerUser[0]?.email || null,
           },
           draw: draw,
           totalEntries: -1, // We don't know the original count
@@ -2344,6 +2345,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ...winner,
           firstName: winnerUser[0]?.firstName || null,
           lastName: winnerUser[0]?.lastName || null,
+          email: winnerUser[0]?.email || null,
         },
         draw: draw,
         totalEntries: entries.length,

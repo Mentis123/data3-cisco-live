@@ -2123,7 +2123,7 @@ function DBAdminTab() {
                   <h3 className="text-2xl font-bold mb-2">Winner Details</h3>
                   <div className="space-y-2">
                     <div><strong>Name:</strong> {selectedWinner.winner.firstName} {selectedWinner.winner.lastName}</div>
-                    <div><strong>Email Hash:</strong> <code className="text-xs">{selectedWinner.winner.emailHash}</code></div>
+                    <div><strong>Email:</strong> {selectedWinner.winner.email || <span className="text-muted-foreground italic">Not available</span>}</div>
                     <div><strong>Category:</strong> {selectedWinner.winner.category}</div>
                     <div><strong>Entry Date:</strong> {new Date(selectedWinner.winner.createdAt).toLocaleString()}</div>
                   </div>
