@@ -546,7 +546,7 @@ export function TriviaWarmup({
 
   if (isLoadingCategories) {
     return (
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+      <Card className={cn("flex flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-3">
           <CardTitle className="text-2xl font-semibold">
             {mode === "ring" ? "Loading trivia decks…" : "Loading warm-up decks…"}
@@ -569,7 +569,7 @@ export function TriviaWarmup({
 
   if (!selectedTrack) {
     return (
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+      <Card className={cn("flex flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-6">
           {mode === "dojo" && (
             <>
@@ -599,7 +599,7 @@ export function TriviaWarmup({
 
   if (shouldShowLoadingState) {
     return (
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+      <Card className={cn("flex flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-3">
           <div className="flex items-center gap-3">
             <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-950", selectedTrack.accentClass)}>
@@ -631,7 +631,7 @@ export function TriviaWarmup({
 
   if (showDeckUnavailable) {
     return (
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+      <Card className={cn("flex flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl font-semibold">Trivia deck unavailable</CardTitle>
         </CardHeader>
@@ -639,7 +639,7 @@ export function TriviaWarmup({
           <p className="text-sm text-slate-300/80">
             {mode === "dojo"
               ? deckErrorMessage
-              : `We couldn’t load a trivia deck for ${selectedTrack.name} right now. Try again or select a different track.`}
+              : `We couldn't load a trivia deck for ${selectedTrack.name} right now. Try again or select a different track.`}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button
@@ -756,7 +756,7 @@ export function TriviaWarmup({
         />
       )}
 
-      <Card className={cn("flex h-full flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
+      <Card className={cn("flex flex-col border-white/10 bg-slate-900/60 text-white backdrop-blur", className)}>
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl font-semibold">Pick your technology track</CardTitle>
         </CardHeader>
