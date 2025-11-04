@@ -47,6 +47,11 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       // Pause background music so video audio is prioritized
       audioManager.pauseBackgroundMusic();
 
+      // Always restart the clip from the beginning before we start playback
+      if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        video.currentTime = 0;
+      }
+
       // Set up Web Audio API for mobile or direct volume for desktop
       if (audioManager.isUsingWebAudioForVolume()) {
         // Use Web Audio API with GainNode for mobile volume control
@@ -102,7 +107,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
     video.addEventListener('loadstart', handleLoadStart);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('loadeddata', handleLoadedData);
-    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('canplay', handleCanPlay, { once: true });
     video.addEventListener('ended', handleEnded);
     video.addEventListener('error', handleError);
 
