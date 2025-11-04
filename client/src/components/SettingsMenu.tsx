@@ -56,7 +56,7 @@ export function SettingsMenu() {
   return (
     <>
       {/* Settings Gear Button */}
-      <div className="fixed bottom-4 right-4 z-50 flex items-center gap-3">
+      <div className="fixed bottom-4 right-4 z-[150] flex items-center gap-3">
         {/* Slide-out menu items */}
         <div
           className={cn(

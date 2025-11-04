@@ -10,8 +10,14 @@ interface RingVideoModalProps {
 export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [shouldStartMuted, setShouldStartMuted] = useState(true);
   const gainNodeCleanupRef = useRef<(() => void) | null>(null);
+  const hasStartedPlaybackRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep onCompleteRef up to date without triggering effect re-run
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   console.log('[RingVideoModal] Component mounted - isWinner:', isWinner);
 
@@ -42,6 +48,13 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
     video.load();
 
     const handleCanPlay = () => {
+      // Prevent duplicate playback attempts if effect re-runs
+      if (hasStartedPlaybackRef.current) {
+        console.log('[RingVideoModal] Playback already started, ignoring duplicate canplay event');
+        return;
+      }
+      hasStartedPlaybackRef.current = true;
+
       console.log('[RingVideoModal] Video can play - loading complete');
       setIsLoaded(true);
 
@@ -72,15 +85,13 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       }
 
       console.log('[RingVideoModal] Starting video playback...');
-      // Ensure React doesn't immediately re-apply the muted attribute
-      setShouldStartMuted(false);
       video.play().catch(err => {
         console.error('[RingVideoModal] Failed to play video:', err);
         // Resume background music and proceed anyway after a short delay
         audioManager.resumeBackgroundMusic();
         setTimeout(() => {
           console.log('[RingVideoModal] Completing due to playback error');
-          onComplete();
+          onCompleteRef.current();
         }, 1000);
       });
     };
@@ -88,7 +99,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
     const handleEnded = () => {
       console.log('[RingVideoModal] Video playback ended - completing');
       audioManager.resumeBackgroundMusic();
-      onComplete();
+      onCompleteRef.current();
     };
 
     const handleError = (e: Event) => {
@@ -103,7 +114,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       audioManager.resumeBackgroundMusic();
       setTimeout(() => {
         console.log('[RingVideoModal] Completing due to video load error');
-        onComplete();
+        onCompleteRef.current();
       }, 1000);
     };
 
@@ -125,10 +136,12 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         gainNodeCleanupRef.current();
         gainNodeCleanupRef.current = null;
       }
+      // Reset the playback started flag in case component remounts
+      hasStartedPlaybackRef.current = false;
       // Resume background music when component unmounts (e.g., skip button clicked)
       audioManager.resumeBackgroundMusic();
     };
-  }, [onComplete, isWinner]);
+  }, [isWinner]); // onComplete is managed via ref to prevent unnecessary re-runs
 
   useEffect(() => {
     const video = videoRef.current;
@@ -184,21 +197,21 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
           <div className="absolute -inset-4 bg-gradient-to-r from-[#00AEFF]/20 via-[#00AEFF]/40 to-[#00AEFF]/20 rounded-lg blur-xl"></div>
           <div className="absolute -inset-2 bg-gradient-to-r from-data3-blue-black via-[#00AEFF]/30 to-data3-blue-black rounded-lg"></div>
 
-          {/* Video element - start muted to ensure autoplay works */}
+          {/* Video element - start muted to ensure autoplay works, unmuted in canplay handler */}
           <video
             ref={videoRef}
             src={videoSrc}
             className="relative w-full h-full rounded-lg shadow-2xl object-contain bg-black"
             playsInline
             preload="auto"
-            muted={shouldStartMuted}
+            muted
           />
         </div>
       </div>
 
       {/* Skip button (appears after 2 seconds) */}
       <button
-        onClick={onComplete}
+        onClick={() => onCompleteRef.current()}
         className="absolute bottom-8 right-8 px-6 py-3 bg-gray-800/80 hover:bg-gray-700 text-white rounded-lg backdrop-blur-sm transition-all duration-200 opacity-0 animate-fade-in border border-gray-600"
         style={{ animationDelay: '2s', animationFillMode: 'forwards' }}
       >
