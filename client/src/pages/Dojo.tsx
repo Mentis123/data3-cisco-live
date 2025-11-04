@@ -72,9 +72,9 @@ export default function Dojo({ params }: DojoRouteProps) {
   if (mode === "trivia-cards") {
     return (
       <div className="flex min-h-screen min-h-[100dvh] flex-col bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
-          <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
-            <TriviaWarmup mode="dojo" className="flex-1" />
+        <div className="mx-auto flex w-full max-w-5xl flex-col">
+          <div className="flex flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+            <TriviaWarmup mode="dojo" className="w-full" />
             <div className="mx-auto mt-8 grid w-full max-w-md gap-3 sm:grid-cols-2">
               <Link href="/play">
                 <Button
@@ -104,8 +104,8 @@ export default function Dojo({ params }: DojoRouteProps) {
 
   return (
     <div className="flex min-h-screen min-h-[100dvh] flex-col bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
-        <div className="flex flex-1 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
+      <div className="mx-auto flex w-full max-w-5xl flex-col">
+        <div className="flex flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
             <img
               src={dojoFullImage}
