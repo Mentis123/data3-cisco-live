@@ -1156,8 +1156,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
-    async getLeaderboard(limit: number = 100, category?: string): Promise<any[]> {
-    const query = db
+    async getLeaderboard(limit: number = 100, category?: string, filterDate?: string): Promise<any[]> {
+    let query = db
       .select({
         id: submissions.id,
         totalScore: submissions.totalScore,
@@ -1170,8 +1170,20 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       .orderBy(desc(submissions.totalScore), submissions.createdAt)
       .limit(limit);
 
+    // Build WHERE conditions
+    const conditions = [];
+
+    if (filterDate) {
+      // Filter by date portion of createdAt timestamp
+      conditions.push(sql`DATE(${submissions.createdAt}) = ${filterDate}`);
+    }
+
     if (category) {
-      return await query.where(eq(submissions.category, category));
+      conditions.push(eq(submissions.category, category));
+    }
+
+    if (conditions.length > 0) {
+      return await query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
     }
 
     return await query;
@@ -1205,8 +1217,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     };
   },
 
-    async getAdminLeaderboard(limit: number = 100): Promise<any[]> {
-    const results = await db
+    async getAdminLeaderboard(limit: number = 100, filterDate?: string): Promise<any[]> {
+    let query = db
       .select({
         id: submissions.id,
         totalScore: submissions.totalScore,
@@ -1222,7 +1234,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       .innerJoin(participants, eq(submissions.participantId, participants.id))
       .orderBy(desc(submissions.totalScore), submissions.createdAt)
       .limit(limit);
-    
+
+    if (filterDate) {
+      query = query.where(sql`DATE(${submissions.createdAt}) = ${filterDate}`);
+    }
+
+    const results = await query;
+
     // Parse JSON strings for each result
     return results.map(result => ({
       ...result,
@@ -1854,8 +1872,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     return await this.getSubmission(id);
   },
 
-    async getDetailedLeaderboard(limit: number = 100): Promise<any[]> {
-    return await this.getAdminLeaderboard(limit);
+    async getDetailedLeaderboard(limit: number = 100, filterDate?: string): Promise<any[]> {
+    return await this.getAdminLeaderboard(limit, filterDate);
   },
 
     async deleteSubmission(id: string): Promise<void> {
