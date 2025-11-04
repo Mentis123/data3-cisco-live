@@ -54,6 +54,7 @@ export const customCategories = pgTable("custom_categories", {
 export const users = pgTable("users", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
   emailHash: text("email_hash").notNull().unique(),
+  email: text("email"),
   firstName: text("first_name"),
   lastName: text("last_name"),
   company: text("company"),
