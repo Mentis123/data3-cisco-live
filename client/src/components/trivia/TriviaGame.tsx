@@ -466,9 +466,9 @@ export function TriviaGame({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 py-2 max-[480px]:px-3 max-[480px]:py-2">
+      <CardContent className="flex flex-col overflow-y-auto px-4 py-2 max-[480px]:px-3 max-[480px]:py-2">
         {currentQuestion ? (
-          <div className="mx-auto flex w-full max-w-[800px] flex-1 flex-col">
+          <div className="mx-auto flex w-full max-w-[800px] flex-col">
             {phase !== "complete" && (
               <div className="mb-3 max-[480px]:mb-2.5">
                 <h2 className="text-pretty text-left text-[clamp(1.125rem,3.5vh,1.5rem)] font-bold leading-[1.3] text-white">
@@ -543,7 +543,7 @@ export function TriviaGame({
             )}
           </div>
         ) : (
-          <div className="flex flex-1 items-center justify-center text-sm text-slate-200/70">
+          <div className="flex items-center justify-center py-12 text-sm text-slate-200/70">
             No trivia cards available yet. Check back soon.
           </div>
         )}
