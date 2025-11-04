@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { triviaCardCategoryMeta, isTriviaCardCategory, type TriviaCardCategory } from "@/data/triviaCards";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 import { TriviaOverlay } from "./TriviaOverlay";
 import type { TriviaAnswer } from "./TriviaGame";
@@ -102,6 +103,7 @@ export function TriviaWarmup({
   firstName,
   lastName
 }: TriviaWarmupProps) {
+  const { toast } = useToast();
   const [selectedTrack, setSelectedTrack] = useState<TriviaTrackMeta | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isShuffleRequested, setIsShuffleRequested] = useState(false);
@@ -340,6 +342,14 @@ export function TriviaWarmup({
                     payload && typeof payload === "object" && "message" in payload
                       ? String((payload as { message?: string }).message)
                       : "You have already submitted for this category today";
+
+                  // Show toast notification
+                  toast({
+                    title: "Already Submitted",
+                    description: errorMessage,
+                    variant: "destructive",
+                  });
+
                   setAttemptError(errorMessage);
                   setSelectedTrack(null);
                   return;
