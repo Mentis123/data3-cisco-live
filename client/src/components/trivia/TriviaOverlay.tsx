@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { TriviaGame, type TriviaAnswer } from "./TriviaGame";
 import type { TriviaQuestion, TriviaTrackMeta } from "./utils";
@@ -139,7 +140,12 @@ export function TriviaOverlay({
 
   const reservedStyle: CSSProperties | undefined =
     scaleState.scale < 1 && scaleState.height > 0
-      ? { height: `${scaleState.height}px` }
+      ? {
+          height: `${scaleState.height}px`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }
       : undefined;
 
   const handleExitClick = () => {
@@ -151,6 +157,8 @@ export function TriviaOverlay({
     onExit();
   };
 
+  const shouldCenterContent = scaleState.scale < 0.999;
+
   return (
     <>
       {/* Full screen overlay backdrop */}
@@ -160,10 +168,13 @@ export function TriviaOverlay({
         {/* Trivia game container */}
         <div
           ref={containerRef}
-          className="relative flex h-full w-full max-w-5xl items-start justify-center sm:items-center"
+          className={cn(
+            "relative flex h-full w-full max-w-5xl justify-center",
+            shouldCenterContent ? "items-center" : "items-start sm:items-center",
+          )}
         >
           <div className="w-full max-w-[720px]" style={reservedStyle}>
-            <div style={scaledWrapperStyle} className="relative">
+            <div style={scaledWrapperStyle} className="relative w-full">
               <button
                 onClick={handleExitClick}
                 className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-white/40 hover:bg-white/20 sm:right-5 sm:top-5"
