@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import RingVideoModal from "../components/RingVideoModal";
+import { RingVideoModal } from "../components/RingVideoModal";
 
 export default function Videos() {
   const [, setLocation] = useLocation();
