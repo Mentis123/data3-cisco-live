@@ -44,6 +44,9 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       console.log('[RingVideoModal] Video can play - loading complete');
       setIsLoaded(true);
 
+      // Pause background music so video audio is prioritized
+      audioManager.pauseBackgroundMusic();
+
       // Set up Web Audio API for mobile or direct volume for desktop
       if (audioManager.isUsingWebAudioForVolume()) {
         // Use Web Audio API with GainNode for mobile volume control
@@ -64,7 +67,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       console.log('[RingVideoModal] Starting video playback...');
       video.play().catch(err => {
         console.error('[RingVideoModal] Failed to play video:', err);
-        // If video fails to play, proceed anyway after a short delay
+        // Resume background music and proceed anyway after a short delay
+        audioManager.resumeBackgroundMusic();
         setTimeout(() => {
           console.log('[RingVideoModal] Completing due to playback error');
           onComplete();
@@ -74,6 +78,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
 
     const handleEnded = () => {
       console.log('[RingVideoModal] Video playback ended - completing');
+      audioManager.resumeBackgroundMusic();
       onComplete();
     };
 
@@ -85,7 +90,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         message: error?.message,
         src: target.src
       });
-      // If video fails to load, proceed anyway after a short delay
+      // Resume background music and proceed anyway after a short delay
+      audioManager.resumeBackgroundMusic();
       setTimeout(() => {
         console.log('[RingVideoModal] Completing due to video load error');
         onComplete();
@@ -110,6 +116,8 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         gainNodeCleanupRef.current();
         gainNodeCleanupRef.current = null;
       }
+      // Resume background music when component unmounts (e.g., skip button clicked)
+      audioManager.resumeBackgroundMusic();
     };
   }, [onComplete, isWinner]);
 

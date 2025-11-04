@@ -397,6 +397,57 @@ export class AudioManager {
     }
   }
 
+  /**
+   * Pause background music temporarily (e.g., for video playback)
+   * This only pauses the music, does not change immersive mode or muted state
+   */
+  public pauseBackgroundMusic(): void {
+    if (!this.homeAudio) return;
+
+    if (!this.homeAudio.paused) {
+      console.log('[AudioManager] Pausing background music for video playback');
+      this.homeAudio.pause();
+    }
+  }
+
+  /**
+   * Resume background music after temporary pause (e.g., after video playback)
+   * This will only resume if immersive mode is on and music is enabled
+   */
+  public resumeBackgroundMusic(): void {
+    if (!this.ensureAudioReady() || !this.homeAudio) return;
+
+    // Only resume if immersive mode is on and not muted and music is enabled
+    if (!this.isImmersive || this.isMuted || !this.musicEnabled) {
+      console.log('[AudioManager] Not resuming background music - immersive mode off or music disabled');
+      return;
+    }
+
+    if (this.homeAudio.paused) {
+      console.log('[AudioManager] Resuming background music after video playback');
+
+      // Apply music volume before playing
+      if (this.useWebAudioForVolume && this.homeAudioGainNode) {
+        // Use Web Audio API GainNode for volume control (mobile)
+        this.homeAudioGainNode.gain.value = 0.075 * this.musicVolume;
+      } else {
+        // Use direct volume property (desktop)
+        this.homeAudio.volume = 0.075 * this.musicVolume;
+      }
+
+      // Resume AudioContext if suspended (required for mobile)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume().catch(err => {
+          console.warn('Could not resume AudioContext:', err);
+        });
+      }
+
+      this.homeAudio.play().catch(err => {
+        console.warn('Could not resume background music:', err);
+      });
+    }
+  }
+
   public async playBuzzSound(): Promise<void> {
     // Buzz sound should only play when immersive mode is enabled
     if (!this.isImmersive) {
