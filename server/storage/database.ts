@@ -2231,5 +2231,136 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async deleteWordCloudEntry(id: string) {
       await db.delete(schema.wordCloudEntries).where(eq(schema.wordCloudEntries.id, id));
     },
+
+    // DB Admin methods
+    async getDBStats() {
+      const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
+      const [attemptsCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.attempts);
+      const [submissionsCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.submissions);
+      const [raffleEntriesCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.raffleEntries);
+      const [leaderboardCacheCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.leaderboardCache);
+      const [triviaItemsCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.triviaItems);
+      const [raffleDrawsCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.raffleDraws);
+      const [wordCloudCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.wordCloudEntries);
+
+      return {
+        totalUsers: usersCount.count,
+        totalAttempts: attemptsCount.count,
+        totalSubmissions: submissionsCount.count,
+        totalRaffleEntries: raffleEntriesCount.count,
+        leaderboardCacheEntries: leaderboardCacheCount.count,
+        totalTriviaItems: triviaItemsCount.count,
+        totalRaffleDraws: raffleDrawsCount.count,
+        wordCloudEntries: wordCloudCount.count,
+      };
+    },
+
+    async clearLeaderboardCache() {
+      const result = await db.delete(schema.leaderboardCache);
+      return result.rowCount || 0;
+    },
+
+    async selectRaffleWinner(raffleDate: string) {
+      // Check if a winner has already been selected for this date
+      const existingDraw = await db
+        .select()
+        .from(schema.raffleDraws)
+        .where(eq(schema.raffleDraws.raffleDate, raffleDate))
+        .limit(1);
+
+      if (existingDraw.length > 0) {
+        // Return the existing draw
+        const draw = existingDraw[0];
+        const winnerEntry = await db
+          .select()
+          .from(schema.raffleEntries)
+          .where(eq(schema.raffleEntries.id, draw.winnerEntryId!))
+          .limit(1);
+
+        if (winnerEntry.length === 0) {
+          throw new Error("Winner entry not found for existing draw");
+        }
+
+        // Get winner user details
+        const winnerUser = await db
+          .select()
+          .from(schema.users)
+          .where(eq(schema.users.emailHash, winnerEntry[0].emailHash))
+          .limit(1);
+
+        return {
+          winner: {
+            ...winnerEntry[0],
+            firstName: winnerUser[0]?.firstName || null,
+            lastName: winnerUser[0]?.lastName || null,
+          },
+          draw: draw,
+          totalEntries: -1, // We don't know the original count
+          selectedIndex: -1,
+        };
+      }
+
+      // Get all entries for the specified date
+      const entries = await db
+        .select()
+        .from(schema.raffleEntries)
+        .where(eq(schema.raffleEntries.raffleDate, raffleDate));
+
+      if (entries.length === 0) {
+        throw new Error(`No raffle entries found for date ${raffleDate}`);
+      }
+
+      // Generate cryptographically secure random seed
+      const timestamp = Date.now();
+      const randomBytes = randomUUID();
+      const rngSeed = `${timestamp}-${randomBytes}`;
+
+      // Use the seed to generate a deterministic but verifiable random selection
+      const seedHash = createHash("sha256").update(rngSeed).digest();
+      const seedValue = seedHash.readUInt32BE(0);
+      const selectedIndex = seedValue % entries.length;
+      const winner = entries[selectedIndex];
+
+      // Get winner user details
+      const winnerUser = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.emailHash, winner.emailHash))
+        .limit(1);
+
+      // Record the draw in the database
+      const [draw] = await db
+        .insert(schema.raffleDraws)
+        .values({
+          raffleDate: raffleDate,
+          winnerEntryId: winner.id,
+          rngSeed: rngSeed,
+          adminUser: "admin", // You could pass this from the route if needed
+        })
+        .returning();
+
+      return {
+        winner: {
+          ...winner,
+          firstName: winnerUser[0]?.firstName || null,
+          lastName: winnerUser[0]?.lastName || null,
+        },
+        draw: draw,
+        totalEntries: entries.length,
+        selectedIndex: selectedIndex,
+      };
+    },
+
+    async clearOldRaffleEntries(daysOld: number) {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+      const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
+
+      const result = await db
+        .delete(schema.raffleEntries)
+        .where(sql`${schema.raffleEntries.raffleDate} < ${cutoffDateStr}`);
+
+      return result.rowCount || 0;
+    },
   };
 }
