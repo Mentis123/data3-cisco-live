@@ -241,9 +241,10 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
       {/* Flash overlay during flash phase */}
       {animationPhase === 'flash' && !showReadyPrompt && (
-        <div className="absolute inset-0 announcement-strobe"
-             style={{ backgroundColor: categoryColor }}>
-        </div>
+        <div
+          className="absolute inset-0 announcement-strobe"
+          style={{ backgroundColor: categoryColor }}
+        />
       )}
 
       {/* Main content with frame container like dojo */}
