@@ -511,6 +511,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
           </div>
         </div>
       </div>
+      </div>
     </>
   );
 }
