@@ -1849,6 +1849,312 @@ function StagingLeaderboardTab() {
   );
 }
 
+function DBAdminTab() {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem("adminKey") || "";
+  const [clearLeaderboardConfirm, setClearLeaderboardConfirm] = useState(false);
+  const [raffleDate, setRaffleDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedWinner, setSelectedWinner] = useState<any>(null);
+  const [showWinnerDialog, setShowWinnerDialog] = useState(false);
+
+  // Fetch DB stats
+  const { data: dbStats, refetch: refetchStats } = useQuery({
+    queryKey: ["/api/beta-admin/db-stats"],
+    queryFn: async () => {
+      const response = await fetch("/api/beta-admin/db-stats", {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch DB stats");
+      return response.json();
+    },
+  });
+
+  // Clear leaderboard cache mutation
+  const clearLeaderboardMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/beta-admin/clear-leaderboard-cache", {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to clear leaderboard cache");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setClearLeaderboardConfirm(false);
+      toast({
+        title: "Leaderboard cache cleared",
+        description: `Cleared ${data.deletedCount} cached entries`
+      });
+      refetchStats();
+    },
+    onError: () => {
+      toast({ title: "Failed to clear leaderboard cache", variant: "destructive" });
+    },
+  });
+
+  // Select raffle winner mutation
+  const selectWinnerMutation = useMutation({
+    mutationFn: async (date: string) => {
+      const response = await fetch("/api/beta-admin/select-raffle-winner", {
+        method: "POST",
+        headers: {
+          "x-admin-key": adminKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ raffleDate: date }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to select winner");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSelectedWinner(data);
+      setShowWinnerDialog(true);
+      toast({ title: "Raffle winner selected!" });
+      refetchStats();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to select winner",
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  // Clear old raffle entries mutation
+  const clearOldRaffleMutation = useMutation({
+    mutationFn: async (daysOld: number) => {
+      const response = await fetch("/api/beta-admin/clear-old-raffle-entries", {
+        method: "POST",
+        headers: {
+          "x-admin-key": adminKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ daysOld }),
+      });
+      if (!response.ok) throw new Error("Failed to clear old raffle entries");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Old raffle entries cleared",
+        description: `Removed ${data.deletedCount} entries`
+      });
+      refetchStats();
+    },
+    onError: () => {
+      toast({ title: "Failed to clear old raffle entries", variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* DB Statistics Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Database Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {dbStats ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalUsers || 0}</div>
+                <div className="text-sm text-muted-foreground">Total Users</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalAttempts || 0}</div>
+                <div className="text-sm text-muted-foreground">Total Attempts</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalSubmissions || 0}</div>
+                <div className="text-sm text-muted-foreground">Total Submissions</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalRaffleEntries || 0}</div>
+                <div className="text-sm text-muted-foreground">Raffle Entries</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.leaderboardCacheEntries || 0}</div>
+                <div className="text-sm text-muted-foreground">Cached Leaderboards</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalTriviaItems || 0}</div>
+                <div className="text-sm text-muted-foreground">Trivia Items</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.totalRaffleDraws || 0}</div>
+                <div className="text-sm text-muted-foreground">Raffle Draws</div>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <div className="text-2xl font-bold">{dbStats.wordCloudEntries || 0}</div>
+                <div className="text-sm text-muted-foreground">Word Cloud Entries</div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">Loading statistics...</div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Leaderboard Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Leaderboard Management</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Clear the cached leaderboard data. This resets the daily leaderboard display
+              without deleting historical submission records.
+            </p>
+            <Button
+              onClick={() => setClearLeaderboardConfirm(true)}
+              variant="destructive"
+            >
+              Clear Leaderboard Cache
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Raffle Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Raffle Management</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Select Winner */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="raffle-date">Select Raffle Date</Label>
+              <Input
+                id="raffle-date"
+                type="date"
+                value={raffleDate}
+                onChange={(e) => setRaffleDate(e.target.value)}
+                className="max-w-xs"
+              />
+            </div>
+            <div>
+              <Button
+                onClick={() => selectWinnerMutation.mutate(raffleDate)}
+                disabled={selectWinnerMutation.isPending}
+              >
+                {selectWinnerMutation.isPending ? "Selecting Winner..." : "Select Raffle Winner"}
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">
+                Randomly selects a winner from eligible entries for the selected date.
+                Uses a cryptographically verifiable random seed.
+              </p>
+            </div>
+          </div>
+
+          {/* Clear Old Raffle Entries */}
+          <div className="pt-4 border-t space-y-4">
+            <div>
+              <Label>Clear Old Raffle Entries</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Remove raffle entries older than a certain number of days
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => clearOldRaffleMutation.mutate(7)}
+                variant="outline"
+                disabled={clearOldRaffleMutation.isPending}
+              >
+                Clear Entries &gt; 7 days
+              </Button>
+              <Button
+                onClick={() => clearOldRaffleMutation.mutate(30)}
+                variant="outline"
+                disabled={clearOldRaffleMutation.isPending}
+              >
+                Clear Entries &gt; 30 days
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Clear Leaderboard Confirmation Dialog */}
+      <Dialog open={clearLeaderboardConfirm} onOpenChange={setClearLeaderboardConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear Leaderboard Cache?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              This will delete all cached leaderboard data for all dates and tabs.
+              Historical submission records will NOT be affected.
+            </p>
+            <p className="text-sm font-medium mt-4">
+              This action will reset the daily leaderboard display for Day 2.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClearLeaderboardConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => clearLeaderboardMutation.mutate()}
+              disabled={clearLeaderboardMutation.isPending}
+            >
+              {clearLeaderboardMutation.isPending ? "Clearing..." : "Confirm Clear"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Winner Display Dialog */}
+      <Dialog open={showWinnerDialog} onOpenChange={setShowWinnerDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Raffle Winner Selected!</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            {selectedWinner && (
+              <>
+                <div className="p-6 bg-primary/10 rounded-lg border-2 border-primary">
+                  <h3 className="text-2xl font-bold mb-2">Winner Details</h3>
+                  <div className="space-y-2">
+                    <div><strong>Name:</strong> {selectedWinner.winner.firstName} {selectedWinner.winner.lastName}</div>
+                    <div><strong>Email Hash:</strong> <code className="text-xs">{selectedWinner.winner.emailHash}</code></div>
+                    <div><strong>Category:</strong> {selectedWinner.winner.category}</div>
+                    <div><strong>Entry Date:</strong> {new Date(selectedWinner.winner.createdAt).toLocaleString()}</div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Verification Details</h4>
+                  <div className="space-y-1 text-sm font-mono">
+                    <div><strong>RNG Seed:</strong> <code className="text-xs break-all">{selectedWinner.draw.rngSeed}</code></div>
+                    <div><strong>Total Entries:</strong> {selectedWinner.totalEntries}</div>
+                    <div><strong>Selected Index:</strong> {selectedWinner.selectedIndex}</div>
+                    <div><strong>Draw Time:</strong> {new Date(selectedWinner.draw.createdAt).toLocaleString()}</div>
+                    <div><strong>Admin User:</strong> {selectedWinner.draw.adminUser}</div>
+                  </div>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  This draw has been recorded in the database and can be verified using the RNG seed.
+                </p>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowWinnerDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
@@ -1931,6 +2237,7 @@ export default function Admin() {
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
             <TabsTrigger value="staging">Staging Leaderboard</TabsTrigger>
             <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
+            <TabsTrigger value="dbadmin">DB Admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -1959,6 +2266,10 @@ export default function Admin() {
 
           <TabsContent value="botbarstats">
             <BotBarStatsTab />
+          </TabsContent>
+
+          <TabsContent value="dbadmin">
+            <DBAdminTab />
           </TabsContent>
         </Tabs>
       </div>

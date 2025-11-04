@@ -1709,5 +1709,22 @@ export function createMemoryStorage() {
     async deleteWordCloudEntry() {
       throw new Error("Word cloud management requires database storage");
     },
+
+    // DB Admin methods
+    async getDBStats() {
+      throw new Error("DB statistics require database storage");
+    },
+
+    async clearLeaderboardCache() {
+      throw new Error("Leaderboard cache management requires database storage");
+    },
+
+    async selectRaffleWinner() {
+      throw new Error("Raffle winner selection requires database storage");
+    },
+
+    async clearOldRaffleEntries() {
+      throw new Error("Raffle entry management requires database storage");
+    },
   };
 }

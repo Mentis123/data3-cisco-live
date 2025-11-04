@@ -1280,6 +1280,70 @@ export async function registerRoutes(
     }
   });
 
+  // DB Admin endpoints
+  app.get("/api/beta-admin/db-stats", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const stats = await storage.getDBStats();
+      res.json(stats);
+    } catch (error) {
+      log(`Error fetching DB stats: ${error}`);
+      res.status(500).json({ message: "Failed to fetch DB stats" });
+    }
+  });
+
+  app.post("/api/beta-admin/clear-leaderboard-cache", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const deletedCount = await storage.clearLeaderboardCache();
+      log(`Cleared ${deletedCount} leaderboard cache entries`);
+      res.json({ success: true, deletedCount });
+    } catch (error) {
+      log(`Error clearing leaderboard cache: ${error}`);
+      res.status(500).json({ message: "Failed to clear leaderboard cache" });
+    }
+  });
+
+  app.post("/api/beta-admin/select-raffle-winner", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { raffleDate } = req.body;
+      if (!raffleDate) {
+        res.status(400).json({ message: "raffleDate is required" });
+        return;
+      }
+
+      const result = await storage.selectRaffleWinner(raffleDate);
+      log(`Selected raffle winner for ${raffleDate}: ${result.winner.emailHash}`);
+      res.json(result);
+    } catch (error: any) {
+      log(`Error selecting raffle winner: ${error}`);
+      res.status(500).json({ message: error.message || "Failed to select raffle winner" });
+    }
+  });
+
+  app.post("/api/beta-admin/clear-old-raffle-entries", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { daysOld } = req.body;
+      if (!daysOld || typeof daysOld !== "number") {
+        res.status(400).json({ message: "daysOld (number) is required" });
+        return;
+      }
+
+      const deletedCount = await storage.clearOldRaffleEntries(daysOld);
+      log(`Cleared ${deletedCount} raffle entries older than ${daysOld} days`);
+      res.json({ success: true, deletedCount });
+    } catch (error) {
+      log(`Error clearing old raffle entries: ${error}`);
+      res.status(500).json({ message: "Failed to clear old raffle entries" });
+    }
+  });
+
   // Feedback endpoints
   app.post("/api/feedback", async (req, res) => {
     try {
