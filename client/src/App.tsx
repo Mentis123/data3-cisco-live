@@ -22,6 +22,7 @@ import TileShowcase from "@/pages/TileShowcase";
 import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
 import LeaderboardIdeas from "@/pages/LeaderboardIdeas";
+import Videos from "@/pages/Videos";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -63,6 +64,7 @@ function Router() {
         {/* Utility Routes */}
         <Route path="/stand" component={StandMessaging} />
         <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
+        <Route path="/videos" component={Videos} />
 
         {/* Backward compatibility - redirect /beta routes to root */}
         <Route path="/beta" component={Home} />
