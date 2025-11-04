@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatNameToInitials } from "@/lib/utils";
 import { audioManager } from "@/lib/audio";
+import { RingVideoModal } from "@/components/RingVideoModal";
 
 interface SubmissionData {
   id: string;
@@ -67,6 +68,8 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const [showContent, setShowContent] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<'flash' | 'reveal' | 'display'>('flash');
   const [showReadyPrompt, setShowReadyPrompt] = useState(true);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
 
   const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || BRAND_PRIMARY;
   const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
@@ -76,10 +79,23 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const handleStartAnimation = () => {
     setShowReadyPrompt(false);
 
-    // Play buzz sound after user interaction
-    audioManager.playBuzzSound().catch(err => {
-      console.log('Buzz sound playback prevented by browser:', err);
-    });
+    // Check if we should show video modal (Ring mode)
+    try {
+      const videoDataStr = sessionStorage.getItem('shouldShowVideo');
+      if (videoDataStr) {
+        const videoData = JSON.parse(videoDataStr);
+        setIsWinner(videoData.isWinner);
+        setShowVideoModal(true);
+        // Clear the video flag
+        sessionStorage.removeItem('shouldShowVideo');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking video state:', error);
+    }
+
+    // For classic mode (no video), start animation immediately without buzz sound
+    // (buzz sound removed per feedback - video takes its place)
   };
 
   // Animation sequence - only starts after user interaction
@@ -163,9 +179,22 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   });
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
-      {/* Ready prompt - requires user interaction to start animations/audio */}
-      {showReadyPrompt && (
+    <>
+      {/* Ring Video Modal - shown when View Results is clicked in Ring mode */}
+      {showVideoModal && (
+        <RingVideoModal
+          isWinner={isWinner}
+          onComplete={() => {
+            console.log('[NewSubmissionAnnouncement] Video complete - starting announcement');
+            setShowVideoModal(false);
+            // Start the announcement animation immediately after video
+          }}
+        />
+      )}
+
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-data3-white">
+        {/* Ready prompt - requires user interaction to start animations/audio */}
+        {showReadyPrompt && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-data3-blue-black/95 backdrop-blur-sm cursor-pointer"
           onClick={handleStartAnimation}
@@ -481,7 +510,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -555,6 +584,13 @@ export function NewSubmissionAnnouncementPage() {
       submission={submissionData}
       onDismiss={() => {
         audioManager.playClickSound();
+
+        // Trigger WELCOME NEW CHALLENGER animation on leaderboard
+        sessionStorage.setItem('triggerNewChallenger', JSON.stringify({
+          submissionId: submissionData.id,
+          timestamp: Date.now()
+        }));
+
         setLocation('/leaderboard');
       }}
     />

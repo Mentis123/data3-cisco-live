@@ -88,6 +88,32 @@ export default function StagingLeaderboard() {
     audioManager.preload();
   }, []);
 
+  // Check for WELCOME NEW CHALLENGER trigger from announcement page
+  useEffect(() => {
+    try {
+      const triggerData = sessionStorage.getItem('triggerNewChallenger');
+      if (triggerData) {
+        console.log('[StagingLeaderboard] Triggering WELCOME NEW CHALLENGER animation');
+
+        // Clear the flag immediately
+        sessionStorage.removeItem('triggerNewChallenger');
+
+        // Play the welcome sounds (flash + challenger)
+        audioManager.playFlashSound()
+          .then(() => console.log('[StagingLeaderboard] Flash sound played for new challenger'))
+          .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
+
+        setTimeout(() => {
+          audioManager.playNewChallengerSound()
+            .then(() => console.log('[StagingLeaderboard] Challenger sound played'))
+            .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
+        }, 750);
+      }
+    } catch (error) {
+      console.error('[StagingLeaderboard] Error checking triggerNewChallenger:', error);
+    }
+  }, []);
+
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
