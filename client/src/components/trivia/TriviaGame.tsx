@@ -340,8 +340,8 @@ export function TriviaGame({
   const feedbackContent =
     currentQuestion && (
       <div className={cn(
-        "mt-3 flex-shrink-0 rounded-xl p-4 shadow-lg transition-all duration-300",
-        "max-[480px]:mt-2.5 max-[480px]:p-3",
+        "mt-2.5 flex-shrink-0 rounded-xl p-4 shadow-lg transition-all duration-300",
+        "max-[480px]:mt-2 max-[480px]:p-3",
         earnedPoints > 0
           ? "border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10"
           : "border-2 border-rose-400/40 bg-gradient-to-br from-rose-500/20 to-rose-600/10"
@@ -466,16 +466,16 @@ export function TriviaGame({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 py-3 max-[480px]:px-3 max-[480px]:py-2.5">
+      <CardContent className="flex flex-col overflow-y-auto px-4 py-2 max-[480px]:px-3 max-[480px]:py-2">
         {currentQuestion ? (
-          <div className="mx-auto flex w-full max-w-[800px] flex-1 flex-col">
+          <div className="mx-auto flex w-full max-w-[800px] flex-col">
             {phase !== "complete" && (
-              <div className="mb-4 max-[480px]:mb-3">
+              <div className="mb-3 max-[480px]:mb-2.5">
                 <h2 className="text-pretty text-left text-[clamp(1.125rem,3.5vh,1.5rem)] font-bold leading-[1.3] text-white">
                   {currentQuestion.prompt}
                 </h2>
                 {showHint && (
-                  <div className="mt-3 rounded-lg border-2 border-cyan-400/30 bg-cyan-500/10 p-3 text-left max-[480px]:mt-2 max-[480px]:p-2.5">
+                  <div className="mt-2.5 rounded-lg border-2 border-cyan-400/30 bg-cyan-500/10 p-3 text-left max-[480px]:mt-2 max-[480px]:p-2.5">
                     <p className="text-xs font-semibold text-cyan-200 max-[480px]:text-[0.65rem]">
                       💡 Hint
                     </p>
@@ -488,7 +488,7 @@ export function TriviaGame({
             )}
 
             {phase !== "complete" && (
-              <div className="space-y-2.5 max-[480px]:space-y-2">
+              <div className="space-y-2 max-[480px]:space-y-1.5">
                 {currentQuestion.choices.map((choice, index) => {
                   const isHidden = hiddenChoiceIndex === index && !answered;
                   const isCorrect = index === currentQuestion.correctIndex;
@@ -543,7 +543,7 @@ export function TriviaGame({
             )}
           </div>
         ) : (
-          <div className="flex flex-1 items-center justify-center text-sm text-slate-200/70">
+          <div className="flex items-center justify-center py-12 text-sm text-slate-200/70">
             No trivia cards available yet. Check back soon.
           </div>
         )}
