@@ -118,6 +118,20 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     };
   }, [showReadyPrompt]);
 
+  // Mark submission as announced on leaderboard after flash animation completes
+  useEffect(() => {
+    if (animationPhase === 'display') {
+      // User has now seen their results and flash animation is complete
+      // Mark the submission as announced so it appears on the leaderboard
+      fetch(`/api/submission/${submission.id}/announce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(error => {
+        console.error('[NewSubmissionAnnouncement] Failed to announce submission on leaderboard:', error);
+      });
+    }
+  }, [animationPhase, submission.id]);
+
   // No auto-dismiss - user must manually continue
 
   const handleDismiss = () => {

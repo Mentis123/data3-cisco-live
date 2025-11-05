@@ -674,7 +674,8 @@ export async function registerRoutes(
       }
 
       // Get current leaderboard to calculate rank (based on combined score)
-      const leaderboard = await storage.getLeaderboard();
+      // Include unannounced submissions for accurate rank calculation
+      const leaderboard = await storage.getLeaderboard(1000, undefined, undefined, true);
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
 
       // Broadcast ring exit if this was a ring attempt
@@ -730,6 +731,16 @@ export async function registerRoutes(
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to submit solution: " + (error as Error).message });
+    }
+  });
+
+  app.post("/api/submission/:id/announce", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.markSubmissionAsAnnounced(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to announce submission: " + (error as Error).message });
     }
   });
 

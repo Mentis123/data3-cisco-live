@@ -30,6 +30,7 @@ export const submissions = pgTable("submissions", {
   subScores: text("sub_scores").notNull(), // JSON string of subscores object
   totalScore: integer("total_score").notNull(),
   evaluationNotes: text("evaluation_notes"),
+  announcedOnLeaderboard: boolean("announced_on_leaderboard").notNull().default(false),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
