@@ -29,7 +29,8 @@ interface BetaAdminOverview {
     id: string;
     category: string;
     mode: string;
-    totalScore: number;
+    triviaScore: number | null;
+    combinedScore: number | null;
     passed: boolean;
     eligible: boolean;
     startedAt: string;
@@ -258,7 +259,12 @@ function OverviewTab() {
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {attempt.company && <span>{attempt.company} • </span>}
-                      Score: {attempt.totalScore} •{" "}
+                      Score: {attempt.combinedScore ?? attempt.triviaScore ?? 'N/A'}
+                      {attempt.triviaScore != null && attempt.combinedScore != null && (
+                        <span className="text-xs ml-1">
+                          ({attempt.triviaScore} trivia + {attempt.combinedScore - attempt.triviaScore} pitch)
+                        </span>
+                      )} •{" "}
                       {new Date(attempt.startedAt).toLocaleString()}
                     </div>
                   </div>

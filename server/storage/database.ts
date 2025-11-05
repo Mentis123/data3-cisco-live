@@ -2045,7 +2045,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           id: attempts.id,
           category: attempts.category,
           mode: attempts.mode,
-          totalScore: attempts.totalScore,
+          triviaScore: attempts.totalScore,
+          combinedScore: submissions.totalScore,
           passed: attempts.passed,
           eligible: attempts.eligible,
           startedAt: attempts.startedAt,
@@ -2057,6 +2058,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         })
         .from(attempts)
         .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .orderBy(desc(attempts.startedAt))
         .limit(20);
 
