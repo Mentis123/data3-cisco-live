@@ -314,13 +314,31 @@ function shuffleArray<T>(items: T[]): T[] {
   return copy;
 }
 
+/**
+ * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
+ * This ensures daily resets happen at midnight Melbourne time, not UTC.
+ */
+function getMelbourneDate(date: Date = new Date()): string {
+  // Convert to Melbourne timezone using Intl.DateTimeFormat
+  const melbourneTime = new Intl.DateTimeFormat('en-AU', {
+    timeZone: 'Australia/Melbourne',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+
+  // Format is DD/MM/YYYY, convert to YYYY-MM-DD
+  const [day, month, year] = melbourneTime.split('/');
+  return `${year}-${month}-${day}`;
+}
+
 function hashEmail(email: string): string {
   return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
 }
 
 function computeAttemptDay(date: Date): string {
-  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  return utc.toISOString().slice(0, 10);
+  // Use Melbourne timezone for daily resets
+  return getMelbourneDate(date);
 }
 
 function parseSessionMessages(value: unknown): SessionMessage[] {
@@ -2041,8 +2059,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     // Beta Admin Methods
     async getBetaAdminOverview() {
-      // Get today's date in YYYY-MM-DD format
-      const today = new Date().toISOString().split('T')[0];
+      // Get today's date in Melbourne timezone
+      const today = getMelbourneDate();
 
       const [attemptStats] = await db
         .select({
@@ -2694,7 +2712,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async clearOldRaffleEntries(daysOld: number) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);
-      const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
+      const cutoffDateStr = getMelbourneDate(cutoffDate);
 
       const result = await db
         .delete(schema.raffleEntries)

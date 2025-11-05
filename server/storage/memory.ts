@@ -151,13 +151,31 @@ function shuffleArray<T>(items: T[]): T[] {
   return copy;
 }
 
+/**
+ * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
+ * This ensures daily resets happen at midnight Melbourne time, not UTC.
+ */
+function getMelbourneDate(date: Date = new Date()): string {
+  // Convert to Melbourne timezone using Intl.DateTimeFormat
+  const melbourneTime = new Intl.DateTimeFormat('en-AU', {
+    timeZone: 'Australia/Melbourne',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+
+  // Format is DD/MM/YYYY, convert to YYYY-MM-DD
+  const [day, month, year] = melbourneTime.split('/');
+  return `${year}-${month}-${day}`;
+}
+
 function hashEmail(email: string): string {
   return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
 }
 
 function computeAttemptDay(date: Date): string {
-  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  return utc.toISOString().slice(0, 10);
+  // Use Melbourne timezone for daily resets
+  return getMelbourneDate(date);
 }
 
 function loadTriviaItems(): TriviaItem[] {
@@ -1137,9 +1155,8 @@ export function createMemoryStorage() {
           return false;
         }
 
-        // Check if date matches
-        const attemptDate = attempt.startedAt?.toISOString().split('T')[0];
-        if (attemptDate !== dateStr) {
+        // Check if date matches using attemptDay field (which uses Melbourne timezone)
+        if (attempt.attemptDay !== dateStr) {
           return false;
         }
 
