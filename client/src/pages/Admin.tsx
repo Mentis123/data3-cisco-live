@@ -1546,7 +1546,7 @@ function WordCloudTab() {
   const { data: wordCloudData } = useQuery<{ text: string; value: number }[]>({
     queryKey: ["/api/word-cloud-display"],
     queryFn: async () => {
-      const response = await fetch("/api/leaderboard-data");
+      const response = await fetch("/api/dashboard-data");
       if (!response.ok) throw new Error("Failed to fetch word cloud display data");
       const data = await response.json();
       return data.wordCloud || [];
