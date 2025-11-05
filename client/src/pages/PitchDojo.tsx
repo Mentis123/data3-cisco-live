@@ -343,7 +343,7 @@ Just describe it naturally - what's the problem that needs solving?`
         <div className="flex-1 flex flex-col min-h-0">
           {/* Progress Stepper */}
           <div className="px-4 py-4 border-b border-white/10">
-            <SprintStepper currentStep={state.step} />
+            <SprintStepper currentStep={state.step} completedSteps={state.completedSteps} />
           </div>
 
           {/* Messages */}
