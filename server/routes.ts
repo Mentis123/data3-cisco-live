@@ -639,6 +639,10 @@ export async function registerRoutes(
             isEligible = combinedScore >= botBar;
 
             // Update attempt with bot bar and eligibility
+            if (typeof (storage as any).updateTriviaAttemptBotBar === "function") {
+              await (storage as any).updateTriviaAttemptBotBar(persistedTriviaAttemptId, botBar, isEligible);
+            }
+
             if (attempt.mode === 'ring' && session.emailHash) {
               // Only create raffle entry if eligible and in ring mode with email
               if (isEligible) {

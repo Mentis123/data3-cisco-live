@@ -1053,6 +1053,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return attempt || null;
     },
 
+    async updateTriviaAttemptBotBar(attemptId: string, botBar: number, eligible: boolean): Promise<void> {
+      await db
+        .update(attempts)
+        .set({ botBar, eligible })
+        .where(eq(attempts.id, attemptId));
+    },
+
     async checkExistingDailyAttempt(
       emailHash: string | null,
       category: string,
@@ -2183,27 +2190,38 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async getBotBarStats() {
-      // Get bot bar statistics grouped by date and category
+      // Get individual submissions with bot bar information
       const stats = await db
         .select({
+          attemptId: attempts.id,
           date: sql<string>`DATE(${attempts.startedAt})`.as('date'),
           category: attempts.category,
+          emailHash: attempts.emailHash,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          company: users.company,
+          triviaScore: attempts.totalScore,
+          pitchScore: submissions.totalScore,
+          combinedScore: sql<number>`COALESCE(${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
           botBar: attempts.botBar,
-          totalAttempts: sql<number>`COUNT(*)`.as('total_attempts'),
-          eligibleCount: sql<number>`SUM(CASE WHEN ${attempts.eligible} = true THEN 1 ELSE 0 END)`.as('eligible_count'),
-          ineligibleCount: sql<number>`SUM(CASE WHEN ${attempts.eligible} = false AND ${attempts.botBar} IS NOT NULL THEN 1 ELSE 0 END)`.as('ineligible_count'),
-          avgTotalScore: sql<number>`AVG(${attempts.totalScore})`.as('avg_total_score'),
+          eligible: attempts.eligible,
+          passed: attempts.passed,
+          startedAt: attempts.startedAt,
+          endedAt: attempts.endedAt,
         })
         .from(attempts)
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .where(
           and(
             eq(attempts.mode, 'ring'),
             eq(attempts.ringComplete, true),
-            isNull(attempts.endedAt) === false
+            isNotNull(attempts.endedAt),
+            isNotNull(attempts.botBar),
+            isNotNull(submissions.id) // Only include attempts with completed submissions
           )
         )
-        .groupBy(sql`DATE(${attempts.startedAt})`, attempts.category, attempts.botBar)
-        .orderBy(sql`DATE(${attempts.startedAt}) DESC`, attempts.category);
+        .orderBy(desc(attempts.startedAt));
 
       return stats;
     },

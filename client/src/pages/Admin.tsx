@@ -1243,15 +1243,24 @@ function BotBarStatsTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedDate, setSelectedDate] = useState<string>("all");
 
-  const { data: stats, isLoading } = useQuery<Array<{
+  const { data: submissions, isLoading } = useQuery<Array<{
+    attemptId: string;
     date: string;
     category: string;
+    emailHash: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    company: string | null;
+    triviaScore: number | null;
+    pitchScore: number | null;
+    combinedScore: number;
     botBar: number;
-    totalAttempts: number;
-    eligibleCount: number;
-    ineligibleCount: number;
-    avgTotalScore: number;
+    eligible: boolean;
+    passed: boolean;
+    startedAt: string;
+    endedAt: string | null;
   }>>({
     queryKey: ["/api/beta-admin/bot-bar-stats"],
     queryFn: async () => {
@@ -1267,175 +1276,241 @@ function BotBarStatsTab() {
     return <div className="text-center py-8">Loading bot bar statistics...</div>;
   }
 
-  // Get unique categories
-  const categories = ["all", ...new Set(stats?.map(s => s.category) || [])];
+  if (!submissions || submissions.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No bot bar data available yet.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Bot bar stats will appear once participants complete Ring mode submissions.
+        </p>
+      </div>
+    );
+  }
 
-  // Filter data by selected category
-  const filteredStats = selectedCategory === "all"
-    ? stats
-    : stats?.filter(s => s.category === selectedCategory);
+  // Get unique categories and dates
+  const categories = ["all", ...new Set(submissions.map(s => s.category))];
+  const dates = ["all", ...new Set(submissions.map(s => s.date))].sort().reverse();
 
-  // Group by date for combined view
-  const groupedByDate = filteredStats?.reduce((acc, stat) => {
-    const existing = acc.find(item => item.date === stat.date);
-    if (existing) {
-      existing.totalAttempts += stat.totalAttempts;
-      existing.eligibleCount += stat.eligibleCount;
-      existing.ineligibleCount += stat.ineligibleCount;
-      existing.avgTotalScore = (existing.avgTotalScore + stat.avgTotalScore) / 2;
-      existing.botBar = (existing.botBar + stat.botBar) / 2;
-    } else {
-      acc.push({ ...stat });
+  // Filter data
+  let filteredSubmissions = submissions;
+  if (selectedCategory !== "all") {
+    filteredSubmissions = filteredSubmissions.filter(s => s.category === selectedCategory);
+  }
+  if (selectedDate !== "all") {
+    filteredSubmissions = filteredSubmissions.filter(s => s.date === selectedDate);
+  }
+
+  // Calculate summary stats
+  const totalSubmissions = filteredSubmissions.length;
+  const eligibleCount = filteredSubmissions.filter(s => s.eligible).length;
+  const ineligibleCount = totalSubmissions - eligibleCount;
+  const avgBotBar = filteredSubmissions.length > 0
+    ? filteredSubmissions.reduce((sum, s) => sum + s.botBar, 0) / filteredSubmissions.length
+    : 0;
+  const avgCombinedScore = filteredSubmissions.length > 0
+    ? filteredSubmissions.reduce((sum, s) => sum + s.combinedScore, 0) / filteredSubmissions.length
+    : 0;
+
+  // Group by date and bot bar to show progression
+  const groupedByDateAndBotBar = filteredSubmissions.reduce((acc, sub) => {
+    const key = `${sub.date}-${sub.botBar}`;
+    if (!acc[key]) {
+      acc[key] = {
+        date: sub.date,
+        botBar: sub.botBar,
+        category: sub.category,
+        submissions: [],
+      };
     }
+    acc[key].submissions.push(sub);
     return acc;
-  }, [] as typeof filteredStats) || [];
+  }, {} as Record<string, { date: string; botBar: number; category: string; submissions: typeof filteredSubmissions }>);
 
-  // Sort by date
-  const sortedData = selectedCategory === "all"
-    ? groupedByDate.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    : (filteredStats || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const groupedData = Object.values(groupedByDateAndBotBar).sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime() || b.botBar - a.botBar
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Bot Bar Statistics</h2>
-          <p className="text-muted-foreground">Timeline of bot bar thresholds and pass/fail rates</p>
+          <p className="text-muted-foreground">Individual submissions showing bot bar thresholds and scores</p>
         </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat === "all" ? "All Categories" : cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat === "all" ? "All Categories" : CATEGORY_NAMES[cat] || cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedDate} onValueChange={setSelectedDate}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Date" />
+            </SelectTrigger>
+            <SelectContent>
+              {dates.map((date) => (
+                <SelectItem key={date} value={date}>
+                  {date === "all" ? "All Dates" : new Date(date).toLocaleDateString()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Attempts</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Submissions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {sortedData.reduce((sum, s) => sum + s.totalAttempts, 0)}
-            </div>
+            <div className="text-3xl font-bold">{totalSubmissions}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Eligible (Passed)</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Eligible</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">
-              {sortedData.reduce((sum, s) => sum + s.eligibleCount, 0)}
-            </div>
+            <div className="text-3xl font-bold text-green-600">{eligibleCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalSubmissions > 0 ? ((eligibleCount / totalSubmissions) * 100).toFixed(1) : 0}%
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ineligible (Failed)</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Ineligible</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-600">
-              {sortedData.reduce((sum, s) => sum + s.ineligibleCount, 0)}
-            </div>
+            <div className="text-3xl font-bold text-red-600">{ineligibleCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalSubmissions > 0 ? ((ineligibleCount / totalSubmissions) * 100).toFixed(1) : 0}%
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Bot Bar</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Bot Bar / Score</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {sortedData.length > 0
-                ? (sortedData.reduce((sum, s) => sum + s.botBar, 0) / sortedData.length).toFixed(1)
-                : 0}
-            </div>
+            <div className="text-3xl font-bold">{avgBotBar.toFixed(1)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Avg Score: {avgCombinedScore.toFixed(1)}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Bot Bar Timeline Chart */}
+      {/* Individual Submissions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Bot Bar Timeline</CardTitle>
+          <CardTitle>Submission Details</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Individual submissions with bot bar values and scores. Bot bar is the threshold calculated at submission time.
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
-            {sortedData.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                No data available for the selected category
-              </div>
-            ) : (
-              <div className="w-full h-full">
-                <p className="text-sm text-muted-foreground mb-4">
-                  The bot bar is the threshold score participants must exceed to be eligible for raffle entries.
-                  Green bars show eligible participants, red bars show ineligible participants, and the line shows the bot bar threshold over time.
-                </p>
-                <div className="space-y-4">
-                  {sortedData.map((stat, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <div>
-                          <span className="font-medium">{new Date(stat.date).toLocaleDateString()}</span>
-                          {stat.category && <Badge className="ml-2">{stat.category}</Badge>}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Bot Bar: <span className="font-bold">{stat.botBar}</span>
-                        </div>
+          <ScrollArea className="h-[600px]">
+            <div className="space-y-6">
+              {groupedData.map((group, groupIndex) => {
+                const eligibleInGroup = group.submissions.filter(s => s.eligible).length;
+                const ineligibleInGroup = group.submissions.length - eligibleInGroup;
+
+                return (
+                  <div key={groupIndex} className="border rounded-lg p-4 bg-muted/30">
+                    <div className="flex justify-between items-center mb-3 pb-2 border-b">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{new Date(group.date).toLocaleDateString()}</span>
+                        <Badge className={CATEGORY_COLORS[group.category] || "bg-gray-500"}>
+                          {CATEGORY_NAMES[group.category] || group.category}
+                        </Badge>
                       </div>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <div className="text-muted-foreground">Total Attempts</div>
-                          <div className="text-xl font-bold">{stat.totalAttempts}</div>
-                        </div>
-                        <div>
-                          <div className="text-muted-foreground">Eligible</div>
-                          <div className="text-xl font-bold text-green-600">{stat.eligibleCount}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {((stat.eligibleCount / stat.totalAttempts) * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-muted-foreground">Ineligible</div>
-                          <div className="text-xl font-bold text-red-600">{stat.ineligibleCount}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {((stat.ineligibleCount / stat.totalAttempts) * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-3">
-                        <div className="flex h-8 rounded overflow-hidden">
-                          <div
-                            className="bg-green-500 flex items-center justify-center text-white text-xs"
-                            style={{ width: `${(stat.eligibleCount / stat.totalAttempts) * 100}%` }}
-                          >
-                            {stat.eligibleCount > 0 && `${stat.eligibleCount}`}
-                          </div>
-                          <div
-                            className="bg-red-500 flex items-center justify-center text-white text-xs"
-                            style={{ width: `${(stat.ineligibleCount / stat.totalAttempts) * 100}%` }}
-                          >
-                            {stat.ineligibleCount > 0 && `${stat.ineligibleCount}`}
-                          </div>
-                        </div>
+                      <div className="text-sm">
+                        <span className="font-bold">Bot Bar: {group.botBar}</span>
+                        <span className="text-muted-foreground ml-3">
+                          ({eligibleInGroup} eligible, {ineligibleInGroup} ineligible)
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+
+                    <div className="space-y-2">
+                      {group.submissions.map((sub) => (
+                        <div
+                          key={sub.attemptId}
+                          className={`flex items-center justify-between p-3 rounded-lg border ${
+                            sub.eligible
+                              ? 'bg-green-500/10 border-green-500/30'
+                              : 'bg-red-500/10 border-red-500/30'
+                          }`}
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {sub.firstName && sub.lastName
+                                  ? `${sub.firstName} ${sub.lastName}`
+                                  : sub.emailHash
+                                  ? `User ${sub.emailHash.slice(0, 8)}`
+                                  : "Anonymous"}
+                              </span>
+                              {sub.company && (
+                                <span className="text-sm text-muted-foreground">({sub.company})</span>
+                              )}
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {new Date(sub.startedAt).toLocaleString()}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-6">
+                            <div className="text-right">
+                              <div className="text-sm text-muted-foreground">Combined Score</div>
+                              <div className={`text-lg font-bold ${
+                                sub.combinedScore >= sub.botBar ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {sub.combinedScore}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Trivia: {sub.triviaScore ?? 0} + Pitch: {sub.pitchScore ?? 0}
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="text-sm text-muted-foreground">vs Bot Bar</div>
+                              <div className={`text-lg font-bold ${
+                                sub.combinedScore >= sub.botBar ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {sub.combinedScore >= sub.botBar ? '+' : ''}{sub.combinedScore - sub.botBar}
+                              </div>
+                            </div>
+
+                            <div>
+                              {sub.eligible ? (
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                              ) : (
+                                <XCircle className="w-6 h-6 text-red-600" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </CardContent>
       </Card>
     </div>
@@ -1461,6 +1536,18 @@ function WordCloudTab() {
     },
   });
 
+  // Fetch word cloud visualization data
+  const { data: wordCloudData } = useQuery<{ text: string; value: number }[]>({
+    queryKey: ["/api/word-cloud-display"],
+    queryFn: async () => {
+      const response = await fetch("/api/leaderboard-data");
+      if (!response.ok) throw new Error("Failed to fetch word cloud display data");
+      const data = await response.json();
+      return data.wordCloud || [];
+    },
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data: { word: string; count: number }) => {
       const response = await fetch("/api/beta-admin/word-cloud", {
@@ -1476,6 +1563,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setCreatingNew(false);
       setFormData({ word: "", count: 1 });
       toast({ title: "Word cloud entry created successfully" });
@@ -1500,6 +1588,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setEditingEntry(null);
       setFormData({ word: "", count: 1 });
       toast({ title: "Word cloud entry updated successfully" });
@@ -1520,6 +1609,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setDeleteConfirmId(null);
       toast({ title: "Word cloud entry deleted successfully" });
     },
@@ -1541,8 +1631,153 @@ function WordCloudTab() {
     return <div className="text-center py-8">Loading word cloud entries...</div>;
   }
 
+  const renderWordCloudPreview = () => {
+    if (!wordCloudData || wordCloudData.length === 0) {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle>Word Cloud Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <i className="fas fa-cloud text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-semibold mb-2">No words to display</p>
+              <p className="text-muted-foreground">Add words to see them appear in the word cloud.</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const maxValue = Math.max(...wordCloudData.map(w => w.value));
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Word Cloud Preview</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Live preview of how the word cloud appears on the leaderboard
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="relative min-h-[400px] max-h-[400px] overflow-hidden flex items-center justify-center bg-muted/20 rounded-lg">
+            {/* Cloud background effects */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+
+            {/* Word cloud */}
+            <div className="relative w-full h-full flex items-center justify-center p-4">
+              {wordCloudData.slice(0, 8).map((word, index) => {
+                if (index === 0) {
+                  // Biggest word - centered
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 30,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg"
+                        style={{
+                          fontSize: 'clamp(32px, 7vw, 48px)',
+                          opacity: 1,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                } else if (index < 5) {
+                  // Medium words
+                  const positions = [
+                    { top: '25%', left: '20%' },
+                    { top: '25%', left: '75%' },
+                    { top: '70%', left: '25%' },
+                    { top: '70%', left: '70%' },
+                  ];
+                  const pos = positions[index - 1];
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: pos.top,
+                        left: pos.left,
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 20,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-2 py-1 rounded border border-blue-400/30 bg-gray-800/70 text-blue-300 shadow-md"
+                        style={{
+                          fontSize: 'clamp(18px, 4vw, 28px)',
+                          opacity: 0.95,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-50" style={{ fontSize: '0.5em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                } else {
+                  // Small words
+                  const positions = [
+                    { top: '15%', left: '50%' },
+                    { top: '85%', left: '50%' },
+                    { top: '50%', left: '12%' },
+                  ];
+                  const pos = positions[index - 5];
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: pos.top,
+                        left: pos.left,
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 10,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-2 py-1 rounded border border-purple-400/20 bg-gray-800/60 text-purple-300 shadow-sm"
+                        style={{
+                          fontSize: 'clamp(14px, 3vw, 20px)',
+                          opacity: 0.8,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-40" style={{ fontSize: '0.5em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
+      {/* Word Cloud Visual Preview */}
+      {renderWordCloudPreview()}
+
+      {/* Word Cloud Management */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Word Cloud Management</h2>
@@ -1858,7 +2093,6 @@ function StagingLeaderboardTab() {
 function DBAdminTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
-  const [clearLeaderboardConfirm, setClearLeaderboardConfirm] = useState(false);
   const [raffleDate, setRaffleDate] = useState(new Date().toISOString().split("T")[0]);
   const [selectedWinner, setSelectedWinner] = useState<any>(null);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
@@ -2019,27 +2253,6 @@ function DBAdminTab() {
         </CardContent>
       </Card>
 
-      {/* Leaderboard Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Leaderboard Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Clear the cached leaderboard data. This resets the daily leaderboard display
-              without deleting historical submission records.
-            </p>
-            <Button
-              onClick={() => setClearLeaderboardConfirm(true)}
-              variant="destructive"
-            >
-              Clear Leaderboard Cache
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Raffle Management */}
       <Card>
         <CardHeader>
@@ -2145,36 +2358,6 @@ function DBAdminTab() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Clear Leaderboard Confirmation Dialog */}
-      <Dialog open={clearLeaderboardConfirm} onOpenChange={setClearLeaderboardConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Clear Leaderboard Cache?</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              This will delete all cached leaderboard data for all dates and tabs.
-              Historical submission records will NOT be affected.
-            </p>
-            <p className="text-sm font-medium mt-4">
-              This action will reset the daily leaderboard display for Day 2.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setClearLeaderboardConfirm(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => clearLeaderboardMutation.mutate()}
-              disabled={clearLeaderboardMutation.isPending}
-            >
-              {clearLeaderboardMutation.isPending ? "Clearing..." : "Confirm Clear"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Winner Display Dialog */}
       <Dialog open={showWinnerDialog} onOpenChange={setShowWinnerDialog}>
@@ -2301,7 +2484,7 @@ export default function Admin() {
             <TabsTrigger value="raffle">Raffle Entries</TabsTrigger>
             <TabsTrigger value="submissions">Scored Submissions</TabsTrigger>
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
-            <TabsTrigger value="staging">Staging Leaderboard</TabsTrigger>
+            <TabsTrigger value="staging">Leaderboard</TabsTrigger>
             <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
             <TabsTrigger value="dbadmin">DB Admin</TabsTrigger>
           </TabsList>
