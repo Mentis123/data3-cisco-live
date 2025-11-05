@@ -2093,7 +2093,6 @@ function StagingLeaderboardTab() {
 function DBAdminTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
-  const [clearLeaderboardConfirm, setClearLeaderboardConfirm] = useState(false);
   const [raffleDate, setRaffleDate] = useState(new Date().toISOString().split("T")[0]);
   const [selectedWinner, setSelectedWinner] = useState<any>(null);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
@@ -2107,29 +2106,6 @@ function DBAdminTab() {
       });
       if (!response.ok) throw new Error("Failed to fetch DB stats");
       return response.json();
-    },
-  });
-
-  // Clear leaderboard cache mutation
-  const clearLeaderboardMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/beta-admin/clear-leaderboard-cache", {
-        method: "POST",
-        headers: { "x-admin-key": adminKey },
-      });
-      if (!response.ok) throw new Error("Failed to clear leaderboard cache");
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setClearLeaderboardConfirm(false);
-      toast({
-        title: "Leaderboard cache cleared",
-        description: `Cleared ${data.deletedCount} cached entries`
-      });
-      refetchStats();
-    },
-    onError: () => {
-      toast({ title: "Failed to clear leaderboard cache", variant: "destructive" });
     },
   });
 
@@ -2240,27 +2216,6 @@ function DBAdminTab() {
         </CardContent>
       </Card>
 
-      {/* Leaderboard Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Leaderboard Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Clear the cached leaderboard data. This resets the daily leaderboard display
-              without deleting historical submission records.
-            </p>
-            <Button
-              onClick={() => setClearLeaderboardConfirm(true)}
-              variant="destructive"
-            >
-              Clear Leaderboard Cache
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Raffle Management */}
       <Card>
         <CardHeader>
@@ -2320,36 +2275,6 @@ function DBAdminTab() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Clear Leaderboard Confirmation Dialog */}
-      <Dialog open={clearLeaderboardConfirm} onOpenChange={setClearLeaderboardConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Clear Leaderboard Cache?</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              This will delete all cached leaderboard data for all dates and tabs.
-              Historical submission records will NOT be affected.
-            </p>
-            <p className="text-sm font-medium mt-4">
-              This action will reset the daily leaderboard display for Day 2.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setClearLeaderboardConfirm(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => clearLeaderboardMutation.mutate()}
-              disabled={clearLeaderboardMutation.isPending}
-            >
-              {clearLeaderboardMutation.isPending ? "Clearing..." : "Confirm Clear"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Winner Display Dialog */}
       <Dialog open={showWinnerDialog} onOpenChange={setShowWinnerDialog}>
