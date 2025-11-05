@@ -1099,7 +1099,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
 Let's build your project pitch in 3 focused steps. I'll guide you through each one.
 
-**What problem are you solving?**
+<strong>What problem are you solving?</strong>
 
 Describe a specific challenge that wastes time, creates friction, or impacts productivity.`
                       }
@@ -1936,7 +1936,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
               >
                 {isBooting ? (
                   /* Fullscreen Boot Animation */
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-slate-900/95 backdrop-blur-xl z-30">
+                  <div className="fixed inset-0 flex flex-col items-center justify-center gap-8 bg-slate-900/95 backdrop-blur-xl z-50">
                     {/* Larger Pulsing Ring Icon */}
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-ping"></div>
@@ -2016,9 +2016,10 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         {message.role === 'assistant' ? (
                           <div className="chat-bubble chat-bubble-assistant">
-                            <div className="whitespace-pre-wrap text-base leading-relaxed break-words">
-                              {message.content}
-                            </div>
+                            <div
+                              className="whitespace-pre-wrap text-base leading-relaxed break-words"
+                              dangerouslySetInnerHTML={{ __html: message.content }}
+                            />
                           </div>
                         ) : (
                           <div className="chat-bubble chat-bubble-user">
@@ -2035,7 +2036,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                           <button
                             key={index}
                             onClick={() => handleQuickReply(reply)}
-                            className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all"
+                            className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all"
                           >
                             {reply}
                           </button>
@@ -2098,46 +2099,32 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                   </div>
                 )}
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                  <div className="flex-1 flex gap-2">
-                    <Textarea
-                      value={currentMessage}
-                      onChange={(e) => setCurrentMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder={
-                        state.step === 1
-                          ? 'Describe the problem...'
-                          : state.step === 2
-                          ? 'Quantify the impact...'
-                          : state.step === 3
-                          ? "Type 'yes' to submit..."
-                          : 'Type your message...'
-                      }
-                      className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
-                      disabled={isTyping || state.inputsCount >= 6}
-                      data-testid="input-chat-message"
-                    />
-                  </div>
-                  <div className="flex gap-2 sm:flex-none">
-                    {/* Mic Icon for Voice Input (future enhancement) */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-12 w-12 rounded-xl border border-white/10 bg-slate-950/40 text-slate-400 hover:bg-slate-900 hover:text-cyan-300"
-                      disabled={isTyping || state.inputsCount >= 6}
-                      title="Voice input (coming soon)"
-                    >
-                      <i className="fas fa-microphone text-lg"></i>
-                    </Button>
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                      className="h-12 min-w-[52px] rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
-                      data-testid="button-send-message"
-                    >
-                      <i className="fas fa-paper-plane"></i>
-                    </Button>
-                  </div>
+                <div className="flex gap-2 items-end">
+                  <Textarea
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      state.step === 1
+                        ? 'Describe the problem...'
+                        : state.step === 2
+                        ? 'Quantify the impact...'
+                        : state.step === 3
+                        ? "Type 'yes' to submit..."
+                        : 'Type your message...'
+                    }
+                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
+                    disabled={isTyping || state.inputsCount >= 6}
+                    data-testid="input-chat-message"
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
+                    className="h-12 min-w-[52px] rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
+                    data-testid="button-send-message"
+                  >
+                    <i className="fas fa-paper-plane"></i>
+                  </Button>
                 </div>
 
                 {/* Show input counter only when approaching limit */}
