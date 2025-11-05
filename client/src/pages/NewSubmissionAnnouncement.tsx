@@ -80,15 +80,20 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     setShowReadyPrompt(false);
 
     // Check if we should show video modal (Ring mode)
+    // ONLY show video if immersive mode is ON
     try {
       const videoDataStr = sessionStorage.getItem('shouldShowVideo');
-      if (videoDataStr) {
+      if (videoDataStr && audioManager.isImmersiveMode()) {
         const videoData = JSON.parse(videoDataStr);
         setIsWinner(videoData.isWinner);
         setShowVideoModal(true);
         // Clear the video flag
         sessionStorage.removeItem('shouldShowVideo');
         return;
+      } else if (videoDataStr) {
+        // Video flag exists but immersive mode is OFF - skip video and clear flag
+        console.log('[NewSubmissionAnnouncement] Skipping video - immersive mode is OFF');
+        sessionStorage.removeItem('shouldShowVideo');
       }
     } catch (error) {
       console.error('Error checking video state:', error);
