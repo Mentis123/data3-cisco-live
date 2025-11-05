@@ -91,6 +91,7 @@ export default function Leaderboard() {
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
   const [newSubmissionTime, setNewSubmissionTime] = useState<number | null>(null);
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
+  const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
   const isInitialDataLoad = useRef(true);
 
   const isOldRoute = location?.startsWith("/old");
@@ -382,7 +383,7 @@ export default function Leaderboard() {
 
   // Auto-rotate views with graduated timing for new submissions
   useEffect(() => {
-    if (!displayData) return;
+    if (!displayData || !isAutoRotateEnabled) return;
 
     const getAvailableViews = () => {
       const views: Array<"leaderboard" | "wordcloud" | "categories" | "data3stats"> = [];
@@ -464,7 +465,7 @@ export default function Leaderboard() {
     }, displayInterval);
 
     return () => clearInterval(interval);
-  }, [displayData, activeView, viewDisplayCounts]);
+  }, [displayData, activeView, viewDisplayCounts, isAutoRotateEnabled, newSubmissionTime, isAnnouncementMode]);
 
   // Initialize known submission IDs from existing data and update display data
   useEffect(() => {
@@ -1243,13 +1244,14 @@ export default function Leaderboard() {
           </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex justify-center mb-6">
-          <div className="flex gap-2 p-1 bg-muted/30 rounded-lg">
+        {/* View Toggle Tabs */}
+        <div className="flex justify-center mb-6 gap-3">
+          {/* Tab Buttons */}
+          <div className="flex gap-2 p-1.5 bg-slate-900/60 rounded-xl border border-cyan-500/20 shadow-lg">
             {[
-              { 
-                key: "leaderboard", 
-                icon: "fa-trophy", 
+              {
+                key: "leaderboard",
+                icon: "fa-trophy",
                 mobileIcon: (
                   <svg width="20" height="16" viewBox="0 0 24 20" fill="none" className="inline-block">
                     {/* Podium steps */}
@@ -1262,8 +1264,8 @@ export default function Leaderboard() {
                     <text x="21" y="16" fontSize="4" fill="white" textAnchor="middle" fontWeight="bold">3</text>
                   </svg>
                 ),
-                label: "Rankings", 
-                hasContent: displayData?.leaderboard.length > 0 
+                label: "Rankings",
+                hasContent: displayData?.leaderboard.length > 0
               },
               { key: "wordcloud", icon: "fa-cloud", label: "Technologies", hasContent: displayData?.wordCloud.length > 0 },
               { key: "categories", icon: "fa-chart-pie", label: "Categories", hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0) },
@@ -1273,8 +1275,15 @@ export default function Leaderboard() {
                 key={view.key}
                 variant={activeView === view.key ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setActiveView(view.key as any)}
-                className="transition-all duration-200"
+                onClick={() => {
+                  setActiveView(view.key as any);
+                  setIsAutoRotateEnabled(false);
+                }}
+                className={`transition-all duration-200 ${
+                  activeView === view.key
+                    ? 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-100 shadow-lg shadow-cyan-500/20'
+                    : 'hover:bg-white/10 text-white/70 hover:text-white'
+                }`}
               >
                 {/* Mobile: Show only icons */}
                 <div className="block sm:hidden">
@@ -1297,6 +1306,22 @@ export default function Leaderboard() {
               </Button>
             ))}
           </div>
+
+          {/* Auto-Rotate Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
+            className={`transition-all duration-200 ${
+              isAutoRotateEnabled
+                ? 'bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30'
+                : 'bg-slate-900/60 border-cyan-500/20 text-white/70 hover:bg-white/10'
+            }`}
+            title={isAutoRotateEnabled ? 'Pause auto-rotation' : 'Resume auto-rotation'}
+          >
+            <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} ${isFullscreen ? '' : 'sm:mr-2'}`}></i>
+            <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
+          </Button>
         </div>
 
         {/* Active View */}
@@ -1351,8 +1376,8 @@ export default function Leaderboard() {
               Live Updates
             </span>
             <span className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              Auto-rotating every 10s
+              <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
+              {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
             </span>
           </div>
         </div>
