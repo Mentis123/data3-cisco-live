@@ -17,6 +17,24 @@ import { createHash } from "crypto";
 import path from "path";
 import { z } from "zod";
 
+/**
+ * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
+ * This ensures daily resets happen at midnight Melbourne time, not UTC.
+ */
+function getMelbourneDate(date: Date = new Date()): string {
+  // Convert to Melbourne timezone using Intl.DateTimeFormat
+  const melbourneTime = new Intl.DateTimeFormat('en-AU', {
+    timeZone: 'Australia/Melbourne',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+
+  // Format is DD/MM/YYYY, convert to YYYY-MM-DD
+  const [day, month, year] = melbourneTime.split('/');
+  return `${year}-${month}-${day}`;
+}
+
 log(
   `Using ${storageKind} storage backend${storageKind === "memory" ? " (no database connection string configured)" : ""}`,
 );
@@ -335,7 +353,7 @@ export async function registerRoutes(
         // Check for existing raffle entry for this email + category + day
         if (payload.email && payload.mode === "ring") {
           const emailHash = hashEmail(payload.email);
-          const today = new Date().toISOString().split('T')[0];
+          const today = getMelbourneDate();
           const hasRaffleEntry = await storage.checkExistingRaffleEntry?.(
             emailHash,
             payload.category,
@@ -631,8 +649,8 @@ export async function registerRoutes(
             triviaScore = attempt.totalScore || 0;
             combinedScore = triviaScore + pitchScore;
 
-            // Calculate bot bar for this category and today
-            const today = new Date().toISOString().split('T')[0];
+            // Calculate bot bar for this category and today (Melbourne timezone)
+            const today = getMelbourneDate();
             botBar = await storage.calculateBotBar(category, today);
 
             // Check eligibility: combined score >= bot bar
@@ -752,8 +770,8 @@ export async function registerRoutes(
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const category = req.query.category as string | undefined;
-      // Default to today's date in YYYY-MM-DD format, or use the provided date
-      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+      // Default to today's date in Melbourne timezone, or use the provided date
+      const filterDate = req.query.date as string | undefined || getMelbourneDate();
       const leaderboard = await storage.getLeaderboard(limit, category, filterDate);
       res.json(leaderboard);
     } catch (error) {
@@ -766,8 +784,8 @@ export async function registerRoutes(
     try {
       log("[dashboard-data] Starting to fetch dashboard data");
 
-      // Default to today's date in YYYY-MM-DD format, or use the provided date
-      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+      // Default to today's date in Melbourne timezone, or use the provided date
+      const filterDate = req.query.date as string | undefined || getMelbourneDate();
 
       // Fetch data with individual error handling to identify which call fails
       let leaderboard, wordCloud, categoryStats, recentSubmission, data3Stats, activeChallengers;
@@ -1039,8 +1057,8 @@ export async function registerRoutes(
   // Admin endpoint to get full leaderboard with details
   app.get("/api/admin/leaderboard", async (req, res) => {
     try {
-      // Default to today's date in YYYY-MM-DD format, or use the provided date
-      const filterDate = req.query.date as string | undefined || new Date().toISOString().split('T')[0];
+      // Default to today's date in Melbourne timezone, or use the provided date
+      const filterDate = req.query.date as string | undefined || getMelbourneDate();
       const leaderboard = await storage.getDetailedLeaderboard(100, filterDate);
       res.json(leaderboard);
     } catch (error) {
