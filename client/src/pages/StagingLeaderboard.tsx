@@ -1165,9 +1165,9 @@ export default function StagingLeaderboard() {
           </div>
         </div>
 
-        {/* Footer - Mobile-optimized with home button at bottom */}
+        {/* Footer */}
         <div className="text-center mt-6">
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="flex justify-center gap-4">
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               Live Updates
@@ -1176,16 +1176,6 @@ export default function StagingLeaderboard() {
               <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
               {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
             </span>
-          </div>
-          {/* Mobile-only home button at bottom */}
-          <div className="lg:hidden mt-4">
-            <Button
-              onClick={() => window.location.href = '/'}
-              className="w-full bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold text-lg py-6"
-            >
-              <i className="fas fa-home mr-2"></i>
-              Return to Home
-            </Button>
           </div>
         </div>
       </div>
