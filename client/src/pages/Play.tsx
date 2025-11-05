@@ -1067,11 +1067,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 // Update boot text progressively
                 setTimeout(() => {
                   setBootingText('Preparing your Sprint Coach...');
-                }, 1000);
+                }, 2000);
 
                 setTimeout(() => {
                   setBootingText('Ready to build your pitch!');
-                }, 2000);
+                }, 4000);
 
                 setTimeout(() => {
                   setIsBooting(false);
@@ -1093,7 +1093,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       }
                     });
                   }, 300);
-                }, 2800);
+                }, 5600);
               }}
             />
 
@@ -1929,7 +1929,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
               >
                 {isBooting ? (
                   /* Fullscreen Boot Animation */
-                  <div className="fixed inset-0 flex flex-col items-center justify-center gap-8 bg-slate-900/95 backdrop-blur-xl z-50">
+                  <div className="fixed inset-0 flex flex-col items-center justify-start pt-32 gap-8 bg-slate-900/95 backdrop-blur-xl z-50">
                     {/* Larger Pulsing Ring Icon */}
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-ping"></div>
