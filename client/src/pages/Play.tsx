@@ -157,7 +157,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const hasUserInitiatedChatRef = useRef(false);
-  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   // Email validation helper
   const isValidEmail = (email: string): boolean => {
@@ -165,6 +165,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     return emailRegex.test(email.trim());
   };
 
+  // Track if user has scrolled up to show scroll-to-bottom button
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
@@ -172,7 +173,6 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     const handleScroll = () => {
       const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
       const isNearBottom = distanceFromBottom <= 120;
-      setIsUserNearBottom(isNearBottom);
       // Show FAB when user scrolls up and there are messages
       setShowScrollToBottom(!isNearBottom && state.messages.length > 0);
     };
@@ -185,12 +185,13 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     };
   }, [registrationComplete, state.step, isRing, state.messages.length]);
 
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (state.messages.some((message) => message.role === "user")) {
       hasUserInitiatedChatRef.current = true;
     }
 
-    if (!hasUserInitiatedChatRef.current || !isUserNearBottom) {
+    if (!hasUserInitiatedChatRef.current) {
       return;
     }
 
@@ -201,7 +202,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
       top: container.scrollHeight,
       behavior: "smooth",
     });
-  }, [state.messages, isTyping, isUserNearBottom]);
+  }, [state.messages, isTyping]);
 
   // Check for max inputs
   useEffect(() => {
