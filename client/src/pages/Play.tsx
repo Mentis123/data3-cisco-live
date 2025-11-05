@@ -212,6 +212,13 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     }
   }, [state.inputsCount, state.step, toast]);
 
+  // Scroll to top when entering Final Review (step 4)
+  useEffect(() => {
+    if (state.step === 4) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [state.step]);
+
   const startSessionMutation = useMutation({
     mutationFn: async ({ firstName, lastName, email }: { firstName: string; lastName: string; email?: string }) => {
       const response = await apiRequest("POST", "/api/start", { firstName, lastName, email });
@@ -1414,7 +1421,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                         data-testid="button-edit-mode"
                       >
                         <i className="fas fa-edit mr-2"></i>
-                        Tweak details
+                        Edit Final Details
                       </Button>
                       <Button
                         onClick={() => submitSolutionMutation.mutate()}
@@ -1436,6 +1443,18 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       </Button>
                     </>
                   )}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => goToStep(dispatch, 3)}
+                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                    data-testid="button-back-to-chat-bottom"
+                  >
+                    <i className="fas fa-comments mr-2"></i>
+                    Back to Coach
+                  </Button>
                 </div>
               </div>
             </div>
@@ -1682,7 +1701,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                         data-testid="button-edit-mode"
                       >
                         <i className="fas fa-edit mr-2"></i>
-                        Edit
+                        Edit Final Details
                       </Button>
                       <Button
                         onClick={() => submitSolutionMutation.mutate()}
@@ -1704,6 +1723,18 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       </Button>
                     </>
                   )}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => goToStep(dispatch, 3)}
+                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                    data-testid="button-back-to-chat-bottom-classic"
+                  >
+                    <i className="fas fa-comments mr-2"></i>
+                    Back to Coach
+                  </Button>
                 </div>
               </CardContent>
             </Card>
