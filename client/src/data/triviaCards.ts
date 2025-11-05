@@ -28,31 +28,46 @@ export interface TriviaCard {
   scoringSignals: string[];
 }
 
-export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; accent: string; blurb: string }> = {
+export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; accent: string; blurb: string; icon: string; color: string; description: string }> = {
   SECURE_CONNECTIVITY: {
     name: "Zero Trust & Secure Connectivity",
     accent: "bg-[#00BCF2]",
+    color: "#00BCF2",
+    icon: "🔒",
     blurb: "Lock the perimeter and the device posture without slowing trusted workflows.",
+    description: "Lock the perimeter and the device posture without slowing trusted workflows.",
   },
   HYBRID_DC: {
     name: "Hybrid Cloud Infrastructure",
     accent: "bg-[#8A2BE2]",
+    color: "#8A2BE2",
+    icon: "☁️",
     blurb: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
+    description: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
   },
   COLLAB_CX: {
     name: "Collaboration & Customer Experience",
     accent: "bg-[#F97316]",
+    color: "#F97316",
+    icon: "👥",
     blurb: "Remove the friction that keeps agents and knowledge workers from delighting customers.",
+    description: "Remove the friction that keeps agents and knowledge workers from delighting customers.",
   },
   OBSERVABILITY: {
     name: "Observability & Automation",
     accent: "bg-[#38BDF8]",
+    color: "#38BDF8",
+    icon: "📊",
     blurb: "Detect, triage and resolve incidents before they become customer-facing outages.",
+    description: "Detect, triage and resolve incidents before they become customer-facing outages.",
   },
   EDGE_IOT: {
     name: "Edge & IoT Automation",
     accent: "bg-[#22C55E]",
+    color: "#22C55E",
+    icon: "🔌",
     blurb: "Push intelligence to the edge to eliminate costly delays on the production floor.",
+    description: "Push intelligence to the edge to eliminate costly delays on the production floor.",
   },
 };
 
