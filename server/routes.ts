@@ -1313,6 +1313,24 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/beta-admin/raffle-draw/:raffleDate", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { raffleDate } = req.params;
+      if (!raffleDate) {
+        res.status(400).json({ message: "raffleDate is required" });
+        return;
+      }
+
+      const result = await storage.getRaffleDrawByDate(raffleDate);
+      res.json(result);
+    } catch (error: any) {
+      log(`Error getting raffle draw: ${error}`);
+      res.status(500).json({ message: error.message || "Failed to get raffle draw" });
+    }
+  });
+
   app.post("/api/beta-admin/select-raffle-winner", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;

@@ -1875,6 +1875,19 @@ function DBAdminTab() {
     },
   });
 
+  // Fetch existing raffle draw for selected date
+  const { data: existingDraw, refetch: refetchDraw } = useQuery({
+    queryKey: ["/api/beta-admin/raffle-draw", raffleDate],
+    queryFn: async () => {
+      const response = await fetch(`/api/beta-admin/raffle-draw/${raffleDate}`, {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch raffle draw");
+      return response.json();
+    },
+    enabled: !!raffleDate,
+  });
+
   // Clear leaderboard cache mutation
   const clearLeaderboardMutation = useMutation({
     mutationFn: async () => {
@@ -1920,6 +1933,7 @@ function DBAdminTab() {
       setShowWinnerDialog(true);
       toast({ title: "Raffle winner selected!" });
       refetchStats();
+      refetchDraw();
     },
     onError: (error: any) => {
       toast({
@@ -2032,29 +2046,75 @@ function DBAdminTab() {
           <CardTitle>Raffle Management</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Select Winner */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="raffle-date">Select Raffle Date</Label>
-              <Input
-                id="raffle-date"
-                type="date"
-                value={raffleDate}
-                onChange={(e) => setRaffleDate(e.target.value)}
-                className="max-w-xs"
-              />
+          {/* Select Winner with Two-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column: Date Selection and Actions */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="raffle-date">Select Raffle Date</Label>
+                <Input
+                  id="raffle-date"
+                  type="date"
+                  value={raffleDate}
+                  onChange={(e) => setRaffleDate(e.target.value)}
+                  className="max-w-xs"
+                />
+              </div>
+              <div>
+                <Button
+                  onClick={() => selectWinnerMutation.mutate(raffleDate)}
+                  disabled={selectWinnerMutation.isPending}
+                >
+                  {selectWinnerMutation.isPending ? "Selecting Winner..." : "Select Raffle Winner"}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Randomly selects a winner from eligible entries for the selected date.
+                  Uses a cryptographically verifiable random seed.
+                </p>
+              </div>
             </div>
-            <div>
-              <Button
-                onClick={() => selectWinnerMutation.mutate(raffleDate)}
-                disabled={selectWinnerMutation.isPending}
-              >
-                {selectWinnerMutation.isPending ? "Selecting Winner..." : "Select Raffle Winner"}
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2">
-                Randomly selects a winner from eligible entries for the selected date.
-                Uses a cryptographically verifiable random seed.
-              </p>
+
+            {/* Right Column: Winner Details or Placeholder */}
+            <div className="border rounded-lg p-4 bg-muted/50">
+              {existingDraw && existingDraw.winner ? (
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-lg">Winner Drawn</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">Name:</span>
+                      <p className="font-medium">
+                        {existingDraw.winner.firstName && existingDraw.winner.lastName
+                          ? `${existingDraw.winner.firstName} ${existingDraw.winner.lastName}`
+                          : "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">Email:</span>
+                      <p className="font-medium">
+                        {existingDraw.winner.email || <span className="italic text-muted-foreground">Not available</span>}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">Category:</span>
+                      <p className="font-medium">{existingDraw.winner.category}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">Draw Time:</span>
+                      <p className="text-sm">{new Date(existingDraw.draw.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">Admin User:</span>
+                      <p className="text-sm">{existingDraw.draw.adminUser}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full min-h-[200px]">
+                  <p className="text-muted-foreground text-center">
+                    Please select the raffle winner when ready.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
