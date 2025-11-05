@@ -838,7 +838,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </Button>
 
                 <p className="text-xs text-center text-slate-400">
-                  Average run time under 3 minutes. Need help? Flag down a Sprint Captain.
+                  Average run time under 3 minutes. Need help? Flag down a Sprint Coach.
                 </p>
               </CardContent>
             </Card>
@@ -1302,7 +1302,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                 <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-semibold text-white">Execution checklist</CardTitle>
-                    <p className="text-sm text-slate-300/80">Share this with your Sprint Captain after you submit.</p>
+                    <p className="text-sm text-slate-300/80">Share this with your Sprint Coach after you submit.</p>
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm text-slate-200/90">
                     {currentSubmission.action_plan?.length ? (
