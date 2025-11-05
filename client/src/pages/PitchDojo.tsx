@@ -52,9 +52,17 @@ function PitchDojoContent() {
     const container = chatContainerRef.current;
     if (!container) return;
 
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior: "smooth",
+    // Use requestAnimationFrame to ensure DOM has updated before scrolling
+    // Double RAF ensures the scroll happens after the browser has painted
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      });
     });
   }, [state.messages, isTyping]);
 
