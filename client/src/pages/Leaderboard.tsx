@@ -1246,6 +1246,16 @@ export default function Leaderboard() {
 
         {/* View Toggle Tabs */}
         <div className="flex justify-center mb-6 gap-3">
+          {/* Mobile Home Button */}
+          <Button
+            onClick={() => window.location.href = homeHref}
+            variant="outline"
+            size="sm"
+            className="sm:hidden bg-slate-900/60 border-cyan-500/20 text-cyan-100 hover:bg-cyan-500/20"
+            title="Go to Home"
+          >
+            <i className="fas fa-home"></i>
+          </Button>
           {/* Tab Buttons */}
           <div className="flex gap-2 p-1.5 bg-slate-900/60 rounded-xl border border-cyan-500/20 shadow-lg">
             {[
