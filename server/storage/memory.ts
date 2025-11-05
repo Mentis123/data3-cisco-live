@@ -339,6 +339,7 @@ function seedMemoryData() {
       subScores: JSON.stringify(entry.subscores),
       totalScore: entry.totalScore,
       evaluationNotes: "Seeded showcase submission",
+      announcedOnLeaderboard: false,
       createdAt: new Date(Date.now() - index * 1000 * 45),
     };
 
@@ -1282,6 +1283,13 @@ export function createMemoryStorage() {
       return { success: true };
     },
 
+    async deleteRaffleEntry(id: string) {
+      const index = raffleEntriesStore.findIndex((entry) => entry.id === id);
+      if (index !== -1) {
+        raffleEntriesStore.splice(index, 1);
+      }
+    },
+
     async createSubmission(data: InsertSubmission): Promise<Submission> {
       const submission: MemorySubmission = {
         id: nanoid(),
@@ -1292,6 +1300,7 @@ export function createMemoryStorage() {
         subScores: data.subScores,
         totalScore: data.totalScore,
         evaluationNotes: data.evaluationNotes ?? null,
+        announcedOnLeaderboard: false,
         createdAt: new Date(),
       };
       submissionsStore.push(submission);
