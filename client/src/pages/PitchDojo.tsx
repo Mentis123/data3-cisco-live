@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/queryClient";
-import { audioManager } from "@/lib/audio";
 import { SprintProvider, useSprint } from "@/features/sprint/context";
 import { SprintStepper } from "@/components/SprintStepper";
 import { expandProblem, quantifyImpact, composeSubmission } from "@/features/sprint/compose";
@@ -84,7 +83,6 @@ function PitchDojoContent() {
 
   const handleCategorySelect = async (category: TriviaCardCategory) => {
     setIsBooting(true);
-    audioManager.playButtonSound();
 
     try {
       // Start a new session for this category
@@ -100,9 +98,6 @@ function PitchDojoContent() {
 
       setSessionToken(result.sessionToken);
       setSelectedCategory(category);
-
-      // Dispatch to set category in sprint context
-      dispatch({ type: "SET_CATEGORY", payload: category });
 
       // Simulate boot sequence
       await new Promise(resolve => setTimeout(resolve, 1200));
@@ -189,8 +184,6 @@ Just describe it naturally - what's the problem that needs solving?`
         const submission = composeSubmission(state.problem, state.impact);
         dispatch({ type: "SET_SUBMISSION", payload: submission });
       }
-
-      dispatch({ type: "INCREMENT_INPUTS" });
     } catch (error) {
       console.error("Failed to send message:", error);
       dispatch({
@@ -216,7 +209,7 @@ Just describe it naturally - what's the problem that needs solving?`
     setSelectedCategory(null);
     setSessionToken("");
     setCurrentMessage("");
-    dispatch({ type: "RESET" });
+    dispatch({ type: "RESET_SPRINT" });
   };
 
   // Category selection view
