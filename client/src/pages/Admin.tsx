@@ -2178,31 +2178,6 @@ function DBAdminTab() {
     },
   });
 
-  // Clear old raffle entries mutation
-  const clearOldRaffleMutation = useMutation({
-    mutationFn: async (daysOld: number) => {
-      const response = await fetch("/api/beta-admin/clear-old-raffle-entries", {
-        method: "POST",
-        headers: {
-          "x-admin-key": adminKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ daysOld }),
-      });
-      if (!response.ok) throw new Error("Failed to clear old raffle entries");
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Old raffle entries cleared",
-        description: `Removed ${data.deletedCount} entries`
-      });
-      refetchStats();
-    },
-    onError: () => {
-      toast({ title: "Failed to clear old raffle entries", variant: "destructive" });
-    },
-  });
 
   return (
     <div className="space-y-6">
@@ -2331,31 +2306,6 @@ function DBAdminTab() {
             </div>
           </div>
 
-          {/* Clear Old Raffle Entries */}
-          <div className="pt-4 border-t space-y-4">
-            <div>
-              <Label>Clear Old Raffle Entries</Label>
-              <p className="text-sm text-muted-foreground mb-2">
-                Remove raffle entries older than a certain number of days
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => clearOldRaffleMutation.mutate(7)}
-                variant="outline"
-                disabled={clearOldRaffleMutation.isPending}
-              >
-                Clear Entries &gt; 7 days
-              </Button>
-              <Button
-                onClick={() => clearOldRaffleMutation.mutate(30)}
-                variant="outline"
-                disabled={clearOldRaffleMutation.isPending}
-              >
-                Clear Entries &gt; 30 days
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
