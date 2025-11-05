@@ -2305,25 +2305,43 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         }
 
         const stopWords = new Set([
+          // Articles, conjunctions, prepositions
           'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
           'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under', 'while',
-          'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user', 'people',
-          'per', 'week', 'weeks', 'month', 'months', 'year', 'years', 'each', 'every', 'daily', 'weekly',
+          'after', 'before', 'because', 'ensure', 'also', 'but', 'are', 'was', 'were', 'been', 'has',
+          'had', 'having', 'does', 'did', 'can', 'could', 'would', 'should', 'may', 'might', 'must',
+          'shall', 'being', 'our', 'its', 'than', 'then', 'these', 'those', 'such', 'both', 'through',
+          'during', 'without', 'within', 'between', 'among', 'upon', 'off', 'out', 'down', 'up',
+
+          // Common nouns/verbs
+          'teams', 'users', 'staff', 'team', 'user', 'people', 'per', 'week', 'weeks', 'month', 'months',
+          'year', 'years', 'day', 'days', 'time', 'times', 'each', 'every', 'daily', 'weekly', 'monthly',
+          'make', 'makes', 'made', 'making', 'use', 'uses', 'used', 'using', 'work', 'works', 'worked',
+          'working', 'get', 'gets', 'getting', 'got', 'provide', 'provides', 'provided', 'providing',
+
+          // Business jargon
           'solution', 'solutions', 'problem', 'problems', 'impact', 'summary', 'baseline', 'target',
           'targets', 'kpi', 'kpis', 'plan', 'plans', 'action', 'actions', 'risk', 'risks', 'success',
           'check', 'checks', 'business', 'customer', 'customers', 'experience', 'experiences', 'operations',
-          'operation', 'operational', 'strategy', 'strategies', 'architecture', 'architectures', 'teams',
-          'team', 'leader', 'leaders', 'program', 'programs', 'enablement', 'visibility', 'governance',
+          'operation', 'operational', 'strategy', 'strategies', 'architecture', 'architectures',
+          'leader', 'leaders', 'program', 'programs', 'enablement', 'visibility', 'governance',
           'process', 'processes', 'automation', 'automated', 'monitoring', 'performance', 'delivery',
           'services', 'service', 'environment', 'environments', 'employee', 'employees', 'site', 'sites',
           'deployment', 'deployments', 'deploy', 'deploying', 'rollout', 'rollouts', 'phase', 'phases',
+          'implementation', 'implementations', 'initiative', 'initiatives', 'objective', 'objectives',
+
+          // Action verbs
           'global', 'regional', 'improve', 'improves', 'improved', 'improving', 'increase', 'increases',
           'increased', 'reduces', 'reduced', 'reducing', 'reduction', 'reductions', 'optimize',
-          'optimise', 'optimised', 'optimizing', 'optimising', 'system', 'systems', 'application',
-          'applications', 'apps', 'app', 'cloud', 'digital', 'data', 'security', 'secure', 'connectivity',
-          'hybrid', 'observability', 'edge', 'iot', 'general', 'scale', 'expertise', 'cisco', 'zero',
-          'trust', 'fso', 'network', 'networks', 'platform', 'platforms', 'technology', 'technologies',
-          'client', 'clients'
+          'optimise', 'optimised', 'optimizing', 'optimising', 'implement', 'implementing', 'implemented',
+          'enable', 'enables', 'enabled', 'enabling', 'support', 'supports', 'supported', 'supporting',
+
+          // Generic tech terms
+          'system', 'systems', 'application', 'applications', 'apps', 'app', 'cloud', 'digital', 'data',
+          'security', 'secure', 'connectivity', 'hybrid', 'observability', 'edge', 'iot', 'general',
+          'scale', 'expertise', 'cisco', 'zero', 'trust', 'fso', 'network', 'networks', 'platform',
+          'platforms', 'technology', 'technologies', 'client', 'clients', 'tool', 'tools', 'feature',
+          'features', 'capability', 'capabilities', 'integration', 'integrations', 'access', 'management'
         ]);
 
         const knownTechnologyTerms = new Set([
@@ -2358,16 +2376,52 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           const cleaned = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+\-\/#!]+$/g, '');
           if (!cleaned) return false;
           const lower = cleaned.toLowerCase();
+
+          // Filter out stopwords
           if (stopWords.has(lower)) return false;
+
+          // Allow known technology terms
           if (knownTechnologyTerms.has(lower)) return true;
+
+          // Must contain at least one letter
           if (!/[a-zA-Z]/.test(cleaned)) return false;
+
+          // Filter out labels like "1a", "1b", "2a", "3b", etc.
+          // Pattern: single digit followed by single letter, or vice versa
+          if (/^[0-9][a-z]$/i.test(cleaned) || /^[a-z][0-9]$/i.test(cleaned)) return false;
+
+          // Filter out purely numeric or very short alphanumeric noise
+          if (cleaned.length < 2) return false;
+          if (cleaned.length === 2 && /^[0-9]+$/.test(cleaned)) return false;
+
+          // Filter out tokens that are mostly numbers with single letter prefix/suffix
+          // e.g., "1st", "2nd", "3rd", etc.
+          if (/^[0-9]+(st|nd|rd|th)$/i.test(cleaned)) return false;
+
+          // All-caps acronyms or product codes (like ISE, SD-WAN, UCS)
           if (/^[A-Z0-9+\-\/#!]+$/.test(cleaned)) {
+            // Must be at least 2 characters if not in known terms
             if (cleaned.length <= 2 && !knownTechnologyTerms.has(lower)) return false;
             return true;
           }
-          if (/[0-9]/.test(cleaned)) return true;
+
+          // Contains numbers - likely a product name/version (e.g., Catalyst9000, MX64)
+          // But must be at least 3 chars and have meaningful letter content
+          if (/[0-9]/.test(cleaned)) {
+            if (cleaned.length < 3) return false;
+            // Ensure it has at least 2 letters to avoid noise like "1a", "x1", etc.
+            const letterCount = (cleaned.match(/[a-zA-Z]/g) || []).length;
+            if (letterCount < 2) return false;
+            return true;
+          }
+
+          // CamelCase patterns (e.g., AppDynamics, SecureX)
           if (/^[A-Z][a-z]+[A-Z][a-zA-Z0-9]*$/.test(cleaned)) return true;
+
+          // Mixed case (likely a brand name)
           if (/[A-Z]/.test(cleaned.slice(1))) return true;
+
+          // Final check against known terms
           return knownTechnologyTerms.has(lower);
         };
 
