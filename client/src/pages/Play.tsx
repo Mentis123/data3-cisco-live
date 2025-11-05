@@ -135,7 +135,6 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [showStepCompletionBanner, setShowStepCompletionBanner] = useState(false);
   const [completedStepNumber, setCompletedStepNumber] = useState<number | null>(null);
-  const [quickReplies, setQuickReplies] = useState<string[]>([]);
 
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
@@ -400,9 +399,6 @@ Just describe it naturally - what's the problem that needs solving?`
         setCompletedStepNumber(1);
         setShowStepCompletionBanner(true);
         setTimeout(() => setShowStepCompletionBanner(false), 5000);
-
-        // Update quick replies for step 2
-        setQuickReplies(['Hours per week', 'Cost estimate', 'Team impact']);
       }
     } else if (state.step === 2) {
       // Extract impact from the user's input
@@ -420,9 +416,6 @@ Just describe it naturally - what's the problem that needs solving?`
         setCompletedStepNumber(2);
         setShowStepCompletionBanner(true);
         setTimeout(() => setShowStepCompletionBanner(false), 5000);
-
-        // Clear quick replies for step 3
-        setQuickReplies([]);
       }
     } else if (state.step === 3) {
       // Check if the AI response confirms proceeding
@@ -435,17 +428,6 @@ Just describe it naturally - what's the problem that needs solving?`
         }
       }
     }
-  };
-
-  const handleQuickReply = (reply: string) => {
-    // Clear quick replies when one is selected
-    setQuickReplies([]);
-    // Set the message and send
-    setCurrentMessage(reply);
-    // Trigger send on next tick
-    setTimeout(() => {
-      handleSendMessage();
-    }, 0);
   };
 
   const handleSendMessage = () => {
@@ -464,9 +446,6 @@ Just describe it naturally - what's the problem that needs solving?`
     setIsUserNearBottom(true);
     setCurrentMessage("");
     setIsTyping(true);
-
-    // Clear quick replies after sending
-    setQuickReplies([]);
 
     // Add user message and increment input count
     dispatch({ type: 'ADD_USER_INPUT', payload: userMessage });
@@ -1104,9 +1083,6 @@ Let's build your project pitch in 3 focused steps. I'll guide you through each o
 Describe a specific challenge that wastes time, creates friction, or impacts productivity.`
                       }
                     });
-
-                    // Set quick replies for first step
-                    setQuickReplies(['Technical issue', 'Business process', 'User experience']);
                   }, 300);
                 }, 2800);
               }}
@@ -2028,21 +2004,6 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                         )}
                       </div>
                     ))}
-
-                    {/* Quick Reply Chips */}
-                    {!isTyping && quickReplies.length > 0 && (
-                      <div className="flex flex-wrap gap-2 justify-start px-2">
-                        {quickReplies.map((reply, index) => (
-                          <button
-                            key={index}
-                            onClick={() => handleQuickReply(reply)}
-                            className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all"
-                          >
-                            {reply}
-                          </button>
-                        ))}
-                      </div>
-                    )}
 
                     {/* Enhanced Typing Indicator */}
                     {isTyping && (
