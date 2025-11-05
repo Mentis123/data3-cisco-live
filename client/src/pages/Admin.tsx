@@ -1678,7 +1678,7 @@ function WordCloudTab() {
             <div className="relative w-full h-full flex items-center justify-center p-4">
               {wordCloudData.slice(0, 8).map((word, index) => {
                 if (index === 0) {
-                  // Biggest word - centered
+                  // Biggest word - centered with animation
                   return (
                     <div
                       key={word.text}
@@ -1691,7 +1691,7 @@ function WordCloudTab() {
                       }}
                     >
                       <span
-                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg"
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 word-cloud-float-1"
                         style={{
                           fontSize: 'clamp(32px, 7vw, 48px)',
                           opacity: 1,
@@ -1705,12 +1705,12 @@ function WordCloudTab() {
                     </div>
                   );
                 } else if (index < 5) {
-                  // Medium words
+                  // Medium words - with peripheral animations
                   const positions = [
-                    { top: '25%', left: '20%' },
-                    { top: '25%', left: '75%' },
-                    { top: '70%', left: '25%' },
-                    { top: '70%', left: '70%' },
+                    { x: -150, y: -80 },  // Top-left
+                    { x: 160, y: -60 },   // Top-right
+                    { x: -140, y: 90 },   // Bottom-left
+                    { x: 150, y: 70 }     // Bottom-right
                   ];
                   const pos = positions[index - 1];
                   return (
@@ -1718,18 +1718,19 @@ function WordCloudTab() {
                       key={word.text}
                       className="absolute"
                       style={{
-                        top: pos.top,
-                        left: pos.left,
-                        transform: 'translate(-50%, -50%)',
+                        top: '50%',
+                        left: '50%',
+                        transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px))`,
                         zIndex: 20,
                       }}
                     >
                       <span
-                        className="inline-block px-2 py-1 rounded border border-blue-400/30 bg-gray-800/70 text-blue-300 shadow-md"
+                        className={`inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap word-cloud-peripheral-${(index % 3) + 1}`}
                         style={{
                           fontSize: 'clamp(18px, 4vw, 28px)',
                           opacity: 0.95,
-                          whiteSpace: 'nowrap',
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          animationDelay: `${index * 0.5}s`,
                         }}
                       >
                         {word.text}
@@ -1738,30 +1739,31 @@ function WordCloudTab() {
                     </div>
                   );
                 } else {
-                  // Small words
+                  // Small words - with drift animation
                   const positions = [
-                    { top: '15%', left: '50%' },
-                    { top: '85%', left: '50%' },
-                    { top: '50%', left: '12%' },
+                    { x: -200, y: -120 },   // Top-left
+                    { x: 0, y: 150 },       // Bottom center
+                    { x: 180, y: -100 }     // Top-right
                   ];
                   const pos = positions[index - 5];
                   return (
                     <div
                       key={word.text}
-                      className="absolute"
+                      className="absolute word-cloud-drift"
                       style={{
-                        top: pos.top,
-                        left: pos.left,
-                        transform: 'translate(-50%, -50%)',
+                        top: '50%',
+                        left: '50%',
+                        transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px))`,
                         zIndex: 10,
+                        animationDelay: `${index * 0.5}s`,
                       }}
                     >
                       <span
-                        className="inline-block px-2 py-1 rounded border border-purple-400/20 bg-gray-800/60 text-purple-300 shadow-sm"
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg shadow-cyan-400/20 hover:border-cyan-400/60 hover:shadow-cyan-400/40 hover:bg-gray-800/90 whitespace-nowrap"
                         style={{
                           fontSize: 'clamp(14px, 3vw, 20px)',
                           opacity: 0.8,
-                          whiteSpace: 'nowrap',
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
                         }}
                       >
                         {word.text}
