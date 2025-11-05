@@ -890,18 +890,6 @@ export default function StagingLeaderboard() {
     const hasTrivia = triviaChallengers.length > 0;
     const hasPitch = projectPitchChallengers.length > 0;
 
-    if (!hasTrivia && !hasPitch) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full text-center py-8">
-          <i className="fas fa-users text-4xl text-[#78DCFF]/50 mb-4"></i>
-          <p className="text-lg font-semibold text-white/70">No Active Challengers</p>
-          <p className="text-sm text-[#78DCFF]/60 mt-2">
-            When someone enters the ring, they'll appear here
-          </p>
-        </div>
-      );
-    }
-
     return (
       <div className="space-y-6">
         {/* Trivia Challenge Section */}
