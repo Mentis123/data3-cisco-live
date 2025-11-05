@@ -2162,13 +2162,16 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           lastName: users.lastName,
           company: users.company,
           role: users.role,
-          totalScore: attempts.totalScore,
+          triviaScore: attempts.totalScore,
+          combinedScore: submissions.totalScore,
           passed: attempts.passed,
-          eligible: attempts.eligible,
+          // All raffle entries are eligible by definition (only created when eligible)
+          eligible: sql<boolean>`true`.as('eligible'),
         })
         .from(schema.raffleEntries)
         .leftJoin(users, eq(schema.raffleEntries.emailHash, users.emailHash))
         .leftJoin(attempts, eq(schema.raffleEntries.attemptId, attempts.id))
+        .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .orderBy(desc(schema.raffleEntries.createdAt));
 
       return entries;
