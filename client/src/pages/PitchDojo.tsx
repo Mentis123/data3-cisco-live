@@ -81,6 +81,21 @@ function PitchDojoContent() {
     window.scrollTo(0, 0);
   }, []);
 
+  // Scroll to ensure chat area is visible when category is selected
+  useEffect(() => {
+    if (selectedCategory) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        // Scroll down slightly to ensure the loading message is visible below the header
+        // This positions the chat container nicely in the viewport
+        window.scrollTo({
+          top: 100,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  }, [selectedCategory]);
+
   const handleCategorySelect = async (category: TriviaCardCategory) => {
     setIsBooting(true);
 
