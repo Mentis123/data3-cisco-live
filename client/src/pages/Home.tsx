@@ -281,10 +281,10 @@ export default function Home() {
         if (audioRef.current) {
           // Add event listener to play new challenger sound after stone sliding sound ends
           audioRef.current.onended = () => {
-            // Play new challenger sound at reduced volume (20%, which is 50% quieter than the base 0.4)
+            // Play new challenger sound at reduced volume (10%, which is 50% of the normal first-time volume)
             const originalVolume = audioManager['challengerAudio']?.volume;
             if (audioManager['challengerAudio']) {
-              audioManager['challengerAudio'].volume = 0.2;
+              audioManager['challengerAudio'].volume = 0.1;
             }
             audioManager.playNewChallengerSound().catch(err => {
               console.log('Challenger sound playback prevented by browser:', err);
