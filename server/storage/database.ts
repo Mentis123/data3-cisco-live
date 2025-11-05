@@ -2024,6 +2024,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     // Beta Admin Methods
     async getBetaAdminOverview() {
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split('T')[0];
+
       const [attemptStats] = await db
         .select({
           totalAttempts: sql<number>`count(*)`,
@@ -2032,13 +2035,15 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ringAttempts: sql<number>`sum(case when ${attempts.mode} = 'ring' then 1 else 0 end)`,
           dojoAttempts: sql<number>`sum(case when ${attempts.mode} = 'dojo' then 1 else 0 end)`,
         })
-        .from(attempts);
+        .from(attempts)
+        .where(sql`DATE(${attempts.startedAt}) = ${today}`);
 
       const [raffleCount] = await db
         .select({
           total: sql<number>`count(*)`,
         })
-        .from(schema.raffleEntries);
+        .from(schema.raffleEntries)
+        .where(eq(schema.raffleEntries.raffleDate, today));
 
       const recentAttempts = await db
         .select({
