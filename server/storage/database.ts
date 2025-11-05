@@ -189,10 +189,33 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
       sql`ALTER TABLE "attempts" ADD COLUMN IF NOT EXISTS "consent_captured_at" timestamptz`,
     );
 
-    // NOTE: attempt_day should be created as a GENERATED ALWAYS column from the schema:
-    // attempt_day date GENERATED ALWAYS AS (DATE(started_at AT TIME ZONE 'UTC')) STORED
-    // If your database doesn't have this column, apply the beta-two-left-tango-schema.sql
-    // We do NOT add it here as a regular column because we can't insert values into GENERATED columns.
+    // Fix attempt_day timezone to use Melbourne time instead of UTC
+    // This ensures daily resets happen at midnight Melbourne time, matching the app logic
+    // First, check if the column exists and has the wrong timezone
+    try {
+      await db.execute(sql`
+        DO $$
+        BEGIN
+          -- Check if attempt_day exists and is using UTC (wrong timezone)
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'attempts' AND column_name = 'attempt_day'
+          ) THEN
+            -- Drop and recreate with Melbourne timezone
+            ALTER TABLE attempts DROP COLUMN IF EXISTS attempt_day;
+          END IF;
+        END $$;
+      `);
+
+      // Create attempt_day with Melbourne timezone
+      await db.execute(sql`
+        ALTER TABLE "attempts"
+        ADD COLUMN IF NOT EXISTS "attempt_day" date
+        GENERATED ALWAYS AS (DATE(started_at AT TIME ZONE 'Australia/Melbourne')) STORED
+      `);
+    } catch (error) {
+      console.error("[db] Failed to fix attempt_day timezone:", error);
+    }
 
     await db.execute(sql`
       CREATE UNIQUE INDEX IF NOT EXISTS "idx_attempts_ring_daily"
@@ -278,6 +301,8 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
     `);
 
     // Ensure trivia_items table exists
+    // Note: The table should be populated via the beta admin interface or proper migrations.
+    // Do NOT auto-seed from JSON files on startup as this can cause issues in production.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "trivia_items" (
         "id" text PRIMARY KEY,
@@ -296,50 +321,6 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
         "updated_at" timestamptz NOT NULL DEFAULT now()
       )
     `);
-
-    // Seed trivia items if the table is empty
-    const [itemCount] = await db.execute(sql`SELECT COUNT(*) as count FROM trivia_items`);
-    const count = itemCount?.count ? Number(itemCount.count) : 0;
-
-    if (count === 0) {
-      console.log("[db] Trivia items table is empty, seeding with starter data...");
-      try {
-        const { readFile } = await import("fs/promises");
-        const path = await import("path");
-        const filePath = path.resolve(process.cwd(), "docs", "trivia-items-starter.json");
-        const raw = JSON.parse(await readFile(filePath, "utf-8")) as Array<any>;
-
-        const records = raw.map((item) => ({
-          id: item.id,
-          category: item.category,
-          stem: item.stem,
-          choices: [item.choice_a, item.choice_b, item.choice_c].filter(Boolean),
-          correctIndex: typeof item.correct_index === "string" ? parseInt(item.correct_index, 10) : item.correct_index,
-          dropIndex: typeof item.drop_index === "string" ? parseInt(item.drop_index, 10) : item.drop_index,
-          hint9s: item.hint_9s,
-          difficulty: typeof item.difficulty === "string" ? parseInt(item.difficulty, 10) : (item.difficulty ?? 2),
-          tags: typeof item.tags === "string"
-            ? item.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
-            : Array.isArray(item.tags) ? item.tags : [],
-          explanation: item.explanation ?? null,
-          active: true,
-          version: 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }));
-
-        // Insert in batches to avoid query size limits
-        const batchSize = 50;
-        for (let i = 0; i < records.length; i += batchSize) {
-          const batch = records.slice(i, i + batchSize);
-          await db.insert(triviaItems).values(batch).onConflictDoNothing();
-        }
-
-        console.log(`[db] Successfully seeded ${records.length} trivia items`);
-      } catch (seedError) {
-        console.error("[db] Failed to seed trivia items:", seedError);
-      }
-    }
   } catch (error) {
     console.error("[db] Failed to ensure trivia schema:", error);
   }
