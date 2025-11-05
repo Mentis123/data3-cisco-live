@@ -1156,18 +1156,6 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                   Tighten anything before you lock your score and generate the raffle entry.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => goToStep(dispatch, 3)}
-                  className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                  data-testid="button-back-to-chat"
-                >
-                  <i className="fas fa-comments mr-2"></i>
-                  Back to coach
-                </Button>
-              </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -1444,18 +1432,15 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                     </>
                   )}
                 </div>
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToStep(dispatch, 3)}
-                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                    data-testid="button-back-to-chat-bottom"
-                  >
-                    <i className="fas fa-comments mr-2"></i>
-                    Back to Coach
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => goToStep(dispatch, 3)}
+                  className="w-full border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                  data-testid="button-back-to-chat-bottom"
+                >
+                  <i className="fas fa-comments mr-2"></i>
+                  Back to Coach
+                </Button>
               </div>
             </div>
           </div>
@@ -1724,18 +1709,15 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                     </>
                   )}
                 </div>
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToStep(dispatch, 3)}
-                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                    data-testid="button-back-to-chat-bottom-classic"
-                  >
-                    <i className="fas fa-comments mr-2"></i>
-                    Back to Coach
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => goToStep(dispatch, 3)}
+                  className="w-full border border-white/10 bg-white/10 text-white/80 hover:text-white"
+                  data-testid="button-back-to-chat-bottom-classic"
+                >
+                  <i className="fas fa-comments mr-2"></i>
+                  Back to Coach
+                </Button>
               </CardContent>
             </Card>
           </div>
