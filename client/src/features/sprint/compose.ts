@@ -132,81 +132,39 @@ export function composeSubmission(
   problem: ProblemBlock,
   impact: ImpactBlock
 ): SubmissionDraft {
+  // Only include metrics that were explicitly discussed
+  // Don't auto-generate placeholder data
   const baselineMetrics: SubmissionDraft['baseline_metrics'] = [];
   const targetMetrics: SubmissionDraft['target_metrics'] = [];
 
-  if (impact.calculatedMetrics?.weeklyHours) {
-    const weeklyHours = impact.calculatedMetrics.weeklyHours;
-    baselineMetrics.push({
-      name: 'Weekly hours lost to the issue',
-      value: `${weeklyHours} hours`
-    });
-    targetMetrics.push({
-      name: 'Weekly hours lost',
-      target: `${Math.max(1, Math.round(weeklyHours * 0.4))} hours or less`
-    });
-  }
-
-  if (impact.calculatedMetrics?.monthlyCost) {
-    const monthlyCost = impact.calculatedMetrics.monthlyCost;
-    baselineMetrics.push({
-      name: 'Estimated monthly cost of disruption',
-      value: `$${monthlyCost.toLocaleString()}`
-    });
-    targetMetrics.push({
-      name: 'Monthly cost impact',
-      target: `$${Math.max(100, Math.round(monthlyCost * 0.4)).toLocaleString()}`
-    });
-  }
-
-  if (!baselineMetrics.length) {
-    baselineMetrics.push({
-      name: 'Incidents per month',
-      value: impact.quantified?.frequency || 'Approx. 12 incidents'
-    });
-    targetMetrics.push({
-      name: 'Incidents per month',
-      target: 'Reduce by at least 50%'
-    });
-  }
+  // Only add metrics if they were explicitly provided in the impact data
+  // Don't make assumptions or generate defaults
 
   const impactSummaryParts: string[] = [];
   if (impact.quantified?.frequency && impact.quantified?.timeLost) {
     impactSummaryParts.push(`Happens ${impact.quantified.frequency}, costing about ${impact.quantified.timeLost} each time.`);
   }
-  if (impact.calculatedMetrics?.weeklyHours) {
+  if (impact.calculatedMetrics?.weeklyHours && impact.userInput.match(/\d+\s*(hours?|hrs?)/i)) {
+    // Only include if user explicitly mentioned hours
     impactSummaryParts.push(`Roughly ${impact.calculatedMetrics.weeklyHours} hours lost per week.`);
   }
-  if (impact.calculatedMetrics?.monthlyCost) {
+  if (impact.calculatedMetrics?.monthlyCost && impact.userInput.match(/\$|cost|expense/i)) {
+    // Only include if user explicitly mentioned cost
     impactSummaryParts.push(`Approximately $${impact.calculatedMetrics.monthlyCost.toLocaleString()} per month in blended cost.`);
   }
   if (impact.quantified?.risk) {
     impactSummaryParts.push(impact.quantified.risk);
   }
 
+  // Only use action plan and other fields if they're explicitly provided
+  // Don't generate default ones
   const actionPlan: string[] = [];
-  const frictionPoints = problem.frictionPoints || [];
-  if (frictionPoints[0]) {
-    actionPlan.push(`Map current workflow to validate: ${frictionPoints[0]}.`);
-  }
-  actionPlan.push('Run a quick win experiment with one team to prove the improvement.');
-  actionPlan.push('Set up weekly metric tracking and share progress with stakeholders.');
-
-  const successChecks = [
-    'Baseline vs target metrics reviewed weekly',
-    'Stakeholder check-in after pilot to confirm improvements',
-    'Document lessons learned for broader rollout'
-  ];
-
-  const risks = [
-    'Change management or training effort underestimated',
-    'Data for tracking KPIs is incomplete or delayed',
-    'Competing priorities slow down follow-through'
-  ];
+  const successChecks: string[] = [];
+  const risks: string[] = [];
 
   return {
-    problem_summary: problem.expanded || problem.userInput,
-    impact_summary: impactSummaryParts.join(' '),
+    problem_summary: problem.userInput, // Use user input directly, not expanded version
+    impact_summary: impactSummaryParts.join(' ') || impact.userInput, // Fall back to user input if no quantified parts
     chosen_category: deriveCategory(problem, impact),
     baseline_metrics: baselineMetrics,
     target_metrics: targetMetrics,
