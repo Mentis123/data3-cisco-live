@@ -1011,6 +1011,16 @@ export default function StagingLeaderboard() {
 
         {/* View Controls */}
         <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
+          {/* Mobile Home Button */}
+          <Button
+            onClick={() => window.location.href = '/'}
+            variant="outline"
+            size="sm"
+            className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
+            title="Go to Home"
+          >
+            <i className="fas fa-home"></i>
+          </Button>
           {/* Tab Buttons */}
           <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
             {[
