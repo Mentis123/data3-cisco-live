@@ -1001,24 +1001,19 @@ export default function StagingLeaderboard() {
             />
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-white">
-                Staging Leaderboard
+                Live Leaderboard
               </h1>
               <p className="text-sm text-[#78DCFF]/80">
-                Real-time challenge tracking
+                Real-time rankings & active challengers
               </p>
             </div>
           </div>
-          <div className="flex gap-3">
+          {/* Desktop-only navigation */}
+          <div className="hidden lg:flex gap-3">
             <Link href="/">
               <Button className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
                 <i className="fas fa-home mr-2"></i>
                 Home
-              </Button>
-            </Link>
-            <Link href="/leaderboard">
-              <Button variant="outline" size="sm">
-                <i className="fas fa-arrow-left mr-2"></i>
-                Back to Main
               </Button>
             </Link>
           </div>
@@ -1109,18 +1104,26 @@ export default function StagingLeaderboard() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-muted-foreground">
-          <p>Staging environment for testing ring announcements</p>
-          <div className="flex justify-center gap-4 mt-2">
-            <span className="flex items-center gap-1">
+        {/* Footer - Mobile-optimized with home button at bottom */}
+        <div className="text-center mt-6">
+          <div className="flex justify-center gap-4 mb-4">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               Live Updates
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <div className="w-2 h-2 rounded-full bg-orange-500"></div>
               Active Tracking
             </span>
+          </div>
+          {/* Mobile-only home button at bottom */}
+          <div className="lg:hidden mt-4">
+            <Link href="/" className="w-full">
+              <Button className="w-full bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
+                <i className="fas fa-home mr-2"></i>
+                Return to Home
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

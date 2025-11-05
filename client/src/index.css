@@ -237,6 +237,26 @@
     animation: slideIn 0.3s ease-out;
   }
 
+  /* Chat bubble styling for Sprint Coach */
+  .chat-bubble {
+    @apply rounded-2xl px-4 py-3 max-w-[85%] sm:max-w-[75%] mb-3;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .chat-bubble-user {
+    @apply ml-auto bg-gradient-to-br from-[#00AEFF] to-[#007BC3] text-white;
+    box-shadow: 0 4px 12px rgba(0, 174, 255, 0.3);
+  }
+
+  .chat-bubble-assistant {
+    @apply mr-auto bg-white/10 backdrop-blur-sm border border-white/20 text-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 37, 0.3);
+  }
+
+  .chat-bubble-typing {
+    @apply mr-auto bg-white/10 backdrop-blur-sm border border-white/20 text-white/70;
+  }
+
   /* Superscript styling for Data#3 */
   sup {
     color: inherit; /* Use parent text color, not cyan */
