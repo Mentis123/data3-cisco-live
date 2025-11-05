@@ -1529,6 +1529,8 @@ function WordCloudTab() {
   const [editingEntry, setEditingEntry] = useState<WordCloudEntry | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({ word: "", count: 1 });
 
   const { data: entries, isLoading, refetch } = useQuery<WordCloudEntry[]>({
@@ -1624,12 +1626,63 @@ function WordCloudTab() {
     },
   });
 
+  const batchDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await fetch("/api/beta-admin/word-cloud/batch-delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": adminKey,
+        },
+        body: JSON.stringify({ ids }),
+      });
+      if (!response.ok) throw new Error("Failed to delete word cloud entries");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
+      setSelectedIds(new Set());
+      setShowBatchDeleteConfirm(false);
+      toast({ title: "Selected entries deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete selected entries", variant: "destructive" });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingEntry) {
       updateMutation.mutate({ id: editingEntry.id, data: formData });
     } else {
       createMutation.mutate(formData);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === entries?.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(entries?.map(e => e.id) || []));
+    }
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedIds.size > 0) {
+      batchDeleteMutation.mutate(Array.from(selectedIds));
     }
   };
 
@@ -1791,9 +1844,23 @@ function WordCloudTab() {
           <h2 className="text-2xl font-bold">Word Cloud Management</h2>
           <p className="text-muted-foreground">
             Manage words displayed in the word cloud ({entries?.length || 0} entries)
+            {selectedIds.size > 0 && (
+              <span className="ml-2 text-primary font-medium">
+                {selectedIds.size} selected
+              </span>
+            )}
           </p>
         </div>
         <div className="flex gap-2">
+          {selectedIds.size > 0 && (
+            <Button
+              variant="destructive"
+              onClick={() => setShowBatchDeleteConfirm(true)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selectedIds.size})
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={async () => {
@@ -1827,6 +1894,19 @@ function WordCloudTab() {
 
       <Card>
         <CardContent className="p-4">
+          {/* Select All Header */}
+          <div className="flex items-center gap-2 pb-3 mb-3 border-b">
+            <input
+              type="checkbox"
+              checked={selectedIds.size === entries?.length && entries?.length > 0}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+            />
+            <span className="text-sm font-medium text-muted-foreground">
+              Select All
+            </span>
+          </div>
+
           <ScrollArea className="h-[600px]">
             <div className="space-y-2">
               {entries?.map((entry) => (
@@ -1834,16 +1914,25 @@ function WordCloudTab() {
                   key={entry.id}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-lg">{entry.word}</span>
-                      <Badge variant="outline">Count: {entry.count}</Badge>
-                      <Badge variant={entry.source === "manual" ? "default" : "secondary"}>
-                        {entry.source}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Created: {new Date(entry.createdAt).toLocaleString()}
+                  <div className="flex items-center gap-3 flex-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(entry.id)}
+                      onChange={() => toggleSelection(entry.id)}
+                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-lg">{entry.word}</span>
+                        <Badge variant="outline">Count: {entry.count}</Badge>
+                        <Badge variant={entry.source === "manual" ? "default" : "secondary"}>
+                          {entry.source}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Created: {new Date(entry.createdAt).toLocaleString()}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -1945,6 +2034,30 @@ function WordCloudTab() {
               onClick={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Delete Confirmation */}
+      <Dialog open={showBatchDeleteConfirm} onOpenChange={() => setShowBatchDeleteConfirm(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Selected Words?</DialogTitle>
+          </DialogHeader>
+          <p>
+            This will remove {selectedIds.size} word{selectedIds.size !== 1 ? 's' : ''} from the word cloud management.
+            Are you sure?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBatchDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBatchDelete}
+            >
+              Delete {selectedIds.size} Word{selectedIds.size !== 1 ? 's' : ''}
             </Button>
           </DialogFooter>
         </DialogContent>

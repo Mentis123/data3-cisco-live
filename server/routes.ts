@@ -1302,6 +1302,27 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/beta-admin/word-cloud/batch-delete", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: "Invalid or empty ids array" });
+      }
+
+      log(`[word-cloud-batch-delete] Deleting ${ids.length} entries`);
+      await storage.batchDeleteWordCloudEntries(ids);
+      log(`[word-cloud-batch-delete] Successfully deleted ${ids.length} entries`);
+
+      res.json({ success: true, deletedCount: ids.length });
+    } catch (error) {
+      log(`Error batch deleting word cloud entries: ${error}`);
+      res.status(500).json({ message: "Failed to batch delete word cloud entries" });
+    }
+  });
+
   app.post("/api/beta-admin/word-cloud/sync", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;

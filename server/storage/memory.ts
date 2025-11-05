@@ -1722,6 +1722,10 @@ export function createMemoryStorage() {
       throw new Error("Word cloud management requires database storage");
     },
 
+    async batchDeleteWordCloudEntries() {
+      throw new Error("Word cloud management requires database storage");
+    },
+
     async syncWordCloudFromSubmissions() {
       throw new Error("Word cloud sync requires database storage");
     },
