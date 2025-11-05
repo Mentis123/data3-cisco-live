@@ -18,6 +18,7 @@ import StandMessaging from "@/pages/StandMessaging";
 import NotFound from "@/pages/not-found";
 import Admin from "@/pages/Admin";
 import Dojo from "@/pages/Dojo";
+import PitchDojo from "@/pages/PitchDojo";
 import TileShowcase from "@/pages/TileShowcase";
 import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/admin" component={Admin} />
         <Route path="/dojo" component={Dojo} />
         <Route path="/dojo/:mode" component={Dojo} />
+        <Route path="/pitch" component={PitchDojo} />
         <Route path="/tile" component={TileShowcase} />
         <Route path="/how-to-play" component={HowToPlay} />
 
@@ -74,6 +76,7 @@ function Router() {
         <Route path="/beta/admin" component={Admin} />
         <Route path="/beta/dojo" component={Dojo} />
         <Route path="/beta/dojo/:mode" component={Dojo} />
+        <Route path="/beta/pitch" component={PitchDojo} />
         <Route path="/beta/how-to-play" component={HowToPlay} />
 
         {/* 404 */}
