@@ -123,6 +123,7 @@ export default function StagingLeaderboard() {
   const [projectPitchChallengers, setProjectPitchChallengers] = useState<ActiveChallenger[]>([]);
   const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
+  const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
 
   // Fetch dashboard data
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
@@ -446,7 +447,7 @@ export default function StagingLeaderboard() {
 
   // Auto-rotate views on left side (rankings, wordcloud, categories)
   useEffect(() => {
-    if (!displayData) return;
+    if (!displayData || !isAutoRotateEnabled) return;
 
     const getAvailableViews = () => {
       const views: Array<"rankings" | "wordcloud" | "categories"> = [];
@@ -481,7 +482,7 @@ export default function StagingLeaderboard() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [displayData, activeView]);
+  }, [displayData, activeView, isAutoRotateEnabled]);
 
   // Handle error state
   if (error && !displayData) {
@@ -998,13 +999,75 @@ export default function StagingLeaderboard() {
           </div>
           {/* Desktop-only navigation */}
           <div className="hidden lg:flex gap-3">
-            <Link href="/">
-              <Button className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
-                <i className="fas fa-home mr-2"></i>
-                Home
-              </Button>
-            </Link>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
+            >
+              <i className="fas fa-home mr-2"></i>
+              Home
+            </Button>
           </div>
+        </div>
+
+        {/* View Controls */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
+          {/* Tab Buttons */}
+          <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
+            {[
+              {
+                key: "rankings",
+                icon: "fa-trophy",
+                label: "Rankings",
+                hasContent: true
+              },
+              {
+                key: "wordcloud",
+                icon: "fa-cloud",
+                label: "Technologies",
+                hasContent: displayData?.wordCloud.length > 0
+              },
+              {
+                key: "categories",
+                icon: "fa-chart-pie",
+                label: "Categories",
+                hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0)
+              }
+            ].map((view) => (
+              <Button
+                key={view.key}
+                variant={activeView === view.key ? "default" : "ghost"}
+                size="sm"
+                onClick={() => {
+                  setActiveView(view.key as any);
+                  setIsAutoRotateEnabled(false);
+                }}
+                className={`flex-1 sm:flex-initial transition-all duration-200 ${
+                  activeView === view.key
+                    ? 'bg-[#00AEFF]/20 border border-[#00AEFF]/40 text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20'
+                    : 'hover:bg-white/10 text-white/70 hover:text-white'
+                }`}
+              >
+                <i className={`fas ${view.icon} sm:mr-2`}></i>
+                <span className="hidden sm:inline">{view.label}</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Pause/Play Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
+            className={`transition-all duration-200 ${
+              isAutoRotateEnabled
+                ? 'bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30'
+                : 'bg-[#000045]/60 border-[#00AEFF]/20 text-white/70 hover:bg-white/10'
+            }`}
+            title={isAutoRotateEnabled ? 'Pause auto-rotation' : 'Resume auto-rotation'}
+          >
+            <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} sm:mr-2`}></i>
+            <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
+          </Button>
         </div>
 
         {/* Split Screen Layout */}
@@ -1100,18 +1163,19 @@ export default function StagingLeaderboard() {
               Live Updates
             </span>
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-              Active Tracking
+              <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
+              {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
             </span>
           </div>
           {/* Mobile-only home button at bottom */}
           <div className="lg:hidden mt-4">
-            <Link href="/" className="w-full">
-              <Button className="w-full bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
-                <i className="fas fa-home mr-2"></i>
-                Return to Home
-              </Button>
-            </Link>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="w-full bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold text-lg py-6"
+            >
+              <i className="fas fa-home mr-2"></i>
+              Return to Home
+            </Button>
           </div>
         </div>
       </div>
