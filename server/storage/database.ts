@@ -2392,6 +2392,48 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       };
     },
 
+    async getRaffleDrawByDate(raffleDate: string) {
+      // Check if a winner has been selected for this date
+      const existingDraw = await db
+        .select()
+        .from(schema.raffleDraws)
+        .where(eq(schema.raffleDraws.raffleDate, raffleDate))
+        .limit(1);
+
+      if (existingDraw.length === 0) {
+        return null;
+      }
+
+      // Return the existing draw
+      const draw = existingDraw[0];
+      const winnerEntry = await db
+        .select()
+        .from(schema.raffleEntries)
+        .where(eq(schema.raffleEntries.id, draw.winnerEntryId!))
+        .limit(1);
+
+      if (winnerEntry.length === 0) {
+        throw new Error("Winner entry not found for existing draw");
+      }
+
+      // Get winner user details
+      const winnerUser = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.emailHash, winnerEntry[0].emailHash))
+        .limit(1);
+
+      return {
+        winner: {
+          ...winnerEntry[0],
+          firstName: winnerUser[0]?.firstName || null,
+          lastName: winnerUser[0]?.lastName || null,
+          email: winnerUser[0]?.email || null,
+        },
+        draw: draw,
+      };
+    },
+
     async clearOldRaffleEntries(daysOld: number) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);

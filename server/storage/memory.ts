@@ -1735,6 +1735,10 @@ export function createMemoryStorage() {
       throw new Error("Raffle winner selection requires database storage");
     },
 
+    async getRaffleDrawByDate() {
+      throw new Error("Raffle draw retrieval requires database storage");
+    },
+
     async clearOldRaffleEntries() {
       throw new Error("Raffle entry management requires database storage");
     },
