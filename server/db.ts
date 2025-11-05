@@ -20,7 +20,7 @@ if (isServerless) {
   // For serverless (Vercel, AWS Lambda), explicitly disable WebSocket and use HTTP fetch
   // This prevents the "Cannot set property message" error
   neonConfig.webSocketConstructor = undefined;
-  neonConfig.fetchConnectionCache = true;
+  // Note: fetchConnectionCache is deprecated and now always true
   console.log('[db] Running in serverless environment - WebSocket disabled, using HTTP fetch for database connections');
 } else {
   // For local development, we can use WebSocket or HTTP fetch (both work fine)
@@ -38,14 +38,26 @@ const connectionString =
   process.env.POSTGRES_URL_NO_SSL;
 
 if (connectionString) {
-  // Configure pool with proper limits to prevent connection exhaustion
-  pool = new Pool({
-    connectionString,
-    max: 10, // Maximum 10 connections (Vercel serverless friendly)
-    idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-    connectionTimeoutMillis: 10000, // Timeout connection attempts after 10 seconds
-  });
-  db = drizzle({ client: pool, schema });
+  try {
+    // Configure pool with proper limits to prevent connection exhaustion
+    pool = new Pool({
+      connectionString,
+      max: 10, // Maximum 10 connections (Vercel serverless friendly)
+      idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+      connectionTimeoutMillis: 10000, // Timeout connection attempts after 10 seconds
+    });
+
+    // Add error handler to prevent uncaught exceptions from crashing the process
+    pool.on('error', (err) => {
+      console.error('[db] Unexpected database pool error:', err);
+    });
+
+    db = drizzle({ client: pool, schema });
+  } catch (error) {
+    console.error('[db] Failed to initialize database pool:', error);
+    pool = null;
+    db = null;
+  }
 } else {
   console.warn(
     "[db] No database connection string found (expected DATABASE_URL or a POSTGRES_URL variant) – falling back to in-memory storage. Production deployments must provide a database connection string.",
