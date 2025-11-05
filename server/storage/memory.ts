@@ -333,6 +333,7 @@ function seedMemoryData() {
 seedMemoryData();
 
 const stopWords = new Set<string>([
+  // Articles, conjunctions, prepositions
   "the",
   "and",
   "for",
@@ -360,6 +361,47 @@ const stopWords = new Set<string>([
   "before",
   "because",
   "ensure",
+  "also",
+  "but",
+  "are",
+  "was",
+  "were",
+  "been",
+  "has",
+  "had",
+  "having",
+  "does",
+  "did",
+  "can",
+  "could",
+  "would",
+  "should",
+  "may",
+  "might",
+  "must",
+  "shall",
+  "being",
+  "our",
+  "its",
+  "than",
+  "then",
+  "these",
+  "those",
+  "such",
+  "both",
+  "through",
+  "during",
+  "without",
+  "within",
+  "between",
+  "among",
+  "upon",
+  "off",
+  "out",
+  "down",
+  "up",
+
+  // Common nouns/verbs
   "teams",
   "users",
   "staff",
@@ -373,10 +415,37 @@ const stopWords = new Set<string>([
   "months",
   "year",
   "years",
+  "day",
+  "days",
+  "time",
+  "times",
   "each",
   "every",
   "daily",
   "weekly",
+  "monthly",
+  "make",
+  "makes",
+  "made",
+  "making",
+  "use",
+  "uses",
+  "used",
+  "using",
+  "work",
+  "works",
+  "worked",
+  "working",
+  "get",
+  "gets",
+  "getting",
+  "got",
+  "provide",
+  "provides",
+  "provided",
+  "providing",
+
+  // Business jargon
   "solution",
   "solutions",
   "problem",
@@ -409,6 +478,8 @@ const stopWords = new Set<string>([
   "strategies",
   "architecture",
   "architectures",
+  "leader",
+  "leaders",
   "program",
   "programs",
   "enablement",
@@ -437,6 +508,14 @@ const stopWords = new Set<string>([
   "rollouts",
   "phase",
   "phases",
+  "implementation",
+  "implementations",
+  "initiative",
+  "initiatives",
+  "objective",
+  "objectives",
+
+  // Action verbs
   "global",
   "regional",
   "improve",
@@ -456,6 +535,19 @@ const stopWords = new Set<string>([
   "optimised",
   "optimizing",
   "optimising",
+  "implement",
+  "implementing",
+  "implemented",
+  "enable",
+  "enables",
+  "enabled",
+  "enabling",
+  "support",
+  "supports",
+  "supported",
+  "supporting",
+
+  // Generic tech terms
   "system",
   "systems",
   "application",
@@ -487,6 +579,16 @@ const stopWords = new Set<string>([
   "technologies",
   "client",
   "clients",
+  "tool",
+  "tools",
+  "feature",
+  "features",
+  "capability",
+  "capabilities",
+  "integration",
+  "integrations",
+  "access",
+  "management",
 ]);
 
 const knownTechnologyTerms = new Set<string>([
@@ -661,8 +763,62 @@ function buildWordCloud(): { text: string; value: number }[] {
       if (used.has(i)) continue;
       if (stopWords.has(token.lower)) continue;
       if (!/^[a-zA-Z0-9+\-\/#!]+$/.test(token.cleaned)) continue;
-      if (knownTechnologyTerms.has(token.lower) || token.cleaned.length > 2) {
-        addTechnology(token.cleaned);
+
+      // Enhanced filtering logic
+      const cleaned = token.cleaned;
+      const lower = token.lower;
+
+      // Allow known technology terms
+      if (knownTechnologyTerms.has(lower)) {
+        addTechnology(cleaned);
+        continue;
+      }
+
+      // Must contain at least one letter
+      if (!/[a-zA-Z]/.test(cleaned)) continue;
+
+      // Filter out labels like "1a", "1b", "2a", "3b", etc.
+      if (/^[0-9][a-z]$/i.test(cleaned) || /^[a-z][0-9]$/i.test(cleaned)) continue;
+
+      // Filter out purely numeric or very short alphanumeric noise
+      if (cleaned.length < 2) continue;
+      if (cleaned.length === 2 && /^[0-9]+$/.test(cleaned)) continue;
+
+      // Filter out ordinal numbers (1st, 2nd, 3rd, etc.)
+      if (/^[0-9]+(st|nd|rd|th)$/i.test(cleaned)) continue;
+
+      // All-caps acronyms or product codes (like ISE, SD-WAN, UCS)
+      if (/^[A-Z0-9+\-\/#!]+$/.test(cleaned)) {
+        if (cleaned.length <= 2 && !knownTechnologyTerms.has(lower)) continue;
+        addTechnology(cleaned);
+        continue;
+      }
+
+      // Contains numbers - likely a product name/version
+      if (/[0-9]/.test(cleaned)) {
+        if (cleaned.length < 3) continue;
+        // Ensure it has at least 2 letters to avoid noise like "1a", "x1", etc.
+        const letterCount = (cleaned.match(/[a-zA-Z]/g) || []).length;
+        if (letterCount < 2) continue;
+        addTechnology(cleaned);
+        continue;
+      }
+
+      // CamelCase patterns (e.g., AppDynamics, SecureX)
+      if (/^[A-Z][a-z]+[A-Z][a-zA-Z0-9]*$/.test(cleaned)) {
+        addTechnology(cleaned);
+        continue;
+      }
+
+      // Mixed case (likely a brand name)
+      if (/[A-Z]/.test(cleaned.slice(1))) {
+        addTechnology(cleaned);
+        continue;
+      }
+
+      // Default: must be longer than 2 characters
+      if (cleaned.length > 2) {
+        addTechnology(cleaned);
       }
     }
   };
