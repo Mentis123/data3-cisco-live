@@ -219,6 +219,15 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
       $$;
     `);
 
+    // Add announced_on_leaderboard column to submissions table
+    await db.execute(sql`
+      ALTER TABLE "submissions"
+        ADD COLUMN IF NOT EXISTS "announced_on_leaderboard" boolean NOT NULL DEFAULT false
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "idx_submissions_announced" ON "submissions"("announced_on_leaderboard")
+    `);
+
     await db.execute(
       sql`ALTER TABLE "answers" ADD COLUMN IF NOT EXISTS "points_awarded" smallint NOT NULL DEFAULT 0`,
     );
