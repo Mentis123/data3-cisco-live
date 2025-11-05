@@ -213,7 +213,7 @@ function OverviewTab() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{data.stats.avgScore.toFixed(1)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Out of 30 points</p>
+            <p className="text-xs text-muted-foreground mt-1">Out of 100 points</p>
           </CardContent>
         </Card>
 
