@@ -132,6 +132,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [showTermsError, setShowTermsError] = useState(false);
   const [isBooting, setIsBooting] = useState(false);
   const [bootingText, setBootingText] = useState('Analyzing your expertise...');
+  const [showBars, setShowBars] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [showStepCompletionBanner, setShowStepCompletionBanner] = useState(false);
   const [completedStepNumber, setCompletedStepNumber] = useState<number | null>(null);
@@ -1074,6 +1075,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
                 setTimeout(() => {
                   setIsBooting(false);
+                  setShowBars(true);
 
                   // Add the coach message after boot sequence completes
                   setTimeout(() => {
@@ -1909,33 +1911,35 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                 <div className="flex w-full flex-col gap-4">
             <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
               {/* Minimal Header */}
-              <div className="sticky top-0 z-20 border-b border-white/10 bg-slate-950">
-                <div className="bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-3 sm:p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/50 bg-cyan-500/10 flex-shrink-0">
-                        <i className="fas fa-brain text-lg text-cyan-300"></i>
+              {showBars && (
+                <div className="sticky top-0 z-20 border-b border-white/10 bg-slate-950">
+                  <div className="bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-3 sm:p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/50 bg-cyan-500/10 flex-shrink-0">
+                          <i className="fas fa-brain text-lg text-cyan-300"></i>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-cyan-200 truncate">Sprint Coach</p>
+                          {state.step < 4 && (
+                            <p className="text-xs text-slate-300/70">Step {state.step} of 3</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-cyan-200 truncate">Sprint Coach</p>
-                        {state.step < 4 && (
-                          <p className="text-xs text-slate-300/70">Step {state.step} of 3</p>
-                        )}
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowExitDialog(true)}
+                        className="h-9 w-9 p-0 border border-white/20 bg-white/10 text-white/80 hover:bg-white/10 hover:text-white sm:w-auto sm:px-3"
+                        data-testid="button-exit-chat"
+                      >
+                        <i className="fas fa-times sm:mr-2"></i>
+                        <span className="hidden sm:inline">Exit</span>
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowExitDialog(true)}
-                      className="h-9 w-9 p-0 border border-white/20 bg-white/10 text-white/80 hover:bg-white/10 hover:text-white sm:w-auto sm:px-3"
-                      data-testid="button-exit-chat"
-                    >
-                      <i className="fas fa-times sm:mr-2"></i>
-                      <span className="hidden sm:inline">Exit</span>
-                    </Button>
                   </div>
                 </div>
-              </div>
+              )}
               <div
                 ref={chatContainerRef}
                 className="relative flex-1 space-y-4 overflow-y-auto p-4 pb-6 sm:p-6 sm:pb-6"
@@ -2070,65 +2074,67 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                   </>
                 )}
               </div>
-              <div className="sticky bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 sm:p-6 lg:static lg:bg-slate-950/60 lg:backdrop-blur-none backdrop-blur-xl">
-                {/* Review Banner - shows after Step 1 */}
-                {state.step >= 2 && state.step < 4 && (
-                  <div className="mb-3 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <i className="fas fa-check-circle text-sm text-green-400"></i>
-                        <span className="text-sm text-slate-200">Ready to review your pitch?</span>
+              {showBars && (
+                <div className="sticky bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 sm:p-6 lg:static lg:bg-slate-950/60 lg:backdrop-blur-none backdrop-blur-xl">
+                  {/* Review Banner - shows after Step 1 */}
+                  {state.step >= 2 && state.step < 4 && (
+                    <div className="mb-3 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <i className="fas fa-check-circle text-sm text-green-400"></i>
+                          <span className="text-sm text-slate-200">Ready to review your pitch?</span>
+                        </div>
+                        <Button
+                          onClick={handleSubmitCommand}
+                          size="sm"
+                          className="h-8 rounded-lg bg-cyan-500 text-cyan-950 hover:bg-cyan-400 text-xs font-semibold"
+                          data-testid="button-quick-submit"
+                        >
+                          Review Now
+                        </Button>
                       </div>
-                      <Button
-                        onClick={handleSubmitCommand}
-                        size="sm"
-                        className="h-8 rounded-lg bg-cyan-500 text-cyan-950 hover:bg-cyan-400 text-xs font-semibold"
-                        data-testid="button-quick-submit"
-                      >
-                        Review Now
-                      </Button>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="flex gap-2 items-end">
-                  <Textarea
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder={
-                      state.step === 1
-                        ? 'Describe the problem...'
-                        : state.step === 2
-                        ? 'Quantify the impact...'
-                        : state.step === 3
-                        ? "Type 'yes' to submit..."
-                        : 'Type your message...'
-                    }
-                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
-                    disabled={isTyping || state.inputsCount >= 6}
-                    data-testid="input-chat-message"
-                  />
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                    className="h-12 min-w-[52px] rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
-                    data-testid="button-send-message"
-                  >
-                    <i className="fas fa-paper-plane"></i>
-                  </Button>
+                  <div className="flex gap-2 items-end">
+                    <Textarea
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder={
+                        state.step === 1
+                          ? 'Describe the problem...'
+                          : state.step === 2
+                          ? 'Quantify the impact...'
+                          : state.step === 3
+                          ? "Type 'yes' to submit..."
+                          : 'Type your message...'
+                      }
+                      className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
+                      disabled={isTyping || state.inputsCount >= 6}
+                      data-testid="input-chat-message"
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
+                      className="h-12 min-w-[52px] rounded-xl bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
+                      data-testid="button-send-message"
+                    >
+                      <i className="fas fa-paper-plane"></i>
+                    </Button>
+                  </div>
+
+                  {/* Show input counter only when approaching limit */}
+                  {state.inputsCount >= 5 && state.step < 4 && (
+                    <div className="mt-2 flex items-center justify-center gap-2 text-xs text-amber-300/80">
+                      <i className="fas fa-exclamation-triangle text-[0.65rem]"></i>
+                      <span>
+                        {state.inputsCount === 5 ? '1 input remaining' : 'Input limit reached'}
+                      </span>
+                    </div>
+                  )}
                 </div>
-
-                {/* Show input counter only when approaching limit */}
-                {state.inputsCount >= 5 && state.step < 4 && (
-                  <div className="mt-2 flex items-center justify-center gap-2 text-xs text-amber-300/80">
-                    <i className="fas fa-exclamation-triangle text-[0.65rem]"></i>
-                    <span>
-                      {state.inputsCount === 5 ? '1 input remaining' : 'Input limit reached'}
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
             </section>
           </div>
         </div>
