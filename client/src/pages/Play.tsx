@@ -189,7 +189,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
       hasUserInitiatedChatRef.current = true;
     }
 
-    if (!hasUserInitiatedChatRef.current || !isUserNearBottom) {
+    if (!hasUserInitiatedChatRef.current) {
       return;
     }
 
@@ -200,7 +200,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
       top: container.scrollHeight,
       behavior: "smooth",
     });
-  }, [state.messages, isTyping, isUserNearBottom]);
+  }, [state.messages, isTyping]);
 
   // Check for max inputs
   useEffect(() => {
@@ -837,7 +837,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                 </Button>
 
                 <p className="text-xs text-center text-slate-400">
-                  Average run time under 3 minutes. Need help? Flag down a Sprint Captain.
+                  Average run time under 3 minutes.
                 </p>
               </CardContent>
             </Card>
@@ -1148,27 +1148,13 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
         <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black text-slate-100 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-6xl">
             <div className="border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm p-6 sm:p-8 lg:p-10 space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-300/70">Sprint Coach</p>
                 <h2 className="text-2xl font-semibold leading-tight sm:text-3xl">Final review</h2>
                 <p className="text-sm text-slate-300/80">
                   Tighten anything before you lock your score and generate the raffle entry.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => goToStep(dispatch, 3)}
-                  className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                  data-testid="button-back-to-chat"
-                >
-                  <i className="fas fa-comments mr-2"></i>
-                  Back to coach
-                </Button>
-              </div>
-            </div>
 
             <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
               <Card className="border-white/10 bg-slate-900/70 backdrop-blur-xl">
@@ -1312,7 +1298,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                 <Card className="border-white/10 bg-slate-900/60 backdrop-blur-xl">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-semibold text-white">Execution checklist</CardTitle>
-                    <p className="text-sm text-slate-300/80">Share this with your Sprint Captain after you submit.</p>
+                    <p className="text-sm text-slate-300/80">Share this with your team after you submit.</p>
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm text-slate-200/90">
                     {currentSubmission.action_plan?.length ? (
@@ -1424,6 +1410,15 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                         Edit Final Details
                       </Button>
                       <Button
+                        onClick={() => goToStep(dispatch, 3)}
+                        variant="outline"
+                        className="flex-1 border-white/20 bg-transparent text-white/80 hover:text-white"
+                        data-testid="button-back-to-coach"
+                      >
+                        <i className="fas fa-comments mr-2"></i>
+                        Back to coach
+                      </Button>
+                      <Button
                         onClick={() => submitSolutionMutation.mutate()}
                         disabled={isSubmitting}
                         className="flex-1 bg-cyan-500 text-cyan-950 hover:bg-cyan-400"
@@ -1443,18 +1438,6 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       </Button>
                     </>
                   )}
-                </div>
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToStep(dispatch, 3)}
-                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                    data-testid="button-back-to-chat-bottom"
-                  >
-                    <i className="fas fa-comments mr-2"></i>
-                    Back to Coach
-                  </Button>
                 </div>
               </div>
             </div>
@@ -1519,18 +1502,6 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       <p className="text-sm sm:text-base text-white/80 leading-snug">
                         Double-check your solution and send it for scoring.
                       </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => goToStep(dispatch, 3)}
-                        className="bg-white/15 text-white hover:bg-white/25"
-                        data-testid="button-back-to-chat"
-                      >
-                        <i className="fas fa-comments mr-2"></i>
-                        Back to Chat
-                      </Button>
                     </div>
                   </div>
 
@@ -1704,6 +1675,15 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                         Edit Final Details
                       </Button>
                       <Button
+                        onClick={() => goToStep(dispatch, 3)}
+                        variant="outline"
+                        className="flex-1"
+                        data-testid="button-back-to-coach"
+                      >
+                        <i className="fas fa-comments mr-2"></i>
+                        Back to coach
+                      </Button>
+                      <Button
                         onClick={() => submitSolutionMutation.mutate()}
                         disabled={isSubmitting}
                         className="flex-1 btn-primary"
@@ -1723,18 +1703,6 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       </Button>
                     </>
                   )}
-                </div>
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToStep(dispatch, 3)}
-                    className="border border-white/10 bg-white/10 text-white/80 hover:text-white"
-                    data-testid="button-back-to-chat-bottom-classic"
-                  >
-                    <i className="fas fa-comments mr-2"></i>
-                    Back to Coach
-                  </Button>
                 </div>
               </CardContent>
             </Card>
