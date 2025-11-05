@@ -1191,6 +1191,14 @@ export function createMemoryStorage() {
       return attempt || null;
     },
 
+    async updateTriviaAttemptBotBar(attemptId: string, botBar: number, eligible: boolean): Promise<void> {
+      const attempt = triviaAttemptsStore.find((a) => a.id === attemptId);
+      if (attempt) {
+        attempt.botBar = botBar;
+        attempt.eligible = eligible;
+      }
+    },
+
     async checkExistingDailyAttempt(
       emailHash: string | null,
       category: string,
@@ -1691,6 +1699,10 @@ export function createMemoryStorage() {
     },
 
     async getBetaAdminRaffleEntries() {
+      return [];
+    },
+
+    async getBotBarStats() {
       return [];
     },
 
