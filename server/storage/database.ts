@@ -2295,6 +2295,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       await db.delete(schema.wordCloudEntries).where(eq(schema.wordCloudEntries.id, id));
     },
 
+    async batchDeleteWordCloudEntries(ids: string[]) {
+      await db.delete(schema.wordCloudEntries).where(inArray(schema.wordCloudEntries.id, ids));
+    },
+
     async syncWordCloudFromSubmissions(): Promise<{ synced: number; message: string }> {
       try {
         // Generate word cloud data from submissions (using the existing logic)
