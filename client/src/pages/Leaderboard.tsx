@@ -1334,12 +1334,13 @@ export default function Leaderboard() {
 
         {!isFullscreen && (
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href={homeHref}>
-              <Button className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold">
-                <i className="fas fa-home mr-2"></i>
-                Home
-              </Button>
-            </Link>
+            <Button
+              onClick={() => window.location.href = homeHref}
+              className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
+            >
+              <i className="fas fa-home mr-2"></i>
+              Home
+            </Button>
             <Link href="/leaderboard/ideas">
               <Button variant="outline" size="sm" className="bg-yellow-500/10 border-yellow-500/40 hover:bg-yellow-500/20">
                 <i className="fas fa-lightbulb mr-2"></i>
