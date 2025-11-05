@@ -1163,7 +1163,14 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
-    async getLeaderboard(limit: number = 100, category?: string, filterDate?: string): Promise<any[]> {
+    async markSubmissionAsAnnounced(submissionId: string): Promise<void> {
+      await db
+        .update(submissions)
+        .set({ announcedOnLeaderboard: true })
+        .where(eq(submissions.id, submissionId));
+    },
+
+    async getLeaderboard(limit: number = 100, category?: string, filterDate?: string, includeUnannounced: boolean = false): Promise<any[]> {
     let query = db
       .select({
         id: submissions.id,
@@ -1179,6 +1186,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     // Build WHERE conditions
     const conditions = [];
+
+    // Only filter by announcedOnLeaderboard if we're not including unannounced submissions
+    if (!includeUnannounced) {
+      conditions.push(eq(submissions.announcedOnLeaderboard, true));
+    }
 
     if (filterDate) {
       // Filter by date portion of createdAt timestamp
