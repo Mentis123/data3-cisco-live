@@ -276,6 +276,70 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "idx_word_cloud_entries_active" ON "word_cloud_entries" ("active")
     `);
+
+    // Ensure trivia_items table exists
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "trivia_items" (
+        "id" text PRIMARY KEY,
+        "category" text NOT NULL,
+        "stem" text NOT NULL,
+        "choices" text[] NOT NULL,
+        "correct_index" smallint NOT NULL,
+        "drop_index" smallint NOT NULL,
+        "hint_9s" text NOT NULL,
+        "difficulty" smallint NOT NULL,
+        "tags" text[] DEFAULT '{}'::text[],
+        "explanation" text,
+        "active" boolean NOT NULL DEFAULT true,
+        "version" integer NOT NULL DEFAULT 1,
+        "created_at" timestamptz NOT NULL DEFAULT now(),
+        "updated_at" timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+
+    // Seed trivia items if the table is empty
+    const [itemCount] = await db.execute(sql`SELECT COUNT(*) as count FROM trivia_items`);
+    const count = itemCount?.count ? Number(itemCount.count) : 0;
+
+    if (count === 0) {
+      console.log("[db] Trivia items table is empty, seeding with starter data...");
+      try {
+        const { readFile } = await import("fs/promises");
+        const path = await import("path");
+        const filePath = path.resolve(process.cwd(), "docs", "trivia-items-starter.json");
+        const raw = JSON.parse(await readFile(filePath, "utf-8")) as Array<any>;
+
+        const records = raw.map((item) => ({
+          id: item.id,
+          category: item.category,
+          stem: item.stem,
+          choices: [item.choice_a, item.choice_b, item.choice_c].filter(Boolean),
+          correctIndex: typeof item.correct_index === "string" ? parseInt(item.correct_index, 10) : item.correct_index,
+          dropIndex: typeof item.drop_index === "string" ? parseInt(item.drop_index, 10) : item.drop_index,
+          hint9s: item.hint_9s,
+          difficulty: typeof item.difficulty === "string" ? parseInt(item.difficulty, 10) : (item.difficulty ?? 2),
+          tags: typeof item.tags === "string"
+            ? item.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
+            : Array.isArray(item.tags) ? item.tags : [],
+          explanation: item.explanation ?? null,
+          active: true,
+          version: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }));
+
+        // Insert in batches to avoid query size limits
+        const batchSize = 50;
+        for (let i = 0; i < records.length; i += batchSize) {
+          const batch = records.slice(i, i + batchSize);
+          await db.insert(triviaItems).values(batch).onConflictDoNothing();
+        }
+
+        console.log(`[db] Successfully seeded ${records.length} trivia items`);
+      } catch (seedError) {
+        console.error("[db] Failed to seed trivia items:", seedError);
+      }
+    }
   } catch (error) {
     console.error("[db] Failed to ensure trivia schema:", error);
   }
