@@ -71,8 +71,14 @@ export async function createApp(
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    console.error('[express] Error handler caught:', {
+      status,
+      message,
+      stack: err.stack?.split('\n').slice(0, 3).join('\n')
+    });
+
     res.status(status).json({ message });
-    throw err;
+    // Don't re-throw in serverless environments - let the request complete
   });
 
   return {
