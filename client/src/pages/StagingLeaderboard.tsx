@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,8 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
 };
 
 export default function StagingLeaderboard() {
+  const [, setLocation] = useLocation();
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -1000,7 +1002,7 @@ export default function StagingLeaderboard() {
           {/* Desktop-only navigation */}
           <div className="hidden lg:flex gap-3">
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={() => setLocation('/')}
               className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
             >
               <i className="fas fa-home mr-2"></i>
@@ -1170,7 +1172,7 @@ export default function StagingLeaderboard() {
           {/* Mobile-only home button at bottom */}
           <div className="lg:hidden mt-4">
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={() => setLocation('/')}
               className="w-full bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold text-lg py-6"
             >
               <i className="fas fa-home mr-2"></i>
