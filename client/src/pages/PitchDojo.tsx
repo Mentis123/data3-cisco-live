@@ -86,15 +86,13 @@ function PitchDojoContent() {
 
     try {
       // Start a new session for this category
-      const result = await apiRequest<{ sessionToken: string }>("/api/start", {
-        method: "POST",
-        body: JSON.stringify({
-          firstName: "Dojo",
-          lastName: "Practice",
-          email: "practice@dojo.local",
-          category,
-        }),
+      const response = await apiRequest("POST", "/api/start", {
+        firstName: "Dojo",
+        lastName: "Practice",
+        email: "practice@dojo.local",
+        category,
       });
+      const result = await response.json() as { sessionToken: string };
 
       setSessionToken(result.sessionToken);
       setSelectedCategory(category);
@@ -145,13 +143,11 @@ Just describe it naturally - what's the problem that needs solving?`
     setIsTyping(true);
 
     try {
-      const result = await apiRequest<{ reply: string; step: number }>("/api/chat", {
-        method: "POST",
-        body: JSON.stringify({
-          sessionToken,
-          message: userMessage,
-        }),
+      const response = await apiRequest("POST", "/api/chat", {
+        sessionToken,
+        message: userMessage,
       });
+      const result = await response.json() as { reply: string; step: number };
 
       dispatch({
         type: "ADD_MESSAGE",
