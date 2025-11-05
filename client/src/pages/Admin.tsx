@@ -1461,6 +1461,18 @@ function WordCloudTab() {
     },
   });
 
+  // Fetch word cloud visualization data
+  const { data: wordCloudData } = useQuery<{ text: string; value: number }[]>({
+    queryKey: ["/api/word-cloud-display"],
+    queryFn: async () => {
+      const response = await fetch("/api/leaderboard-data");
+      if (!response.ok) throw new Error("Failed to fetch word cloud display data");
+      const data = await response.json();
+      return data.wordCloud || [];
+    },
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data: { word: string; count: number }) => {
       const response = await fetch("/api/beta-admin/word-cloud", {
@@ -1476,6 +1488,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setCreatingNew(false);
       setFormData({ word: "", count: 1 });
       toast({ title: "Word cloud entry created successfully" });
@@ -1500,6 +1513,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setEditingEntry(null);
       setFormData({ word: "", count: 1 });
       toast({ title: "Word cloud entry updated successfully" });
@@ -1520,6 +1534,7 @@ function WordCloudTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/beta-admin/word-cloud"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/word-cloud-display"] });
       setDeleteConfirmId(null);
       toast({ title: "Word cloud entry deleted successfully" });
     },
@@ -1541,8 +1556,153 @@ function WordCloudTab() {
     return <div className="text-center py-8">Loading word cloud entries...</div>;
   }
 
+  const renderWordCloudPreview = () => {
+    if (!wordCloudData || wordCloudData.length === 0) {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle>Word Cloud Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <i className="fas fa-cloud text-4xl text-muted-foreground mb-4"></i>
+              <p className="text-lg font-semibold mb-2">No words to display</p>
+              <p className="text-muted-foreground">Add words to see them appear in the word cloud.</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const maxValue = Math.max(...wordCloudData.map(w => w.value));
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Word Cloud Preview</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Live preview of how the word cloud appears on the leaderboard
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="relative min-h-[400px] max-h-[400px] overflow-hidden flex items-center justify-center bg-muted/20 rounded-lg">
+            {/* Cloud background effects */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-400 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+
+            {/* Word cloud */}
+            <div className="relative w-full h-full flex items-center justify-center p-4">
+              {wordCloudData.slice(0, 8).map((word, index) => {
+                if (index === 0) {
+                  // Biggest word - centered
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 30,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-3 py-2 rounded-lg border-2 border-cyan-400/40 bg-gray-800/80 backdrop-blur-sm text-cyan-300 shadow-lg"
+                        style={{
+                          fontSize: 'clamp(32px, 7vw, 48px)',
+                          opacity: 1,
+                          textShadow: '0 0 10px rgba(34, 211, 238, 0.5)',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-60" style={{ fontSize: '0.4em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                } else if (index < 5) {
+                  // Medium words
+                  const positions = [
+                    { top: '25%', left: '20%' },
+                    { top: '25%', left: '75%' },
+                    { top: '70%', left: '25%' },
+                    { top: '70%', left: '70%' },
+                  ];
+                  const pos = positions[index - 1];
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: pos.top,
+                        left: pos.left,
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 20,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-2 py-1 rounded border border-blue-400/30 bg-gray-800/70 text-blue-300 shadow-md"
+                        style={{
+                          fontSize: 'clamp(18px, 4vw, 28px)',
+                          opacity: 0.95,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-50" style={{ fontSize: '0.5em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                } else {
+                  // Small words
+                  const positions = [
+                    { top: '15%', left: '50%' },
+                    { top: '85%', left: '50%' },
+                    { top: '50%', left: '12%' },
+                  ];
+                  const pos = positions[index - 5];
+                  return (
+                    <div
+                      key={word.text}
+                      className="absolute"
+                      style={{
+                        top: pos.top,
+                        left: pos.left,
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 10,
+                      }}
+                    >
+                      <span
+                        className="inline-block px-2 py-1 rounded border border-purple-400/20 bg-gray-800/60 text-purple-300 shadow-sm"
+                        style={{
+                          fontSize: 'clamp(14px, 3vw, 20px)',
+                          opacity: 0.8,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {word.text}
+                        <span className="ml-1 opacity-40" style={{ fontSize: '0.5em' }}>({word.value})</span>
+                      </span>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
+      {/* Word Cloud Visual Preview */}
+      {renderWordCloudPreview()}
+
+      {/* Word Cloud Management */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Word Cloud Management</h2>
