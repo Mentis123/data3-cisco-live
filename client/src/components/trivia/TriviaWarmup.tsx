@@ -433,6 +433,14 @@ export function TriviaWarmup({
 
         void createAttempt().catch((error) => {
           const message = error instanceof Error ? error.message : "Failed to start trivia attempt";
+
+          // Show toast notification for the error
+          toast({
+            title: "Cannot Start Trivia",
+            description: message,
+            variant: "destructive",
+          });
+
           setAttemptError(message);
           setAttemptId(null);
           setAttemptQuestions([]);
