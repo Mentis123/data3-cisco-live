@@ -1894,11 +1894,11 @@ Just describe it naturally - what's the problem that needs solving?`
                   <div className="flex items-center justify-between gap-4">
                     <div className="space-y-1 flex-1">
                       <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
-                      <p className="text-sm text-slate-200/80">Three replies to build your case. Make them count.</p>
+                      <p className="text-sm text-slate-200/80">Build your case in 3 steps</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
-                        Step {state.step}/4
+                        {state.step}/4
                       </span>
                       <Button
                         variant="ghost"
@@ -1907,8 +1907,7 @@ Just describe it naturally - what's the problem that needs solving?`
                         className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:bg-white/10 hover:text-white"
                         data-testid="button-exit-chat"
                       >
-                        <i className="fas fa-door-open mr-2"></i>
-                        Exit
+                        <i className="fas fa-times"></i>
                       </Button>
                     </div>
                   </div>
@@ -1929,19 +1928,16 @@ Just describe it naturally - what's the problem that needs solving?`
                       </div>
                     </div>
 
-                    {/* Boot Sequence Text */}
+                    {/* Boot Sequence Text - Simplified */}
                     <div className="space-y-2 text-center">
                       <p className="text-lg font-semibold text-cyan-200">
-                        Initializing Sprint Coach
+                        Starting Coach
                       </p>
                       <div className="flex items-center justify-center gap-2">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:200ms]"></span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:400ms]"></span>
                       </div>
-                      <p className="text-sm text-slate-400/80">
-                        Loading your personalized coaching session...
-                      </p>
                     </div>
 
                     {/* Progress Bar */}
@@ -1950,8 +1946,14 @@ Just describe it naturally - what's the problem that needs solving?`
                     </div>
                   </div>
                 ) : state.messages.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-slate-300/80">
-                    Kick off with the business problem. The coach replies instantly.
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center">
+                    <div className="flex justify-center mb-4">
+                      <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center">
+                        <i className="fas fa-rocket text-3xl text-cyan-300"></i>
+                      </div>
+                    </div>
+                    <p className="text-base font-semibold text-white mb-2">Ready to Start</p>
+                    <p className="text-sm text-slate-300/80">Describe your business challenge to begin</p>
                   </div>
                 ) : null}
                 {!isBooting && state.messages.map((message, index) => {

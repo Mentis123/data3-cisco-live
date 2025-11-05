@@ -237,6 +237,48 @@
     animation: slideIn 0.3s ease-out;
   }
 
+  /* Enhanced chat bubble styling */
+  .chat-bubble {
+    @apply rounded-2xl px-4 py-3 shadow-lg backdrop-blur-sm;
+    max-width: 85%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .chat-bubble-assistant {
+    @apply chat-bubble;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+  }
+
+  .chat-bubble-user {
+    @apply chat-bubble;
+    background: rgba(0, 174, 255, 0.1);
+    border: 1px solid rgba(0, 174, 255, 0.5);
+    color: #ecfeff;
+  }
+
+  .chat-avatar {
+    @apply flex items-center justify-center rounded-full flex-shrink-0;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .chat-avatar-assistant {
+    @apply chat-avatar;
+    border: 1px solid rgba(0, 174, 255, 0.4);
+    background: rgba(0, 174, 255, 0.1);
+    color: #78dcff;
+  }
+
+  .chat-avatar-user {
+    @apply chat-avatar;
+    border: 1px solid rgba(0, 174, 255, 0.4);
+    background: rgba(0, 174, 255, 0.1);
+    color: #78dcff;
+  }
+
   /* Superscript styling for Data#3 */
   sup {
     color: inherit; /* Use parent text color, not cyan */
@@ -383,17 +425,32 @@
     font-size: 16px; /* Prevents zoom on iOS */
     min-height: 48px;
   }
-  
+
   .mobile-textarea {
     @apply w-full px-2 sm:px-4 py-2 sm:py-3 rounded-lg bg-input border border-border text-foreground;
     font-size: 16px; /* Prevents zoom on iOS */
     min-height: 44px;
   }
-  
+
   @media (min-width: 640px) {
     .mobile-textarea {
       min-height: 120px;
     }
+  }
+
+  /* Sticky input bar for Sprint Coach */
+  .sticky-input-bar {
+    @apply sticky bottom-0 left-0 right-0 z-30;
+    background: rgba(2, 6, 23, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Auto-expanding textarea */
+  .auto-expand-textarea {
+    @apply resize-none overflow-hidden;
+    transition: height 0.2s ease;
   }
 
   /* Frutiger-style Navigation Tile Button - Adapted for Data3 Brand */

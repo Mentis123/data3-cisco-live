@@ -1307,8 +1307,9 @@ export default function Leaderboard() {
           {activeView === "data3stats" && renderData3Stats()}
         </div>
 
+        {/* Desktop Navigation - Top */}
         {!isFullscreen && (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="hidden sm:flex mt-8 flex-wrap items-center justify-center gap-3">
             <Link href={homeHref}>
               <Button variant="outline" size="sm">
                 <i className="fas fa-home mr-2"></i>
@@ -1339,6 +1340,37 @@ export default function Leaderboard() {
               <i className="fas fa-volume-up mr-2"></i>
               Test Audio
             </Button>
+          </div>
+        )}
+
+        {/* Mobile Navigation - Bottom */}
+        {!isFullscreen && (
+          <div className="sm:hidden mt-8 space-y-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="/leaderboard/ideas">
+                <Button variant="outline" size="sm" className="bg-yellow-500/10 border-yellow-500/40 hover:bg-yellow-500/20">
+                  <i className="fas fa-lightbulb mr-2"></i>
+                  Design Ideas
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleFullscreen}
+                data-testid="button-fullscreen"
+              >
+                <i className={`fas ${isFullscreen ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
+                Fullscreen
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <Link href={homeHref} className="w-full max-w-xs">
+                <Button variant="default" size="lg" className="w-full">
+                  <i className="fas fa-home mr-2"></i>
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 

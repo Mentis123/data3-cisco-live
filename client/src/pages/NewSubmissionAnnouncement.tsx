@@ -257,6 +257,39 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 animationPhase === 'display' ? 'announcement-display' : ''
               }`}>
             
+            {/* Category Display - Moved to Top */}
+            <div className="announcement-slide-up" style={{ animationDelay: '0.2s' }}>
+              <Card className="glass-panel border-2"
+                    style={{
+                      borderColor: `${categoryColor}AA`,
+                      backgroundColor: `${categoryColor}15`
+                    }}>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="text-center">
+                    <div className="announcement-category-icon mb-3">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center"
+                           style={{ backgroundColor: `${categoryColor}30` }}>
+                        <i className={`fas ${categoryIcon} text-2xl sm:text-3xl`}
+                           style={{ color: categoryColor }}></i>
+                      </div>
+                    </div>
+
+                    <Badge
+                      variant="secondary"
+                      className="text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 mb-2 text-white font-bold"
+                      style={{ backgroundColor: categoryColor }}
+                    >
+                      {categoryName}
+                    </Badge>
+
+                    <p className="text-xs sm:text-sm md:text-base text-white/80">
+                      Solution category
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* NEW SUBMISSION Header */}
             <div className="space-y-2">
               <div className="announcement-pulse">
@@ -421,39 +454,6 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 </Card>
               </div>
             )}
-
-            {/* Category Display */}
-            <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
-              <Card className="glass-panel border-2"
-                    style={{
-                      borderColor: `${categoryColor}AA`,
-                      backgroundColor: `${categoryColor}15`
-                    }}>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="text-center">
-                    <div className="announcement-category-icon mb-3">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center"
-                           style={{ backgroundColor: `${categoryColor}30` }}>
-                        <i className={`fas ${categoryIcon} text-2xl sm:text-3xl`}
-                           style={{ color: categoryColor }}></i>
-                      </div>
-                    </div>
-
-                    <Badge
-                      variant="secondary"
-                      className="text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 mb-2 text-white font-bold"
-                      style={{ backgroundColor: categoryColor }}
-                    >
-                      {categoryName}
-                    </Badge>
-
-                    <p className="text-xs sm:text-sm md:text-base text-white/80">
-                      Solution category automatically assigned
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Subscore Breakdown */}
             {submission.subScores && (
