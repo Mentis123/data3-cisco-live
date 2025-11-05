@@ -1793,10 +1793,36 @@ function WordCloudTab() {
             Manage words displayed in the word cloud ({entries?.length || 0} entries)
           </p>
         </div>
-        <Button onClick={() => setCreatingNew(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Word
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                const response = await fetch("/api/beta-admin/word-cloud/sync", {
+                  method: "POST",
+                  headers: { "x-admin-key": adminKey },
+                });
+                if (!response.ok) throw new Error("Failed to sync");
+                const result = await response.json();
+                toast({ title: "Success", description: result.message });
+                refetch();
+              } catch (error) {
+                toast({
+                  title: "Sync failed",
+                  description: "Could not sync word cloud from submissions",
+                  variant: "destructive"
+                });
+              }
+            }}
+          >
+            <i className="fas fa-sync w-4 h-4 mr-2"></i>
+            Sync from Submissions
+          </Button>
+          <Button onClick={() => setCreatingNew(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Word
+          </Button>
+        </div>
       </div>
 
       <Card>

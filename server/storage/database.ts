@@ -1278,7 +1278,25 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getWordCloudData(): Promise<{ text: string; value: number }[]> {
-    const allSubmissions = await db.select().from(submissions);
+    // Fetch word cloud data from database (this is the primary source now)
+    // Data can be synced from submissions using the syncWordCloudFromSubmissions() function
+    try {
+      const entries = await db
+        .select()
+        .from(schema.wordCloudEntries)
+        .where(eq(schema.wordCloudEntries.active, true))
+        .orderBy(desc(schema.wordCloudEntries.count));
+
+      // If we have entries in the database, use them
+      if (entries.length > 0) {
+        return entries
+          .map(entry => ({ text: entry.word, value: entry.count }))
+          .slice(0, 30);
+      }
+
+      // Fallback: if no entries exist, generate from submissions (backward compatibility)
+      console.log('[getWordCloudData] No entries in database, generating from submissions as fallback');
+      const allSubmissions = await db.select().from(submissions);
 
     const stopWords = new Set([
       'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
@@ -1573,39 +1591,17 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       processText(submission.solutionText);
     });
 
-    // Get manual word cloud entries from the database (with error handling for missing table)
-    let manualEntries: Array<{ word: string; count: number }> = [];
-    try {
-      manualEntries = await db
-        .select()
-        .from(schema.wordCloudEntries)
-        .where(eq(schema.wordCloudEntries.active, true));
-    } catch (error) {
-      console.warn('[wordCloud] Failed to fetch manual word cloud entries, table may not exist:', error);
-      // Continue without manual entries if table doesn't exist
-    }
-
-    // Add manual entries to the technology counts, giving them their specified weight
-    manualEntries.forEach(entry => {
-      const canonical = entry.word.toLowerCase();
-      const existing = technologyCounts.get(canonical);
-      if (existing) {
-        // If the word already exists from auto-detection, add the manual count to it
-        existing.count += entry.count;
-        // Prefer the manual entry's capitalization if it's longer/more specific
-        if (entry.word.length >= existing.display.length) {
-          existing.display = entry.word;
-        }
-      } else {
-        // Add as a new entry
-        technologyCounts.set(canonical, { count: entry.count, display: entry.word });
-      }
-    });
+    // NOTE: The manual entries are now merged into the main database via syncWordCloudFromSubmissions
+    // This old code is kept as fallback only
 
     return Array.from(technologyCounts.entries())
       .map(([, data]) => ({ text: data.display, value: data.count }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 30);
+    } catch (error) {
+      console.error('[getWordCloudData] Error fetching word cloud data:', error);
+      return [];
+    }
   },
 
     async getCategoryStats(): Promise<{ [key: string]: number }> {
@@ -2297,6 +2293,181 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async deleteWordCloudEntry(id: string) {
       await db.delete(schema.wordCloudEntries).where(eq(schema.wordCloudEntries.id, id));
+    },
+
+    async syncWordCloudFromSubmissions(): Promise<{ synced: number; message: string }> {
+      try {
+        // Generate word cloud data from submissions (using the existing logic)
+        const allSubmissions = await db.select().from(submissions);
+
+        if (allSubmissions.length === 0) {
+          return { synced: 0, message: 'No submissions found to generate word cloud from' };
+        }
+
+        const stopWords = new Set([
+          'the', 'and', 'for', 'with', 'that', 'from', 'this', 'have', 'their', 'about', 'into', 'your',
+          'when', 'where', 'which', 'will', 'need', 'needs', 'they', 'them', 'over', 'under', 'while',
+          'after', 'before', 'because', 'ensure', 'teams', 'users', 'staff', 'team', 'user', 'people',
+          'per', 'week', 'weeks', 'month', 'months', 'year', 'years', 'each', 'every', 'daily', 'weekly',
+          'solution', 'solutions', 'problem', 'problems', 'impact', 'summary', 'baseline', 'target',
+          'targets', 'kpi', 'kpis', 'plan', 'plans', 'action', 'actions', 'risk', 'risks', 'success',
+          'check', 'checks', 'business', 'customer', 'customers', 'experience', 'experiences', 'operations',
+          'operation', 'operational', 'strategy', 'strategies', 'architecture', 'architectures', 'teams',
+          'team', 'leader', 'leaders', 'program', 'programs', 'enablement', 'visibility', 'governance',
+          'process', 'processes', 'automation', 'automated', 'monitoring', 'performance', 'delivery',
+          'services', 'service', 'environment', 'environments', 'employee', 'employees', 'site', 'sites',
+          'deployment', 'deployments', 'deploy', 'deploying', 'rollout', 'rollouts', 'phase', 'phases',
+          'global', 'regional', 'improve', 'improves', 'improved', 'improving', 'increase', 'increases',
+          'increased', 'reduces', 'reduced', 'reducing', 'reduction', 'reductions', 'optimize',
+          'optimise', 'optimised', 'optimizing', 'optimising', 'system', 'systems', 'application',
+          'applications', 'apps', 'app', 'cloud', 'digital', 'data', 'security', 'secure', 'connectivity',
+          'hybrid', 'observability', 'edge', 'iot', 'general', 'scale', 'expertise', 'cisco', 'zero',
+          'trust', 'fso', 'network', 'networks', 'platform', 'platforms', 'technology', 'technologies',
+          'client', 'clients'
+        ]);
+
+        const knownTechnologyTerms = new Set([
+          'appdynamics', 'app dynamics', 'thousandeyes', 'securex', 'duo', 'duo mfa', 'duo security',
+          'meraki', 'meraki mx', 'meraki mr', 'meraki mg', 'meraki mv', 'meraki insight',
+          'meraki dashboard', 'meraki systems manager', 'umbrella', 'webex', 'webex calling',
+          'webex contact center', 'webex control hub', 'catalyst', 'catalyst center', 'catalyst 9000',
+          'catalyst sd-wan', 'vmanage', 'vsmart', 'ise', 'identity services engine', 'intersight',
+          'ucs', 'hyperflex', 'sd-wan', 'sase', 'aci', 'aci fabric', 'nexus', 'nx-os', 'nxos',
+          'dna center', 'secure client', 'anyconnect', 'amp', 'secure endpoint', 'xdr', 'panoptica',
+          'threat grid', 'firepower', 'firepower threat defense', 'ftd', 'stealthwatch', 'tetration',
+        ]);
+
+        const technologyCounts = new Map<string, { count: number; display: string }>();
+
+        const addTechnology = (term: string) => {
+          const cleaned = term.replace(/\s+/g, ' ').trim();
+          if (!cleaned) return;
+          const canonical = cleaned.toLowerCase();
+          const existing = technologyCounts.get(canonical);
+          if (existing) {
+            existing.count += 1;
+            if (cleaned.length > existing.display.length) {
+              existing.display = cleaned;
+            }
+          } else {
+            technologyCounts.set(canonical, { count: 1, display: cleaned });
+          }
+        };
+
+        const isTechnologyToken = (token: string) => {
+          const cleaned = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+\-\/#!]+$/g, '');
+          if (!cleaned) return false;
+          const lower = cleaned.toLowerCase();
+          if (stopWords.has(lower)) return false;
+          if (knownTechnologyTerms.has(lower)) return true;
+          if (!/[a-zA-Z]/.test(cleaned)) return false;
+          if (/^[A-Z0-9+\-\/#!]+$/.test(cleaned)) {
+            if (cleaned.length <= 2 && !knownTechnologyTerms.has(lower)) return false;
+            return true;
+          }
+          if (/[0-9]/.test(cleaned)) return true;
+          if (/^[A-Z][a-z]+[A-Z][a-zA-Z0-9]*$/.test(cleaned)) return true;
+          if (/[A-Z]/.test(cleaned.slice(1))) return true;
+          return knownTechnologyTerms.has(lower);
+        };
+
+        const processText = (text: string) => {
+          if (!text) return;
+          const cleanedText = text.replace(/[\u201c\u201d]/g, '"');
+          const rawTokens = cleanedText
+            .split(/\s+/)
+            .map(token => {
+              const cleanedToken = token.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9+\-\/#!]+$/g, '');
+              return {
+                original: token,
+                cleaned: cleanedToken,
+                lower: cleanedToken.toLowerCase(),
+              };
+            })
+            .filter(token => token.cleaned.length > 0);
+
+          if (rawTokens.length === 0) return;
+
+          rawTokens.forEach((token) => {
+            if (isTechnologyToken(token.cleaned)) {
+              const display = token.cleaned;
+              if (display && !stopWords.has(display.toLowerCase())) {
+                addTechnology(display);
+              }
+            }
+          });
+        };
+
+        // Process all submissions
+        allSubmissions.forEach(submission => {
+          let structured: Record<string, unknown> | null = null;
+          try {
+            structured = JSON.parse(submission.structuredJson);
+          } catch {
+            structured = null;
+          }
+
+          const fieldsToCheck = [
+            'problem_summary', 'impact_summary', 'action_plan', 'success_checks', 'risks',
+            'integration_points', 'security_considerations', 'observability_plan',
+            'technologies', 'tools', 'platforms', 'cisco_products', 'recommended_tools',
+            'recommended_technologies', 'stack'
+          ];
+
+          if (structured && typeof structured === 'object') {
+            const structuredRecord = structured as Record<string, unknown>;
+            fieldsToCheck.forEach(field => {
+              const value = structuredRecord[field];
+              if (!value) return;
+              if (Array.isArray(value)) {
+                value.forEach(item => {
+                  if (typeof item === 'string') {
+                    processText(item);
+                  }
+                });
+              } else if (typeof value === 'string') {
+                processText(value);
+              }
+            });
+          }
+          processText(submission.solutionText);
+        });
+
+        // Now store the generated data in the database
+        // Mark all existing auto-generated entries as inactive first
+        await db
+          .update(schema.wordCloudEntries)
+          .set({ active: false, updatedAt: new Date() })
+          .where(eq(schema.wordCloudEntries.source, 'auto'));
+
+        // Insert new entries
+        const entries = Array.from(technologyCounts.entries())
+          .map(([, data]) => ({ text: data.display, value: data.count }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 50); // Store top 50
+
+        let syncedCount = 0;
+        for (const entry of entries) {
+          await db
+            .insert(schema.wordCloudEntries)
+            .values({
+              id: randomUUID(),
+              word: entry.text,
+              count: entry.value,
+              source: 'auto',
+              active: true,
+            });
+          syncedCount++;
+        }
+
+        return {
+          synced: syncedCount,
+          message: `Successfully synced ${syncedCount} word cloud entries from ${allSubmissions.length} submissions`
+        };
+      } catch (error) {
+        console.error('[syncWordCloudFromSubmissions] Error:', error);
+        throw new Error(`Failed to sync word cloud: ${error instanceof Error ? error.message : String(error)}`);
+      }
     },
 
     // DB Admin methods
