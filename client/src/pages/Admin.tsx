@@ -72,7 +72,8 @@ interface RaffleEntry {
   lastName: string | null;
   company: string | null;
   role: string | null;
-  totalScore: number | null;
+  triviaScore: number | null;
+  combinedScore: number | null;
   passed: boolean | null;
   eligible: boolean | null;
 }
@@ -1180,7 +1181,12 @@ function RaffleTab() {
                     <div className="text-sm text-muted-foreground mt-1">
                       {entry.company && <span>{entry.company} • </span>}
                       {entry.role && <span>{entry.role} • </span>}
-                      Score: {entry.totalScore} •{" "}
+                      Score: {entry.combinedScore ?? 'N/A'}
+                      {entry.triviaScore != null && entry.combinedScore != null && (
+                        <span className="text-xs ml-1">
+                          ({entry.triviaScore} trivia + {entry.combinedScore - entry.triviaScore} pitch)
+                        </span>
+                      )} •{" "}
                       {new Date(entry.createdAt).toLocaleString()}
                     </div>
                   </div>
