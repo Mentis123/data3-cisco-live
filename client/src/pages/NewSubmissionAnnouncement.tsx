@@ -256,24 +256,59 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 animationPhase === 'reveal' ? 'announcement-reveal' :
                 animationPhase === 'display' ? 'announcement-display' : ''
               }`}>
-            
-            {/* NEW SUBMISSION Header */}
-            <div className="space-y-2">
-              <div className="announcement-pulse">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#78DCFF] drop-shadow-2xl">
-                  NEW
-                </h1>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-2xl -mt-2">
-                  SUBMISSION!
-                </h1>
-              </div>
 
-              <div className="flex justify-center items-center gap-2 sm:gap-3 text-xl sm:text-2xl md:text-3xl text-[#78DCFF]/80">
-                <div className="announcement-bounce">🚀</div>
-                <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
-                <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
-              </div>
+            {/* Category Display - Moved to Top */}
+            <div className="announcement-slide-up" style={{ animationDelay: '0.2s' }}>
+              <Card className="glass-panel border-2"
+                    style={{
+                      borderColor: `${categoryColor}AA`,
+                      backgroundColor: `${categoryColor}15`
+                    }}>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="text-center">
+                    <div className="announcement-category-icon mb-3">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center"
+                           style={{ backgroundColor: `${categoryColor}30` }}>
+                        <i className={`fas ${categoryIcon} text-2xl sm:text-3xl`}
+                           style={{ color: categoryColor }}></i>
+                      </div>
+                    </div>
+
+                    <Badge
+                      variant="secondary"
+                      className="text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 mb-2 text-white font-bold"
+                      style={{ backgroundColor: categoryColor }}
+                    >
+                      {categoryName}
+                    </Badge>
+
+                    <p className="text-xs sm:text-sm md:text-base text-white/80">
+                      Solution category
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
+            {/* NEW SUBMISSION Header - Only show if Top 10 AND Beat Bot */}
+            {submission.rank <= 10 && submission.isEligible && (
+              <div className="space-y-2">
+                <div className="announcement-pulse">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#78DCFF] drop-shadow-2xl">
+                    NEW
+                  </h1>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-2xl -mt-2">
+                    CHALLENGER!
+                  </h1>
+                </div>
+
+                <div className="flex justify-center items-center gap-2 sm:gap-3 text-xl sm:text-2xl md:text-3xl text-[#78DCFF]/80">
+                  <div className="announcement-bounce">🏆</div>
+                  <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
+                  <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
+                </div>
+              </div>
+            )}
 
             {/* Participant Name */}
             <div className="announcement-slide-up" style={{ animationDelay: '0.5s' }}>
@@ -421,39 +456,6 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                 </Card>
               </div>
             )}
-
-            {/* Category Display */}
-            <div className="announcement-slide-up" style={{ animationDelay: '1.4s' }}>
-              <Card className="glass-panel border-2"
-                    style={{
-                      borderColor: `${categoryColor}AA`,
-                      backgroundColor: `${categoryColor}15`
-                    }}>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="text-center">
-                    <div className="announcement-category-icon mb-3">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center"
-                           style={{ backgroundColor: `${categoryColor}30` }}>
-                        <i className={`fas ${categoryIcon} text-2xl sm:text-3xl`}
-                           style={{ color: categoryColor }}></i>
-                      </div>
-                    </div>
-
-                    <Badge
-                      variant="secondary"
-                      className="text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 mb-2 text-white font-bold"
-                      style={{ backgroundColor: categoryColor }}
-                    >
-                      {categoryName}
-                    </Badge>
-
-                    <p className="text-xs sm:text-sm md:text-base text-white/80">
-                      Solution category automatically assigned
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Subscore Breakdown */}
             {submission.subScores && (

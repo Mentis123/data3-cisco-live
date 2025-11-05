@@ -1929,69 +1929,45 @@ Just describe it naturally - what's the problem that needs solving?`
                       </div>
                     </div>
 
-                    {/* Boot Sequence Text */}
+                    {/* Simplified Boot Text */}
                     <div className="space-y-2 text-center">
                       <p className="text-lg font-semibold text-cyan-200">
-                        Initializing Sprint Coach
+                        Starting Coach
                       </p>
                       <div className="flex items-center justify-center gap-2">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:200ms]"></span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:400ms]"></span>
                       </div>
-                      <p className="text-sm text-slate-400/80">
-                        Loading your personalized coaching session...
-                      </p>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-64 h-1 bg-slate-800/50 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 w-full animate-[progress_2.5s_ease-in-out]"></div>
                     </div>
                   </div>
                 ) : state.messages.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-slate-300/80">
-                    Kick off with the business problem. The coach replies instantly.
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-slate-300/80 text-center">
+                    Start by describing the problem
                   </div>
                 ) : null}
-                {!isBooting && state.messages.map((message, index) => {
-                  if (message.role === 'assistant') {
-                    return (
-                      <div key={index} className="flex items-start gap-3 animate-[slideIn_0.3s_ease-out]">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
-                          <i className="fas fa-robot"></i>
-                        </div>
-                        <div className="max-w-[85%] rounded-2xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-4 text-base leading-loose text-slate-50 whitespace-pre-wrap break-words shadow-lg">
+                {!isBooting && state.messages.map((message, index) => (
+                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.role === 'assistant' ? (
+                      <div className="chat-bubble chat-bubble-assistant">
+                        <div className="whitespace-pre-wrap text-base leading-relaxed break-words">
                           {message.content}
                         </div>
                       </div>
-                    );
-                  }
-
-                  return (
-                    <div key={index} className="ml-auto flex items-start gap-3 animate-[slideIn_0.3s_ease-out]">
-                      <div className="max-w-[85%] rounded-2xl border border-cyan-400/50 bg-cyan-500/10 p-4 text-base leading-loose text-cyan-50 whitespace-pre-wrap break-words">
-                        {message.content}
+                    ) : (
+                      <div className="chat-bubble chat-bubble-user">
+                        <p className="whitespace-pre-wrap text-base leading-relaxed break-words">{message.content}</p>
                       </div>
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
-                        <i className="fas fa-user"></i>
-                      </div>
-                    </div>
-                  );
-                })}
+                    )}
+                  </div>
+                ))}
                 {!isBooting && isTyping && (
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200">
-                      <i className="fas fa-brain animate-pulse"></i>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 px-4 py-3 shadow-lg">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-300/70">Coach is thinking</span>
-                        <div className="flex gap-1">
-                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:0ms]"></span>
-                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:150ms]"></span>
-                          <span className="h-2 w-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:300ms]"></span>
-                        </div>
+                  <div className="flex justify-start">
+                    <div className="chat-bubble chat-bubble-typing">
+                      <div className="flex space-x-1.5">
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -2005,12 +1981,12 @@ Just describe it naturally - what's the problem that needs solving?`
                     onKeyPress={handleKeyPress}
                     placeholder={
                       state.step === 1
-                        ? 'Drop the core problem…'
+                        ? 'Describe the problem...'
                         : state.step === 2
-                        ? 'Quantify the impact — time, cost, risk…'
+                        ? 'Quantify the impact...'
                         : state.step === 3
-                        ? 'Confirm you’re ready to submit or fine tune…'
-                        : 'Type your message…'
+                        ? "Type 'yes' to submit..."
+                        : 'Type your message...'
                     }
                     className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
                     disabled={isTyping || state.inputsCount >= 6}
@@ -2116,93 +2092,80 @@ Just describe it naturally - what's the problem that needs solving?`
               {/* Chat Messages */}
               <div
                 ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 -webkit-overflow-scrolling-touch"
+                className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-2 sm:space-y-3 -webkit-overflow-scrolling-touch"
                 data-testid="chat-messages"
               >
                 {state.messages.map((message, index) => (
-                  <div key={index} className="chat-message flex items-start gap-2 sm:gap-3">
+                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {message.role === 'assistant' ? (
-                      <>
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                          <i className="fas fa-robot text-white text-sm sm:text-base"></i>
+                      <div className="chat-bubble chat-bubble-assistant">
+                        <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed break-words">
+                          {message.content}
                         </div>
-                        <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                          <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">
-                            {message.content}
-                          </div>
-                        </div>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                          <i className="fas fa-user text-sm sm:text-base"></i>
-                        </div>
-                        <div className="bg-primary/10 border border-primary/20 rounded-lg rounded-tl-none p-2.5 sm:p-4 max-w-[calc(100%-3rem)] sm:max-w-lg">
-                          <p className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed text-foreground break-words overflow-wrap-anywhere text-pretty">{message.content}</p>
-                        </div>
-                      </>
+                      <div className="chat-bubble chat-bubble-user">
+                        <p className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed break-words">{message.content}</p>
+                      </div>
                     )}
                   </div>
                 ))}
 
                 {isTyping && (
-                  <div className="chat-message flex items-start gap-2 sm:gap-3">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                      <i className="fas fa-robot text-white text-sm sm:text-base"></i>
-                    </div>
-                    <div className="glass-panel rounded-lg rounded-tl-none p-2.5 sm:p-4">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="flex justify-start">
+                    <div className="chat-bubble chat-bubble-typing">
+                      <div className="flex space-x-1.5">
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Chat Input */}
-              <div className="p-2 sm:p-6 border-t border-border flex-shrink-0 bg-background">
-                <div className="flex gap-2 sm:gap-3 w-full">
+              {/* Chat Input - Sticky at Bottom */}
+              <div className="sticky bottom-0 z-20 p-3 sm:p-4 border-t border-border/50 flex-shrink-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-sm">
+                <div className="flex gap-2 w-full">
                   <Textarea
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={
-                      state.step === 1 ? 'Describe your business problem...' :
-                      state.step === 2 ? 'How often? Time lost? Cost impact?' :
-                      state.step === 3 ? "Type 'yes' to proceed or adjust..." :
+                      state.step === 1 ? 'Describe the problem...' :
+                      state.step === 2 ? 'Quantify the impact...' :
+                      state.step === 3 ? "Type 'yes' to submit..." :
                       'Type your message...'
                     }
-                    className="flex-1 min-h-[44px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed max-h-[45vh] max-h-[45svh] overflow-y-auto"
+                    className="flex-1 min-h-[48px] sm:min-h-12 resize-none mobile-textarea text-[1rem] sm:text-base leading-relaxed max-h-[35vh] overflow-y-auto"
                     disabled={isTyping || state.inputsCount >= 6}
                     data-testid="input-chat-message"
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
-                    className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] px-2.5 sm:px-3 touch-manipulation"
+                    className="min-h-[48px] min-w-[48px] px-3 touch-manipulation bg-gradient-to-br from-[#00AEFF] to-[#007BC3] hover:from-[#2CC8FF] hover:to-[#00AEFF]"
                     data-testid="button-send-message"
                   >
                     <i className="fas fa-paper-plane"></i>
                   </Button>
                 </div>
 
-                {/* Input counter and Submit button */}
-                <div className="mt-2 sm:mt-3 flex items-center justify-between gap-2">
-                  <p className="text-[0.9rem] leading-snug text-muted-foreground flex-shrink-0">
-                    Input {state.inputsCount}/6
-                  </p>
+                {/* Compact counter and submit button */}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {state.inputsCount}/6
+                  </span>
                   {state.step >= 2 && (
                     <Button
                       onClick={handleSubmitCommand}
                       variant="outline"
                       size="sm"
-                      className="text-[0.9rem] px-2 sm:px-3 py-1.5 h-auto touch-manipulation bg-secondary/10 hover:bg-secondary/20 border-secondary/20"
+                      className="text-xs px-3 py-1.5 h-auto bg-secondary/10 hover:bg-secondary/20 border-secondary/30"
                       data-testid="button-quick-submit"
                     >
-                      <i className="fas fa-rocket text-sm mr-1.5"></i>
-                      Submit
+                      <i className="fas fa-rocket text-xs mr-1.5"></i>
+                      Submit Now
                     </Button>
                   )}
                 </div>
