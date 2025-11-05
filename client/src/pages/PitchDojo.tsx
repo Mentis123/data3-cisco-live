@@ -46,29 +46,9 @@ function PitchDojoContent() {
   const { state, dispatch } = useSprint();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
 
-  // Scroll management
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      setIsUserNearBottom(distanceFromBottom <= 120);
-    };
-
-    container.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [selectedCategory, state.step]);
-
-  useEffect(() => {
-    if (!isUserNearBottom) return;
-
     const container = chatContainerRef.current;
     if (!container) return;
 
@@ -76,7 +56,7 @@ function PitchDojoContent() {
       top: container.scrollHeight,
       behavior: "smooth",
     });
-  }, [state.messages, isTyping, isUserNearBottom]);
+  }, [state.messages, isTyping]);
 
   // Scroll to top on mount
   useEffect(() => {
