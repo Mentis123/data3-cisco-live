@@ -2241,7 +2241,7 @@ export default function Admin() {
             <TabsTrigger value="raffle">Raffle Entries</TabsTrigger>
             <TabsTrigger value="submissions">Scored Submissions</TabsTrigger>
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
-            <TabsTrigger value="staging">Staging Leaderboard</TabsTrigger>
+            <TabsTrigger value="staging">Leaderboard</TabsTrigger>
             <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
             <TabsTrigger value="dbadmin">DB Admin</TabsTrigger>
           </TabsList>
