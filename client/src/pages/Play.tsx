@@ -131,6 +131,11 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
   const [isBooting, setIsBooting] = useState(false);
+  const [bootingText, setBootingText] = useState('Analyzing your expertise...');
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [showStepCompletionBanner, setShowStepCompletionBanner] = useState(false);
+  const [completedStepNumber, setCompletedStepNumber] = useState<number | null>(null);
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
 
   const selectedCategoryLabel = isTriviaCardCategory(selectedCategory)
     ? triviaCardCategoryMeta[selectedCategory].name
@@ -166,7 +171,10 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
 
     const handleScroll = () => {
       const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      setIsUserNearBottom(distanceFromBottom <= 120);
+      const isNearBottom = distanceFromBottom <= 120;
+      setIsUserNearBottom(isNearBottom);
+      // Show FAB when user scrolls up and there are messages
+      setShowScrollToBottom(!isNearBottom && state.messages.length > 0);
     };
 
     container.addEventListener("scroll", handleScroll);
@@ -175,7 +183,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     return () => {
       container.removeEventListener("scroll", handleScroll);
     };
-  }, [registrationComplete, state.step, isRing]);
+  }, [registrationComplete, state.step, isRing, state.messages.length]);
 
   useEffect(() => {
     if (state.messages.some((message) => message.role === "user")) {
@@ -382,7 +390,20 @@ Just describe it naturally - what's the problem that needs solving?`
         const problem = expandProblem(lastUserMessage.content);
         dispatch({ type: 'SET_PROBLEM', payload: problem });
       }
+
+      // Detect if moving to step 2
+      const wasStep1 = state.step === 1;
       advanceToNextStep(dispatch, state.step);
+
+      if (wasStep1) {
+        // Show step completion banner
+        setCompletedStepNumber(1);
+        setShowStepCompletionBanner(true);
+        setTimeout(() => setShowStepCompletionBanner(false), 5000);
+
+        // Update quick replies for step 2
+        setQuickReplies(['Hours per week', 'Cost estimate', 'Team impact']);
+      }
     } else if (state.step === 2) {
       // Extract impact from the user's input
       const lastUserMessage = state.messages.filter(m => m.role === 'user').pop();
@@ -390,7 +411,19 @@ Just describe it naturally - what's the problem that needs solving?`
         const impact = quantifyImpact(lastUserMessage.content, state.problem?.userInput);
         dispatch({ type: 'SET_IMPACT', payload: impact });
       }
+
+      const wasStep2 = state.step === 2;
       advanceToNextStep(dispatch, state.step);
+
+      if (wasStep2) {
+        // Show step completion banner
+        setCompletedStepNumber(2);
+        setShowStepCompletionBanner(true);
+        setTimeout(() => setShowStepCompletionBanner(false), 5000);
+
+        // Clear quick replies for step 3
+        setQuickReplies([]);
+      }
     } else if (state.step === 3) {
       // Check if the AI response confirms proceeding
       const lowerContent = content.toLowerCase();
@@ -402,6 +435,17 @@ Just describe it naturally - what's the problem that needs solving?`
         }
       }
     }
+  };
+
+  const handleQuickReply = (reply: string) => {
+    // Clear quick replies when one is selected
+    setQuickReplies([]);
+    // Set the message and send
+    setCurrentMessage(reply);
+    // Trigger send on next tick
+    setTimeout(() => {
+      handleSendMessage();
+    }, 0);
   };
 
   const handleSendMessage = () => {
@@ -420,6 +464,9 @@ Just describe it naturally - what's the problem that needs solving?`
     setIsUserNearBottom(true);
     setCurrentMessage("");
     setIsTyping(true);
+
+    // Clear quick replies after sending
+    setQuickReplies([]);
 
     // Add user message and increment input count
     dispatch({ type: 'ADD_USER_INPUT', payload: userMessage });
@@ -1026,8 +1073,18 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   setTriviaAttemptId(attemptId);
                 }
 
-                // Trigger boot-up sequence before adding the initial message
+                // Trigger boot-up sequence with animated text
                 setIsBooting(true);
+                setBootingText(`Analyzing your ${activeCategoryLabel || 'expertise'}...`);
+
+                // Update boot text progressively
+                setTimeout(() => {
+                  setBootingText('Preparing your Sprint Coach...');
+                }, 1000);
+
+                setTimeout(() => {
+                  setBootingText('Ready to build your pitch!');
+                }, 2000);
 
                 setTimeout(() => {
                   setIsBooting(false);
@@ -1038,25 +1095,20 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       type: 'ADD_MESSAGE',
                       payload: {
                         role: "assistant",
-                        content: `Excellent work, ${firstName}! You scored ${score || 0}/60 on the trivia.
+                        content: `Great work, ${firstName}! You scored ${score || 0}/60 on ${activeCategoryLabel || 'trivia'}.
 
-Now let's move to your **Project Pitch** — the core of your Beat the Bot entry.
+Let's build your project pitch in 3 focused steps. I'll guide you through each one.
 
-I'll guide you through 3 quick steps to craft a winning business case:
+**What problem are you solving?**
 
-**Step 1: Name the Problem** 🎯
-
-Tell me about a specific business challenge that:
-• Wastes time or resources
-• Creates friction for users
-• Causes errors or delays
-• Impacts productivity
-
-Just describe it naturally - what's the problem that needs solving?`
+Describe a specific challenge that wastes time, creates friction, or impacts productivity.`
                       }
                     });
+
+                    // Set quick replies for first step
+                    setQuickReplies(['Technical issue', 'Business process', 'User experience']);
                   }, 300);
-                }, 2500);
+                }, 2800);
               }}
             />
 
@@ -1848,151 +1900,235 @@ Just describe it naturally - what's the problem that needs solving?`
                 <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-12 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
 
                 <div className="flex w-full flex-col gap-4">
-              {triviaScore !== null && (
-                <div
-                  className="rounded-3xl border px-6 py-4"
-                  style={{
-                    borderColor: activeCategoryTheme.border,
-                    backgroundColor: activeCategoryTheme.background,
-                    boxShadow: activeCategoryTheme.shadow,
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-                    <div className="space-y-2">
-                      <p
-                        className="text-xs uppercase tracking-[0.3em]"
-                        style={{ color: activeCategoryTheme.subheading }}
-                      >
-                        🎯 Trivia Complete
-                      </p>
-                      <p className="text-2xl font-bold" style={{ color: activeCategoryTheme.text }}>
-                        {triviaScore}/60 Points Locked
-                      </p>
-                      {activeCategoryLabel && (
-                        <Badge
-                          className="rounded-full border-0 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em]"
-                          style={{
-                            backgroundColor: activeCategoryTheme.badgeBg,
-                            color: activeCategoryTheme.badgeText,
-                          }}
-                        >
-                          {activeCategoryLabel}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-data3-pale-blue">
-                        ⚡ One Step Away
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             <section className="relative flex flex-col rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl">
+              {/* Minimal Header */}
               <div className="sticky top-0 z-20 border-b border-white/10 bg-slate-950">
-                <div className="bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-4 sm:p-6">
+                <div className="bg-gradient-to-r from-cyan-500/30 via-slate-900/40 to-cyan-400/20 p-3 sm:p-4">
                   <div className="flex items-center justify-between gap-4">
-                    <div className="space-y-1 flex-1">
-                      <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Sprint Coach</p>
-                      <p className="text-sm text-slate-200/80">Three replies to build your case. Make them count.</p>
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-400/50 bg-cyan-500/10 flex-shrink-0">
+                        <i className="fas fa-brain text-lg text-cyan-300"></i>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-cyan-200 truncate">Sprint Coach</p>
+                        {state.step < 4 && (
+                          <p className="text-xs text-slate-300/70">Step {state.step} of 3</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
-                        Step {state.step}/4
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowExitDialog(true)}
-                        className="h-9 border border-white/20 bg-white/10 px-3 text-white/80 hover:bg-white/10 hover:text-white"
-                        data-testid="button-exit-chat"
-                      >
-                        <i className="fas fa-door-open mr-2"></i>
-                        Exit
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowExitDialog(true)}
+                      className="h-9 w-9 p-0 border border-white/20 bg-white/10 text-white/80 hover:bg-white/10 hover:text-white sm:w-auto sm:px-3"
+                      data-testid="button-exit-chat"
+                    >
+                      <i className="fas fa-times sm:mr-2"></i>
+                      <span className="hidden sm:inline">Exit</span>
+                    </Button>
                   </div>
                 </div>
               </div>
               <div
                 ref={chatContainerRef}
-                className="flex-1 space-y-4 overflow-y-auto p-4 pb-6 sm:p-6 sm:pb-6"
+                className="relative flex-1 space-y-4 overflow-y-auto p-4 pb-6 sm:p-6 sm:pb-6"
                 data-testid="chat-messages"
               >
                 {isBooting ? (
-                  <div className="flex flex-col items-center justify-center gap-6 py-16">
-                    {/* Pulsing Ring Icon */}
+                  /* Fullscreen Boot Animation */
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-slate-900/95 backdrop-blur-xl z-30">
+                    {/* Larger Pulsing Ring Icon */}
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-ping"></div>
-                      <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-cyan-400/50 bg-cyan-500/10">
-                        <i className="fas fa-brain text-3xl text-cyan-300"></i>
+                      <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-4 border-cyan-400/50 bg-cyan-500/10">
+                        <i className="fas fa-brain text-6xl text-cyan-300"></i>
                       </div>
                     </div>
 
-                    {/* Simplified Boot Text */}
-                    <div className="space-y-2 text-center">
-                      <p className="text-lg font-semibold text-cyan-200">
-                        Starting Coach
+                    {/* Animated Boot Text */}
+                    <div className="space-y-3 text-center px-4 max-w-md">
+                      <p className="text-xl font-semibold text-cyan-200">
+                        {bootingText}
                       </p>
                       <div className="flex items-center justify-center gap-2">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:200ms]"></span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:400ms]"></span>
+                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300"></span>
+                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300 [animation-delay:200ms]"></span>
+                        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300 [animation-delay:400ms]"></span>
                       </div>
                     </div>
                   </div>
-                ) : state.messages.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-slate-300/80 text-center">
-                    Start by describing the problem
-                  </div>
-                ) : null}
-                {!isBooting && state.messages.map((message, index) => (
-                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {message.role === 'assistant' ? (
-                      <div className="chat-bubble chat-bubble-assistant">
-                        <div className="whitespace-pre-wrap text-base leading-relaxed break-words">
-                          {message.content}
+                ) : (
+                  <>
+                    {/* Score Badge - Scrollable at top of messages */}
+                    {triviaScore !== null && (
+                      <div
+                        className="rounded-2xl border px-4 py-3 mb-4"
+                        style={{
+                          borderColor: activeCategoryTheme.border,
+                          backgroundColor: activeCategoryTheme.background,
+                          boxShadow: activeCategoryTheme.shadow,
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3 text-center sm:text-left">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">🎯</span>
+                            <div>
+                              <p className="text-lg font-bold" style={{ color: activeCategoryTheme.text }}>
+                                {triviaScore}/60 Locked
+                              </p>
+                              {activeCategoryLabel && (
+                                <p className="text-xs" style={{ color: activeCategoryTheme.subheading }}>
+                                  {activeCategoryLabel}
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="chat-bubble chat-bubble-user">
-                        <p className="whitespace-pre-wrap text-base leading-relaxed break-words">{message.content}</p>
+                    )}
+
+                    {/* Step Completion Banner */}
+                    {showStepCompletionBanner && completedStepNumber && (
+                      <div className="rounded-2xl border border-green-400/30 bg-green-500/10 px-4 py-3 mb-4 animate-slideIn">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">✨</span>
+                          <div>
+                            <p className="text-sm font-semibold text-green-200">
+                              Step {completedStepNumber} Complete!
+                            </p>
+                            <p className="text-xs text-green-300/70">
+                              {completedStepNumber === 1 && "Great start! Now let's quantify the impact."}
+                              {completedStepNumber === 2 && "Excellent! Ready to review when you are."}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
-                  </div>
-                ))}
-                {!isBooting && isTyping && (
-                  <div className="flex justify-start">
-                    <div className="chat-bubble chat-bubble-typing">
-                      <div className="flex space-x-1.5">
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse"></div>
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+
+                    {state.messages.length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center">
+                        <p className="text-lg font-semibold text-slate-300 mb-2">Let's get started!</p>
+                        <p className="text-sm text-slate-400">Describe the problem you want to solve</p>
                       </div>
-                    </div>
-                  </div>
+                    ) : null}
+
+                    {state.messages.map((message, index) => (
+                      <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        {message.role === 'assistant' ? (
+                          <div className="chat-bubble chat-bubble-assistant">
+                            <div className="whitespace-pre-wrap text-base leading-relaxed break-words">
+                              {message.content}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="chat-bubble chat-bubble-user">
+                            <p className="whitespace-pre-wrap text-base leading-relaxed break-words">{message.content}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Quick Reply Chips */}
+                    {!isTyping && quickReplies.length > 0 && (
+                      <div className="flex flex-wrap gap-2 justify-start px-2">
+                        {quickReplies.map((reply, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleQuickReply(reply)}
+                            className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all"
+                          >
+                            {reply}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Enhanced Typing Indicator */}
+                    {isTyping && (
+                      <div className="flex justify-start items-center gap-3">
+                        <div className="chat-bubble chat-bubble-typing">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-white/60">Coach is thinking</span>
+                            <div className="flex space-x-1">
+                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse"></div>
+                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Scroll to Bottom FAB */}
+                    {showScrollToBottom && (
+                      <button
+                        onClick={() => {
+                          chatContainerRef.current?.scrollTo({
+                            top: chatContainerRef.current.scrollHeight,
+                            behavior: 'smooth'
+                          });
+                        }}
+                        className="fixed bottom-32 right-8 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500 text-white shadow-lg hover:bg-cyan-400 transition-all animate-slideIn"
+                        aria-label="Scroll to bottom"
+                      >
+                        <i className="fas fa-arrow-down"></i>
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               <div className="sticky bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 sm:p-6 lg:static lg:bg-slate-950/60 lg:backdrop-blur-none backdrop-blur-xl">
+                {/* Review Banner - shows after Step 1 */}
+                {state.step >= 2 && state.step < 4 && (
+                  <div className="mb-3 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-check-circle text-sm text-green-400"></i>
+                        <span className="text-sm text-slate-200">Ready to review your pitch?</span>
+                      </div>
+                      <Button
+                        onClick={handleSubmitCommand}
+                        size="sm"
+                        className="h-8 rounded-lg bg-cyan-500 text-cyan-950 hover:bg-cyan-400 text-xs font-semibold"
+                        data-testid="button-quick-submit"
+                      >
+                        Review Now
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                  <Textarea
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder={
-                      state.step === 1
-                        ? 'Describe the problem...'
-                        : state.step === 2
-                        ? 'Quantify the impact...'
-                        : state.step === 3
-                        ? "Type 'yes' to submit..."
-                        : 'Type your message...'
-                    }
-                    className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
-                    disabled={isTyping || state.inputsCount >= 6}
-                    data-testid="input-chat-message"
-                  />
+                  <div className="flex-1 flex gap-2">
+                    <Textarea
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder={
+                        state.step === 1
+                          ? 'Describe the problem...'
+                          : state.step === 2
+                          ? 'Quantify the impact...'
+                          : state.step === 3
+                          ? "Type 'yes' to submit..."
+                          : 'Type your message...'
+                      }
+                      className="min-h-[56px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/40 text-base text-white placeholder:text-slate-400 focus-visible:border-cyan-400/60 focus-visible:ring-0"
+                      disabled={isTyping || state.inputsCount >= 6}
+                      data-testid="input-chat-message"
+                    />
+                  </div>
                   <div className="flex gap-2 sm:flex-none">
+                    {/* Mic Icon for Voice Input (future enhancement) */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-12 w-12 rounded-xl border border-white/10 bg-slate-950/40 text-slate-400 hover:bg-slate-900 hover:text-cyan-300"
+                      disabled={isTyping || state.inputsCount >= 6}
+                      title="Voice input (coming soon)"
+                    >
+                      <i className="fas fa-microphone text-lg"></i>
+                    </Button>
                     <Button
                       onClick={handleSendMessage}
                       disabled={!currentMessage.trim() || isTyping || state.inputsCount >= 6}
@@ -2003,25 +2139,16 @@ Just describe it naturally - what's the problem that needs solving?`
                     </Button>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-medium uppercase tracking-[0.2em] text-slate-300/70 sm:text-sm sm:normal-case sm:tracking-normal sm:text-slate-300/80">
-                  <span className="flex items-center gap-1 text-[0.7rem] sm:text-sm">
-                    <i className="fas fa-circle-dot text-[0.55rem] text-cyan-300"></i>
-                    Inputs {state.inputsCount}/6
-                  </span>
-                  {state.step >= 2 ? (
-                    <Button
-                      onClick={handleSubmitCommand}
-                      variant="outline"
-                      className="rounded-xl border-white/20 bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 hover:text-white sm:text-sm sm:font-normal sm:tracking-normal"
-                      data-testid="button-quick-submit"
-                    >
-                      <i className="fas fa-gauge mr-2"></i>
-                      Jump to review
-                    </Button>
-                  ) : (
-                    <span className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 sm:text-xs">Finish Step 1 to unlock review</span>
-                  )}
-                </div>
+
+                {/* Show input counter only when approaching limit */}
+                {state.inputsCount >= 5 && state.step < 4 && (
+                  <div className="mt-2 flex items-center justify-center gap-2 text-xs text-amber-300/80">
+                    <i className="fas fa-exclamation-triangle text-[0.65rem]"></i>
+                    <span>
+                      {state.inputsCount === 5 ? '1 input remaining' : 'Input limit reached'}
+                    </span>
+                  </div>
+                )}
               </div>
             </section>
           </div>
