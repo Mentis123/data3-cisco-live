@@ -113,6 +113,10 @@ export default {
           "0%": { transform: "translateY(0) rotate(0deg)", opacity: "1" },
           "100%": { transform: "translateY(200px) rotate(720deg)", opacity: "0" },
         },
+        slideIn: {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -120,6 +124,7 @@ export default {
         flash: "flash 240ms ease-in-out",
         rise: "rise 4s cubic-bezier(0.65, 0.05, 0.36, 1)",
         "confetti-fall": "confetti-fall 3s ease-out forwards",
+        slideIn: "slideIn 0.3s ease-out",
       },
     },
   },
