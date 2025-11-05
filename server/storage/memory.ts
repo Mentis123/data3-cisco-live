@@ -1722,6 +1722,10 @@ export function createMemoryStorage() {
       throw new Error("Word cloud management requires database storage");
     },
 
+    async syncWordCloudFromSubmissions() {
+      throw new Error("Word cloud sync requires database storage");
+    },
+
     // DB Admin methods
     async getDBStats() {
       throw new Error("DB statistics require database storage");
