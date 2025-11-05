@@ -107,6 +107,28 @@ function PitchDojoContent() {
       // Simulate boot sequence
       await new Promise(resolve => setTimeout(resolve, 1200));
 
+      // Add initial AI coach message
+      const categoryMeta = triviaCardCategoryMeta[category];
+      dispatch({
+        type: "ADD_MESSAGE",
+        payload: {
+          role: "assistant",
+          content: `Welcome to Pitch Dojo! 🥋
+
+You've selected **${categoryMeta.name}** as your focus area. I'm your AI coach, and I'll guide you through crafting a winning pitch in 3 steps.
+
+**Step 1: Name the Problem** 🎯
+
+Tell me about a specific business challenge related to ${categoryMeta.name} that:
+• Wastes time or resources
+• Creates friction for users
+• Causes errors or delays
+• Impacts productivity
+
+Just describe it naturally - what's the problem that needs solving?`
+        }
+      });
+
       setIsBooting(false);
     } catch (error) {
       console.error("Failed to start practice session:", error);
