@@ -952,41 +952,6 @@ export class AudioManager {
   }
 }
 
-// Lazy-initialized singleton wrapper to avoid module load-time initialization issues
-// This ensures AudioManager is only created when first accessed, preventing potential
-// circular dependency and timing issues during module loading
-let audioManagerInstance: AudioManager | null = null;
-
-function getAudioManager(): AudioManager {
-  if (!audioManagerInstance) {
-    audioManagerInstance = AudioManager.getInstance();
-  }
-  return audioManagerInstance;
-}
-
-// Export a wrapper object that lazily initializes the AudioManager on first method call
-// This avoids the Proxy TDZ error while still providing lazy initialization
-export const audioManager = {
-  playFlashSound: () => getAudioManager().playFlashSound(),
-  playNewChallengerSound: () => getAudioManager().playNewChallengerSound(),
-  playHomeSound: () => getAudioManager().playHomeSound(),
-  stopHomeSound: () => getAudioManager().stopHomeSound(),
-  playBuzzSound: () => getAudioManager().playBuzzSound(),
-  playClickSound: () => getAudioManager().playClickSound(),
-  setMuted: (muted: boolean) => getAudioManager().setMuted(muted),
-  getMuted: () => getAudioManager().getMuted(),
-  toggleMute: () => getAudioManager().toggleMute(),
-  setImmersive: (enabled: boolean) => getAudioManager().setImmersive(enabled),
-  getImmersive: () => getAudioManager().getImmersive(),
-  toggleImmersive: () => getAudioManager().toggleImmersive(),
-  setMusicEnabled: (enabled: boolean) => getAudioManager().setMusicEnabled(enabled),
-  getMusicEnabled: () => getAudioManager().getMusicEnabled(),
-  setSoundsEnabled: (enabled: boolean) => getAudioManager().setSoundsEnabled(enabled),
-  getSoundsEnabled: () => getAudioManager().getSoundsEnabled(),
-  setMusicVolume: (volume: number) => getAudioManager().setMusicVolume(volume),
-  getMusicVolume: () => getAudioManager().getMusicVolume(),
-  getVolumeControlSupported: () => getAudioManager().getVolumeControlSupported(),
-  getUseWebAudioForVolume: () => getAudioManager().getUseWebAudioForVolume(),
-  forcePlayFlashSound: () => getAudioManager().forcePlayFlashSound(),
-  forcePlayNewChallengerSound: () => getAudioManager().forcePlayNewChallengerSound(),
-};
+// Export singleton instance directly
+// The getInstance() method ensures only one instance is created
+export const audioManager = AudioManager.getInstance();
