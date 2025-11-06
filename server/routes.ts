@@ -654,6 +654,9 @@ export async function registerRoutes(
       let isEligible = false;
       let raffleResult: { success: boolean; alreadyExists?: boolean } | null = null;
 
+      // Get today's date in Melbourne timezone (needed for leaderboard filtering)
+      const today = getMelbourneDate();
+
       if (persistedTriviaAttemptId) {
         try {
           // Attach submission to trivia attempt
@@ -666,7 +669,6 @@ export async function registerRoutes(
             combinedScore = triviaScore + pitchScore;
 
             // Calculate bot bar for this category and today (Melbourne timezone)
-            const today = getMelbourneDate();
             botBar = await storage.calculateBotBar(category, today);
 
             // Check eligibility: combined score >= bot bar
