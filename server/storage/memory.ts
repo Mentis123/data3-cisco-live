@@ -1007,6 +1007,7 @@ export function createMemoryStorage() {
         mode: options.mode,
         startedAt: now,
         endedAt: null,
+        triviaScore: null,
         totalScore: null,
         passed: false,
         eligible: false,
@@ -1111,6 +1112,7 @@ export function createMemoryStorage() {
       const avgCorrect = correctCount > 0 ? Math.round(correctTimeTotal / correctCount) : null;
       const endedAt = new Date();
       attempt.totalScore = totalScore;
+      attempt.triviaScore = totalScore;
       attempt.endedAt = endedAt;
       // Trivia pass threshold: 40% of 60 points = 24 points
       attempt.passed = totalScore >= 24;
@@ -1209,11 +1211,19 @@ export function createMemoryStorage() {
       return attempt || null;
     },
 
-    async updateTriviaAttemptBotBar(attemptId: string, botBar: number, eligible: boolean): Promise<void> {
+    async updateTriviaAttemptBotBar(
+      attemptId: string,
+      botBar: number,
+      eligible: boolean,
+      combinedScore?: number,
+    ): Promise<void> {
       const attempt = triviaAttemptsStore.find((a) => a.id === attemptId);
       if (attempt) {
         attempt.botBar = botBar;
         attempt.eligible = eligible;
+        if (typeof combinedScore === "number" && Number.isFinite(combinedScore)) {
+          attempt.totalScore = Math.round(combinedScore);
+        }
       }
     },
 

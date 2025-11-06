@@ -691,7 +691,12 @@ export async function registerRoutes(
 
             // Update attempt with bot bar and eligibility
             if (typeof (storage as any).updateTriviaAttemptBotBar === "function") {
-              await (storage as any).updateTriviaAttemptBotBar(persistedTriviaAttemptId, botBar, isEligible);
+              await (storage as any).updateTriviaAttemptBotBar(
+                persistedTriviaAttemptId,
+                botBar,
+                isEligible,
+                combinedScore,
+              );
             }
 
             if (triviaAttempt.mode === 'ring' && session.emailHash) {

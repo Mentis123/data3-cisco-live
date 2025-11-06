@@ -1022,6 +1022,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         const [updated] = await tx
           .update(attempts)
           .set({
+            triviaScore: totalScore,
             totalScore,
             endedAt,
             passed,
@@ -1073,7 +1074,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const completedAttempts = await db
         .select({
           attemptId: attempts.id,
-          triviaScore: attempts.totalScore,
+          triviaScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0)`,
           subScores: submissions.subScores,
         })
         .from(attempts)
@@ -1125,10 +1126,20 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return attempt || null;
     },
 
-    async updateTriviaAttemptBotBar(attemptId: string, botBar: number, eligible: boolean): Promise<void> {
+    async updateTriviaAttemptBotBar(
+      attemptId: string,
+      botBar: number,
+      eligible: boolean,
+      combinedScore?: number,
+    ): Promise<void> {
+      const updateData: { botBar: number; eligible: boolean; totalScore?: number } = { botBar, eligible };
+      if (typeof combinedScore === "number" && Number.isFinite(combinedScore)) {
+        updateData.totalScore = Math.round(combinedScore);
+      }
+
       await db
         .update(attempts)
-        .set({ botBar, eligible })
+        .set(updateData)
         .where(eq(attempts.id, attemptId));
     },
 
@@ -2160,8 +2171,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           id: attempts.id,
           category: attempts.category,
           mode: attempts.mode,
-          triviaScore: attempts.totalScore,
-          combinedScore: submissions.totalScore,
+          triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
+          pitchScore: submissions.totalScore,
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
           passed: attempts.passed,
           eligible: attempts.eligible,
           startedAt: attempts.startedAt,
@@ -2286,8 +2298,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           lastName: users.lastName,
           company: users.company,
           role: users.role,
-          triviaScore: attempts.totalScore,
-          combinedScore: submissions.totalScore,
+          triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
+          pitchScore: submissions.totalScore,
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
           passed: attempts.passed,
           // All raffle entries are eligible by definition (only created when eligible)
           eligible: sql<boolean>`true`.as('eligible'),
@@ -2317,9 +2330,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           firstName: users.firstName,
           lastName: users.lastName,
           company: users.company,
-          triviaScore: attempts.totalScore,
+          triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
           pitchScore: submissions.totalScore,
-          combinedScore: sql<number>`COALESCE(${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
           botBar: attempts.botBar,
           eligible: attempts.eligible,
           passed: attempts.passed,
