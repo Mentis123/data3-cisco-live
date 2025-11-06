@@ -1903,6 +1903,26 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
+  async clearAllActiveRingAttempts(): Promise<number> {
+    try {
+      const result = await db
+        .update(attempts)
+        .set({ endedAt: new Date() })
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.endedAt),
+          ),
+        );
+
+      // Drizzle returns an array of updated rows, so we can get the count
+      return Array.isArray(result) ? result.length : 0;
+    } catch (error) {
+      console.error('[clearAllActiveRingAttempts] Error clearing all active ring attempts:', error);
+      throw error;
+    }
+  },
+
     async getRecentSubmission(): Promise<any> {
     try {
       const [result] = await db

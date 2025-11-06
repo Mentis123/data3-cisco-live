@@ -1126,6 +1126,17 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/staging/clear-all-active", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const count = await storage.clearAllActiveRingAttempts();
+      res.json({ message: `Cleared ${count} active challengers`, count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to clear all active challengers" });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/reset", async (req, res) => {
     try {
