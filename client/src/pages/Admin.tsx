@@ -2066,16 +2066,16 @@ function WordCloudTab() {
   );
 }
 
-function StagingLeaderboardTab() {
+function LeaderboardTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   const { data: challengers, isLoading, refetch } = useQuery<ActiveChallenger[]>({
-    queryKey: ["/api/admin/staging/active-challengers"],
+    queryKey: ["/api/admin/leaderboard/active-challengers"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/staging/active-challengers", {
+      const response = await fetch("/api/admin/leaderboard/active-challengers", {
         headers: { "x-admin-key": adminKey },
       });
       if (!response.ok) throw new Error("Failed to fetch active challengers");
@@ -2086,7 +2086,7 @@ function StagingLeaderboardTab() {
 
   const removeMutation = useMutation({
     mutationFn: async (attemptId: string) => {
-      const response = await fetch(`/api/admin/staging/active-challenger/${attemptId}`, {
+      const response = await fetch(`/api/admin/leaderboard/active-challenger/${attemptId}`, {
         method: "DELETE",
         headers: { "x-admin-key": adminKey },
       });
@@ -2094,7 +2094,7 @@ function StagingLeaderboardTab() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leaderboard/active-challengers"] });
       setDeleteConfirmId(null);
       toast({ title: "Challenger removed successfully" });
     },
@@ -2105,7 +2105,7 @@ function StagingLeaderboardTab() {
 
   const clearStaleMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/admin/staging/clear-stale", {
+      const response = await fetch("/api/admin/leaderboard/clear-stale", {
         method: "POST",
         headers: { "x-admin-key": adminKey },
       });
@@ -2113,7 +2113,7 @@ function StagingLeaderboardTab() {
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leaderboard/active-challengers"] });
       toast({ title: `Cleared ${data.count} stale challengers` });
     },
     onError: () => {
@@ -2123,7 +2123,7 @@ function StagingLeaderboardTab() {
 
   const clearAllActiveMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/admin/staging/clear-all-active", {
+      const response = await fetch("/api/admin/leaderboard/clear-all-active", {
         method: "POST",
         headers: { "x-admin-key": adminKey },
       });
@@ -2131,7 +2131,7 @@ function StagingLeaderboardTab() {
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leaderboard/active-challengers"] });
       setShowClearAllConfirm(false);
       toast({ title: `Cleared ${data.count} active challengers` });
     },
@@ -2160,7 +2160,7 @@ function StagingLeaderboardTab() {
             <div>
               <CardTitle>Active Challengers ({activeCount})</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Users currently "in the ring" on the staging leaderboard
+                Users currently "in the ring" on the leaderboard
               </p>
             </div>
             <div className="flex gap-2">
@@ -2248,7 +2248,7 @@ function StagingLeaderboardTab() {
           <DialogHeader>
             <DialogTitle>Remove Challenger</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to force-end this challenger's ring attempt? This will remove them from the "In The Ring" display on the staging leaderboard.</p>
+          <p>Are you sure you want to force-end this challenger's ring attempt? This will remove them from the "In The Ring" display on the leaderboard.</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
               Cancel
@@ -2633,7 +2633,7 @@ export default function Admin() {
             <TabsTrigger value="raffle">Raffle Entries</TabsTrigger>
             <TabsTrigger value="submissions">Scored Submissions</TabsTrigger>
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
-            <TabsTrigger value="staging">Leaderboard</TabsTrigger>
+            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
             <TabsTrigger value="dbadmin">DB Admin</TabsTrigger>
           </TabsList>
@@ -2658,8 +2658,8 @@ export default function Admin() {
             <WordCloudTab />
           </TabsContent>
 
-          <TabsContent value="staging">
-            <StagingLeaderboardTab />
+          <TabsContent value="leaderboard">
+            <LeaderboardTab />
           </TabsContent>
 
           <TabsContent value="botbarstats">
