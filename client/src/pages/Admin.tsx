@@ -2070,6 +2070,7 @@ function StagingLeaderboardTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   const { data: challengers, isLoading, refetch } = useQuery<ActiveChallenger[]>({
     queryKey: ["/api/admin/staging/active-challengers"],
@@ -2120,6 +2121,25 @@ function StagingLeaderboardTab() {
     },
   });
 
+  const clearAllActiveMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/admin/staging/clear-all-active", {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to clear all active challengers");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staging/active-challengers"] });
+      setShowClearAllConfirm(false);
+      toast({ title: `Cleared ${data.count} active challengers` });
+    },
+    onError: () => {
+      toast({ title: "Failed to clear all active challengers", variant: "destructive" });
+    },
+  });
+
   if (isLoading) {
     return (
       <Card>
@@ -2143,13 +2163,22 @@ function StagingLeaderboardTab() {
                 Users currently "in the ring" on the staging leaderboard
               </p>
             </div>
-            <Button
-              onClick={() => clearStaleMutation.mutate()}
-              variant="outline"
-              disabled={clearStaleMutation.isPending || activeCount === 0}
-            >
-              Clear Stale Entries
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => clearStaleMutation.mutate()}
+                variant="outline"
+                disabled={clearStaleMutation.isPending || activeCount === 0}
+              >
+                Clear Stale Entries
+              </Button>
+              <Button
+                onClick={() => setShowClearAllConfirm(true)}
+                variant="destructive"
+                disabled={clearAllActiveMutation.isPending || activeCount === 0}
+              >
+                Clear All Active
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -2229,6 +2258,29 @@ function StagingLeaderboardTab() {
               onClick={() => deleteConfirmId && removeMutation.mutate(deleteConfirmId)}
             >
               Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showClearAllConfirm} onOpenChange={() => setShowClearAllConfirm(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear All Active Challengers?</DialogTitle>
+          </DialogHeader>
+          <p>
+            This will force-end ALL active ring attempts ({activeCount} challenger{activeCount !== 1 ? 's' : ''})
+            and clear the entire "ACTIVE NOW" display. This action cannot be undone. Are you sure?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowClearAllConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => clearAllActiveMutation.mutate()}
+            >
+              Clear All ({activeCount})
             </Button>
           </DialogFooter>
         </DialogContent>

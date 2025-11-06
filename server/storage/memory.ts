@@ -1548,6 +1548,19 @@ export function createMemoryStorage() {
       return count;
     },
 
+    async clearAllActiveRingAttempts(): Promise<number> {
+      let count = 0;
+
+      triviaAttemptsStore.forEach((attempt) => {
+        if (attempt.mode === "ring" && !attempt.endedAt) {
+          attempt.endedAt = new Date();
+          count++;
+        }
+      });
+
+      return count;
+    },
+
     async getRecentSubmission(): Promise<any> {
       if (submissionsStore.length === 0) return null;
       const submission = submissionsStore[0];
