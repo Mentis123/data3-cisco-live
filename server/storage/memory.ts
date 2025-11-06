@@ -339,6 +339,7 @@ function seedMemoryData() {
       subScores: JSON.stringify(entry.subscores),
       totalScore: entry.totalScore,
       evaluationNotes: "Seeded showcase submission",
+      announcedOnLeaderboard: false,
       createdAt: new Date(Date.now() - index * 1000 * 45),
     };
 
@@ -1282,6 +1283,13 @@ export function createMemoryStorage() {
       return { success: true };
     },
 
+    async deleteRaffleEntry(id: string) {
+      const index = raffleEntriesStore.findIndex((entry) => entry.id === id);
+      if (index !== -1) {
+        raffleEntriesStore.splice(index, 1);
+      }
+    },
+
     async createSubmission(data: InsertSubmission): Promise<Submission> {
       const submission: MemorySubmission = {
         id: nanoid(),
@@ -1364,9 +1372,14 @@ export function createMemoryStorage() {
       return buildWordCloud();
     },
 
-    async getCategoryStats(): Promise<{ [key: string]: number }> {
-      return submissionsStore.reduce<Record<string, number>>((acc, submission) => {
-        acc[submission.category] = (acc[submission.category] ?? 0) + 1;
+    async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
+      const today = filterDate || getMelbourneDate();
+
+      return triviaAttemptsStore.reduce<Record<string, number>>((acc, attempt) => {
+        // Only count eligible attempts from today
+        if (attempt.eligible && attempt.attemptDay === today) {
+          acc[attempt.category] = (acc[attempt.category] ?? 0) + 1;
+        }
         return acc;
       }, {});
     },

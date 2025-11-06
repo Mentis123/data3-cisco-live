@@ -1,6 +1,6 @@
 import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "../../shared/schema.js";
-import { eq, desc, sql, and, inArray, gt, isNull } from "drizzle-orm";
+import { eq, desc, sql, and, inArray, gt, isNull, lt, isNotNull } from "drizzle-orm";
 import {
   participants,
   submissions,
@@ -1322,15 +1322,15 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         name: sql<string>`${participants.firstName} || ' ' || ${participants.lastName}`,
       })
       .from(submissions)
-      .innerJoin(participants, eq(submissions.participantId, participants.id))
-      .orderBy(desc(submissions.totalScore), submissions.createdAt)
-      .limit(limit);
+      .innerJoin(participants, eq(submissions.participantId, participants.id));
 
     if (filterDate) {
       query = query.where(sql`DATE(${submissions.createdAt}) = ${filterDate}`);
     }
 
-    const results = await query;
+    const results = await query
+      .orderBy(desc(submissions.totalScore), submissions.createdAt)
+      .limit(limit);
 
     // Parse JSON strings for each result
     return results.map(result => ({
@@ -1667,20 +1667,28 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
-    async getCategoryStats(): Promise<{ [key: string]: number }> {
+    async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
+    const today = filterDate || getMelbourneDate();
+
     const results = await db
       .select({
-        category: submissions.category,
+        category: attempts.category,
         count: sql<number>`count(*)::int`,
       })
-      .from(submissions)
-      .groupBy(submissions.category);
-    
+      .from(attempts)
+      .where(
+        and(
+          eq(attempts.eligible, true),
+          eq(attempts.attemptDay, today)
+        )
+      )
+      .groupBy(attempts.category);
+
     const stats: { [key: string]: number } = {};
     results.forEach(row => {
       stats[row.category] = row.count;
     });
-    
+
     return stats;
   },
 
@@ -2302,7 +2310,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, 'ring'),
-            eq(attempts.ringComplete, true),
             isNotNull(attempts.endedAt),
             isNotNull(attempts.botBar),
             isNotNull(submissions.id) // Only include attempts with completed submissions
