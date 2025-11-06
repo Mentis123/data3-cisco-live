@@ -37,6 +37,17 @@ interface DashboardData {
   topCategoryStats: any[];
   topCategory: string;
   activeChallengers?: ActiveChallengerPayload[];
+  triviaChallengers?: ActiveChallengerPayload[];
+  projectPitchChallengers?: ActiveChallengerPayload[];
+}
+
+interface ActiveChallenger {
+  attemptId: string;
+  initials: string;
+  category: string;
+  timestamp: number;
+  fading: boolean;
+  lastSeenInApi?: number;
 }
 
 // Unified Data#3 brand color scheme for all categories
@@ -102,6 +113,11 @@ export default function Leaderboard() {
     score: number;
     rank: number;
   } | null>(null);
+
+  // IN THE RING - Active challengers state
+  const [triviaChallengers, setTriviaChallengers] = useState<ActiveChallenger[]>([]);
+  const [projectPitchChallengers, setProjectPitchChallengers] = useState<ActiveChallenger[]>([]);
+  const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const isOldRoute = location?.startsWith("/old");
   const homeHref = isOldRoute ? "/old" : "/";
@@ -253,9 +269,70 @@ export default function Leaderboard() {
     }
   }, [newSubmissionTime]);
 
+  // Handle ring entry
+  const handleRingEntry = useCallback((entry: { attemptId: string; initials: string; category: string }) => {
+    console.log('🥊 RING ENTRY:', entry);
+
+    const now = Date.now();
+    const newChallenger = {
+      ...entry,
+      timestamp: now,
+      fading: false,
+      lastSeenInApi: now
+    };
+
+    // Add to trivia challengers list (new entries always start with trivia)
+    setTriviaChallengers(prev => {
+      if (prev.some(c => c.attemptId === entry.attemptId)) {
+        return prev;
+      }
+      return [newChallenger, ...prev];
+    });
+  }, []);
+
+  // Handle ring exit
+  const handleRingExit = useCallback((data: { attemptId: string; qualified: boolean }) => {
+    console.log('🚪 RING EXIT:', data);
+
+    // Mark challenger as fading in all lists
+    setTriviaChallengers(prev =>
+      prev.map(challenger =>
+        challenger.attemptId === data.attemptId
+          ? { ...challenger, fading: true }
+          : challenger
+      )
+    );
+    setProjectPitchChallengers(prev =>
+      prev.map(challenger =>
+        challenger.attemptId === data.attemptId
+          ? { ...challenger, fading: true }
+          : challenger
+      )
+    );
+
+    // Remove after fade animation (2 seconds)
+    setTimeout(() => {
+      setTriviaChallengers(prev =>
+        prev.filter(c => c.attemptId !== data.attemptId)
+      );
+      setProjectPitchChallengers(prev =>
+        prev.filter(c => c.attemptId !== data.attemptId)
+      );
+    }, 2000);
+  }, []);
+
   // WebSocket for real-time updates
   useWebSocket((message) => {
     console.log('WebSocket message received:', message);
+
+    if (message.type === "ringEntry") {
+      handleRingEntry(message.data);
+    }
+
+    if (message.type === "ringExit") {
+      handleRingExit(message.data);
+    }
+
     if (message.type === "scoreUpdate") {
       // Check if this is a genuinely new submission
       const submissionId = message.data.id;
@@ -531,9 +608,94 @@ export default function Leaderboard() {
     const timer = setTimeout(() => {
       setIsAnnouncementMode(false);
     }, 5 * 60 * 1000); // Clear after 5 minutes
-    
+
     return () => clearTimeout(timer);
   }, [newSubmissionTime]);
+
+  // Process active challengers from API data
+  useEffect(() => {
+    if (!data) {
+      if (websocketsDisabled) {
+        setTriviaChallengers([]);
+        setProjectPitchChallengers([]);
+      }
+      return;
+    }
+
+    const triviaEntries = data.triviaChallengers ?? [];
+    const projectPitchEntries = data.projectPitchChallengers ?? [];
+
+    const processChallengers = (
+      entries: ActiveChallengerPayload[],
+      prev: ActiveChallenger[]
+    ): ActiveChallenger[] => {
+      if (entries.length === 0) {
+        if (websocketsDisabled) {
+          return [];
+        } else {
+          // Clear stale challengers
+          const now = Date.now();
+          const STALE_THRESHOLD = 15000;
+          return prev.filter((entry) => {
+            const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+            return timeSinceLastSeen <= STALE_THRESHOLD;
+          });
+        }
+      }
+
+      const now = Date.now();
+      const STALE_THRESHOLD = 15000;
+      const toTimestamp = (iso: string) => {
+        const value = new Date(iso).getTime();
+        return Number.isFinite(value) ? value : Date.now();
+      };
+
+      const previousById = new Map(prev.map((entry) => [entry.attemptId, entry]));
+      const nextIds = new Set(entries.map((entry) => entry.attemptId));
+
+      const nextFromApi = entries.map((entry) => {
+        const existing = previousById.get(entry.attemptId);
+        const timestamp = toTimestamp(entry.startedAt);
+
+        if (existing) {
+          return {
+            ...existing,
+            initials: entry.initials,
+            category: entry.category,
+            timestamp,
+            fading: websocketsDisabled ? false : existing.fading,
+            lastSeenInApi: now,
+          };
+        }
+
+        return {
+          attemptId: entry.attemptId,
+          initials: entry.initials,
+          category: entry.category,
+          timestamp,
+          fading: false,
+          lastSeenInApi: now,
+        };
+      });
+
+      if (websocketsDisabled) {
+        return nextFromApi.sort((a, b) => b.timestamp - a.timestamp);
+      }
+
+      const remaining = prev.filter((entry) => {
+        if (nextIds.has(entry.attemptId)) {
+          return false;
+        }
+        const timeSinceLastSeen = now - (entry.lastSeenInApi ?? now);
+        return timeSinceLastSeen <= STALE_THRESHOLD;
+      });
+
+      return [...nextFromApi, ...remaining];
+    };
+
+    setTriviaChallengers((prev) => processChallengers(triviaEntries, prev));
+    setProjectPitchChallengers((prev) => processChallengers(projectPitchEntries, prev));
+  }, [data, websocketsDisabled]);
 
     // Handle error state
     if (error && !displayData) {
@@ -1196,6 +1358,125 @@ export default function Leaderboard() {
     );
   };
 
+  const renderChallengerCard = (challenger: ActiveChallenger, stageLabel: string, stageIcon: string) => {
+    const categoryColor = CATEGORY_COLORS[challenger.category as keyof typeof CATEGORY_COLORS] || '#00AEFF';
+    const categoryName = CATEGORY_NAMES[challenger.category as keyof typeof CATEGORY_NAMES];
+
+    return (
+      <div
+        key={challenger.attemptId}
+        className={`p-3 sm:p-4 rounded-xl border-2 backdrop-blur-xl transition-all duration-1000 ${
+          challenger.fading
+            ? 'opacity-0 translate-y-4'
+            : 'opacity-100 translate-y-0'
+        }`}
+        style={{
+          borderColor: `${categoryColor}60`,
+          backgroundColor: `${categoryColor}15`
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-base sm:text-xl font-black text-white flex-shrink-0"
+            style={{ backgroundColor: categoryColor }}
+          >
+            {challenger.initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-sm sm:text-base">{stageLabel}</p>
+            <Badge
+              className="text-xs mt-1 truncate"
+              style={{ backgroundColor: `${categoryColor}40`, color: categoryColor }}
+            >
+              {categoryName}
+            </Badge>
+          </div>
+          <div className="text-[#78DCFF]/60">
+            <i className={`${stageIcon} text-xl sm:text-2xl`}></i>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderActiveChallengers = () => {
+    const hasTrivia = triviaChallengers.length > 0;
+    const hasPitch = projectPitchChallengers.length > 0;
+    const totalChallengers = triviaChallengers.length + projectPitchChallengers.length;
+
+    return (
+      <Card className="relative overflow-hidden border-2 border-[#00AEFF]/30 bg-gradient-to-b from-[#000025] via-[#000045] to-[#007BC3]/15 text-white shadow-2xl h-full">
+        <div className="absolute -top-32 -right-24 h-64 w-64 rounded-full bg-[#00AEFF]/20 blur-3xl"></div>
+        <div className="absolute -bottom-32 -left-24 h-64 w-64 rounded-full bg-[#78DCFF]/20 blur-3xl"></div>
+
+        <CardHeader className="relative z-10 pt-6 sm:pt-8 pb-4 sm:pb-6 text-center border-b border-white/10">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <i className="fas fa-fist-raised text-[#00AEFF]"></i>
+            <p className="uppercase tracking-[0.3em] sm:tracking-[0.4em] text-[#78DCFF]/80 text-[0.6rem] sm:text-[0.65rem]">
+              Active Now
+            </p>
+          </div>
+          <CardTitle className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,174,255,0.4)]">
+            In The Ring
+          </CardTitle>
+          <p className="mt-2 text-xs sm:text-sm text-[#78DCFF]/70">
+            {totalChallengers} {totalChallengers === 1 ? 'Challenger' : 'Challengers'}
+          </p>
+        </CardHeader>
+
+        <CardContent className="relative z-10 py-4 sm:py-6 space-y-4 sm:space-y-6">
+          {/* Trivia Challenge Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+              <i className="fas fa-brain text-[#00AEFF] text-sm"></i>
+              <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wider">
+                Trivia Challenge
+              </h3>
+              <span className="ml-auto text-xs text-[#78DCFF]/60">
+                {triviaChallengers.length}
+              </span>
+            </div>
+            {hasTrivia ? (
+              <div className="space-y-2 sm:space-y-3">
+                {triviaChallengers.map((challenger) =>
+                  renderChallengerCard(challenger, "Trivia Challenge", "fas fa-brain")
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-3 sm:py-4 text-xs sm:text-sm text-white/50">
+                No one in trivia right now
+              </div>
+            )}
+          </div>
+
+          {/* Project Pitch Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+              <i className="fas fa-lightbulb text-[#FFD700] text-sm"></i>
+              <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wider">
+                Project Pitch
+              </h3>
+              <span className="ml-auto text-xs text-[#78DCFF]/60">
+                {projectPitchChallengers.length}
+              </span>
+            </div>
+            {hasPitch ? (
+              <div className="space-y-2 sm:space-y-3">
+                {projectPitchChallengers.map((challenger) =>
+                  renderChallengerCard(challenger, "Project Pitch", "fas fa-lightbulb")
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-3 sm:py-4 text-xs sm:text-sm text-white/50">
+                No one in pitch phase right now
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
       {/* Welcome New Challenger Overlay */}
@@ -1413,12 +1694,20 @@ export default function Leaderboard() {
           </Button>
         </div>
 
-        {/* Active View */}
-        <div className="transition-all duration-500">
-          {activeView === "leaderboard" && renderLeaderboard()}
-          {activeView === "wordcloud" && renderWordCloud()}
-          {activeView === "categories" && renderCategoryStats()}
-          {activeView === "data3stats" && renderData3Stats()}
+        {/* Split Screen: Active View + IN THE RING */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Side: Main Content (wider) */}
+          <div className="lg:col-span-8 transition-all duration-500">
+            {activeView === "leaderboard" && renderLeaderboard()}
+            {activeView === "wordcloud" && renderWordCloud()}
+            {activeView === "categories" && renderCategoryStats()}
+            {activeView === "data3stats" && renderData3Stats()}
+          </div>
+
+          {/* Right Side: IN THE RING */}
+          <div className="lg:col-span-4">
+            {renderActiveChallengers()}
+          </div>
         </div>
 
         {!isFullscreen && (
