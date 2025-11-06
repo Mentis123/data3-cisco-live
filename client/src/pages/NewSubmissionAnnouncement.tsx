@@ -144,7 +144,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       onDismiss();
     } else {
       audioManager.playClickSound();
-      setLocation('/leaderboard/staging');
+      setLocation('/leaderboard');
     }
   };
 

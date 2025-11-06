@@ -209,12 +209,47 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     const shouldScroll = lastMessage?.role === "assistant" || isUserNearBottom;
 
     if (shouldScroll) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: "smooth",
+      // Use requestAnimationFrame to ensure DOM has updated before scrolling
+      requestAnimationFrame(() => {
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+
+          // Double-check scroll position after a short delay to ensure we're at the bottom
+          // This handles cases where content takes time to render (e.g., markdown formatting)
+          setTimeout(() => {
+            if (container) {
+              container.scrollTo({
+                top: container.scrollHeight,
+                behavior: "smooth",
+              });
+            }
+          }, 100);
+        }
       });
     }
   }, [state.messages, isTyping, isUserNearBottom]);
+
+  // Additional scroll trigger specifically for new assistant messages
+  useEffect(() => {
+    const lastMessage = state.messages[state.messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      const container = chatContainerRef.current;
+      if (!container) return;
+
+      // Scroll immediately when assistant message arrives
+      setTimeout(() => {
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 50);
+    }
+  }, [state.messages.length]);
 
   // Check for max inputs
   useEffect(() => {
