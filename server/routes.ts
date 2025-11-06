@@ -612,14 +612,32 @@ export async function registerRoutes(
         return res.status(400).json({ message: "No structured solution available" });
       }
 
-      // Use session category if available (from trivia selection), otherwise auto-categorize
-      let category = session.category;
-      if (!category) {
+      const persistedTriviaAttemptId = session.triviaAttemptId ?? triviaAttemptId ?? null;
+
+      // Retrieve trivia attempt if linked (we'll reuse this later)
+      let triviaAttempt = null;
+      if (persistedTriviaAttemptId && storage.getTriviaAttempt) {
+        triviaAttempt = await storage.getTriviaAttempt(persistedTriviaAttemptId);
+      }
+
+      // Determine category: prioritize trivia attempt category, then session category, then auto-categorize
+      let category: string;
+      if (triviaAttempt && triviaAttempt.category) {
+        // If this submission is linked to a trivia attempt, use the trivia attempt's category
+        category = triviaAttempt.category;
+        console.log('[express] Using category from trivia attempt:', category);
+      } else if (session.category) {
+        // Use session category if available
+        category = session.category;
+        console.log('[express] Using session category:', category);
+      } else {
+        // Otherwise auto-categorize
         category = await categorizeProposal(
           structuredSubmission.problem_summary,
           conversation.map(m => m.content).join(" "),
           JSON.stringify(structuredSubmission)
         );
+        console.log('[express] Auto-categorized submission:', category);
       }
 
       // Evaluate solution (pass category for Technology Fit scoring)
@@ -631,8 +649,6 @@ export async function registerRoutes(
         category
       );
       console.log('[express] Evaluation result:', JSON.stringify(evaluation, null, 2));
-
-      const persistedTriviaAttemptId = session.triviaAttemptId ?? triviaAttemptId ?? null;
 
       // Create submission with evaluation notes (pitch score only, 0-40 points)
       const pitchScore = evaluation.total;
@@ -662,10 +678,9 @@ export async function registerRoutes(
           // Attach submission to trivia attempt
           await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
 
-          // Get trivia attempt to retrieve trivia score
-          const attempt = await storage.getTriviaAttempt?.(persistedTriviaAttemptId);
-          if (attempt) {
-            triviaScore = attempt.totalScore || 0;
+          // Use the trivia attempt we retrieved earlier
+          if (triviaAttempt) {
+            triviaScore = triviaAttempt.totalScore || 0;
             combinedScore = triviaScore + pitchScore;
 
             // Calculate bot bar for this category and today (Melbourne timezone)
@@ -679,7 +694,7 @@ export async function registerRoutes(
               await (storage as any).updateTriviaAttemptBotBar(persistedTriviaAttemptId, botBar, isEligible);
             }
 
-            if (attempt.mode === 'ring' && session.emailHash) {
+            if (triviaAttempt.mode === 'ring' && session.emailHash) {
               // Only create raffle entry if eligible and in ring mode with email
               if (isEligible) {
                 raffleResult = await storage.createRaffleEntry({
