@@ -434,7 +434,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
             return (
               <div key={entry.name} className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded flex-shrink-0" style={{ backgroundColor: entry.color }} />
+                  <div className="w-4 h-4 rounded flex-shrink-0" style={{ backgroundColor: entry.color }}></div>
                   <span className="text-sm font-medium text-white truncate">{entry.name}</span>
                 </div>
                 <span className="text-sm font-bold text-[#78DCFF]/80 whitespace-nowrap">
@@ -1139,7 +1139,7 @@ export default function Leaderboard() {
               <CardContent className="p-8 sm:p-12 text-center space-y-6">
                 {/* Flash effect overlay */}
                 <div className="announcement-strobe absolute inset-0 rounded-[inherit]"
-                     style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }} />
+                     style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}></div>
 
                 {/* Content */}
                 <div className="relative z-10 space-y-6">
