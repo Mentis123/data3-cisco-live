@@ -1115,8 +1115,8 @@ export async function registerRoutes(
     }
   });
 
-  // Staging Leaderboard Admin endpoints
-  app.get("/api/admin/staging/active-challengers", async (req, res) => {
+  // Leaderboard admin endpoints
+  app.get("/api/admin/leaderboard/active-challengers", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;
 
@@ -1127,7 +1127,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/admin/staging/active-challenger/:attemptId", async (req, res) => {
+  app.delete("/api/admin/leaderboard/active-challenger/:attemptId", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;
 
@@ -1138,7 +1138,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/staging/clear-stale", async (req, res) => {
+  app.post("/api/admin/leaderboard/clear-stale", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;
 
@@ -1149,7 +1149,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/staging/clear-all-active", async (req, res) => {
+  app.post("/api/admin/leaderboard/clear-all-active", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;
 

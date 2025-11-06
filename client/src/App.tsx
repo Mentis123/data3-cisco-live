@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation, useRouter } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,7 +9,7 @@ import { audioManager } from "@/lib/audio";
 import { useEffect, useRef } from "react";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
-import StagingLeaderboard from "@/pages/StagingLeaderboard";
+import LegacyLeaderboard from "@/pages/LegacyLeaderboard";
 import RingPlay from "@/pages/RingPlay";
 import AdminLeaderboard from "@/pages/AdminLeaderboard";
 import HowToPlay from "@/pages/HowToPlay";
@@ -35,6 +35,16 @@ function ScrollToTop() {
   return null;
 }
 
+function LeaderboardRedirect() {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    setLocation("/leaderboard");
+  }, [setLocation]);
+
+  return null;
+}
+
 function Router() {
   return (
     <>
@@ -44,8 +54,8 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/play" component={RingPlay} />
         <Route path="/ring" component={RingPlay} />
-        <Route path="/leaderboard" component={StagingLeaderboard} />
-        <Route path="/leaderboard/staging" component={StagingLeaderboard} />
+        <Route path="/leaderboard" component={Leaderboard} />
+        <Route path="/leaderboard/staging" component={LeaderboardRedirect} />
         <Route path="/leaderboard/ideas" component={LeaderboardIdeas} />
         <Route path="/admin" component={Admin} />
         <Route path="/dojo" component={Dojo} />
@@ -57,7 +67,7 @@ function Router() {
         {/* Classic App (moved to /old) */}
         <Route path="/old" component={Old} />
         <Route path="/old/play" component={OldPlay} />
-        <Route path="/old/leaderboard" component={Leaderboard} />
+        <Route path="/old/leaderboard" component={LegacyLeaderboard} />
         <Route path="/old/admin" component={AdminLeaderboard} />
 
         {/* Legacy Admin Routes */}
@@ -72,7 +82,7 @@ function Router() {
         <Route path="/beta" component={Home} />
         <Route path="/beta/play" component={RingPlay} />
         <Route path="/beta/ring" component={RingPlay} />
-        <Route path="/beta/leaderboard" component={Leaderboard} />
+        <Route path="/beta/leaderboard" component={LegacyLeaderboard} />
         <Route path="/beta/admin" component={Admin} />
         <Route path="/beta/dojo" component={Dojo} />
         <Route path="/beta/dojo/:mode" component={Dojo} />
