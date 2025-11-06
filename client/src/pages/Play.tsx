@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,6 +162,7 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
   const activeCategoryTheme = getCategoryTheme(activeCategory || selectedCategory);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const chatBottomRef = useRef<HTMLDivElement | null>(null);
   const hasUserInitiatedChatRef = useRef(false);
   const [isUserNearBottom, setIsUserNearBottom] = useState(true);
 
@@ -195,7 +196,9 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     if (state.messages.some((message) => message.role === "user")) {
       hasUserInitiatedChatRef.current = true;
     }
+  }, [state.messages]);
 
+  useLayoutEffect(() => {
     if (!hasUserInitiatedChatRef.current) {
       return;
     }
@@ -203,53 +206,31 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
     const container = chatContainerRef.current;
     if (!container) return;
 
-    // Always scroll to bottom when AI replies (last message is from assistant)
-    // or when user is near bottom and typing indicator changes
     const lastMessage = state.messages[state.messages.length - 1];
     const shouldScroll = lastMessage?.role === "assistant" || isUserNearBottom;
 
-    if (shouldScroll) {
-      // Use requestAnimationFrame to ensure DOM has updated before scrolling
-      requestAnimationFrame(() => {
-        if (container) {
-          container.scrollTo({
-            top: container.scrollHeight,
-            behavior: "smooth",
-          });
-
-          // Double-check scroll position after a short delay to ensure we're at the bottom
-          // This handles cases where content takes time to render (e.g., markdown formatting)
-          setTimeout(() => {
-            if (container) {
-              container.scrollTo({
-                top: container.scrollHeight,
-                behavior: "smooth",
-              });
-            }
-          }, 100);
-        }
-      });
+    if (!shouldScroll) {
+      return;
     }
-  }, [state.messages, isTyping, isUserNearBottom]);
 
-  // Additional scroll trigger specifically for new assistant messages
-  useEffect(() => {
-    const lastMessage = state.messages[state.messages.length - 1];
-    if (lastMessage?.role === "assistant") {
-      const container = chatContainerRef.current;
-      if (!container) return;
+    const scrollToBottom = (behavior: ScrollBehavior) => {
+      if (chatBottomRef.current) {
+        chatBottomRef.current.scrollIntoView({ behavior, block: "end" });
+      } else {
+        container.scrollTo({ top: container.scrollHeight, behavior });
+      }
+    };
 
-      // Scroll immediately when assistant message arrives
+    requestAnimationFrame(() => {
+      scrollToBottom("smooth");
+
+      // Double-check scroll position after a short delay to handle late rendering content
       setTimeout(() => {
-        if (container) {
-          container.scrollTo({
-            top: container.scrollHeight,
-            behavior: "smooth",
-          });
-        }
-      }, 50);
-    }
-  }, [state.messages.length]);
+        scrollToBottom("auto");
+        container.scrollTop = container.scrollHeight;
+      }, 120);
+    });
+  }, [state.messages, isTyping, isUserNearBottom]);
 
   // Check for max inputs
   useEffect(() => {
@@ -2070,6 +2051,8 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       </div>
                     ))}
 
+                    <div ref={chatBottomRef} aria-hidden="true" />
+
                     {/* Enhanced Typing Indicator */}
                     {isTyping && (
                       <div className="flex justify-start items-center gap-3">
@@ -2090,10 +2073,12 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                     {showScrollToBottom && (
                       <button
                         onClick={() => {
-                          chatContainerRef.current?.scrollTo({
-                            top: chatContainerRef.current.scrollHeight,
-                            behavior: 'smooth'
-                          });
+                          if (chatBottomRef.current) {
+                            chatBottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                          }
+                          if (chatContainerRef.current) {
+                            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                          }
                         }}
                         className="fixed bottom-32 right-8 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500 text-white shadow-lg hover:bg-cyan-400 transition-all animate-slideIn"
                         aria-label="Scroll to bottom"
