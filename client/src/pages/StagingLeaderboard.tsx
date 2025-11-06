@@ -117,6 +117,64 @@ export default function StagingLeaderboard() {
     }
   }, []);
 
+  // Presentation mode handlers
+  const enterPresentationMode = async () => {
+    try {
+      // Request fullscreen on the document element
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        await (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) {
+        await (elem as any).msRequestFullscreen();
+      }
+      setIsPresentationMode(true);
+      console.log('[StagingLeaderboard] Entered presentation mode');
+    } catch (error) {
+      console.error('[StagingLeaderboard] Failed to enter fullscreen:', error);
+      // Still enable presentation mode even if fullscreen fails
+      setIsPresentationMode(true);
+    }
+  };
+
+  const exitPresentationMode = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => {
+        console.error('[StagingLeaderboard] Failed to exit fullscreen:', err);
+      });
+    }
+    setIsPresentationMode(false);
+    console.log('[StagingLeaderboard] Exited presentation mode');
+  };
+
+  // Handle Escape key and fullscreen changes
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isPresentationMode) {
+        exitPresentationMode();
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      // If we exit fullscreen and we're in presentation mode, exit presentation mode
+      if (!document.fullscreenElement && isPresentationMode) {
+        setIsPresentationMode(false);
+        console.log('[StagingLeaderboard] Fullscreen exited, leaving presentation mode');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [isPresentationMode]);
+
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
@@ -127,6 +185,7 @@ export default function StagingLeaderboard() {
   const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
   const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
 
   // New submission detection state
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
@@ -1039,105 +1098,123 @@ export default function StagingLeaderboard() {
       )}
 
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img
-              src={leaderboardFullImage}
-              alt="Leaderboard"
-              className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
-            />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">
-                Live Leaderboard
-              </h1>
-              <p className="text-sm text-[#78DCFF]/80">
-                Real-time rankings & active challengers
-              </p>
-            </div>
-          </div>
-          {/* Desktop-only navigation */}
-          <div className="hidden lg:flex gap-3">
+        {/* Presentation Mode Button - Always visible at top */}
+        {!isPresentationMode && (
+          <div className="mb-4 flex justify-center">
             <Button
-              onClick={() => window.location.href = '/'}
-              className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
+              onClick={enterPresentationMode}
+              size="lg"
+              className="bg-gradient-to-r from-[#7300FF] to-[#00AEFF] hover:from-[#8500FF] hover:to-[#2CC8FF] text-white font-bold shadow-2xl shadow-[#7300FF]/40 border-2 border-white/20"
             >
-              <i className="fas fa-home mr-2"></i>
-              Home
+              <i className="fas fa-expand mr-2"></i>
+              Hide Interface (Presentation Mode)
             </Button>
           </div>
-        </div>
+        )}
+
+        {/* Header */}
+        {!isPresentationMode && (
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img
+                src={leaderboardFullImage}
+                alt="Leaderboard"
+                className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
+              />
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-white">
+                  Live Leaderboard
+                </h1>
+                <p className="text-sm text-[#78DCFF]/80">
+                  Real-time rankings & active challengers
+                </p>
+              </div>
+            </div>
+            {/* Desktop-only navigation */}
+            <div className="hidden lg:flex gap-3">
+              <Button
+                onClick={() => window.location.href = '/'}
+                className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
+              >
+                <i className="fas fa-home mr-2"></i>
+                Home
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* View Controls */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
-          {/* Mobile Home Button */}
-          <Button
-            onClick={() => window.location.href = '/'}
-            variant="outline"
-            size="sm"
-            className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
-            title="Go to Home"
-          >
-            <i className="fas fa-home"></i>
-          </Button>
-          {/* Tab Buttons */}
-          <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
-            {[
-              {
-                key: "rankings",
-                icon: "fa-trophy",
-                label: "Rankings",
-                hasContent: true
-              },
-              {
-                key: "wordcloud",
-                icon: "fa-cloud",
-                label: "Technologies",
-                hasContent: displayData?.wordCloud.length > 0
-              },
-              {
-                key: "categories",
-                icon: "fa-chart-pie",
-                label: "Categories",
-                hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0)
-              }
-            ].map((view) => (
-              <Button
-                key={view.key}
-                variant={activeView === view.key ? "default" : "ghost"}
-                size="sm"
-                onClick={() => {
-                  setActiveView(view.key as any);
-                  setIsAutoRotateEnabled(false);
-                }}
-                className={`flex-1 sm:flex-initial transition-all duration-200 ${
-                  activeView === view.key
-                    ? 'bg-[#00AEFF]/20 border border-[#00AEFF]/40 text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20'
-                    : 'hover:bg-white/10 text-white/70 hover:text-white'
-                }`}
-              >
-                <i className={`fas ${view.icon} sm:mr-2`}></i>
-                <span className="hidden sm:inline">{view.label}</span>
-              </Button>
-            ))}
-          </div>
+        {!isPresentationMode && (
+          <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
+            {/* Mobile Home Button */}
+            <Button
+              onClick={() => window.location.href = '/'}
+              variant="outline"
+              size="sm"
+              className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
+              title="Go to Home"
+            >
+              <i className="fas fa-home"></i>
+            </Button>
+            {/* Tab Buttons */}
+            <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
+              {[
+                {
+                  key: "rankings",
+                  icon: "fa-trophy",
+                  label: "Rankings",
+                  hasContent: true
+                },
+                {
+                  key: "wordcloud",
+                  icon: "fa-cloud",
+                  label: "Technologies",
+                  hasContent: displayData?.wordCloud.length > 0
+                },
+                {
+                  key: "categories",
+                  icon: "fa-chart-pie",
+                  label: "Categories",
+                  hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0)
+                }
+              ].map((view) => (
+                <Button
+                  key={view.key}
+                  variant={activeView === view.key ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveView(view.key as any);
+                    setIsAutoRotateEnabled(false);
+                  }}
+                  className={`flex-1 sm:flex-initial transition-all duration-200 ${
+                    activeView === view.key
+                      ? 'bg-[#00AEFF]/20 border border-[#00AEFF]/40 text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20'
+                      : 'hover:bg-white/10 text-white/70 hover:text-white'
+                  }`}
+                >
+                  <i className={`fas ${view.icon} sm:mr-2`}></i>
+                  <span className="hidden sm:inline">{view.label}</span>
+                </Button>
+              ))}
+            </div>
 
-          {/* Pause/Play Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
-            className={`transition-all duration-200 ${
-              isAutoRotateEnabled
-                ? 'bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30'
-                : 'bg-[#000045]/60 border-[#00AEFF]/20 text-white/70 hover:bg-white/10'
-            }`}
-            title={isAutoRotateEnabled ? 'Pause auto-rotation' : 'Resume auto-rotation'}
-          >
-            <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} sm:mr-2`}></i>
-            <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
-          </Button>
-        </div>
+            {/* Pause/Play Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
+              className={`transition-all duration-200 ${
+                isAutoRotateEnabled
+                  ? 'bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30'
+                  : 'bg-[#000045]/60 border-[#00AEFF]/20 text-white/70 hover:bg-white/10'
+              }`}
+              title={isAutoRotateEnabled ? 'Pause auto-rotation' : 'Resume auto-rotation'}
+            >
+              <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} sm:mr-2`}></i>
+              <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
+            </Button>
+          </div>
+        )}
 
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1225,18 +1302,20 @@ export default function StagingLeaderboard() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6">
-          <div className="flex justify-center gap-4">
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              Live Updates
-            </span>
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
-              {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
-            </span>
+        {!isPresentationMode && (
+          <div className="text-center mt-6">
+            <div className="flex justify-center gap-4">
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                Live Updates
+              </span>
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
+                {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
