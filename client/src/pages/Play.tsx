@@ -1096,7 +1096,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                       type: 'ADD_MESSAGE',
                       payload: {
                         role: "assistant",
-                        content: `Great work, ${firstName}! You scored ${score || 0}/60 on ${activeCategoryLabel || 'trivia'}.
+                        content: `You scored ${score || 0}/60 on trivia, ${firstName}.
 
 Let's build your project pitch in 3 focused steps. I'll guide you through each one.
 
