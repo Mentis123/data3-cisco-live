@@ -2390,6 +2390,43 @@ function DBAdminTab() {
     },
   });
 
+  // Broadcast raffle winner mutation
+  const broadcastWinnerMutation = useMutation({
+    mutationFn: async (winnerData: {
+      firstName: string;
+      lastName: string;
+      combinedScore: number;
+      category: string;
+    }) => {
+      const response = await fetch("/api/beta-admin/broadcast-raffle-winner", {
+        method: "POST",
+        headers: {
+          "x-admin-key": adminKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(winnerData),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to broadcast winner");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Winner announced to Leaderboard!",
+        description: "The spectacular reveal is now playing.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to broadcast winner",
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
 
   return (
     <div className="space-y-6">
@@ -2557,8 +2594,25 @@ function DBAdminTab() {
               </>
             )}
           </div>
-          <DialogFooter>
-            <Button onClick={() => setShowWinnerDialog(false)}>Close</Button>
+          <DialogFooter className="flex gap-2">
+            {selectedWinner && (
+              <Button
+                onClick={() => {
+                  broadcastWinnerMutation.mutate({
+                    firstName: selectedWinner.winner.firstName,
+                    lastName: selectedWinner.winner.lastName,
+                    combinedScore: selectedWinner.winner.combinedScore || 0,
+                    category: selectedWinner.winner.category,
+                  });
+                }}
+                disabled={broadcastWinnerMutation.isPending}
+                variant="default"
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold"
+              >
+                {broadcastWinnerMutation.isPending ? "Announcing..." : "🎉 Announce Winner to Leaderboard!"}
+              </Button>
+            )}
+            <Button onClick={() => setShowWinnerDialog(false)} variant="outline">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

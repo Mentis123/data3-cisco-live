@@ -12,6 +12,7 @@ import { formatNameToInitials } from "@/lib/utils";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
+import { RaffleWinnerReveal } from "@/components/RaffleWinnerReveal";
 
 interface LeaderboardEntry {
   id: string;
@@ -93,6 +94,22 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
       return "bg-white/10 border-white/40 shadow-xl shadow-[#007BC3]/20";
     }
 
+  // Raffle winner reveal state
+  const [showRaffleWinner, setShowRaffleWinner] = useState(false);
+  const [raffleWinnerData, setRaffleWinnerData] = useState<{
+    initials: string;
+    totalScore: number;
+    category: string;
+  } | null>(null);
+
+  // Welcome New Challenger overlay state
+  const [showChallengerOverlay, setShowChallengerOverlay] = useState(false);
+  const [challengerData, setChallengerData] = useState<{
+    initials: string;
+    category: string;
+    score: number;
+    rank: number;
+  } | null>(null);
     if (index === 2) {
       return "bg-white/10 border-white/30 shadow-xl shadow-[#7300FF]/20";
     }
@@ -595,7 +612,53 @@ export default function Leaderboard() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     };
-  }, [isPresentationMode]);
+  }, []);
+
+  // Reset timing counters when a new submission occurs
+  useEffect(() => {
+    if (newSubmissionTime) {
+      setViewDisplayCounts({});
+    }
+  }, [newSubmissionTime]);
+
+  // WebSocket for real-time updates
+  useWebSocket((message) => {
+    console.log('WebSocket message received:', message);
+    if (message.type === "scoreUpdate") {
+      // Check if this is a genuinely new submission
+      const submissionId = message.data.id;
+      const isNewSubmission = !knownSubmissionIds.has(submissionId);
+
+      console.log('Score update - New submission?', isNewSubmission, 'ID:', submissionId);
+
+      if (isNewSubmission) {
+        handleNewSubmission({
+          id: submissionId,
+          name: message.data.name,
+          category: message.data.category,
+          finalScore: message.data.finalScore,
+          totalScore: message.data.totalScore,
+          targetRank: message.data.targetRank,
+          pitchScore: message.data.pitchScore ?? null,
+          triviaScore: message.data.triviaScore ?? null,
+          botBar: message.data.botBar ?? null,
+          isEligible: message.data.isEligible,
+        });
+      } else {
+        triggerScoreAnimation(submissionId, message.data.finalScore ?? message.data.totalScore);
+        refetch();
+      }
+    } else if (message.type === "raffleWinner") {
+      // Handle raffle winner broadcast
+      console.log('🎉 Raffle winner broadcast received:', message.data);
+      setRaffleWinnerData({
+        initials: message.data.initials,
+        totalScore: message.data.totalScore,
+        category: message.data.category,
+      });
+      setShowRaffleWinner(true);
+    }
+  });
 
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
@@ -1088,6 +1151,143 @@ export default function Leaderboard() {
                 >
                   {CATEGORY_NAMES[raffleCategory as keyof typeof CATEGORY_NAMES]}
                 </Badge>
+                scoring <strong>{displayData.recentSubmission.totalScore}/100</strong>
+              </p>
+              
+              {/* Show detailed submission info during 5-minute window */}
+              {isWithin5Minutes && displayData.recentSubmission && (
+                <>
+                  {/* Problem Summary */}
+                  {(() => {
+                    try {
+                      const structuredData = typeof displayData.recentSubmission.structuredJson === 'string' 
+                        ? JSON.parse(displayData.recentSubmission.structuredJson)
+                        : displayData.recentSubmission.structuredJson;
+                      
+                      if (structuredData?.problem_summary) {
+                        return (
+                          <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-primary/10 border border-primary/20`}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-lightbulb text-yellow-500"></i>
+                              <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>Problem Summary</span>
+                            </div>
+                            <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
+                              {structuredData.problem_summary}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    } catch (e) {
+                      console.error('Error parsing structuredJson:', e);
+                      return null;
+                    }
+                  })()}
+                  
+                  {/* AI Evaluation Summary */}
+                  {displayData.recentSubmission.evaluationNotes && (
+                    <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-cyan-500/10 border border-cyan-500/20`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <i className="fas fa-robot text-cyan-500"></i>
+                        <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>AI Evaluation Summary</span>
+                      </div>
+                      <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
+                        {displayData.recentSubmission.evaluationNotes}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+      {/* Raffle Winner Reveal */}
+      {showRaffleWinner && raffleWinnerData && (
+        <RaffleWinnerReveal
+          initials={raffleWinnerData.initials}
+          totalScore={raffleWinnerData.totalScore}
+          category={raffleWinnerData.category}
+          onComplete={() => {
+            setShowRaffleWinner(false);
+            setRaffleWinnerData(null);
+          }}
+        />
+      )}
+
+      {/* Welcome New Challenger Overlay */}
+      {showChallengerOverlay && challengerData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="announcement-pulse max-w-4xl w-full mx-4">
+            <Card className="border-4 border-[#00AEFF] bg-gradient-to-br from-data3-blue-black via-[#000045] to-data3-blue-black shadow-2xl">
+              <CardContent className="p-8 sm:p-12 text-center space-y-6">
+                {/* Flash effect overlay */}
+                <div className="announcement-strobe absolute inset-0 rounded-[inherit]"
+                     style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }} />
+
+                {/* Content */}
+                <div className="relative z-10 space-y-6">
+                  {/* NEW CHALLENGER! Header */}
+                  <div className="space-y-2">
+                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-[#78DCFF] drop-shadow-2xl animate-pulse">
+                      WELCOME
+                    </h1>
+                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-2xl -mt-2">
+                      NEW CHALLENGER!
+                    </h1>
+                  </div>
+
+                  {/* Initials Display */}
+                  <div className="flex justify-center my-8">
+                    <div
+                      className="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center text-6xl sm:text-7xl font-black text-white shadow-2xl"
+                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                    >
+                      {challengerData.initials}
+                    </div>
+                  </div>
+
+                  {/* Category Badge */}
+                  <div>
+                    <Badge
+                      className="text-xl sm:text-2xl px-6 py-3 font-bold text-white"
+                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                    >
+                      {CATEGORY_NAMES[challengerData.category as keyof typeof CATEGORY_NAMES] || challengerData.category}
+                    </Badge>
+                  </div>
+
+                  {/* Score and Rank */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mt-6">
+                    <div className="text-center">
+                      <p className="text-lg sm:text-xl text-[#78DCFF]/80 font-semibold mb-2">SCORE</p>
+                      <p className="text-5xl sm:text-6xl font-black text-white drop-shadow-2xl">
+                        {challengerData.score}
+                      </p>
+                      <p className="text-xl sm:text-2xl text-white/60 mt-1">/100</p>
+                    </div>
+                    {challengerData.rank > 0 && (
+                      <div className="text-center">
+                        <p className="text-lg sm:text-xl text-[#78DCFF]/80 font-semibold mb-2">RANK</p>
+                        <p className="text-5xl sm:text-6xl font-black text-yellow-400 drop-shadow-2xl">
+                          #{challengerData.rank}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Decorative Icons */}
+                  <div className="flex justify-center items-center gap-4 text-4xl sm:text-5xl mt-6">
+                    <div className="announcement-bounce">🏆</div>
+                    <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
+                    <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
