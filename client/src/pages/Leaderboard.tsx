@@ -1206,20 +1206,6 @@ export default function Leaderboard() {
       )}
 
       <div className="max-w-7xl mx-auto">
-        {/* Presentation Mode Button - Always visible at top */}
-        {!isPresentationMode && (
-          <div className="mb-4 flex justify-center">
-            <Button
-              onClick={enterPresentationMode}
-              size="lg"
-              className="bg-gradient-to-r from-[#7300FF] to-[#00AEFF] hover:from-[#8500FF] hover:to-[#2CC8FF] text-white font-bold shadow-2xl shadow-[#7300FF]/40 border-2 border-white/20"
-            >
-              <i className="fas fa-expand mr-2"></i>
-              Hide Interface (Presentation Mode)
-            </Button>
-          </div>
-        )}
-
         {/* Header */}
         {!isPresentationMode && (
           <div className="mb-6 flex items-center justify-between">
@@ -1422,6 +1408,20 @@ export default function Leaderboard() {
                 {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
               </span>
             </div>
+          </div>
+        )}
+
+        {/* Presentation Mode Button - At bottom */}
+        {!isPresentationMode && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              onClick={enterPresentationMode}
+              size="lg"
+              className="bg-gradient-to-r from-[#7300FF] to-[#00AEFF] hover:from-[#8500FF] hover:to-[#2CC8FF] text-white font-bold shadow-2xl shadow-[#7300FF]/40 border-2 border-white/20"
+            >
+              <i className="fas fa-expand mr-2"></i>
+              Hide Interface (Presentation Mode)
+            </Button>
           </div>
         )}
       </div>
