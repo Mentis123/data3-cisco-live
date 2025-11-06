@@ -1309,7 +1309,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getAdminLeaderboard(limit: number = 100, filterDate?: string): Promise<any[]> {
-    let query = db
+    const baseQuery = db
       .select({
         id: submissions.id,
         totalScore: submissions.totalScore,
@@ -1324,13 +1324,15 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id));
 
-    if (filterDate) {
-      query = query.where(sql`DATE(${submissions.createdAt}) = ${filterDate}`);
-    }
-
-    const results = await query
-      .orderBy(desc(submissions.totalScore), submissions.createdAt)
-      .limit(limit);
+    // Build the query with optional where clause
+    const results = filterDate
+      ? await baseQuery
+          .where(sql`DATE(${submissions.createdAt}) = ${filterDate}`)
+          .orderBy(desc(submissions.totalScore), submissions.createdAt)
+          .limit(limit)
+      : await baseQuery
+          .orderBy(desc(submissions.totalScore), submissions.createdAt)
+          .limit(limit);
 
     // Parse JSON strings for each result
     return results.map(result => ({
