@@ -713,7 +713,8 @@ export async function registerRoutes(
 
       // Get current leaderboard to calculate rank (based on combined score)
       // Include unannounced submissions for accurate rank calculation
-      const leaderboard = await storage.getLeaderboard(1000, undefined, undefined, true);
+      // Filter by today's date (Melbourne time) to show daily rank
+      const leaderboard = await storage.getLeaderboard(1000, undefined, today, true);
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
 
       // Broadcast ring exit if this was a ring attempt
