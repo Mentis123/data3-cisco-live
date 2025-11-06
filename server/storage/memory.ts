@@ -1436,7 +1436,7 @@ export function createMemoryStorage() {
       triviaAttemptsStore
         .filter((attempt) =>
           attempt.mode === "ring"
-          && !attempt.endedAt
+          && !attempt.submissionId // Changed from endedAt to submissionId
           && attempt.startedAt instanceof Date
           && attempt.startedAt.getTime() >= cutoff,
         )
