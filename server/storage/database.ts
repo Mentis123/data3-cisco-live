@@ -1667,20 +1667,28 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
   },
 
-    async getCategoryStats(): Promise<{ [key: string]: number }> {
+    async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
+    const today = filterDate || getMelbourneDate();
+
     const results = await db
       .select({
-        category: submissions.category,
+        category: attempts.category,
         count: sql<number>`count(*)::int`,
       })
-      .from(submissions)
-      .groupBy(submissions.category);
-    
+      .from(attempts)
+      .where(
+        and(
+          eq(attempts.eligible, true),
+          eq(attempts.attemptDay, today)
+        )
+      )
+      .groupBy(attempts.category);
+
     const stats: { [key: string]: number } = {};
     results.forEach(row => {
       stats[row.category] = row.count;
     });
-    
+
     return stats;
   },
 
