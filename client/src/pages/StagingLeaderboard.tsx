@@ -98,6 +98,9 @@ export default function StagingLeaderboard() {
         // Clear the flag immediately
         sessionStorage.removeItem('triggerNewChallenger');
 
+        // Also clear the old playSubmissionAudio flag to prevent double sounds
+        sessionStorage.removeItem('playSubmissionAudio');
+
         // Play the welcome sounds (flash + challenger)
         audioManager.playFlashSound()
           .then(() => console.log('[StagingLeaderboard] Flash sound played for new challenger'))
@@ -124,6 +127,10 @@ export default function StagingLeaderboard() {
   const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
   const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
   const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
+
+  // New submission detection state
+  const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
+  const isInitialDataLoad = useRef(true);
 
   // Fetch dashboard data
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
@@ -281,12 +288,64 @@ export default function StagingLeaderboard() {
     }
   });
 
-  // Update display data
+  // Handle new submission detected on leaderboard
+  const handleNewSubmission = (submission: {
+    id: string;
+    name: string;
+    category: string;
+    totalScore: number;
+  }) => {
+    console.log('🚨 NEW SUBMISSION DETECTED ON LEADERBOARD! Playing sounds...', submission);
+
+    // Add to known submissions
+    setKnownSubmissionIds(prev => {
+      if (prev.has(submission.id)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(submission.id);
+      return next;
+    });
+
+    // Play announcement sounds
+    audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    setTimeout(() => {
+      audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+    }, 750);
+  };
+
+  // Update display data and detect new submissions
   useEffect(() => {
-    if (data) {
-      setDisplayData(data);
+    if (!data) {
+      return;
     }
-  }, [data]);
+
+    setDisplayData(data);
+
+    // On initial load, just record all known IDs without announcing
+    if (isInitialDataLoad.current) {
+      const initialIds = new Set([
+        ...(data.leaderboard?.map(entry => entry.id) || []),
+        ...(data.recentSubmission?.id ? [data.recentSubmission.id] : [])
+      ]);
+      setKnownSubmissionIds(initialIds);
+      isInitialDataLoad.current = false;
+      console.log('[StagingLeaderboard] Initial load - recorded', initialIds.size, 'submissions');
+      return;
+    }
+
+    // Check for new entries in the leaderboard
+    const leaderboardNewEntry = data.leaderboard?.find(entry => !knownSubmissionIds.has(entry.id));
+    if (leaderboardNewEntry) {
+      console.log('[StagingLeaderboard] New leaderboard entry detected:', leaderboardNewEntry);
+      handleNewSubmission({
+        id: leaderboardNewEntry.id,
+        name: leaderboardNewEntry.name,
+        category: leaderboardNewEntry.category,
+        totalScore: leaderboardNewEntry.totalScore
+      });
+    }
+  }, [data, knownSubmissionIds]);
 
   useEffect(() => {
     if (!data) {
