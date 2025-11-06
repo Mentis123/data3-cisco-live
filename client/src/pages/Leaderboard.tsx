@@ -1116,6 +1116,24 @@ export default function Leaderboard() {
     );
   }
 
+  // Presentation mode: Show fullscreen banner
+  if (isPresentationMode) {
+    return (
+      <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-black">
+        <img
+          src={leaderboardFullImage}
+          alt="Leaderboard"
+          className="w-full h-full object-cover"
+          onClick={exitPresentationMode}
+        />
+        {/* Exit hint */}
+        <div className="absolute top-4 right-4 text-white/50 text-sm bg-black/50 px-3 py-2 rounded-lg">
+          Press ESC or click to exit
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
       {/* Raffle Winner Reveal */}
@@ -1207,22 +1225,19 @@ export default function Leaderboard() {
 
       <div className="max-w-7xl mx-auto">
         {/* Presentation Mode Button - Always visible at top */}
-        {!isPresentationMode && (
-          <div className="mb-4 flex justify-center">
-            <Button
-              onClick={enterPresentationMode}
-              size="lg"
-              className="bg-gradient-to-r from-[#7300FF] to-[#00AEFF] hover:from-[#8500FF] hover:to-[#2CC8FF] text-white font-bold shadow-2xl shadow-[#7300FF]/40 border-2 border-white/20"
-            >
-              <i className="fas fa-expand mr-2"></i>
-              Hide Interface (Presentation Mode)
-            </Button>
-          </div>
-        )}
+        <div className="mb-4 flex justify-center">
+          <Button
+            onClick={enterPresentationMode}
+            size="lg"
+            className="bg-gradient-to-r from-[#7300FF] to-[#00AEFF] hover:from-[#8500FF] hover:to-[#2CC8FF] text-white font-bold shadow-2xl shadow-[#7300FF]/40 border-2 border-white/20"
+          >
+            <i className="fas fa-expand mr-2"></i>
+            Fullscreen Banner (Presentation Mode)
+          </Button>
+        </div>
 
         {/* Header */}
-        {!isPresentationMode && (
-          <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img
                 src={leaderboardFullImage}
@@ -1248,12 +1263,10 @@ export default function Leaderboard() {
                 Home
               </Button>
             </div>
-          </div>
-        )}
+        </div>
 
         {/* View Controls */}
-        {!isPresentationMode && (
-          <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
             {/* Mobile Home Button */}
             <Button
               onClick={() => window.location.href = '/'}
@@ -1321,8 +1334,7 @@ export default function Leaderboard() {
               <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} sm:mr-2`}></i>
               <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
             </Button>
-          </div>
-        )}
+        </div>
 
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1410,20 +1422,18 @@ export default function Leaderboard() {
         </div>
 
         {/* Footer */}
-        {!isPresentationMode && (
-          <div className="text-center mt-6">
-            <div className="flex justify-center gap-4">
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                Live Updates
-              </span>
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
-                {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
-              </span>
-            </div>
+        <div className="text-center mt-6">
+          <div className="flex justify-center gap-4">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              Live Updates
+            </span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <div className={`w-2 h-2 rounded-full ${isAutoRotateEnabled ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`}></div>
+              {isAutoRotateEnabled ? 'Auto-rotating' : 'Auto-rotate paused'}
+            </span>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
