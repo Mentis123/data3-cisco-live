@@ -1292,6 +1292,7 @@ export function createMemoryStorage() {
         subScores: data.subScores,
         totalScore: data.totalScore,
         evaluationNotes: data.evaluationNotes ?? null,
+        announcedOnLeaderboard: data.announcedOnLeaderboard ?? false,
         createdAt: new Date(),
       };
       submissionsStore.push(submission);
