@@ -823,7 +823,7 @@ export async function registerRoutes(
 
       try {
         log("[dashboard-data] Fetching category stats");
-        categoryStats = await storage.getCategoryStats();
+        categoryStats = await storage.getCategoryStats(filterDate);
       } catch (error) {
         log(`[dashboard-data] Error fetching category stats: ${error}`);
         throw new Error(`Failed to fetch category stats: ${error instanceof Error ? error.message : String(error)}`);

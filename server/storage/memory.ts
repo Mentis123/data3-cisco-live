@@ -1363,9 +1363,14 @@ export function createMemoryStorage() {
       return buildWordCloud();
     },
 
-    async getCategoryStats(): Promise<{ [key: string]: number }> {
-      return submissionsStore.reduce<Record<string, number>>((acc, submission) => {
-        acc[submission.category] = (acc[submission.category] ?? 0) + 1;
+    async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
+      const today = filterDate || getMelbourneDate();
+
+      return triviaAttemptsStore.reduce<Record<string, number>>((acc, attempt) => {
+        // Only count eligible attempts from today
+        if (attempt.eligible && attempt.attemptDay === today) {
+          acc[attempt.category] = (acc[attempt.category] ?? 0) + 1;
+        }
         return acc;
       }, {});
     },
