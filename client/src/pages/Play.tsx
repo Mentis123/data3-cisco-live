@@ -89,6 +89,12 @@ const getCategoryTheme = (category: string | null | undefined): CategoryTheme =>
   return CATEGORY_THEMES.EDGE_IOT;
 };
 
+// Helper function to format markdown bold syntax into HTML
+const formatMarkdown = (text: string): string => {
+  // Convert **bold** to <strong>bold</strong>
+  return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+};
+
 type PlayVariant = "classic" | "ring";
 
 type PlayContentProps = {
@@ -190,17 +196,24 @@ export function PlayContent({ variant = "classic" }: PlayContentProps) {
       hasUserInitiatedChatRef.current = true;
     }
 
-    if (!hasUserInitiatedChatRef.current || !isUserNearBottom) {
+    if (!hasUserInitiatedChatRef.current) {
       return;
     }
 
     const container = chatContainerRef.current;
     if (!container) return;
 
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior: "smooth",
-    });
+    // Always scroll to bottom when AI replies (last message is from assistant)
+    // or when user is near bottom and typing indicator changes
+    const lastMessage = state.messages[state.messages.length - 1];
+    const shouldScroll = lastMessage?.role === "assistant" || isUserNearBottom;
+
+    if (shouldScroll) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [state.messages, isTyping, isUserNearBottom]);
 
   // Check for max inputs
@@ -2011,7 +2024,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                           <div className="chat-bubble chat-bubble-assistant">
                             <div
                               className="whitespace-pre-wrap text-base leading-relaxed break-words"
-                              dangerouslySetInnerHTML={{ __html: message.content }}
+                              dangerouslySetInnerHTML={{ __html: formatMarkdown(message.content) }}
                             />
                           </div>
                         ) : (
@@ -2193,9 +2206,10 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                   <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {message.role === 'assistant' ? (
                       <div className="chat-bubble chat-bubble-assistant">
-                        <div className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed break-words">
-                          {message.content}
-                        </div>
+                        <div
+                          className="whitespace-pre-wrap text-[0.95rem] sm:text-base leading-relaxed break-words"
+                          dangerouslySetInnerHTML={{ __html: formatMarkdown(message.content) }}
+                        />
                       </div>
                     ) : (
                       <div className="chat-bubble chat-bubble-user">
