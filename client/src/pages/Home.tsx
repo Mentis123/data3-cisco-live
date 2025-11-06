@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 
 import { Data3Logo } from "@/components/Data3Logo";
-import { audioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
+import { AudioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
 import ringImage from "@assets/ringfull.jpg";
 import dojoImage from "@assets/dojofull.jpg";
 import leaderboardImage from "@assets/leaderboardfull.jpg";
@@ -35,9 +35,9 @@ export default function Home() {
     audioRef.current.playbackRate = 0.8; // Play at 80% speed
 
     // Set up Web Audio API for mobile or direct volume for desktop
-    if (audioManager.isUsingWebAudioForVolume()) {
+    if (AudioManager.getInstance().isUsingWebAudioForVolume()) {
       // Use Web Audio API with GainNode for mobile volume control
-      const result = audioManager.createGainNodeForElement(audioRef.current, baseVolume);
+      const result = AudioManager.getInstance().createGainNodeForElement(audioRef.current, baseVolume);
       if (result) {
         gainNodeCleanupRef.current = result.cleanup;
         console.log('[Home] Using Web Audio API for sliding stone audio volume control');
@@ -53,7 +53,7 @@ export default function Home() {
         audioRef.current.volume = baseVolume * clampedVolume;
       };
 
-      applyVolume(audioManager.getMusicVolume());
+      applyVolume(AudioManager.getInstance().getMusicVolume());
 
       const handleVolumeChange = (event: Event) => {
         const customEvent = event as CustomEvent<number>;
@@ -108,7 +108,7 @@ export default function Home() {
       }
       lastBuzzTimeRef.current = now;
 
-      audioManager.playBuzzSound().catch(err => {
+      AudioManager.getInstance().playBuzzSound().catch(err => {
         console.log('Buzz sound playback prevented by browser:', err);
       });
     };
@@ -286,7 +286,7 @@ export default function Home() {
             if (audioManager['challengerAudio']) {
               audioManager['challengerAudio'].volume = 0.1;
             }
-            audioManager.playNewChallengerSound().catch(err => {
+            AudioManager.getInstance().playNewChallengerSound().catch(err => {
               console.log('Challenger sound playback prevented by browser:', err);
             }).finally(() => {
               // Restore original volume after playing

@@ -952,14 +952,5 @@ export class AudioManager {
   }
 }
 
-// Export singleton instance - lazy initialization to avoid circular dependency issues
-let audioManagerInstance: AudioManager | null = null;
-export const audioManager = new Proxy({} as AudioManager, {
-  get(target, prop) {
-    if (!audioManagerInstance) {
-      audioManagerInstance = AudioManager.getInstance();
-    }
-    const value = audioManagerInstance[prop as keyof AudioManager];
-    return typeof value === 'function' ? value.bind(audioManagerInstance) : value;
-  }
-});
+// Export the class - consumers should call AudioManager.getInstance()
+// This avoids module initialization issues with bundlers

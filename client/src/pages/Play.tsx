@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -367,7 +367,7 @@ Just describe it naturally - what's the problem that needs solving?`
         console.log('[Play] Navigating to /announcement');
 
         // Play click sound before navigation
-        audioManager.playClickSound();
+        AudioManager.getInstance().playClickSound();
 
         // Navigate to announcement page
         // Use setTimeout to ensure navigation happens after state updates
@@ -841,7 +841,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   variant="ghost"
                   size="lg"
                   onClick={() => {
-                    audioManager.playClickSound();
+                    AudioManager.getInstance().playClickSound();
                     setLocation(exitDestination);
                   }}
                   className={BACK_TO_HOME_BUTTON_CLASSES}
@@ -912,7 +912,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               variant="ghost"
               size="sm"
               onClick={() => {
-                audioManager.playClickSound();
+                AudioManager.getInstance().playClickSound();
                 setLocation(exitDestination);
               }}
               className="text-muted-foreground hover:text-foreground"
@@ -1755,7 +1755,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
         <AlertDialogFooter>
           <AlertDialogCancel>Continue Sprint</AlertDialogCancel>
           <AlertDialogAction onClick={() => {
-            audioManager.playClickSound();
+            AudioManager.getInstance().playClickSound();
             setLocation(exitDestination);
           }}>
             Exit to Home
@@ -2293,7 +2293,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
             try {
               console.log('[Play] Video modal complete - navigating to /announcement');
               setShowVideoModal(false);
-              audioManager.playClickSound();
+              AudioManager.getInstance().playClickSound();
               // Use setTimeout to ensure navigation happens after state updates
               setTimeout(() => {
                 console.log('[Play] Executing navigation to /announcement from video modal');

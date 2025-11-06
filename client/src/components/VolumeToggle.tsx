@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sparkles, SparklesIcon } from "lucide-react";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
 export function ImmersiveToggle() {
@@ -21,11 +21,11 @@ export function ImmersiveToggle() {
 
   useEffect(() => {
     // Initialize immersive state from audioManager
-    setIsImmersive(audioManager.isImmersiveMode());
+    setIsImmersive(AudioManager.getInstance().isImmersiveMode());
   }, []);
 
   const handleToggle = () => {
-    const newImmersiveState = audioManager.toggleImmersive();
+    const newImmersiveState = AudioManager.getInstance().toggleImmersive();
     setIsImmersive(newImmersiveState);
   };
 

@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { ImmersiveToggle } from "@/components/VolumeToggle";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { useEffect, useRef } from "react";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
@@ -96,7 +96,7 @@ function App() {
     const playHomeSoundOnInteraction = () => {
       if (!homeSoundPlayedRef.current) {
         homeSoundPlayedRef.current = true;
-        audioManager.playHomeSound().catch(err => {
+        AudioManager.getInstance().playHomeSound().catch(err => {
           console.log('Home sound playback prevented by browser:', err);
         });
       }
@@ -116,10 +116,10 @@ function App() {
   // This fixes the issue where home_sound.mp3 would stop when navigating between pages
   useEffect(() => {
     // When the route changes, check if we need to resume the home sound
-    if (homeSoundPlayedRef.current && audioManager.isImmersiveMode()) {
+    if (homeSoundPlayedRef.current && AudioManager.getInstance().isImmersiveMode()) {
       // Small delay to ensure the page transition is complete
       const resumeTimer = setTimeout(() => {
-        audioManager.ensureHomeSoundPlaying();
+        AudioManager.getInstance().ensureHomeSoundPlaying();
       }, 50);
 
       return () => clearTimeout(resumeTimer);
@@ -147,7 +147,7 @@ function App() {
         processedEvents.add(event);
 
         // Play the click sound
-        audioManager.playClickSound();
+        AudioManager.getInstance().playClickSound();
 
         // For links, add a small delay before navigation to ensure sound plays
         const linkElement = clickableElement.closest('a[href]');

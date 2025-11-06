@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatNameToInitials } from "@/lib/utils";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { RingVideoModal } from "@/components/RingVideoModal";
 
 interface SubmissionData {
@@ -83,7 +83,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     // ONLY show video if immersive mode is ON
     try {
       const videoDataStr = sessionStorage.getItem('shouldShowVideo');
-      if (videoDataStr && audioManager.isImmersiveMode()) {
+      if (videoDataStr && AudioManager.getInstance().isImmersiveMode()) {
         const videoData = JSON.parse(videoDataStr);
         setIsWinner(videoData.isWinner);
         setShowVideoModal(true);
@@ -143,7 +143,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     if (onDismiss) {
       onDismiss();
     } else {
-      audioManager.playClickSound();
+      AudioManager.getInstance().playClickSound();
       setLocation('/leaderboard/staging');
     }
   };
@@ -606,7 +606,7 @@ export function NewSubmissionAnnouncementPage() {
     <NewSubmissionAnnouncement
       submission={submissionData}
       onDismiss={() => {
-        audioManager.playClickSound();
+        AudioManager.getInstance().playClickSound();
 
         // Trigger WELCOME NEW CHALLENGER animation on leaderboard
         sessionStorage.setItem('triggerNewChallenger', JSON.stringify({

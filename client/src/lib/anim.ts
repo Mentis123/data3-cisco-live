@@ -1,11 +1,11 @@
-import { audioManager } from './audio';
+import { AudioManager } from './audio';
 
 export function triggerFlashAndRise(callback: () => void): void {
   const flashOverlay = document.getElementById('flashOverlay');
   if (!flashOverlay) return;
 
   // Play buzz sound with the flash animation
-  audioManager.playBuzzSound().catch(err => {
+  AudioManager.getInstance().playBuzzSound().catch(err => {
     console.log('Buzz sound playback prevented by browser:', err);
   });
 

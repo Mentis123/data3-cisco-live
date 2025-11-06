@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Settings, MessageSquare, Music, Volume2, VolumeX } from "lucide-react";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -23,19 +23,19 @@ export function SettingsMenu() {
 
   // Initialize state from audioManager
   useEffect(() => {
-    setMusicEnabled(audioManager.isMusicEnabled());
-    setSoundsEnabled(audioManager.isSoundsEnabled());
-    setVolumePercent(audioManager.getMusicVolumePercent());
-    setVolumeControlSupported(audioManager.isVolumeControlSupported());
+    setMusicEnabled(AudioManager.getInstance().isMusicEnabled());
+    setSoundsEnabled(AudioManager.getInstance().isSoundsEnabled());
+    setVolumePercent(AudioManager.getInstance().getMusicVolumePercent());
+    setVolumeControlSupported(AudioManager.getInstance().isVolumeControlSupported());
   }, []);
 
   const handleToggleMusic = () => {
-    const newState = audioManager.toggleMusic();
+    const newState = AudioManager.getInstance().toggleMusic();
     setMusicEnabled(newState);
   };
 
   const handleToggleSounds = () => {
-    const newState = audioManager.toggleSounds();
+    const newState = AudioManager.getInstance().toggleSounds();
     setSoundsEnabled(newState);
   };
 
@@ -46,7 +46,7 @@ export function SettingsMenu() {
     const newVolume = VOLUME_STEPS[nextIndex];
 
     setVolumePercent(newVolume);
-    audioManager.setMusicVolume(newVolume / 100);
+    AudioManager.getInstance().setMusicVolume(newVolume / 100);
   };
 
   const handleFeedbackClick = () => {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { formatNameToInitials } from "@/lib/utils";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
@@ -85,7 +85,7 @@ export default function StagingLeaderboard() {
   // Preload audio on component mount
   useEffect(() => {
     console.log('[StagingLeaderboard] Preloading audio...');
-    audioManager.preload();
+    AudioManager.getInstance().preload();
   }, []);
 
   // Check for WELCOME NEW CHALLENGER trigger from announcement page
@@ -102,12 +102,12 @@ export default function StagingLeaderboard() {
         sessionStorage.removeItem('playSubmissionAudio');
 
         // Play the welcome sounds (flash + challenger) - FORCE PLAY (bypass immersive filter)
-        audioManager.forcePlayFlashSound()
+        AudioManager.getInstance().forcePlayFlashSound()
           .then(() => console.log('[StagingLeaderboard] Flash sound played for new challenger'))
           .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
 
         setTimeout(() => {
-          audioManager.forcePlayNewChallengerSound()
+          AudioManager.getInstance().forcePlayNewChallengerSound()
             .then(() => console.log('[StagingLeaderboard] Challenger sound played'))
             .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
         }, 750);
@@ -222,13 +222,13 @@ export default function StagingLeaderboard() {
 
     // Play entry sounds (flash + announce) - FORCE PLAY (bypass immersive filter)
     console.log('[StagingLeaderboard] Playing flash sound...');
-    audioManager.forcePlayFlashSound()
+    AudioManager.getInstance().forcePlayFlashSound()
       .then(() => console.log('[StagingLeaderboard] Flash sound played successfully'))
       .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
 
     setTimeout(() => {
       console.log('[StagingLeaderboard] Playing challenger sound...');
-      audioManager.forcePlayNewChallengerSound()
+      AudioManager.getInstance().forcePlayNewChallengerSound()
         .then(() => console.log('[StagingLeaderboard] Challenger sound played successfully'))
         .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
     }, 750);
@@ -308,7 +308,7 @@ export default function StagingLeaderboard() {
     console.log('🎟️ RAFFLE QUALIFIED:', data);
 
     // Play announce sound only - FORCE PLAY (bypass immersive filter for leaderboard)
-    audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Announce sound failed:', err));
+    AudioManager.getInstance().forcePlayNewChallengerSound().catch(err => console.warn('Announce sound failed:', err));
 
     // Show raffle announcement
     setRaffleCategory(data.category);
@@ -367,9 +367,9 @@ export default function StagingLeaderboard() {
     });
 
     // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
-    audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    AudioManager.getInstance().forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
-      audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+      AudioManager.getInstance().forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
   };
 
@@ -471,9 +471,9 @@ export default function StagingLeaderboard() {
         // New challenger from API
         if (websocketsDisabled && !previousById.has(entry.attemptId)) {
           console.log(`[StagingLeaderboard] New challenger detected in ${listName} (WebSockets disabled):`, entry);
-          audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+          AudioManager.getInstance().playFlashSound().catch(err => console.warn('Flash sound failed:', err));
           setTimeout(() => {
-            audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+            AudioManager.getInstance().playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
           }, 750);
         }
 

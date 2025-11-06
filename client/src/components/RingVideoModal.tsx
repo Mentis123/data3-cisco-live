@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { audioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
+import { AudioManager, MUSIC_VOLUME_CHANGE_EVENT } from "@/lib/audio";
 
 interface RingVideoModalProps {
   isWinner: boolean;
@@ -59,7 +59,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       setIsLoaded(true);
 
       // Pause background music so video audio is prioritized
-      audioManager.pauseBackgroundMusic();
+      AudioManager.getInstance().pauseBackgroundMusic();
 
       // Always restart the clip from the beginning before we start playback
       if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
@@ -67,11 +67,11 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       }
 
       // Set up Web Audio API for mobile or direct volume for desktop
-      if (audioManager.isUsingWebAudioForVolume()) {
+      if (AudioManager.getInstance().isUsingWebAudioForVolume()) {
         // Use Web Audio API with GainNode for mobile volume control
         // IMPORTANT: Unmute the video so audio flows through Web Audio API graph
         video.muted = false;
-        const result = audioManager.createGainNodeForElement(video, 1.0);
+        const result = AudioManager.getInstance().createGainNodeForElement(video, 1.0);
         if (result) {
           gainNodeCleanupRef.current = result.cleanup;
           console.log('[RingVideoModal] Using Web Audio API for video volume control');
@@ -80,15 +80,15 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         // Use direct volume property for desktop
         // Unmute the video so we can hear it through the video element
         video.muted = false;
-        video.volume = audioManager.getMusicVolume();
-        console.log('[RingVideoModal] Using direct volume control:', audioManager.getMusicVolume());
+        video.volume = AudioManager.getInstance().getMusicVolume();
+        console.log('[RingVideoModal] Using direct volume control:', AudioManager.getInstance().getMusicVolume());
       }
 
       console.log('[RingVideoModal] Starting video playback...');
       video.play().catch(err => {
         console.error('[RingVideoModal] Failed to play video:', err);
         // Resume background music and proceed anyway after a short delay
-        audioManager.resumeBackgroundMusic();
+        AudioManager.getInstance().resumeBackgroundMusic();
         setTimeout(() => {
           console.log('[RingVideoModal] Completing due to playback error');
           onCompleteRef.current();
@@ -98,7 +98,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
 
     const handleEnded = () => {
       console.log('[RingVideoModal] Video playback ended - completing');
-      audioManager.resumeBackgroundMusic();
+      AudioManager.getInstance().resumeBackgroundMusic();
       onCompleteRef.current();
     };
 
@@ -111,7 +111,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
         src: target.src
       });
       // Resume background music and proceed anyway after a short delay
-      audioManager.resumeBackgroundMusic();
+      AudioManager.getInstance().resumeBackgroundMusic();
       setTimeout(() => {
         console.log('[RingVideoModal] Completing due to video load error');
         onCompleteRef.current();
@@ -139,7 +139,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       // Reset the playback started flag in case component remounts
       hasStartedPlaybackRef.current = false;
       // Resume background music when component unmounts (e.g., skip button clicked)
-      audioManager.resumeBackgroundMusic();
+      AudioManager.getInstance().resumeBackgroundMusic();
     };
   }, [isWinner]); // onComplete is managed via ref to prevent unnecessary re-runs
 
@@ -149,7 +149,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
 
     // Only set up volume change listener if NOT using Web Audio API
     // (Web Audio API handles volume changes internally)
-    if (audioManager.isUsingWebAudioForVolume()) {
+    if (AudioManager.getInstance().isUsingWebAudioForVolume()) {
       return;
     }
 
@@ -157,7 +157,7 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       video.volume = Math.max(0, Math.min(1, volume));
     };
 
-    applyVolume(audioManager.getMusicVolume());
+    applyVolume(AudioManager.getInstance().getMusicVolume());
 
     const handleVolumeChange = (event: Event) => {
       const customEvent = event as CustomEvent<number>;

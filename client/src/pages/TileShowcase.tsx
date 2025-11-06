@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 
 interface TileVariation {
   id: number;
@@ -328,7 +328,7 @@ export default function TileShowcase() {
       <div className="max-w-7xl mx-auto mb-12">
         <button
           onClick={() => {
-            audioManager.playClickSound();
+            AudioManager.getInstance().playClickSound();
             setLocation("/");
           }}
           className="mb-6 px-4 py-2 rounded-lg border-2 border-data3-cool-purple/50 bg-data3-cool-purple/10 hover:bg-data3-cool-purple/20 transition-all"

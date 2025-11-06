@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
-import { audioManager } from "@/lib/audio";
+import { AudioManager } from "@/lib/audio";
 import { formatNameToInitials } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
@@ -77,9 +77,9 @@ export default function Leaderboard() {
   // Test function for manual audio trigger
   const testAudio = () => {
     console.log('🎵 Testing audio manually...');
-    audioManager.playFlashSound().catch(err => console.warn('Manual flash sound failed:', err));
+    AudioManager.getInstance().playFlashSound().catch(err => console.warn('Manual flash sound failed:', err));
     setTimeout(() => {
-      audioManager.playNewChallengerSound().catch(err => console.warn('Manual challenger sound failed:', err));
+      AudioManager.getInstance().playNewChallengerSound().catch(err => console.warn('Manual challenger sound failed:', err));
     }, 750); // Same timing as real announcement
   };
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -160,9 +160,9 @@ export default function Leaderboard() {
     });
 
     // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
-    audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    AudioManager.getInstance().forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
-      audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+      AudioManager.getInstance().forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
 
     // Extract initials from name
@@ -222,9 +222,9 @@ export default function Leaderboard() {
 
     const playCelebrationAudio = () => {
       // FORCE PLAY - bypass immersive filter for leaderboard celebration
-      audioManager.forcePlayFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
+      AudioManager.getInstance().forcePlayFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
       setTimeout(() => {
-        audioManager.forcePlayNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
+        AudioManager.getInstance().forcePlayNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
       }, 750);
     };
 
