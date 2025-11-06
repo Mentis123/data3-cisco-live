@@ -955,48 +955,144 @@ export class AudioManager {
 // Lazy-initialized singleton wrapper to avoid module load-time initialization issues
 // This ensures AudioManager is only created when first accessed, preventing potential
 // circular dependency and timing issues during module loading
-let audioManagerInstance: AudioManager | null = null;
 
-function getAudioManager(): AudioManager {
-  if (!audioManagerInstance) {
-    audioManagerInstance = AudioManager.getInstance();
+// Use a class-based wrapper instead of object literal to avoid TDZ errors during bundling
+// The object literal pattern with arrow functions can cause "Cannot access before initialization"
+// errors when Vite/Rollup minifies and reorders the code
+class AudioManagerWrapper {
+  private instance: AudioManager | null = null;
+
+  private getInstance(): AudioManager {
+    if (!this.instance) {
+      this.instance = AudioManager.getInstance();
+    }
+    return this.instance;
   }
-  return audioManagerInstance;
+
+  playFlashSound() {
+    return this.getInstance().playFlashSound();
+  }
+
+  playNewChallengerSound() {
+    return this.getInstance().playNewChallengerSound();
+  }
+
+  playHomeSound() {
+    return this.getInstance().playHomeSound();
+  }
+
+  ensureHomeSoundPlaying() {
+    return this.getInstance().ensureHomeSoundPlaying();
+  }
+
+  pauseBackgroundMusic() {
+    return this.getInstance().pauseBackgroundMusic();
+  }
+
+  resumeBackgroundMusic() {
+    return this.getInstance().resumeBackgroundMusic();
+  }
+
+  playBuzzSound() {
+    return this.getInstance().playBuzzSound();
+  }
+
+  playClickSound() {
+    return this.getInstance().playClickSound();
+  }
+
+  setMute(muted: boolean) {
+    return this.getInstance().setMute(muted);
+  }
+
+  isMutedState() {
+    return this.getInstance().isMutedState();
+  }
+
+  toggleMute() {
+    return this.getInstance().toggleMute();
+  }
+
+  setImmersive(enabled: boolean) {
+    return this.getInstance().setImmersive(enabled);
+  }
+
+  isImmersiveMode() {
+    return this.getInstance().isImmersiveMode();
+  }
+
+  toggleImmersive() {
+    return this.getInstance().toggleImmersive();
+  }
+
+  setMusic(enabled: boolean) {
+    return this.getInstance().setMusic(enabled);
+  }
+
+  isMusicEnabled() {
+    return this.getInstance().isMusicEnabled();
+  }
+
+  toggleMusic() {
+    return this.getInstance().toggleMusic();
+  }
+
+  setSounds(enabled: boolean) {
+    return this.getInstance().setSounds(enabled);
+  }
+
+  isSoundsEnabled() {
+    return this.getInstance().isSoundsEnabled();
+  }
+
+  toggleSounds() {
+    return this.getInstance().toggleSounds();
+  }
+
+  setMusicVolume(volume: number) {
+    return this.getInstance().setMusicVolume(volume);
+  }
+
+  getMusicVolume() {
+    return this.getInstance().getMusicVolume();
+  }
+
+  getMusicVolumePercent() {
+    return this.getInstance().getMusicVolumePercent();
+  }
+
+  isVolumeControlSupported() {
+    return this.getInstance().isVolumeControlSupported();
+  }
+
+  isUsingWebAudioForVolume() {
+    return this.getInstance().isUsingWebAudioForVolume();
+  }
+
+  getAudioContext() {
+    return this.getInstance().getAudioContext();
+  }
+
+  createGainNodeForElement(element: HTMLAudioElement | HTMLVideoElement, baseVolume?: number) {
+    return this.getInstance().createGainNodeForElement(element, baseVolume);
+  }
+
+  stopAll() {
+    return this.getInstance().stopAll();
+  }
+
+  preload() {
+    return this.getInstance().preload();
+  }
+
+  forcePlayFlashSound() {
+    return this.getInstance().forcePlayFlashSound();
+  }
+
+  forcePlayNewChallengerSound() {
+    return this.getInstance().forcePlayNewChallengerSound();
+  }
 }
 
-// Export a wrapper object that lazily initializes the AudioManager on first method call
-// This avoids the Proxy TDZ error while still providing lazy initialization
-export const audioManager = {
-  playFlashSound: () => getAudioManager().playFlashSound(),
-  playNewChallengerSound: () => getAudioManager().playNewChallengerSound(),
-  playHomeSound: () => getAudioManager().playHomeSound(),
-  ensureHomeSoundPlaying: () => getAudioManager().ensureHomeSoundPlaying(),
-  pauseBackgroundMusic: () => getAudioManager().pauseBackgroundMusic(),
-  resumeBackgroundMusic: () => getAudioManager().resumeBackgroundMusic(),
-  playBuzzSound: () => getAudioManager().playBuzzSound(),
-  playClickSound: () => getAudioManager().playClickSound(),
-  setMute: (muted: boolean) => getAudioManager().setMute(muted),
-  isMutedState: () => getAudioManager().isMutedState(),
-  toggleMute: () => getAudioManager().toggleMute(),
-  setImmersive: (enabled: boolean) => getAudioManager().setImmersive(enabled),
-  isImmersiveMode: () => getAudioManager().isImmersiveMode(),
-  toggleImmersive: () => getAudioManager().toggleImmersive(),
-  setMusic: (enabled: boolean) => getAudioManager().setMusic(enabled),
-  isMusicEnabled: () => getAudioManager().isMusicEnabled(),
-  toggleMusic: () => getAudioManager().toggleMusic(),
-  setSounds: (enabled: boolean) => getAudioManager().setSounds(enabled),
-  isSoundsEnabled: () => getAudioManager().isSoundsEnabled(),
-  toggleSounds: () => getAudioManager().toggleSounds(),
-  setMusicVolume: (volume: number) => getAudioManager().setMusicVolume(volume),
-  getMusicVolume: () => getAudioManager().getMusicVolume(),
-  getMusicVolumePercent: () => getAudioManager().getMusicVolumePercent(),
-  isVolumeControlSupported: () => getAudioManager().isVolumeControlSupported(),
-  isUsingWebAudioForVolume: () => getAudioManager().isUsingWebAudioForVolume(),
-  getAudioContext: () => getAudioManager().getAudioContext(),
-  createGainNodeForElement: (element: HTMLAudioElement | HTMLVideoElement, baseVolume?: number) =>
-    getAudioManager().createGainNodeForElement(element, baseVolume),
-  stopAll: () => getAudioManager().stopAll(),
-  preload: () => getAudioManager().preload(),
-  forcePlayFlashSound: () => getAudioManager().forcePlayFlashSound(),
-  forcePlayNewChallengerSound: () => getAudioManager().forcePlayNewChallengerSound(),
-};
+// Export a single instance that will be shared across all imports
+export const audioManager = new AudioManagerWrapper();
