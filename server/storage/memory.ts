@@ -1327,6 +1327,13 @@ export function createMemoryStorage() {
       attempt.submissionId = submissionId;
     },
 
+    async markSubmissionAsAnnounced(submissionId: string): Promise<void> {
+      const submission = submissionsStore.find((s) => s.id === submissionId);
+      if (submission) {
+        submission.announcedOnLeaderboard = true;
+      }
+    },
+
     async getLeaderboard(limit = 100, category?: string): Promise<any[]> {
       const filtered = category
         ? submissionsStore.filter((submission) => submission.category === category)
