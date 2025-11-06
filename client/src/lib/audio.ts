@@ -874,6 +874,82 @@ export class AudioManager {
       return null;
     }
   }
+
+  /**
+   * Force play flash sound - bypasses immersive mode and muted state
+   * This is used for critical announcements like the leaderboard
+   */
+  public async forcePlayFlashSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.flashAudio) return;
+
+    try {
+      // Temporarily unmute for this sound
+      const wasMuted = this.flashAudio.muted;
+      this.flashAudio.muted = false;
+
+      // Reset to beginning if already playing
+      this.flashAudio.currentTime = 0;
+
+      // Set volume
+      this.flashAudio.volume = 0.45;
+
+      // Play the flash sound immediately
+      await this.flashAudio.play();
+
+      // Restore muted state after a delay (flash sound is short)
+      setTimeout(() => {
+        if (this.flashAudio) {
+          this.flashAudio.muted = wasMuted;
+        }
+      }, 1000);
+
+      console.log('[AudioManager] Force played flash sound (bypassed immersive filter)');
+    } catch (error) {
+      console.warn('Could not force play flash sound:', error);
+      // Restore muted state even on error
+      if (this.flashAudio) {
+        this.flashAudio.muted = this.isMuted;
+      }
+    }
+  }
+
+  /**
+   * Force play new challenger sound - bypasses immersive mode and muted state
+   * This is used for critical announcements like the leaderboard
+   */
+  public async forcePlayNewChallengerSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.challengerAudio) return;
+
+    try {
+      // Temporarily unmute for this sound
+      const wasMuted = this.challengerAudio.muted;
+      this.challengerAudio.muted = false;
+
+      // Reset to beginning if already playing
+      this.challengerAudio.currentTime = 0;
+
+      // Set volume
+      this.challengerAudio.volume = 0.2;
+
+      // Play the challenger sound
+      await this.challengerAudio.play();
+
+      // Restore muted state after sound duration (approximately 2 seconds)
+      setTimeout(() => {
+        if (this.challengerAudio) {
+          this.challengerAudio.muted = wasMuted;
+        }
+      }, 2500);
+
+      console.log('[AudioManager] Force played challenger sound (bypassed immersive filter)');
+    } catch (error) {
+      console.warn('Could not force play challenger sound:', error);
+      // Restore muted state even on error
+      if (this.challengerAudio) {
+        this.challengerAudio.muted = this.isMuted;
+      }
+    }
+  }
 }
 
 // Export singleton instance

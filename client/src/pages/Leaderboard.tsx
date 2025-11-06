@@ -159,10 +159,10 @@ export default function Leaderboard() {
       return next;
     });
 
-    // Play announcement sounds
-    audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
+    audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
-      audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+      audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
 
     // Extract initials from name
@@ -221,9 +221,10 @@ export default function Leaderboard() {
     }
 
     const playCelebrationAudio = () => {
-      audioManager.playFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
+      // FORCE PLAY - bypass immersive filter for leaderboard celebration
+      audioManager.forcePlayFlashSound().catch(err => console.warn("Flash sound (submitter) failed:", err));
       setTimeout(() => {
-        audioManager.playNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
+        audioManager.forcePlayNewChallengerSound().catch(err => console.warn("Challenger sound (submitter) failed:", err));
       }, 750);
     };
 
