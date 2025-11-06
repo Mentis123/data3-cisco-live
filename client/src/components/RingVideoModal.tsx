@@ -191,7 +191,24 @@ export function RingVideoModal({ isWinner, onComplete }: RingVideoModalProps) {
       )}
 
       {/* Video container - 16:9 aspect ratio, fit to width, centered vertically */}
-      <div className="w-full flex items-center justify-center px-4" style={{ height: '100vh' }}>
+      <div className="w-full flex flex-col items-center justify-center px-4" style={{ height: '100vh' }}>
+        {/* Result message */}
+        {isLoaded && (
+          <div className="mb-6 text-center animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              {isWinner ? (
+                <span className="text-[#00AEFF] drop-shadow-[0_0_10px_rgba(0,174,255,0.5)]">
+                  You beat the bot! 🎉
+                </span>
+              ) : (
+                <span className="text-white">
+                  Try again!
+                </span>
+              )}
+            </h2>
+          </div>
+        )}
+
         <div className="relative w-full max-w-[90vw] mx-auto" style={{ aspectRatio: '16/9' }}>
           {/* Decorative frame matching site branding */}
           <div className="absolute -inset-4 bg-gradient-to-r from-[#00AEFF]/20 via-[#00AEFF]/40 to-[#00AEFF]/20 rounded-lg blur-xl"></div>
