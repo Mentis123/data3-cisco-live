@@ -644,6 +644,7 @@ export async function registerRoutes(
         subScores: JSON.stringify(evaluation.subscores),
         totalScore: pitchScore,
         evaluationNotes: evaluation.notes_short,
+        announcedOnLeaderboard: true, // Mark as announced immediately so it appears on live leaderboard
       });
 
       // Calculate combined score and handle raffle eligibility

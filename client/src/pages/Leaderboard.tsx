@@ -85,7 +85,7 @@ export default function Leaderboard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewDisplayCounts, setViewDisplayCounts] = useState<Record<string, number>>({});
   const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
-  
+
   // New submission detection and announcement state
   const [location, setLocation] = useLocation();
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
@@ -93,6 +93,15 @@ export default function Leaderboard() {
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
   const isInitialDataLoad = useRef(true);
+
+  // Welcome New Challenger overlay state
+  const [showChallengerOverlay, setShowChallengerOverlay] = useState(false);
+  const [challengerData, setChallengerData] = useState<{
+    initials: string;
+    category: string;
+    score: number;
+    rank: number;
+  } | null>(null);
 
   const isOldRoute = location?.startsWith("/old");
   const homeHref = isOldRoute ? "/old" : "/";
@@ -135,7 +144,7 @@ export default function Leaderboard() {
     botBar?: number | null;
     isEligible?: boolean;
   }) => {
-    console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds...', submission);
+    console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds and showing overlay...', submission);
 
     setIsAnnouncementMode(true);
     setNewSubmissionTime(Date.now());
@@ -150,43 +159,39 @@ export default function Leaderboard() {
       return next;
     });
 
+    // Play announcement sounds
     audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
       audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
 
-    const [firstName, ...rest] = submission.name.split(' ');
-    const lastName = rest.join(' ');
+    // Extract initials from name
+    const nameParts = submission.name.split(' ');
+    const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
 
-    const submissionData = {
-      id: submission.id,
-      participantName: submission.name,
-      firstName: firstName || submission.name,
-      lastName: lastName,
+    // Set overlay data
+    setChallengerData({
+      initials: initials || submission.name.substring(0, 2).toUpperCase(),
       category: submission.category,
-      totalScore: submission.finalScore ?? submission.totalScore ?? 0,
-      pitchScore: submission.pitchScore ?? null,
-      triviaScore: submission.triviaScore ?? null,
-      rank: submission.targetRank ?? null,
-      createdAt: new Date().toISOString(),
-      botBar: submission.botBar ?? undefined,
-      isEligible: submission.isEligible,
-    };
+      score: submission.finalScore ?? submission.totalScore ?? 0,
+      rank: submission.targetRank ?? 0
+    });
 
-    sessionStorage.setItem('newSubmissionData', JSON.stringify(submissionData));
+    // Show overlay
+    setShowChallengerOverlay(true);
 
-    audioManager.playClickSound();
-    setLocation('/announcement');
-
+    // Hide overlay after 10 seconds
     setTimeout(() => {
-      audioManager.playClickSound();
-      setLocation(leaderboardPath);
+      setShowChallengerOverlay(false);
+      setChallengerData(null);
     }, 10000);
 
+    // Trigger score animation
     triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
 
+    // Refetch leaderboard data
     refetch();
-  }, [leaderboardPath, refetch, setLocation, triggerScoreAnimation]);
+  }, [refetch, triggerScoreAnimation]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -1193,6 +1198,80 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+      {/* Welcome New Challenger Overlay */}
+      {showChallengerOverlay && challengerData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="announcement-pulse max-w-4xl w-full mx-4">
+            <Card className="border-4 border-[#00AEFF] bg-gradient-to-br from-data3-blue-black via-[#000045] to-data3-blue-black shadow-2xl">
+              <CardContent className="p-8 sm:p-12 text-center space-y-6">
+                {/* Flash effect overlay */}
+                <div className="announcement-strobe absolute inset-0 rounded-[inherit]"
+                     style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }} />
+
+                {/* Content */}
+                <div className="relative z-10 space-y-6">
+                  {/* NEW CHALLENGER! Header */}
+                  <div className="space-y-2">
+                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-[#78DCFF] drop-shadow-2xl animate-pulse">
+                      WELCOME
+                    </h1>
+                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-2xl -mt-2">
+                      NEW CHALLENGER!
+                    </h1>
+                  </div>
+
+                  {/* Initials Display */}
+                  <div className="flex justify-center my-8">
+                    <div
+                      className="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center text-6xl sm:text-7xl font-black text-white shadow-2xl"
+                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                    >
+                      {challengerData.initials}
+                    </div>
+                  </div>
+
+                  {/* Category Badge */}
+                  <div>
+                    <Badge
+                      className="text-xl sm:text-2xl px-6 py-3 font-bold text-white"
+                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                    >
+                      {CATEGORY_NAMES[challengerData.category as keyof typeof CATEGORY_NAMES] || challengerData.category}
+                    </Badge>
+                  </div>
+
+                  {/* Score and Rank */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mt-6">
+                    <div className="text-center">
+                      <p className="text-lg sm:text-xl text-[#78DCFF]/80 font-semibold mb-2">SCORE</p>
+                      <p className="text-5xl sm:text-6xl font-black text-white drop-shadow-2xl">
+                        {challengerData.score}
+                      </p>
+                      <p className="text-xl sm:text-2xl text-white/60 mt-1">/100</p>
+                    </div>
+                    {challengerData.rank > 0 && (
+                      <div className="text-center">
+                        <p className="text-lg sm:text-xl text-[#78DCFF]/80 font-semibold mb-2">RANK</p>
+                        <p className="text-5xl sm:text-6xl font-black text-yellow-400 drop-shadow-2xl">
+                          #{challengerData.rank}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Decorative Icons */}
+                  <div className="flex justify-center items-center gap-4 text-4xl sm:text-5xl mt-6">
+                    <div className="announcement-bounce">🏆</div>
+                    <div className="announcement-bounce" style={{ animationDelay: '0.2s' }}>⚡</div>
+                    <div className="announcement-bounce" style={{ animationDelay: '0.4s' }}>🎯</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
       <div className="portrait-leaderboard mx-auto flex w-full flex-1 flex-col">
         <div className="flex flex-1 flex-col gap-10 px-4 pb-20 pt-12 sm:px-6 lg:px-8 border-4 border-data3-pale-blue/50 rounded-3xl shadow-[0_0_40px_rgba(120,220,255,0.3),inset_0_0_40px_rgba(120,220,255,0.1)] bg-gradient-to-br from-data3-blue-black/50 via-transparent to-data3-blue-black/50 backdrop-blur-sm">
           <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 px-4 pb-16 pt-8 shadow-[0_45px_140px_-80px_rgba(0,174,255,0.75)] backdrop-blur-xl sm:px-8 lg:px-12">
