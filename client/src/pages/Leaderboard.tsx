@@ -94,22 +94,6 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
       return "bg-white/10 border-white/40 shadow-xl shadow-[#007BC3]/20";
     }
 
-  // Raffle winner reveal state
-  const [showRaffleWinner, setShowRaffleWinner] = useState(false);
-  const [raffleWinnerData, setRaffleWinnerData] = useState<{
-    initials: string;
-    totalScore: number;
-    category: string;
-  } | null>(null);
-
-  // Welcome New Challenger overlay state
-  const [showChallengerOverlay, setShowChallengerOverlay] = useState(false);
-  const [challengerData, setChallengerData] = useState<{
-    initials: string;
-    category: string;
-    score: number;
-    rank: number;
-  } | null>(null);
     if (index === 2) {
       return "bg-white/10 border-white/30 shadow-xl shadow-[#7300FF]/20";
     }
@@ -516,6 +500,52 @@ function renderActiveChallengersView(
 }
 
 export default function Leaderboard() {
+  // State declarations
+  const [displayData, setDisplayData] = useState<DashboardData | null>(null);
+  const [activeView, setActiveView] = useState<"rankings" | "wordcloud" | "categories">("rankings");
+  const [activeChallengers, setActiveChallengers] = useState<ActiveChallenger[]>([]);
+  const [triviaChallengers, setTriviaChallengers] = useState<ActiveChallenger[]>([]);
+  const [projectPitchChallengers, setProjectPitchChallengers] = useState<ActiveChallenger[]>([]);
+  const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
+  const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
+  const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
+
+  // Raffle winner reveal state
+  const [showRaffleWinner, setShowRaffleWinner] = useState(false);
+  const [raffleWinnerData, setRaffleWinnerData] = useState<{
+    initials: string;
+    totalScore: number;
+    category: string;
+  } | null>(null);
+
+  // Welcome New Challenger overlay state
+  const [showChallengerOverlay, setShowChallengerOverlay] = useState(false);
+  const [challengerData, setChallengerData] = useState<{
+    initials: string;
+    category: string;
+    score: number;
+    rank: number;
+  } | null>(null);
+
+  // New submission detection state
+  const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
+  const isInitialDataLoad = useRef(true);
+
+  const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
+
+  // Fetch dashboard data
+  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
+    queryKey: ["dashboard-data"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/dashboard-data");
+      return response.json();
+    },
+    refetchInterval: 5000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -614,13 +644,6 @@ export default function Leaderboard() {
     };
   }, []);
 
-  // Reset timing counters when a new submission occurs
-  useEffect(() => {
-    if (newSubmissionTime) {
-      setViewDisplayCounts({});
-    }
-  }, [newSubmissionTime]);
-
   // WebSocket for real-time updates
   useWebSocket((message) => {
     console.log('WebSocket message received:', message);
@@ -658,34 +681,6 @@ export default function Leaderboard() {
       });
       setShowRaffleWinner(true);
     }
-  });
-
-  const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
-
-  const [displayData, setDisplayData] = useState<DashboardData | null>(null);
-  const [activeView, setActiveView] = useState<"rankings" | "wordcloud" | "categories">("rankings");
-  const [activeChallengers, setActiveChallengers] = useState<ActiveChallenger[]>([]);
-  const [triviaChallengers, setTriviaChallengers] = useState<ActiveChallenger[]>([]);
-  const [projectPitchChallengers, setProjectPitchChallengers] = useState<ActiveChallenger[]>([]);
-  const [showRaffleAnnouncement, setShowRaffleAnnouncement] = useState(false);
-  const [raffleCategory, setRaffleCategory] = useState<string | null>(null);
-  const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
-  const [isPresentationMode, setIsPresentationMode] = useState(false);
-
-  // New submission detection state
-  const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
-  const isInitialDataLoad = useRef(true);
-
-  // Fetch dashboard data
-  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
-    queryKey: ["dashboard-data"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/dashboard-data");
-      return response.json();
-    },
-    refetchInterval: 5000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const triggerScoreAnimation = (entryId: string, score?: number | null) => {
@@ -1120,90 +1115,6 @@ export default function Leaderboard() {
       </div>
     );
   }
-
-
-  return (
-    <div className="min-h-screen bg-background text-foreground p-4">
-      {/* Raffle Qualification Announcement Overlay */}
-      {showRaffleAnnouncement && raffleCategory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="announcement-pulse">
-            <Card
-              className="border-4 max-w-2xl mx-4"
-              style={{
-                borderColor: CATEGORY_COLORS[raffleCategory as keyof typeof CATEGORY_COLORS],
-                backgroundColor: `${CATEGORY_COLORS[raffleCategory as keyof typeof CATEGORY_COLORS]}20`
-              }}
-            >
-              <CardContent className="p-8 text-center">
-                <div className="flex justify-center mb-4">
-                  <i className="fas fa-ticket-alt text-6xl text-yellow-400"></i>
-                </div>
-                <h2 className="text-5xl font-black text-white mb-4">
-                  RAFFLE ENTRY!
-                </h2>
-                <p className="text-2xl text-white/90 mb-4">
-                  A challenger has qualified!
-                </p>
-                <Badge
-                  className="text-xl px-6 py-2"
-                  style={{ backgroundColor: CATEGORY_COLORS[raffleCategory as keyof typeof CATEGORY_COLORS] }}
-                >
-                  {CATEGORY_NAMES[raffleCategory as keyof typeof CATEGORY_NAMES]}
-                </Badge>
-                scoring <strong>{displayData.recentSubmission.totalScore}/100</strong>
-              </p>
-              
-              {/* Show detailed submission info during 5-minute window */}
-              {isWithin5Minutes && displayData.recentSubmission && (
-                <>
-                  {/* Problem Summary */}
-                  {(() => {
-                    try {
-                      const structuredData = typeof displayData.recentSubmission.structuredJson === 'string' 
-                        ? JSON.parse(displayData.recentSubmission.structuredJson)
-                        : displayData.recentSubmission.structuredJson;
-                      
-                      if (structuredData?.problem_summary) {
-                        return (
-                          <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-primary/10 border border-primary/20`}>
-                            <div className="flex items-center gap-2 mb-2">
-                              <i className="fas fa-lightbulb text-yellow-500"></i>
-                              <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>Problem Summary</span>
-                            </div>
-                            <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
-                              {structuredData.problem_summary}
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    } catch (e) {
-                      console.error('Error parsing structuredJson:', e);
-                      return null;
-                    }
-                  })()}
-                  
-                  {/* AI Evaluation Summary */}
-                  {displayData.recentSubmission.evaluationNotes && (
-                    <div className={`mt-4 ${isFullscreen ? 'p-4' : 'p-3'} rounded-lg bg-cyan-500/10 border border-cyan-500/20`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <i className="fas fa-robot text-cyan-500"></i>
-                        <span className={`font-semibold ${isFullscreen ? 'text-lg' : 'text-base'}`}>AI Evaluation Summary</span>
-                      </div>
-                      <p className={`${isFullscreen ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'} text-muted-foreground`}>
-                        {displayData.recentSubmission.evaluationNotes}
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
