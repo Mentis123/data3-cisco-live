@@ -70,6 +70,7 @@ export const attempts = pgTable("attempts", {
   mode: text("mode").notNull(),
   startedAt: timestamp("started_at", { withTimezone: true }).default(sql`now()`),
   endedAt: timestamp("ended_at", { withTimezone: true }),
+  triviaScore: integer("trivia_score"),
   totalScore: integer("total_score"),
   passed: boolean("passed").notNull().default(false),
   eligible: boolean("eligible").notNull().default(false),

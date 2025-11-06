@@ -30,6 +30,7 @@ interface BetaAdminOverview {
     category: string;
     mode: string;
     triviaScore: number | null;
+    pitchScore: number | null;
     combinedScore: number | null;
     passed: boolean;
     eligible: boolean;
@@ -74,6 +75,7 @@ interface RaffleEntry {
   company: string | null;
   role: string | null;
   triviaScore: number | null;
+  pitchScore: number | null;
   combinedScore: number | null;
   passed: boolean | null;
   eligible: boolean | null;
@@ -259,10 +261,14 @@ function OverviewTab() {
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {attempt.company && <span>{attempt.company} • </span>}
-                      Score: {attempt.combinedScore ?? attempt.triviaScore ?? 'N/A'}
-                      {attempt.triviaScore != null && attempt.combinedScore != null && (
+                      Score:{" "}
+                      {attempt.combinedScore ??
+                        (attempt.triviaScore != null && attempt.pitchScore != null
+                          ? attempt.triviaScore + attempt.pitchScore
+                          : attempt.triviaScore ?? attempt.pitchScore ?? "N/A")}
+                      {attempt.triviaScore != null && attempt.pitchScore != null && (
                         <span className="text-xs ml-1">
-                          ({attempt.triviaScore} trivia + {attempt.combinedScore - attempt.triviaScore} pitch)
+                          ({attempt.triviaScore} trivia + {attempt.pitchScore} pitch)
                         </span>
                       )} •{" "}
                       {new Date(attempt.startedAt).toLocaleString()}
@@ -1125,7 +1131,10 @@ function RaffleTab() {
       entry.company || "",
       entry.role || "",
       entry.emailHash,
-      entry.totalScore || "",
+      entry.combinedScore ??
+        (entry.triviaScore != null && entry.pitchScore != null
+          ? entry.triviaScore + entry.pitchScore
+          : entry.triviaScore ?? entry.pitchScore ?? ""),
       entry.passed ? "Yes" : "No",
       entry.eligible ? "Yes" : "No",
       new Date(entry.createdAt).toLocaleString(),
@@ -1187,10 +1196,14 @@ function RaffleTab() {
                     <div className="text-sm text-muted-foreground mt-1">
                       {entry.company && <span>{entry.company} • </span>}
                       {entry.role && <span>{entry.role} • </span>}
-                      Score: {entry.combinedScore ?? 'N/A'}
-                      {entry.triviaScore != null && entry.combinedScore != null && (
+                      Score:{" "}
+                      {entry.combinedScore ??
+                        (entry.triviaScore != null && entry.pitchScore != null
+                          ? entry.triviaScore + entry.pitchScore
+                          : entry.triviaScore ?? entry.pitchScore ?? "N/A")}
+                      {entry.triviaScore != null && entry.pitchScore != null && (
                         <span className="text-xs ml-1">
-                          ({entry.triviaScore} trivia + {entry.combinedScore - entry.triviaScore} pitch)
+                          ({entry.triviaScore} trivia + {entry.pitchScore} pitch)
                         </span>
                       )} •{" "}
                       {new Date(entry.createdAt).toLocaleString()}
