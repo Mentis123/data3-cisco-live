@@ -12,6 +12,7 @@ import { formatNameToInitials } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
+import { RaffleWinnerReveal } from "@/components/RaffleWinnerReveal";
 
 interface LeaderboardEntry {
   id: string;
@@ -93,6 +94,14 @@ export default function Leaderboard() {
   const [isAnnouncementMode, setIsAnnouncementMode] = useState(false);
   const [isAutoRotateEnabled, setIsAutoRotateEnabled] = useState(true);
   const isInitialDataLoad = useRef(true);
+
+  // Raffle winner reveal state
+  const [showRaffleWinner, setShowRaffleWinner] = useState(false);
+  const [raffleWinnerData, setRaffleWinnerData] = useState<{
+    initials: string;
+    totalScore: number;
+    category: string;
+  } | null>(null);
 
   // Welcome New Challenger overlay state
   const [showChallengerOverlay, setShowChallengerOverlay] = useState(false);
@@ -281,6 +290,15 @@ export default function Leaderboard() {
         triggerScoreAnimation(submissionId, message.data.finalScore ?? message.data.totalScore);
         refetch();
       }
+    } else if (message.type === "raffleWinner") {
+      // Handle raffle winner broadcast
+      console.log('🎉 Raffle winner broadcast received:', message.data);
+      setRaffleWinnerData({
+        initials: message.data.initials,
+        totalScore: message.data.totalScore,
+        category: message.data.category,
+      });
+      setShowRaffleWinner(true);
     }
   });
 
@@ -1199,6 +1217,19 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
+      {/* Raffle Winner Reveal */}
+      {showRaffleWinner && raffleWinnerData && (
+        <RaffleWinnerReveal
+          initials={raffleWinnerData.initials}
+          totalScore={raffleWinnerData.totalScore}
+          category={raffleWinnerData.category}
+          onComplete={() => {
+            setShowRaffleWinner(false);
+            setRaffleWinnerData(null);
+          }}
+        />
+      )}
+
       {/* Welcome New Challenger Overlay */}
       {showChallengerOverlay && challengerData && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">

@@ -5,7 +5,7 @@ import { storage, storageKind } from "./storage/index.js";
 import { createDatabaseFeedbackStorage, createJSONFeedbackStorage } from "./storage/feedback.js";
 import { db, hasDatabase, warmupDatabase, withRetry } from "./db.js";
 import { log } from "./logging.js";
-import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified } from "./ws.js";
+import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified, broadcastRaffleWinner } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
 import {
   acceptTncSchema,
@@ -1465,6 +1465,35 @@ export async function registerRoutes(
     } catch (error: any) {
       log(`Error selecting raffle winner: ${error}`);
       res.status(500).json({ message: error.message || "Failed to select raffle winner" });
+    }
+  });
+
+  app.post("/api/beta-admin/broadcast-raffle-winner", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { firstName, lastName, combinedScore, category } = req.body;
+
+      if (!firstName || !lastName || combinedScore === undefined || !category) {
+        res.status(400).json({ message: "firstName, lastName, combinedScore, and category are required" });
+        return;
+      }
+
+      // Calculate initials from first and last name
+      const initials = `${firstName.charAt(0).toUpperCase()}.${lastName.charAt(0).toUpperCase()}.`;
+
+      // Broadcast to all connected WebSocket clients
+      broadcastRaffleWinner({
+        initials,
+        totalScore: combinedScore,
+        category,
+      });
+
+      log(`Broadcast raffle winner: ${initials} (${category}) - ${combinedScore} points`);
+      res.json({ success: true, initials, totalScore: combinedScore, category });
+    } catch (error: any) {
+      log(`Error broadcasting raffle winner: ${error}`);
+      res.status(500).json({ message: error.message || "Failed to broadcast raffle winner" });
     }
   });
 

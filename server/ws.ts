@@ -132,6 +132,34 @@ export function broadcastRaffleQualified(data: {
   });
 }
 
+export function broadcastRaffleWinner(data: {
+  initials: string;
+  totalScore: number;
+  category: string;
+}): void {
+  if (!wss) {
+    console.warn('[WebSocket] Cannot broadcast raffleWinner - WebSocket server not initialized');
+    return;
+  }
+
+  const message = JSON.stringify({
+    type: "raffleWinner",
+    data
+  });
+
+  console.log(`[WebSocket] Broadcasting raffleWinner to ${clients.size} clients:`, data);
+
+  let sentCount = 0;
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+      sentCount++;
+    }
+  });
+
+  console.log(`[WebSocket] Sent raffleWinner to ${sentCount}/${clients.size} connected clients`);
+}
+
 export function getClientCount(): number {
   return wss ? clients.size : 0;
 }
