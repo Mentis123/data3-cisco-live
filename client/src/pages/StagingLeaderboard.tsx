@@ -101,13 +101,13 @@ export default function StagingLeaderboard() {
         // Also clear the old playSubmissionAudio flag to prevent double sounds
         sessionStorage.removeItem('playSubmissionAudio');
 
-        // Play the welcome sounds (flash + challenger)
-        audioManager.playFlashSound()
+        // Play the welcome sounds (flash + challenger) - FORCE PLAY (bypass immersive filter)
+        audioManager.forcePlayFlashSound()
           .then(() => console.log('[StagingLeaderboard] Flash sound played for new challenger'))
           .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
 
         setTimeout(() => {
-          audioManager.playNewChallengerSound()
+          audioManager.forcePlayNewChallengerSound()
             .then(() => console.log('[StagingLeaderboard] Challenger sound played'))
             .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
         }, 750);
@@ -161,15 +161,15 @@ export default function StagingLeaderboard() {
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
     console.log('🥊 RING ENTRY:', entry);
 
-    // Play entry sounds (flash + announce) - with better error handling
+    // Play entry sounds (flash + announce) - FORCE PLAY (bypass immersive filter)
     console.log('[StagingLeaderboard] Playing flash sound...');
-    audioManager.playFlashSound()
+    audioManager.forcePlayFlashSound()
       .then(() => console.log('[StagingLeaderboard] Flash sound played successfully'))
       .catch(err => console.warn('[StagingLeaderboard] Flash sound failed:', err));
 
     setTimeout(() => {
       console.log('[StagingLeaderboard] Playing challenger sound...');
-      audioManager.playNewChallengerSound()
+      audioManager.forcePlayNewChallengerSound()
         .then(() => console.log('[StagingLeaderboard] Challenger sound played successfully'))
         .catch(err => console.warn('[StagingLeaderboard] Challenger sound failed:', err));
     }, 750);
@@ -248,8 +248,8 @@ export default function StagingLeaderboard() {
   const handleRaffleQualified = (data: { category: string }) => {
     console.log('🎟️ RAFFLE QUALIFIED:', data);
 
-    // Play announce sound only
-    audioManager.playNewChallengerSound().catch(err => console.warn('Announce sound failed:', err));
+    // Play announce sound only - FORCE PLAY (bypass immersive filter for leaderboard)
+    audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Announce sound failed:', err));
 
     // Show raffle announcement
     setRaffleCategory(data.category);
@@ -307,10 +307,10 @@ export default function StagingLeaderboard() {
       return next;
     });
 
-    // Play announcement sounds
-    audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
+    // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
+    audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
-      audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+      audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
   };
 
