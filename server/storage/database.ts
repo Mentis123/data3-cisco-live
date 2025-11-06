@@ -1765,7 +1765,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, "ring"),
-            isNull(attempts.endedAt),
+            isNull(attempts.submissionId), // Changed from endedAt to submissionId
             gt(attempts.startedAt, cutoff),
           ),
         )
