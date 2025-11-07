@@ -254,13 +254,17 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
         <RingVideoModal
           isWinner={isWinner}
           onComplete={() => {
-            console.log('[NewSubmissionAnnouncement] Video complete - unmounting modal');
+            console.log('[NewSubmissionAnnouncement] Video complete - unmounting modal and showing results directly');
             setShowVideoModal(false);
-            // Add a small delay to ensure video modal fully unmounts before starting animation
-            // This prevents React from batching the state updates which can cause timing issues
+            // Skip flash/reveal animations and go directly to display phase
             setTimeout(() => {
-              console.log('[NewSubmissionAnnouncement] Starting announcement sequence after video unmount');
-              startAnnouncementSequence();
+              console.log('[NewSubmissionAnnouncement] Displaying announcement content directly (no flash/animation)');
+              setAnimationPhase('display');
+              setShowContent(true);
+              setShouldStartAnimation(false); // Don't trigger animation timers
+              // Still trigger broadcasts for leaderboard
+              broadcastLeaderboardAnnouncement();
+              announceSubmission();
             }, 100);
           }}
         />
