@@ -1084,7 +1084,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             eq(attempts.category, category),
             eq(attempts.mode, "ring"),
             eq(attempts.passed, true),
-            sql`DATE(${attempts.startedAt} AT TIME ZONE 'UTC') = ${dateStr}`,
+            sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${dateStr}`,
             sql`${submissions.id} IS NOT NULL` // Only include attempts with completed submissions
           )
         );
@@ -1159,7 +1159,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           and(
             eq(attempts.emailHash, emailHash),
             eq(attempts.category, category),
-            sql`DATE(${attempts.startedAt} AT TIME ZONE 'UTC') = ${attemptDay}`,
+            sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${attemptDay}`,
           )
         );
 
@@ -1276,8 +1276,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
 
     if (filterDate) {
-      // Filter by date portion of createdAt timestamp
-      conditions.push(sql`DATE(${submissions.createdAt}) = ${filterDate}`);
+      // Filter by date portion of createdAt timestamp using Melbourne timezone
+      conditions.push(
+        sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`,
+      );
     }
 
     if (category) {
@@ -1338,7 +1340,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Build the query with optional where clause
     const results = filterDate
       ? await baseQuery
-          .where(sql`DATE(${submissions.createdAt}) = ${filterDate}`)
+          .where(
+            sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`,
+          )
           .orderBy(desc(submissions.totalScore), submissions.createdAt)
           .limit(limit)
       : await baseQuery
@@ -2157,7 +2161,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           dojoAttempts: sql<number>`sum(case when ${attempts.mode} = 'dojo' then 1 else 0 end)`,
         })
         .from(attempts)
-        .where(sql`DATE(${attempts.startedAt}) = ${today}`);
+        .where(sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`);
 
       const [raffleCount] = await db
         .select({
@@ -2324,7 +2328,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const stats = await db
         .select({
           attemptId: attempts.id,
-          date: sql<string>`DATE(${attempts.startedAt})`.as('date'),
+          date: sql<string>`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne')`.as('date'),
           category: attempts.category,
           emailHash: attempts.emailHash,
           firstName: users.firstName,
