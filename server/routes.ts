@@ -357,28 +357,17 @@ export async function registerRoutes(
 
           // Check if storage method exists before calling
           if (storage.checkExistingRaffleEntry) {
-            try {
-              const hasRaffleEntry = await storage.checkExistingRaffleEntry(
-                emailHash,
-                payload.category,
-                today
-              );
+            const hasRaffleEntry = await storage.checkExistingRaffleEntry(
+              emailHash,
+              payload.category,
+              today
+            );
 
-              if (hasRaffleEntry) {
-                // Throw a special error that we'll catch and handle with 409
-                const err = new Error("You have already completed your run for this category today. Please select a different technology track if available.");
-                (err as any).code = 'ALREADY_SUBMITTED';
-                throw err;
-              }
-            } catch (error: any) {
-              // If it's our ALREADY_SUBMITTED error, re-throw it
-              if (error?.code === 'ALREADY_SUBMITTED') {
-                throw error;
-              }
-              // For other errors during raffle check, log and continue
-              // This allows the attempt to be created even if the raffle check fails
-              console.error('[Trivia] Error checking existing raffle entry:', error);
-              log(`[Trivia] Warning: Could not check existing raffle entry, proceeding with attempt creation`);
+            if (hasRaffleEntry) {
+              // Throw a special error that we'll catch and handle with 409
+              const err = new Error("You have already completed your run for this category today. Please select a different technology track if available.");
+              (err as any).code = 'ALREADY_SUBMITTED';
+              throw err;
             }
           }
         }
