@@ -2841,6 +2841,33 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       };
     },
 
+    async getLatestRaffleWinner() {
+      const [latestDraw] = await db
+        .select({
+          drawId: schema.raffleDraws.id,
+          raffleDate: schema.raffleDraws.raffleDate,
+          announcedAt: schema.raffleDraws.createdAt,
+          winnerEntryId: schema.raffleDraws.winnerEntryId,
+          category: schema.raffleEntries.category,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
+        })
+        .from(schema.raffleDraws)
+        .leftJoin(schema.raffleEntries, eq(schema.raffleDraws.winnerEntryId, schema.raffleEntries.id))
+        .leftJoin(users, eq(schema.raffleEntries.emailHash, users.emailHash))
+        .leftJoin(attempts, eq(schema.raffleEntries.attemptId, attempts.id))
+        .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
+        .orderBy(desc(schema.raffleDraws.createdAt))
+        .limit(1);
+
+      if (!latestDraw || !latestDraw.winnerEntryId || !latestDraw.category) {
+        return null;
+      }
+
+      return latestDraw;
+    },
+
     async clearOldRaffleEntries(daysOld: number) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);

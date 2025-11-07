@@ -136,6 +136,7 @@ export function broadcastRaffleWinner(data: {
   initials: string;
   totalScore: number;
   category: string;
+  drawId?: string;
 }): void {
   if (!wss) {
     console.warn('[WebSocket] Cannot broadcast raffleWinner - WebSocket server not initialized');
