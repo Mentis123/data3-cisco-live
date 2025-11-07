@@ -41,28 +41,28 @@ interface DashboardData {
 
 // Unified Data#3 brand color scheme for all categories
 const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00AEFF",  // Data#3 Light Blue
-  HYBRID_DC: "#00AEFF",            // Data#3 Light Blue
-  COLLAB_CX: "#00AEFF",            // Data#3 Light Blue
-  OBSERVABILITY: "#00AEFF",        // Data#3 Light Blue
-  EDGE_IOT: "#00AEFF"              // Data#3 Light Blue
+  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
+  HYBRID_DC: "#8A2BE2",            // Indigo
+  COLLAB_CX: "#F97316",            // Orange
+  OBSERVABILITY: "#38BDF8",        // Sky
+  EDGE_IOT: "#22C55E"              // Green
 };
 
 const CATEGORY_NAMES = {
   SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Data Centre & Hybrid Cloud",
-  COLLAB_CX: "Collaboration & Contact Centre",
-  OBSERVABILITY: "Observability & Performance",
-  EDGE_IOT: "Edge & IoT Solutions"
+  HYBRID_DC: "Hybrid Cloud Infrastructure",
+  COLLAB_CX: "Collaboration & Customer Experience",
+  OBSERVABILITY: "Observability & Automation",
+  EDGE_IOT: "Edge & IoT Automation"
 };
 
 // Unified Tailwind class for category badges
 const CATEGORY_BADGE_CLASSES: Record<string, string> = {
-  SECURE_CONNECTIVITY: "bg-[#00AEFF]",  // Data#3 Light Blue
-  HYBRID_DC: "bg-[#00AEFF]",            // Data#3 Light Blue
-  COLLAB_CX: "bg-[#00AEFF]",            // Data#3 Light Blue
-  OBSERVABILITY: "bg-[#00AEFF]",        // Data#3 Light Blue
-  EDGE_IOT: "bg-[#00AEFF]"              // Data#3 Light Blue
+  SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
+  HYBRID_DC: "bg-[#8A2BE2]",            // Indigo
+  COLLAB_CX: "bg-[#F97316]",            // Orange
+  OBSERVABILITY: "bg-[#38BDF8]",        // Sky
+  EDGE_IOT: "bg-[#22C55E]"              // Green
 };
 
 export default function LegacyLeaderboard() {

@@ -54,27 +54,27 @@ interface ActiveChallenger {
 // Consistent color scheme for all categories
 const CATEGORY_COLORS = {
   SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#6CC04A",            // Green
-  COLLAB_CX: "#FF6B35",            // Orange
-  OBSERVABILITY: "#9B59B6",        // Purple
-  EDGE_IOT: "#F39C12"              // Yellow
+  HYBRID_DC: "#8A2BE2",            // Indigo
+  COLLAB_CX: "#F97316",            // Orange
+  OBSERVABILITY: "#38BDF8",        // Sky
+  EDGE_IOT: "#22C55E"              // Green
 };
 
 const CATEGORY_NAMES = {
   SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Data Centre & Hybrid Cloud",
-  COLLAB_CX: "Collaboration & Contact Centre",
-  OBSERVABILITY: "Observability & Performance",
-  EDGE_IOT: "Edge & IoT Solutions"
+  HYBRID_DC: "Hybrid Cloud Infrastructure",
+  COLLAB_CX: "Collaboration & Customer Experience",
+  OBSERVABILITY: "Observability & Automation",
+  EDGE_IOT: "Edge & IoT Automation"
 };
 
 // Tailwind class equivalents for badges
 const CATEGORY_BADGE_CLASSES: Record<string, string> = {
   SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
-  HYBRID_DC: "bg-[#6CC04A]",            // Green
-  COLLAB_CX: "bg-[#FF6B35]",            // Orange
-  OBSERVABILITY: "bg-[#9B59B6]",        // Purple
-  EDGE_IOT: "bg-[#F39C12]"              // Yellow
+  HYBRID_DC: "bg-[#8A2BE2]",            // Indigo
+  COLLAB_CX: "bg-[#F97316]",            // Orange
+  OBSERVABILITY: "bg-[#38BDF8]",        // Sky
+  EDGE_IOT: "bg-[#22C55E]"              // Green
 };
 
 function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
@@ -1349,7 +1349,7 @@ export default function Leaderboard() {
                 {activeView === "categories" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      <i className="fas fa-chart-pie text-[#6CC04A] mr-3"></i>
+                      <i className="fas fa-chart-pie text-[#8A2BE2] mr-3"></i>
                       Problem Categories
                     </CardTitle>
                     <p className="mt-2 text-sm text-[#78DCFF]/80">

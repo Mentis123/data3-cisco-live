@@ -2,7 +2,7 @@
 -- Run this script in your PRODUCTION database to populate category-specific stats
 -- This will add all 98 category-specific stats across all system categories
 
--- COLLAB_CX (Collaboration & Contact Centre) Stats
+-- COLLAB_CX (Collaboration & Customer Experience) Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Hybrid Work Adoption', '88%', 'of organizations using hybrid collaboration tools', 'COLLAB_CX', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Remote Work Enabled', '82%', 'Of organizations prioritize collaboration tools', 'COLLAB_CX', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Customer Satisfaction', '+35%', 'increase in CSAT with Webex Contact Center', 'COLLAB_CX', 2);
@@ -16,7 +16,7 @@ INSERT INTO data3_stats (title, value, description, category, display_order) VAL
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Digital Workflows', '1,500+', 'Automated customer journey processes', 'COLLAB_CX', 303);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Omnichannel Integration', '95%', 'Customer touchpoint integration success rate', 'COLLAB_CX', 304);
 
--- EDGE_IOT (Edge & IoT Solutions) Stats
+-- EDGE_IOT (Edge & IoT Automation) Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Connected Devices', '75B', 'IoT devices expected globally by 2025', 'EDGE_IOT', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Edge Computing Growth', '250%', 'Year-over-year adoption increase', 'EDGE_IOT', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('IoT Device Management', '10x', 'Scale improvement with modern platforms', 'EDGE_IOT', 2);
@@ -64,7 +64,7 @@ INSERT INTO data3_stats (title, value, description, category, display_order) VAL
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cloud Migrations', '2,000+', 'Successful digital transformations', 'GENERAL', 7);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Network Endpoints', '1M+', 'Devices under management', 'GENERAL', 8);
 
--- HYBRID_DC (Data Centre & Hybrid Cloud) Stats
+-- HYBRID_DC (Hybrid Cloud Infrastructure) Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Cloud Migration', '75%', 'of workloads moving to hybrid cloud by 2025', 'HYBRID_DC', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Hybrid Cloud Adoption', '85%', 'Of enterprises use hybrid cloud architectures', 'HYBRID_DC', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Infrastructure Cost Savings', '40%', 'reduction in TCO with Cisco HyperFlex', 'HYBRID_DC', 2);
@@ -78,7 +78,7 @@ INSERT INTO data3_stats (title, value, description, category, display_order) VAL
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Storage Capacity', '50+ PB', 'Enterprise storage infrastructure deployed', 'HYBRID_DC', 203);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('DR Sites', '100+', 'Disaster recovery environments established', 'HYBRID_DC', 204);
 
--- OBSERVABILITY (Observability & Performance) Stats
+-- OBSERVABILITY (Observability & Automation) Stats
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('MTTR Reduction', '70%', 'faster mean time to resolution with AppDynamics', 'OBSERVABILITY', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('MTTR Reduction', '60%', 'Faster incident resolution with observability', 'OBSERVABILITY', 1);
 INSERT INTO data3_stats (title, value, description, category, display_order) VALUES ('Application Visibility', '100%', 'full-stack observability across cloud and on-premise', 'OBSERVABILITY', 2);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,9 @@ interface ScoredSubmission {
   name: string;
   category: string;
   totalScore: number;
+  combinedScore: number;
+  pitchScore: number;
+  triviaScore: number | null;
   subScores: {
     clarity: number;
     impact: number;
@@ -102,6 +105,9 @@ interface SubmissionDetails {
   participantName: string;
   category: string;
   totalScore: number;
+  combinedScore: number;
+  pitchScore: number;
+  triviaScore: number | null;
   subScores: {
     clarity: number;
     impact: number;
@@ -138,18 +144,21 @@ interface ActiveChallenger {
 
 const CATEGORY_COLORS: Record<string, string> = {
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",
-  "HYBRID_DC": "bg-[#6CC04A]",
-  "COLLAB_CX": "bg-[#FF6B35]",
-  "OBSERVABILITY": "bg-[#9B59B6]",
-  "EDGE_IOT": "bg-[#F39C12]",
+  "HYBRID_DC": "bg-[#8A2BE2]",
+  "COLLAB_CX": "bg-[#F97316]",
+  "OBSERVABILITY": "bg-[#38BDF8]",
+  "EDGE_IOT": "bg-[#22C55E]",
+  "GENERAL": "bg-[#64748b]",
+  "SCALE": "bg-[#0891b2]",
+  "EXPERTISE": "bg-[#059669]",
 };
 
 const CATEGORY_NAMES: Record<string, string> = {
   "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
-  "HYBRID_DC": "Data Centre & Hybrid Cloud",
-  "COLLAB_CX": "Collaboration & Contact Centre",
-  "OBSERVABILITY": "Observability & Performance",
-  "EDGE_IOT": "Edge & IoT Solutions",
+  "HYBRID_DC": "Hybrid Cloud Infrastructure",
+  "COLLAB_CX": "Collaboration & Customer Experience",
+  "OBSERVABILITY": "Observability & Automation",
+  "EDGE_IOT": "Edge & IoT Automation",
 };
 
 const DIFFICULTY_LABELS: Record<number, string> = {
@@ -585,10 +594,10 @@ function TriviaItemDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SECURE_CONNECTIVITY">Zero Trust & Security</SelectItem>
-                  <SelectItem value="HYBRID_DC">Data Centre & Hybrid Cloud</SelectItem>
-                  <SelectItem value="COLLAB_CX">Collaboration & Contact Centre</SelectItem>
-                  <SelectItem value="OBSERVABILITY">Observability & Performance</SelectItem>
-                  <SelectItem value="EDGE_IOT">Edge & IoT Solutions</SelectItem>
+                <SelectItem value="HYBRID_DC">Hybrid Cloud Infrastructure</SelectItem>
+                <SelectItem value="COLLAB_CX">Collaboration & Customer Experience</SelectItem>
+                <SelectItem value="OBSERVABILITY">Observability & Automation</SelectItem>
+                <SelectItem value="EDGE_IOT">Edge & IoT Automation</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -830,7 +839,10 @@ function ScoredSubmissionsTab() {
                       </Badge>
                     </td>
                     <td className="py-3 px-2">
-                      <div className="font-bold text-lg">{entry.totalScore}/100</div>
+                      <div className="font-bold text-lg">{entry.combinedScore ?? entry.totalScore}/100</div>
+                      <div className="text-xs text-muted-foreground">
+                        Trivia: {entry.triviaScore ?? 0}/60 • Pitch: {entry.pitchScore}/40
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         C:{entry.subScores.clarity} I:{entry.subScores.impact} T:{entry.subScores.technology_fit} F:{entry.subScores.feasibility} B:{entry.subScores.business_value}
                       </div>
@@ -927,7 +939,11 @@ function ScoredSubmissionsTab() {
                     <div className="bg-primary/10 rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Total Score</div>
                       <div className="text-2xl font-bold text-primary">
-                        {submissionDetails.totalScore}/100
+                        {submissionDetails.combinedScore ?? submissionDetails.totalScore}/100
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                        <div>Trivia: {submissionDetails.triviaScore ?? 0}/60</div>
+                        <div>Pitch: {submissionDetails.pitchScore}/40</div>
                       </div>
                     </div>
                   </div>
@@ -1263,6 +1279,7 @@ function BotBarStatsTab() {
   const adminKey = localStorage.getItem("adminKey") || "";
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<string>("all");
+  const [hasAutoSelectedDate, setHasAutoSelectedDate] = useState(false);
 
   const { data: submissions, isLoading } = useQuery<Array<{
     attemptId: string;
@@ -1291,6 +1308,30 @@ function BotBarStatsTab() {
     },
   });
 
+  const categories = useMemo(
+    () => ["all", ...(submissions ? Array.from(new Set(submissions.map(s => s.category))) : [])],
+    [submissions]
+  );
+
+  const uniqueDates = useMemo(
+    () =>
+      submissions
+        ? Array.from(new Set(submissions.map(s => s.date))).sort(
+            (a, b) => new Date(b).getTime() - new Date(a).getTime()
+          )
+        : [],
+    [submissions]
+  );
+
+  const dates = useMemo(() => ["all", ...uniqueDates], [uniqueDates]);
+
+  useEffect(() => {
+    if (!hasAutoSelectedDate && uniqueDates.length > 0) {
+      setSelectedDate(uniqueDates[0]);
+      setHasAutoSelectedDate(true);
+    }
+  }, [uniqueDates, hasAutoSelectedDate]);
+
   if (isLoading) {
     return <div className="text-center py-8">Loading bot bar statistics...</div>;
   }
@@ -1305,10 +1346,6 @@ function BotBarStatsTab() {
       </div>
     );
   }
-
-  // Get unique categories and dates
-  const categories = ["all", ...new Set(submissions.map(s => s.category))];
-  const dates = ["all", ...new Set(submissions.map(s => s.date))].sort().reverse();
 
   // Filter data
   let filteredSubmissions = submissions;
