@@ -2475,6 +2475,25 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           'features', 'capability', 'capabilities', 'integration', 'integrations', 'access', 'management'
         ]);
 
+        const categoryKeywords = [
+          'SECURE_CONNECTIVITY',
+          'HYBRID_DC',
+          'COLLAB_CX',
+          'OBSERVABILITY',
+          'EDGE_IOT',
+          'GENERAL',
+          'SCALE',
+          'EXPERTISE',
+        ];
+
+        const disallowedTokens = new Set<string>();
+        categoryKeywords.forEach(keyword => {
+          const lower = keyword.toLowerCase();
+          stopWords.add(lower);
+          disallowedTokens.add(lower);
+          disallowedTokens.add(lower.replace(/_/g, ''));
+        });
+
         const knownTechnologyTerms = new Set([
           'appdynamics', 'app dynamics', 'thousandeyes', 'securex', 'duo', 'duo mfa', 'duo security',
           'meraki', 'meraki mx', 'meraki mr', 'meraki mg', 'meraki mv', 'meraki insight',
@@ -2575,6 +2594,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
           rawTokens.forEach((token) => {
             if (isTechnologyToken(token.cleaned)) {
+              const normalizedToken = token.lower.replace(/[_\s-]/g, '');
+              if (disallowedTokens.has(token.lower) || disallowedTokens.has(normalizedToken)) {
+                return;
+              }
               const display = token.cleaned;
               if (display && !stopWords.has(display.toLowerCase())) {
                 addTechnology(display);
