@@ -83,10 +83,13 @@ interface RaffleEntry {
 
 const CATEGORY_COLORS: Record<string, string> = {
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",
-  "HYBRID_DC": "bg-[#6CC04A]",
-  "COLLAB_CX": "bg-[#FF6B35]",
-  "OBSERVABILITY": "bg-[#9B59B6]",
-  "EDGE_IOT": "bg-[#F39C12]",
+  "HYBRID_DC": "bg-[#8A2BE2]",
+  "COLLAB_CX": "bg-[#F97316]",
+  "OBSERVABILITY": "bg-[#38BDF8]",
+  "EDGE_IOT": "bg-[#22C55E]",
+  "GENERAL": "bg-[#64748b]",
+  "SCALE": "bg-[#0891b2]",
+  "EXPERTISE": "bg-[#059669]",
 };
 
 const DIFFICULTY_LABELS: Record<number, string> = {
@@ -522,10 +525,10 @@ function TriviaItemDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SECURE_CONNECTIVITY">Zero Trust & Security</SelectItem>
-                  <SelectItem value="HYBRID_DC">Data Centre & Hybrid Cloud</SelectItem>
-                  <SelectItem value="COLLAB_CX">Collaboration & Contact Centre</SelectItem>
-                  <SelectItem value="OBSERVABILITY">Observability & Performance</SelectItem>
-                  <SelectItem value="EDGE_IOT">Edge & IoT Solutions</SelectItem>
+                <SelectItem value="HYBRID_DC">Hybrid Cloud Infrastructure</SelectItem>
+                <SelectItem value="COLLAB_CX">Collaboration & Customer Experience</SelectItem>
+                <SelectItem value="OBSERVABILITY">Observability & Automation</SelectItem>
+                <SelectItem value="EDGE_IOT">Edge & IoT Automation</SelectItem>
                 </SelectContent>
               </Select>
             </div>

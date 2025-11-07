@@ -1365,8 +1365,15 @@ export function createMemoryStorage() {
       const submission = submissionsStore.find((item) => item.id === id);
       if (!submission) return null;
       const participant = ensureParticipant(submission.participantId);
+      const attempt = triviaAttemptsStore.find((item) => item.submissionId === submission.id);
+      const triviaScore = attempt?.totalScore ?? attempt?.triviaScore ?? null;
+      const combinedScore = (triviaScore ?? 0) + (submission.totalScore ?? 0);
       return {
         ...submission,
+        totalScore: combinedScore,
+        pitchScore: submission.totalScore,
+        triviaScore,
+        combinedScore,
         name: `${participant?.firstName ?? "Unknown"} ${participant?.lastName ?? ""}`.trim(),
         subScores: parseJson(submission.subScores),
         structuredJson: parseJson(submission.structuredJson),
@@ -1374,15 +1381,25 @@ export function createMemoryStorage() {
     },
 
     async getAdminLeaderboard(limit = 100): Promise<any[]> {
-      return submissionsStore.slice(0, limit).map((submission) => {
-        const participant = ensureParticipant(submission.participantId);
-        return {
-          ...submission,
-          name: `${participant?.firstName ?? "Unknown"} ${participant?.lastName ?? ""}`.trim(),
-          subScores: parseJson(submission.subScores),
-          structuredJson: parseJson(submission.structuredJson),
-        };
-      });
+      return submissionsStore
+        .slice(0, limit)
+        .map((submission) => {
+          const participant = ensureParticipant(submission.participantId);
+          const attempt = triviaAttemptsStore.find((item) => item.submissionId === submission.id);
+          const triviaScore = attempt?.totalScore ?? attempt?.triviaScore ?? null;
+          const combinedScore = (triviaScore ?? 0) + (submission.totalScore ?? 0);
+          return {
+            ...submission,
+            totalScore: combinedScore,
+            pitchScore: submission.totalScore,
+            triviaScore,
+            combinedScore,
+            name: `${participant?.firstName ?? "Unknown"} ${participant?.lastName ?? ""}`.trim(),
+            subScores: parseJson(submission.subScores),
+            structuredJson: parseJson(submission.structuredJson),
+          };
+        })
+        .sort((a, b) => (b.combinedScore ?? 0) - (a.combinedScore ?? 0));
     },
 
     async getWordCloudData(): Promise<{ text: string; value: number }[]> {
@@ -1659,10 +1676,10 @@ export function createMemoryStorage() {
         { id: "SCALE", name: "SCALE", displayName: "Scale", color: "bg-[#0891b2]", isSystemCategory: true },
         { id: "EXPERTISE", name: "EXPERTISE", displayName: "Expertise", color: "bg-[#059669]", isSystemCategory: true },
         { id: "SECURE_CONNECTIVITY", name: "SECURE_CONNECTIVITY", displayName: "Zero Trust & Secure Connectivity", color: "bg-[#00BCF2]", isSystemCategory: true },
-        { id: "HYBRID_DC", name: "HYBRID_DC", displayName: "Data Centre & Hybrid Cloud", color: "bg-[#6CC04A]", isSystemCategory: true },
-        { id: "COLLAB_CX", name: "COLLAB_CX", displayName: "Collaboration & Contact Centre", color: "bg-[#FF6B35]", isSystemCategory: true },
-        { id: "OBSERVABILITY", name: "OBSERVABILITY", displayName: "Observability & Performance", color: "bg-[#9B59B6]", isSystemCategory: true },
-        { id: "EDGE_IOT", name: "EDGE_IOT", displayName: "Edge & IoT Solutions", color: "bg-[#F39C12]", isSystemCategory: true },
+        { id: "HYBRID_DC", name: "HYBRID_DC", displayName: "Hybrid Cloud Infrastructure", color: "bg-[#8A2BE2]", isSystemCategory: true },
+        { id: "COLLAB_CX", name: "COLLAB_CX", displayName: "Collaboration & Customer Experience", color: "bg-[#F97316]", isSystemCategory: true },
+        { id: "OBSERVABILITY", name: "OBSERVABILITY", displayName: "Observability & Automation", color: "bg-[#38BDF8]", isSystemCategory: true },
+        { id: "EDGE_IOT", name: "EDGE_IOT", displayName: "Edge & IoT Automation", color: "bg-[#22C55E]", isSystemCategory: true },
       ];
       return [
         ...systemCategories,

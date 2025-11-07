@@ -1294,6 +1294,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getSubmission(id: string): Promise<any> {
+    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
+
     const [result] = await db
       .select({
         id: submissions.id,
@@ -1302,13 +1304,16 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         solutionText: submissions.solutionText,
         structuredJson: submissions.structuredJson,
         subScores: submissions.subScores,
-        totalScore: submissions.totalScore,
+        pitchScore: submissions.totalScore,
+        triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
+        combinedScore: combinedScoreExpr,
         evaluationNotes: submissions.evaluationNotes,
         createdAt: submissions.createdAt,
         name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
       })
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .leftJoin(attempts, eq(attempts.submissionId, submissions.id))
       .where(eq(submissions.id, id));
     
     if (!result) return null;
@@ -1316,16 +1321,18 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Parse JSON strings for subScores and structuredJson
     return {
         ...result,
+        totalScore: result.combinedScore,
         subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
         structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
     };
   },
 
     async getAdminLeaderboard(limit: number = 100, filterDate?: string): Promise<any[]> {
+    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
+
     const baseQuery = db
       .select({
         id: submissions.id,
-        totalScore: submissions.totalScore,
         category: submissions.category,
         solutionText: submissions.solutionText,
         structuredJson: submissions.structuredJson,
@@ -1333,9 +1340,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         evaluationNotes: submissions.evaluationNotes,
         createdAt: submissions.createdAt,
         name: sql<string>`${participants.firstName} || ' ' || ${participants.lastName}`,
+        pitchScore: submissions.totalScore,
+        triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
+        combinedScore: combinedScoreExpr,
       })
       .from(submissions)
-      .innerJoin(participants, eq(submissions.participantId, participants.id));
+      .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .leftJoin(attempts, eq(attempts.submissionId, submissions.id));
 
     // Build the query with optional where clause
     const results = filterDate
@@ -1343,15 +1354,22 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           .where(
             sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`,
           )
-          .orderBy(desc(submissions.totalScore), submissions.createdAt)
+          .orderBy(
+            desc(sql`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
+            submissions.createdAt
+          )
           .limit(limit)
       : await baseQuery
-          .orderBy(desc(submissions.totalScore), submissions.createdAt)
+          .orderBy(
+            desc(sql`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
+            submissions.createdAt
+          )
           .limit(limit);
 
     // Parse JSON strings for each result
     return results.map(result => ({
       ...result,
+      totalScore: result.combinedScore,
       subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
       structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
     }));
@@ -2032,10 +2050,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       { id: 'SCALE', name: 'SCALE', displayName: 'Scale', color: 'bg-[#0891b2]', isSystemCategory: true },
       { id: 'EXPERTISE', name: 'EXPERTISE', displayName: 'Expertise', color: 'bg-[#059669]', isSystemCategory: true },
       { id: 'SECURE_CONNECTIVITY', name: 'SECURE_CONNECTIVITY', displayName: 'Zero Trust & Secure Connectivity', color: 'bg-[#00BCF2]', isSystemCategory: true },
-      { id: 'HYBRID_DC', name: 'HYBRID_DC', displayName: 'Data Centre & Hybrid Cloud', color: 'bg-[#6CC04A]', isSystemCategory: true },
-      { id: 'COLLAB_CX', name: 'COLLAB_CX', displayName: 'Collaboration & Contact Centre', color: 'bg-[#FF6B35]', isSystemCategory: true },
-      { id: 'OBSERVABILITY', name: 'OBSERVABILITY', displayName: 'Observability & Performance', color: 'bg-[#9B59B6]', isSystemCategory: true },
-      { id: 'EDGE_IOT', name: 'EDGE_IOT', displayName: 'Edge & IoT Solutions', color: 'bg-[#F39C12]', isSystemCategory: true }
+      { id: 'HYBRID_DC', name: 'HYBRID_DC', displayName: 'Hybrid Cloud Infrastructure', color: 'bg-[#8A2BE2]', isSystemCategory: true },
+      { id: 'COLLAB_CX', name: 'COLLAB_CX', displayName: 'Collaboration & Customer Experience', color: 'bg-[#F97316]', isSystemCategory: true },
+      { id: 'OBSERVABILITY', name: 'OBSERVABILITY', displayName: 'Observability & Automation', color: 'bg-[#38BDF8]', isSystemCategory: true },
+      { id: 'EDGE_IOT', name: 'EDGE_IOT', displayName: 'Edge & IoT Automation', color: 'bg-[#22C55E]', isSystemCategory: true }
     ];
     
     // Get custom categories from database

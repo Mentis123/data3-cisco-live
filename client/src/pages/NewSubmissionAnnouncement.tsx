@@ -49,10 +49,10 @@ const CATEGORY_COLORS = {
 
 const CATEGORY_NAMES = {
   SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Data Centre & Hybrid Cloud",
-  COLLAB_CX: "Collaboration & Contact Centre",
-  OBSERVABILITY: "Observability & Performance",
-  EDGE_IOT: "Edge & IoT Solutions"
+  HYBRID_DC: "Hybrid Cloud Infrastructure",
+  COLLAB_CX: "Collaboration & Customer Experience",
+  OBSERVABILITY: "Observability & Automation",
+  EDGE_IOT: "Edge & IoT Automation"
 };
 
 const CATEGORY_ICONS = {

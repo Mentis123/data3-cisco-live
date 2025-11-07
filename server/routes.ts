@@ -73,10 +73,10 @@ const rateLimits = new Map<string, number>();
 
 const CATEGORIES = [
   { key: "SECURE_CONNECTIVITY", name: "Zero Trust & Secure Connectivity", description: "Zero Trust security, network security, firewalls, VPN, secure remote access, identity management, threat detection" },
-  { key: "HYBRID_DC", name: "Data Centre & Hybrid Cloud", description: "Data center infrastructure, cloud integration, virtualization, storage, compute, hybrid cloud solutions" },
-  { key: "COLLAB_CX", name: "Collaboration & Contact Centre", description: "Video conferencing, team collaboration, contact center, communication platforms, unified communications" },
-  { key: "OBSERVABILITY", name: "Observability & Performance", description: "Network monitoring, analytics, performance management, troubleshooting, visibility tools, automation" },
-  { key: "EDGE_IOT", name: "Edge & IoT Solutions", description: "IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks" },
+  { key: "HYBRID_DC", name: "Hybrid Cloud Infrastructure", description: "Hybrid cloud automation, on-prem and cloud orchestration, virtualization, storage, compute and fabric operations" },
+  { key: "COLLAB_CX", name: "Collaboration & Customer Experience", description: "Customer and employee experience, contact centre modernisation, AI-assisted agents, unified communications" },
+  { key: "OBSERVABILITY", name: "Observability & Automation", description: "Telemetry, full-stack observability, incident automation, AIOps workflows, runbooks and remediation" },
+  { key: "EDGE_IOT", name: "Edge & IoT Automation", description: "Industrial IoT, edge compute, smart facilities, automation at the edge, secure device onboarding" },
 ];
 
 const startTriviaAttemptSchema = z.object({

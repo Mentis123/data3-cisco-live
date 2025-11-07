@@ -492,10 +492,10 @@ Just describe it naturally - what's the problem that needs solving?`
       const categoryList = `Here are the 5 categories:
 
 1. SECURE_CONNECTIVITY - Zero Trust & Secure Connectivity
-2. HYBRID_DC - Data Centre & Hybrid Cloud  
-3. COLLAB_CX - Collaboration & Contact Centre
-4. OBSERVABILITY - Observability & Performance
-5. EDGE_IOT - Edge & IoT Solutions
+2. HYBRID_DC - Hybrid Cloud Infrastructure
+3. COLLAB_CX - Collaboration & Customer Experience
+4. OBSERVABILITY - Observability & Automation
+5. EDGE_IOT - Edge & IoT Automation
 
 Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scoring).`;
       

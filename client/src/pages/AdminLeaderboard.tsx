@@ -18,6 +18,9 @@ interface DetailedEntry {
   name: string;
   category: string;
   totalScore: number;
+  combinedScore: number;
+  pitchScore: number;
+  triviaScore: number | null;
   subScores: {
     clarity: number;
     impact: number;
@@ -34,6 +37,9 @@ interface SubmissionDetails {
   participantName: string;
   category: string;
   totalScore: number;
+  combinedScore: number;
+  pitchScore: number;
+  triviaScore: number | null;
   subScores: {
     clarity: number;
     impact: number;
@@ -68,20 +74,20 @@ interface Category {
 
 const CATEGORY_NAMES: Record<string, string> = {
   "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
-  "HYBRID_DC": "Data Centre & Hybrid Cloud",
-  "COLLAB_CX": "Collaboration & Contact Centre",
-  "OBSERVABILITY": "Observability & Performance",
-  "EDGE_IOT": "Edge & IoT Solutions"
+  "HYBRID_DC": "Hybrid Cloud Infrastructure",
+  "COLLAB_CX": "Collaboration & Customer Experience",
+  "OBSERVABILITY": "Observability & Automation",
+  "EDGE_IOT": "Edge & IoT Automation"
 };
 
 // Consistent color scheme matching Leaderboard.tsx
 const CATEGORY_COLORS: Record<string, string> = {
   // Solution categories - bright colors
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",  // Cyan
-  "HYBRID_DC": "bg-[#6CC04A]",            // Green  
-  "COLLAB_CX": "bg-[#FF6B35]",            // Orange
-  "OBSERVABILITY": "bg-[#9B59B6]",        // Purple
-  "EDGE_IOT": "bg-[#F39C12]",             // Yellow
+  "HYBRID_DC": "bg-[#8A2BE2]",            // Indigo
+  "COLLAB_CX": "bg-[#F97316]",            // Orange
+  "OBSERVABILITY": "bg-[#38BDF8]",        // Sky
+  "EDGE_IOT": "bg-[#22C55E]",             // Green
   // General stats categories - muted colors
   "GENERAL": "bg-[#64748b]",              // Slate
   "SCALE": "bg-[#0891b2]",                // Cyan-600
@@ -328,10 +334,10 @@ function CategoryForm({ category, onSubmit, onCancel }: {
 
   const availableColors = [
     { value: 'bg-[#00BCF2]', label: 'Cyan' },
-    { value: 'bg-[#6CC04A]', label: 'Green' },
-    { value: 'bg-[#FF6B35]', label: 'Orange' },
-    { value: 'bg-[#9B59B6]', label: 'Purple' },
-    { value: 'bg-[#F39C12]', label: 'Yellow' },
+    { value: 'bg-[#8A2BE2]', label: 'Indigo' },
+    { value: 'bg-[#F97316]', label: 'Orange' },
+    { value: 'bg-[#38BDF8]', label: 'Sky' },
+    { value: 'bg-[#22C55E]', label: 'Green' },
     { value: 'bg-[#64748b]', label: 'Slate' },
     { value: 'bg-[#0891b2]', label: 'Cyan-600' },
     { value: 'bg-[#059669]', label: 'Emerald' },
@@ -964,7 +970,10 @@ export default function AdminLeaderboard() {
                             </Badge>
                           </td>
                           <td className="py-3 px-2">
-                            <div className="font-bold text-lg">{entry.totalScore}/100</div>
+                            <div className="font-bold text-lg">{entry.combinedScore ?? entry.totalScore}/100</div>
+                            <div className="text-xs text-muted-foreground">
+                              Trivia: {entry.triviaScore ?? 0}/60 • Pitch: {entry.pitchScore}/40
+                            </div>
                           </td>
                           <td className="py-3 px-2">
                             {entry.evaluationNotes && (
@@ -1090,7 +1099,11 @@ export default function AdminLeaderboard() {
                     <div className="bg-primary/10 rounded-lg p-3">
                       <div className="text-sm text-muted-foreground mb-1">Total Score</div>
                       <div className="text-2xl font-bold text-primary">
-                        {submissionDetails.totalScore}/100
+                        {submissionDetails.combinedScore ?? submissionDetails.totalScore}/100
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                        <div>Trivia: {submissionDetails.triviaScore ?? 0}/60</div>
+                        <div>Pitch: {submissionDetails.pitchScore}/40</div>
                       </div>
                     </div>
                   </div>
