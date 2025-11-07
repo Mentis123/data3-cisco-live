@@ -42,6 +42,15 @@ interface DashboardData {
   projectPitchChallengers?: ActiveChallengerPayload[];
 }
 
+interface LatestRaffleWinnerResponse {
+  drawId: string;
+  raffleDate: string;
+  announcedAt: string;
+  initials: string;
+  totalScore: number;
+  category: string;
+}
+
 interface ActiveChallenger {
   attemptId: string;
   initials: string;
@@ -567,6 +576,7 @@ export default function Leaderboard() {
   // New submission detection state
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
   const isInitialDataLoad = useRef(true);
+  const lastSeenRaffleWinnerIdRef = useRef<string | null>(null);
 
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
@@ -582,9 +592,50 @@ export default function Leaderboard() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
+  const {
+    data: latestRaffleWinner,
+    error: latestRaffleWinnerError,
+  } = useQuery<LatestRaffleWinnerResponse | null, Error, LatestRaffleWinnerResponse | null, ["latest-raffle-winner"]>({
+    queryKey: ["latest-raffle-winner"],
+    queryFn: async () => {
+      const response = await fetch("/api/leaderboard/latest-raffle-winner", {
+        credentials: "include",
+      });
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch latest raffle winner: ${response.statusText}`);
+      }
+
+      return (await response.json()) as LatestRaffleWinnerResponse;
+    },
+    enabled: websocketsDisabled,
+    refetchInterval: websocketsDisabled ? 5000 : false,
+    refetchOnWindowFocus: false,
+  });
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Restore last seen raffle winner id to prevent duplicate reveals on reloads
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const storedWinnerId = sessionStorage.getItem('leaderboard:lastRaffleWinnerId');
+      if (storedWinnerId) {
+        lastSeenRaffleWinnerIdRef.current = storedWinnerId;
+      }
+    } catch (error) {
+      console.warn('[Leaderboard] Unable to restore last raffle winner id:', error);
+    }
   }, []);
 
   // Preload audio on component mount
@@ -592,6 +643,44 @@ export default function Leaderboard() {
     console.log('[Leaderboard] Preloading audio...');
     audioManager.preload();
   }, []);
+
+  useEffect(() => {
+    if (!websocketsDisabled || !latestRaffleWinnerError) {
+      return;
+    }
+
+    console.error('[Leaderboard] Failed to poll latest raffle winner:', latestRaffleWinnerError);
+  }, [websocketsDisabled, latestRaffleWinnerError]);
+
+  useEffect(() => {
+    if (!websocketsDisabled || !latestRaffleWinner) {
+      return;
+    }
+
+    if (!latestRaffleWinner.drawId) {
+      return;
+    }
+
+    if (lastSeenRaffleWinnerIdRef.current === latestRaffleWinner.drawId) {
+      return;
+    }
+
+    console.log('🎉 [Leaderboard] Poll detected new raffle winner:', latestRaffleWinner);
+    lastSeenRaffleWinnerIdRef.current = latestRaffleWinner.drawId;
+
+    try {
+      sessionStorage.setItem('leaderboard:lastRaffleWinnerId', latestRaffleWinner.drawId);
+    } catch (error) {
+      console.warn('[Leaderboard] Unable to persist last raffle winner id:', error);
+    }
+
+    setRaffleWinnerData({
+      initials: latestRaffleWinner.initials,
+      totalScore: latestRaffleWinner.totalScore,
+      category: latestRaffleWinner.category,
+    });
+    setShowRaffleWinner(true);
+  }, [websocketsDisabled, latestRaffleWinner]);
 
   // Check for WELCOME NEW CHALLENGER trigger from announcement page
   useEffect(() => {
@@ -707,19 +796,33 @@ export default function Leaderboard() {
         triggerScoreAnimation(submissionId, message.data.finalScore ?? message.data.totalScore);
         refetch();
       }
-    } else if (message.type === "raffleWinner") {
-      // Handle raffle winner broadcast
-      console.log('🎉🎉🎉 [Leaderboard] RAFFLE WINNER BROADCAST RECEIVED! 🎉🎉🎉');
-      console.log('Winner Data:', message.data);
-      console.log('Setting state: showRaffleWinner = true');
-      setRaffleWinnerData({
-        initials: message.data.initials,
-        totalScore: message.data.totalScore,
-        category: message.data.category,
-      });
-      setShowRaffleWinner(true);
-      console.log('State updated - RaffleWinnerReveal component should now render!');
+  } else if (message.type === "raffleWinner") {
+    // Handle raffle winner broadcast
+    console.log('🎉🎉🎉 [Leaderboard] RAFFLE WINNER BROADCAST RECEIVED! 🎉🎉🎉');
+    console.log('Winner Data:', message.data);
+    console.log('Setting state: showRaffleWinner = true');
+
+    const winnerIdFromMessage =
+      typeof message.data.drawId === 'string' && message.data.drawId.length > 0
+        ? message.data.drawId
+        : `ws-${Date.now()}`;
+
+    lastSeenRaffleWinnerIdRef.current = winnerIdFromMessage;
+
+    try {
+      sessionStorage.setItem('leaderboard:lastRaffleWinnerId', winnerIdFromMessage);
+    } catch (error) {
+      console.warn('[Leaderboard] Unable to persist broadcast raffle winner id:', error);
     }
+
+    setRaffleWinnerData({
+      initials: message.data.initials,
+      totalScore: message.data.totalScore,
+      category: message.data.category,
+    });
+    setShowRaffleWinner(true);
+    console.log('State updated - RaffleWinnerReveal component should now render!');
+  }
   });
 
   const triggerScoreAnimation = (entryId: string, score?: number | null) => {
