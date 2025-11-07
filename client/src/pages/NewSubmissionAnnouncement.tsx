@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,10 +70,53 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const [showReadyPrompt, setShowReadyPrompt] = useState(true);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
+  const [shouldStartAnimation, setShouldStartAnimation] = useState(false);
+  const hasTriggeredBroadcastRef = useRef(false);
+  const hasAnnouncedRef = useRef(false);
 
   const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || BRAND_PRIMARY;
   const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
   const categoryIcon = CATEGORY_ICONS[submission.category as keyof typeof CATEGORY_ICONS] || "fa-star";
+
+  const broadcastLeaderboardAnnouncement = useCallback(() => {
+    if (hasTriggeredBroadcastRef.current) {
+      return;
+    }
+
+    hasTriggeredBroadcastRef.current = true;
+
+    try {
+      sessionStorage.setItem('triggerNewChallenger', JSON.stringify({
+        submissionId: submission.id,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('[NewSubmissionAnnouncement] Failed to set leaderboard trigger:', error);
+    }
+  }, [submission.id]);
+
+  const announceSubmission = useCallback(() => {
+    if (hasAnnouncedRef.current) {
+      return;
+    }
+
+    hasAnnouncedRef.current = true;
+
+    fetch(`/api/submission/${submission.id}/announce`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }).catch(error => {
+      console.error('[NewSubmissionAnnouncement] Failed to announce submission on leaderboard:', error);
+    });
+  }, [submission.id]);
+
+  const startAnnouncementSequence = useCallback(() => {
+    setAnimationPhase('flash');
+    setShowContent(false);
+    setShouldStartAnimation(true);
+    broadcastLeaderboardAnnouncement();
+    announceSubmission();
+  }, [announceSubmission, broadcastLeaderboardAnnouncement]);
 
   // Handle user clicking to start the animation sequence
   const handleStartAnimation = () => {
@@ -101,12 +144,12 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
     // For classic mode (no video), start animation immediately without buzz sound
     // (buzz sound removed per feedback - video takes its place)
+    startAnnouncementSequence();
   };
 
   // Animation sequence - only starts after user interaction
   useEffect(() => {
-    // Don't start animations until user has clicked
-    if (showReadyPrompt) return;
+    if (!shouldStartAnimation) return;
 
     const timer1 = setTimeout(() => {
       setAnimationPhase('reveal');
@@ -121,21 +164,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, [showReadyPrompt]);
-
-  // Mark submission as announced on leaderboard after flash animation completes
-  useEffect(() => {
-    if (animationPhase === 'display') {
-      // User has now seen their results and flash animation is complete
-      // Mark the submission as announced so it appears on the leaderboard
-      fetch(`/api/submission/${submission.id}/announce`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      }).catch(error => {
-        console.error('[NewSubmissionAnnouncement] Failed to announce submission on leaderboard:', error);
-      });
-    }
-  }, [animationPhase, submission.id]);
+  }, [shouldStartAnimation]);
 
   // No auto-dismiss - user must manually continue
 
@@ -207,6 +236,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
             console.log('[NewSubmissionAnnouncement] Video complete - starting announcement');
             setShowVideoModal(false);
             // Start the announcement animation immediately after video
+            startAnnouncementSequence();
           }}
         />
       )}
