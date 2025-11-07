@@ -614,10 +614,29 @@ export async function registerRoutes(
 
       const persistedTriviaAttemptId = session.triviaAttemptId ?? triviaAttemptId ?? null;
 
+      console.log('[express] Trivia attempt ID resolution:', {
+        sessionTriviaAttemptId: session.triviaAttemptId,
+        requestTriviaAttemptId: triviaAttemptId,
+        persistedTriviaAttemptId,
+      });
+
       // Retrieve trivia attempt if linked (we'll reuse this later)
       let triviaAttempt = null;
       if (persistedTriviaAttemptId && storage.getTriviaAttempt) {
         triviaAttempt = await storage.getTriviaAttempt(persistedTriviaAttemptId);
+        console.log('[express] Retrieved trivia attempt:', {
+          attemptId: persistedTriviaAttemptId,
+          found: !!triviaAttempt,
+          totalScore: triviaAttempt?.totalScore,
+          triviaScore: triviaAttempt?.triviaScore,
+          endedAt: triviaAttempt?.endedAt,
+          passed: triviaAttempt?.passed,
+        });
+      } else {
+        console.log('[express] Skipping trivia attempt retrieval:', {
+          persistedTriviaAttemptId,
+          hasGetTriviaAttempt: !!storage.getTriviaAttempt,
+        });
       }
 
       // Determine category: prioritize trivia attempt category, then session category, then auto-categorize
@@ -675,13 +694,31 @@ export async function registerRoutes(
 
       if (persistedTriviaAttemptId) {
         try {
-          // Attach submission to trivia attempt
-          await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
-
           // Use the trivia attempt we retrieved earlier
           if (triviaAttempt) {
-            triviaScore = triviaAttempt.totalScore || 0;
-            combinedScore = triviaScore + pitchScore;
+            // Check if the trivia attempt has been completed
+            if (triviaAttempt.totalScore !== null && triviaAttempt.totalScore !== undefined) {
+              triviaScore = triviaAttempt.totalScore;
+              combinedScore = triviaScore + pitchScore;
+              console.log('[express] Using trivia score in combined calculation:', {
+                triviaScore,
+                pitchScore,
+                combinedScore,
+              });
+            } else {
+              console.warn('[express] Trivia attempt found but not completed (totalScore is null):', {
+                attemptId: persistedTriviaAttemptId,
+                endedAt: triviaAttempt.endedAt,
+                triviaScore: triviaAttempt.triviaScore,
+                totalScore: triviaAttempt.totalScore,
+              });
+              // Trivia not completed - use pitch score only
+              triviaScore = 0;
+              combinedScore = pitchScore;
+            }
+
+            // Attach submission to trivia attempt
+            await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
 
             // Calculate bot bar for this category and today (Melbourne timezone)
             botBar = await storage.calculateBotBar(category, today);
@@ -720,12 +757,25 @@ export async function registerRoutes(
               raffleCreated: raffleResult?.success,
               alreadyEntered: raffleResult?.alreadyExists
             });
+          } else {
+            console.warn('[express] Trivia attempt not found in database:', {
+              attemptId: persistedTriviaAttemptId,
+              message: 'This means the trivia was never completed or the attempt ID is incorrect',
+            });
           }
         } catch (error) {
-          console.warn(
+          console.error(
             `[trivia] Failed to process trivia attempt ${persistedTriviaAttemptId}:`,
-            error,
+            {
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+              attemptId: persistedTriviaAttemptId,
+              triviaAttemptExists: !!triviaAttempt,
+              triviaAttemptTotalScore: triviaAttempt?.totalScore,
+            }
           );
+          // On error, ensure we don't lose the combined score calculation
+          // The score remains as it was set before the error occurred
         }
       }
 
@@ -776,7 +826,7 @@ export async function registerRoutes(
       // Update rate limit
       rateLimits.set(clientIP, now);
 
-      res.json({
+      const responseData = {
         triviaScore,
         pitchScore,
         finalScore: combinedScore,
@@ -789,7 +839,18 @@ export async function registerRoutes(
         raffleEntered: raffleResult?.success || false,
         alreadyEntered: raffleResult?.alreadyExists || false,
         leaderboardUrl: "/leaderboard"
+      };
+
+      console.log('[express] Sending submission response:', {
+        triviaScore: responseData.triviaScore,
+        pitchScore: responseData.pitchScore,
+        finalScore: responseData.finalScore,
+        rank: responseData.rank,
+        botBar: responseData.botBar,
+        isEligible: responseData.isEligible,
       });
+
+      res.json(responseData);
     } catch (error) {
       res.status(500).json({ message: "Failed to submit solution: " + (error as Error).message });
     }

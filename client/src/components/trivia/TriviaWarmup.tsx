@@ -113,6 +113,7 @@ export function TriviaWarmup({
   const [triviaCompleted, setTriviaCompleted] = useState(false);
   const [attemptQuestions, setAttemptQuestions] = useState<TriviaQuestion[]>([]);
   const [isSavingScore, setIsSavingScore] = useState(false);
+  const [saveScoreError, setSaveScoreError] = useState<string | null>(null);
 
   const sanitizedEmail = useMemo(() => {
     if (!email) {
@@ -694,6 +695,7 @@ export function TriviaWarmup({
             // Submit answers to backend for ring mode
             if (mode === "ring" && attemptId && answers.length > 0) {
               setIsSavingScore(true);
+              setSaveScoreError(null); // Clear any previous errors
               try {
                 console.log(`[TriviaWarmup] Submitting ${answers.length} answers for attempt ${attemptId}`);
                 const response = await fetch(`/api/trivia/attempts/${attemptId}/complete`, {
@@ -705,16 +707,20 @@ export function TriviaWarmup({
 
                 if (!response.ok) {
                   const errorData = await response.json().catch(() => ({}));
+                  const errorMessage = errorData.message || `Failed to save trivia score (HTTP ${response.status})`;
                   console.error("[TriviaWarmup] Failed to submit trivia answers:", errorData);
-                  // Even on error, we set isSavingScore to false so user isn't stuck
+                  setSaveScoreError(errorMessage);
                   setIsSavingScore(false);
                 } else {
                   const result = await response.json();
                   console.log("[TriviaWarmup] Trivia answers submitted successfully:", result);
+                  setSaveScoreError(null); // Clear error on success
                   setIsSavingScore(false);
                 }
               } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : "Network error - please check your connection";
                 console.error("[TriviaWarmup] Error submitting trivia answers:", error);
+                setSaveScoreError(errorMessage);
                 setIsSavingScore(false);
               }
             }
@@ -726,6 +732,12 @@ export function TriviaWarmup({
               console.log("[TriviaWarmup] Cannot continue - score is still being saved");
               return;
             }
+            // Prevent continuing if there was an error saving the score (ring mode only)
+            if (mode === "ring" && saveScoreError) {
+              console.error("[TriviaWarmup] Cannot continue - score save failed:", saveScoreError);
+              alert(`Failed to save your trivia score: ${saveScoreError}\n\nPlease contact support or try again.`);
+              return;
+            }
             console.log("[TriviaWarmup] Trivia completed, calling parent onContinue");
             setTriviaCompleted(true);
             setShowOverlay(false);
@@ -735,6 +747,7 @@ export function TriviaWarmup({
             }
           }}
           isSavingScore={isSavingScore}
+          saveError={saveScoreError}
           onShuffle={async () => {
             if (isShuffleRequested || isDeckFetching || !selectedTrack) {
               return;
