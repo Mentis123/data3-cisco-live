@@ -645,7 +645,7 @@ export default function Leaderboard() {
   }, []);
 
   // WebSocket for real-time updates
-  useWebSocket((message) => {
+  const { connectionState } = useWebSocket((message) => {
     console.log('WebSocket message received:', message);
     if (message.type === "scoreUpdate") {
       // Check if this is a genuinely new submission
@@ -673,13 +673,16 @@ export default function Leaderboard() {
       }
     } else if (message.type === "raffleWinner") {
       // Handle raffle winner broadcast
-      console.log('🎉 Raffle winner broadcast received:', message.data);
+      console.log('🎉🎉🎉 [Leaderboard] RAFFLE WINNER BROADCAST RECEIVED! 🎉🎉🎉');
+      console.log('Winner Data:', message.data);
+      console.log('Setting state: showRaffleWinner = true');
       setRaffleWinnerData({
         initials: message.data.initials,
         totalScore: message.data.totalScore,
         category: message.data.category,
       });
       setShowRaffleWinner(true);
+      console.log('State updated - RaffleWinnerReveal component should now render!');
     }
   });
 
@@ -1216,9 +1219,28 @@ export default function Leaderboard() {
                 className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
               />
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-white">
-                  Live Leaderboard
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-bold tracking-tight text-white">
+                    Live Leaderboard
+                  </h1>
+                  {/* WebSocket Connection Status */}
+                  <div className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${
+                    connectionState === 'connected'
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/40'
+                      : connectionState === 'connecting'
+                      ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'
+                      : 'bg-red-500/20 text-red-400 border border-red-500/40'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      connectionState === 'connected'
+                        ? 'bg-green-400 animate-pulse'
+                        : connectionState === 'connecting'
+                        ? 'bg-yellow-400 animate-pulse'
+                        : 'bg-red-400'
+                    }`} />
+                    {connectionState === 'connected' ? 'Live' : connectionState === 'connecting' ? 'Connecting...' : 'Offline'}
+                  </div>
+                </div>
                 <p className="text-sm text-[#78DCFF]/80">
                   Real-time rankings & active challengers
                 </p>

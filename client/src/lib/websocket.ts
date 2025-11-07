@@ -32,36 +32,44 @@ export function useWebSocket(onMessage?: (message: any) => void): WebSocketHook 
       setConnectionState('connecting');
 
       ws.current.onopen = () => {
+        console.log('✅ [WebSocket] Connected successfully to:', wsUrl);
         setConnectionState('connected');
         reconnectAttempts.current = 0;
       };
 
       ws.current.onmessage = (event) => {
+        console.log('📨 [WebSocket] Message received:', event.data);
         setLastMessage(event);
         if (onMessage) {
           try {
             const message = JSON.parse(event.data);
+            console.log('📦 [WebSocket] Parsed message:', message);
             onMessage(message);
           } catch (error) {
-            console.error('Failed to parse WebSocket message:', error);
+            console.error('❌ [WebSocket] Failed to parse message:', error);
           }
         }
       };
 
       ws.current.onclose = (event) => {
+        console.log('🔌 [WebSocket] Connection closed. Clean:', event.wasClean, 'Code:', event.code, 'Reason:', event.reason);
         setConnectionState('disconnected');
-        
+
         // Attempt to reconnect if not a manual close
         if (!event.wasClean && reconnectAttempts.current < maxReconnectAttempts) {
           const delay = Math.pow(2, reconnectAttempts.current) * 1000; // Exponential backoff
+          console.log(`🔄 [WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectAttempts.current + 1}/${maxReconnectAttempts})`);
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttempts.current++;
             connect();
           }, delay);
+        } else if (reconnectAttempts.current >= maxReconnectAttempts) {
+          console.error('❌ [WebSocket] Max reconnection attempts reached');
         }
       };
 
-      ws.current.onerror = () => {
+      ws.current.onerror = (error) => {
+        console.error('💥 [WebSocket] Connection error:', error);
         setConnectionState('error');
       };
     } catch (error) {

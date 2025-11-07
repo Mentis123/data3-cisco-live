@@ -2398,6 +2398,7 @@ function DBAdminTab() {
       combinedScore: number;
       category: string;
     }) => {
+      console.log('🎉 [Admin] Broadcasting raffle winner:', winnerData);
       const response = await fetch("/api/beta-admin/broadcast-raffle-winner", {
         method: "POST",
         headers: {
@@ -2408,17 +2409,22 @@ function DBAdminTab() {
       });
       if (!response.ok) {
         const error = await response.json();
+        console.error('❌ [Admin] Failed to broadcast winner:', error);
         throw new Error(error.message || "Failed to broadcast winner");
       }
-      return response.json();
+      const result = await response.json();
+      console.log('✅ [Admin] Winner broadcast successful:', result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎊 [Admin] Winner announcement completed:', data);
       toast({
         title: "Winner announced to Leaderboard!",
         description: "The spectacular reveal is now playing.",
       });
     },
     onError: (error: any) => {
+      console.error('💥 [Admin] Winner announcement error:', error);
       toast({
         title: "Failed to broadcast winner",
         description: error.message,

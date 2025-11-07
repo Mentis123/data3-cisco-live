@@ -19,32 +19,79 @@ export function RaffleWinnerReveal({
   const [phase, setPhase] = useState<"video" | "spotlight" | "reveal" | "celebrate">("video");
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Log phase changes
   useEffect(() => {
+    console.log(`🔄 [RaffleWinnerReveal] Phase changed to: ${phase}`);
+  }, [phase]);
+
+  useEffect(() => {
+    console.log('🎬 [RaffleWinnerReveal] Component mounted!');
+    console.log('🏆 Winner Details:', { initials, totalScore, category });
+    console.log('📹 Starting video phase...');
+
     // Pause background music during the reveal
     audioManager.pauseBackgroundMusic();
 
     // Play the video
     if (videoRef.current) {
+      console.log('▶️ Attempting to play video...');
+
+      // Add error event listener for video loading errors
+      const handleVideoError = (e: Event) => {
+        console.error("❌ Video loading error:", e);
+        console.log('⏭️ Skipping video phase - going directly to reveal');
+        // If video fails to load, skip directly to reveal phase
+        setPhase("reveal");
+        setTimeout(() => {
+          setPhase("celebrate");
+          triggerFlashAndRise(() => {});
+          createConfetti();
+          audioManager.playFlashSound();
+        }, 1000);
+      };
+
+      videoRef.current.addEventListener('error', handleVideoError);
+
       videoRef.current.play().catch((err) => {
-        console.error("Error playing video:", err);
-        // If video fails, skip to spotlight phase
-        setTimeout(() => setPhase("spotlight"), 500);
+        console.error("❌ Error playing video:", err);
+        console.log('⏭️ Skipping video phase - going directly to reveal');
+        // If video fails to play, skip directly to reveal phase
+        setPhase("reveal");
+        setTimeout(() => {
+          setPhase("celebrate");
+          triggerFlashAndRise(() => {});
+          createConfetti();
+          audioManager.playFlashSound();
+        }, 1000);
       });
+    } else {
+      console.warn('⚠️ Video element not found, skipping directly to reveal');
+      setPhase("reveal");
+      setTimeout(() => {
+        setPhase("celebrate");
+        triggerFlashAndRise(() => {});
+        createConfetti();
+        audioManager.playFlashSound();
+      }, 1000);
     }
 
     return () => {
+      console.log('👋 [RaffleWinnerReveal] Component unmounting...');
       // Resume background music when component unmounts
       audioManager.resumeBackgroundMusic();
     };
   }, []);
 
   const handleVideoEnd = () => {
+    console.log('✅ Video ended, transitioning to spotlight phase');
     setPhase("spotlight");
     // Wait for spotlight animation, then reveal
     setTimeout(() => {
+      console.log('💡 Spotlight phase complete, transitioning to reveal phase');
       setPhase("reveal");
       // Trigger celebration effects
       setTimeout(() => {
+        console.log('🎊 Transitioning to celebrate phase with effects!');
         setPhase("celebrate");
         triggerFlashAndRise(() => {});
         createConfetti();
@@ -56,7 +103,9 @@ export function RaffleWinnerReveal({
   // After celebration, hold for a bit then fade out
   useEffect(() => {
     if (phase === "celebrate") {
+      console.log('🎉 Celebration phase - holding for 8 seconds...');
       const timer = setTimeout(() => {
+        console.log('⏰ Celebration complete, calling onComplete()');
         onComplete();
       }, 8000);
       return () => clearTimeout(timer);
