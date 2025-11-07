@@ -111,9 +111,11 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   }, [submission.id]);
 
   const startAnnouncementSequence = useCallback(() => {
+    console.log('[NewSubmissionAnnouncement] Starting announcement sequence');
     setAnimationPhase('flash');
     setShowContent(false);
     setShouldStartAnimation(true);
+    console.log('[NewSubmissionAnnouncement] State set - phase: flash, showContent: false, shouldStartAnimation: true');
     broadcastLeaderboardAnnouncement();
     announceSubmission();
   }, [announceSubmission, broadcastLeaderboardAnnouncement]);
@@ -151,20 +153,39 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   useEffect(() => {
     if (!shouldStartAnimation) return;
 
+    console.log('[NewSubmissionAnnouncement] Animation effect triggered - setting up timers');
+
     const timer1 = setTimeout(() => {
+      console.log('[NewSubmissionAnnouncement] Timer 1 fired - transitioning to reveal phase');
       setAnimationPhase('reveal');
       setShowContent(true);
     }, 1500); // Flash for 1.5 seconds
 
     const timer2 = setTimeout(() => {
+      console.log('[NewSubmissionAnnouncement] Timer 2 fired - transitioning to display phase');
       setAnimationPhase('display');
     }, 3000); // Start main display after 3 seconds
 
     return () => {
+      console.log('[NewSubmissionAnnouncement] Cleaning up animation timers');
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
   }, [shouldStartAnimation]);
+
+  // Safety timeout - force transition out of flash phase if timers fail
+  useEffect(() => {
+    if (animationPhase === 'flash' && shouldStartAnimation) {
+      console.log('[NewSubmissionAnnouncement] Safety timeout armed for flash phase');
+      const safetyTimer = setTimeout(() => {
+        console.warn('[NewSubmissionAnnouncement] Safety timeout triggered - forcing reveal phase');
+        setAnimationPhase('reveal');
+        setShowContent(true);
+      }, 5000); // If still in flash phase after 5 seconds, force reveal
+
+      return () => clearTimeout(safetyTimer);
+    }
+  }, [animationPhase, shouldStartAnimation]);
 
   // No auto-dismiss - user must manually continue
 
@@ -233,10 +254,14 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
         <RingVideoModal
           isWinner={isWinner}
           onComplete={() => {
-            console.log('[NewSubmissionAnnouncement] Video complete - starting announcement');
+            console.log('[NewSubmissionAnnouncement] Video complete - unmounting modal');
             setShowVideoModal(false);
-            // Start the announcement animation immediately after video
-            startAnnouncementSequence();
+            // Add a small delay to ensure video modal fully unmounts before starting animation
+            // This prevents React from batching the state updates which can cause timing issues
+            setTimeout(() => {
+              console.log('[NewSubmissionAnnouncement] Starting announcement sequence after video unmount');
+              startAnnouncementSequence();
+            }, 100);
           }}
         />
       )}
