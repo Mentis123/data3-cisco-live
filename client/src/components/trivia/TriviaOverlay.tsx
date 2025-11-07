@@ -28,6 +28,7 @@ interface TriviaOverlayProps {
   onShuffle?: () => Promise<void> | void;
   isShuffling?: boolean;
   isSavingScore?: boolean;
+  saveError?: string | null;
 }
 
 export function TriviaOverlay({
@@ -41,6 +42,7 @@ export function TriviaOverlay({
   onShuffle,
   isShuffling,
   isSavingScore,
+  saveError,
 }: TriviaOverlayProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -192,7 +194,15 @@ export function TriviaOverlay({
                     onComplete?.(score, answers);
                   }}
                   completionRender={({ score, restart }) => (
-                    <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">
+                    <div className="flex w-full flex-col items-center justify-center gap-3">
+                      {saveError && mode === "ring" && (
+                        <div className="w-full rounded-lg bg-red-500/20 border border-red-500/50 px-4 py-3 text-center">
+                          <p className="text-red-200 font-medium mb-1">Failed to save your score</p>
+                          <p className="text-red-300/80 text-sm">{saveError}</p>
+                          <p className="text-red-300/60 text-xs mt-2">Please contact support or try abandoning and starting a new attempt.</p>
+                        </div>
+                      )}
+                      <div className="flex w-full flex-wrap items-center justify-center gap-3 max-[480px]:gap-2.5">
                       {mode === "dojo" && onShuffle && (
                         <Button
                           onClick={() => {
@@ -207,10 +217,10 @@ export function TriviaOverlay({
                       {mode === "ring" && onContinue && (
                         <Button
                           onClick={() => onContinue(score)}
-                          disabled={isSavingScore}
+                          disabled={isSavingScore || !!saveError}
                           className="shadow-[0_20px_70px_-40px_rgba(34,197,94,0.8)] max-[480px]:w-full"
                         >
-                          {isSavingScore ? "Saving score..." : (continueLabel || "Pitch your project")}
+                          {isSavingScore ? "Saving score..." : saveError ? "Cannot continue - save failed" : (continueLabel || "Pitch your project")}
                         </Button>
                       )}
                       {mode === "dojo" && (
@@ -226,6 +236,7 @@ export function TriviaOverlay({
                       >
                         {mode === "dojo" ? "Return to Dojo" : "Abandon attempt"}
                       </Button>
+                      </div>
                     </div>
                   )}
                 />
