@@ -77,6 +77,42 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
   EDGE_IOT: "bg-[#22C55E]"              // Green
 };
 
+function normalizeCategoryStats(
+  stats: DashboardData["categoryStats"],
+  leaderboard: LeaderboardEntry[]
+): DashboardData["categoryStats"] {
+  const normalizedEntries = Object.entries(stats ?? {}).reduce<Record<string, number>>(
+    (acc, [key, value]) => {
+      const numericValue = typeof value === "number" ? value : Number(value);
+      if (Number.isFinite(numericValue)) {
+        acc[key] = numericValue;
+      }
+      return acc;
+    },
+    {}
+  );
+
+  const totalFromStats = Object.values(normalizedEntries).reduce((sum, value) => sum + value, 0);
+
+  if (totalFromStats > 0 || !leaderboard?.length) {
+    return normalizedEntries;
+  }
+
+  const fallbackFromLeaderboard = leaderboard.reduce<Record<string, number>>((acc, entry) => {
+    if (!entry?.category) {
+      return acc;
+    }
+
+    const normalizedKey = entry.category.toUpperCase();
+    acc[normalizedKey] = (acc[normalizedKey] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.keys(fallbackFromLeaderboard).length > 0
+    ? fallbackFromLeaderboard
+    : normalizedEntries;
+}
+
 function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
   const leaderboardEntries = leaderboard.slice(0, 10);
   const rows = Array.from({ length: 10 }, (_, index) => leaderboardEntries[index] || null);
@@ -392,7 +428,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
     }))
     .filter((item) => item.value > 0);
 
-  const totalSubmissions = Object.values(categoryStats).reduce((a, b) => a + b, 0);
+  const totalSubmissions = Object.values(categoryStats).reduce((a, b) => a + Number(b), 0);
 
   if (totalSubmissions === 0) {
     return (
@@ -862,7 +898,12 @@ export default function Leaderboard() {
       return;
     }
 
-    setDisplayData(data);
+    const normalizedCategoryStats = normalizeCategoryStats(data.categoryStats, data.leaderboard || []);
+
+    setDisplayData({
+      ...data,
+      categoryStats: normalizedCategoryStats,
+    });
 
     // On initial load, just record all known IDs without announcing
     if (isInitialDataLoad.current) {
