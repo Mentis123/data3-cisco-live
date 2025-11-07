@@ -638,7 +638,7 @@ export default function Home() {
           </div>
           <div className="mt-8 pt-8 border-t border-data3-pale-blue/10 text-center">
             <p className="text-sm text-data3-grey">
-              © 2025 <Data3Logo />. Experience vibe coded by our resident{" "}
+              © 2025 <Data3Logo />. Experience Vibe Coded by our resident{" "}
               <a
                 href="https://www.linkedin.com/in/adam-aka-mentis"
                 target="_blank"
