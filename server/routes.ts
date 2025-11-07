@@ -1239,6 +1239,54 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/leaderboard/latest-raffle-winner", async (_req, res) => {
+    try {
+      const latestWinner = await storage.getLatestRaffleWinner();
+
+      if (!latestWinner) {
+        res.status(204).end();
+        return;
+      }
+
+      const firstInitial = latestWinner.firstName?.charAt(0)?.toUpperCase() ?? "";
+      const lastInitial = latestWinner.lastName?.charAt(0)?.toUpperCase() ?? "";
+      const initials = [firstInitial, lastInitial].filter(Boolean).join(".");
+      const formattedInitials = initials ? `${initials}.` : "";
+
+      const raffleDateValue = latestWinner.raffleDate as unknown;
+      let raffleDate: string;
+      if (raffleDateValue instanceof Date) {
+        raffleDate = raffleDateValue.toISOString().split("T")[0] ?? "";
+      } else if (typeof raffleDateValue === "string") {
+        raffleDate = raffleDateValue;
+      } else {
+        raffleDate = new Date(raffleDateValue as string | number | Date).toISOString().split("T")[0] ?? "";
+      }
+
+      const announcedAtValue = latestWinner.announcedAt as unknown;
+      let announcedAt: string;
+      if (announcedAtValue instanceof Date) {
+        announcedAt = announcedAtValue.toISOString();
+      } else if (typeof announcedAtValue === "string") {
+        announcedAt = announcedAtValue;
+      } else {
+        announcedAt = new Date(announcedAtValue as string | number | Date).toISOString();
+      }
+
+      res.json({
+        drawId: latestWinner.drawId,
+        raffleDate,
+        announcedAt,
+        initials: formattedInitials || "WINNER",
+        totalScore: Number(latestWinner.combinedScore ?? 0),
+        category: latestWinner.category,
+      });
+    } catch (error: any) {
+      log(`[latest-raffle-winner] Error fetching latest winner: ${error}`);
+      res.status(500).json({ message: error.message || "Failed to fetch latest raffle winner" });
+    }
+  });
+
   app.get("/api/beta-admin/trivia-items", async (req, res) => {
     try {
       if (!ensureAdminAccess(req, res)) return;
@@ -1522,7 +1570,7 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      const { firstName, lastName, combinedScore, category } = req.body;
+      const { firstName, lastName, combinedScore, category, drawId } = req.body;
 
       if (!firstName || !lastName || combinedScore === undefined || !category) {
         res.status(400).json({ message: "firstName, lastName, combinedScore, and category are required" });
@@ -1532,15 +1580,29 @@ export async function registerRoutes(
       // Calculate initials from first and last name
       const initials = `${firstName.charAt(0).toUpperCase()}.${lastName.charAt(0).toUpperCase()}.`;
 
+      let winnerDrawId: string | null = typeof drawId === "string" && drawId.length > 0 ? drawId : null;
+
+      if (!winnerDrawId) {
+        try {
+          const latestDraw = await storage.getLatestRaffleWinner();
+          if (latestDraw?.drawId) {
+            winnerDrawId = latestDraw.drawId;
+          }
+        } catch (error) {
+          log(`[broadcast-raffle-winner] Failed to resolve drawId automatically: ${error}`);
+        }
+      }
+
       // Broadcast to all connected WebSocket clients
       broadcastRaffleWinner({
         initials,
         totalScore: combinedScore,
         category,
+        drawId: winnerDrawId ?? undefined,
       });
 
       log(`Broadcast raffle winner: ${initials} (${category}) - ${combinedScore} points`);
-      res.json({ success: true, initials, totalScore: combinedScore, category });
+      res.json({ success: true, initials, totalScore: combinedScore, category, drawId: winnerDrawId ?? undefined });
     } catch (error: any) {
       log(`Error broadcasting raffle winner: ${error}`);
       res.status(500).json({ message: error.message || "Failed to broadcast raffle winner" });
