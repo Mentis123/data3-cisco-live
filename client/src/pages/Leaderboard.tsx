@@ -69,6 +69,15 @@ const CATEGORY_COLORS = {
   EDGE_IOT: "#22C55E"              // Green
 };
 
+// Lighter text colors for better contrast on badges
+const CATEGORY_TEXT_COLORS = {
+  SECURE_CONNECTIVITY: "#78DCFF",  // Light Cyan
+  HYBRID_DC: "#B794F6",            // Light Indigo
+  COLLAB_CX: "#FFA559",            // Light Orange
+  OBSERVABILITY: "#C084FC",        // Light Purple
+  EDGE_IOT: "#86EFAC"              // Light Green
+};
+
 const CATEGORY_NAMES = {
   SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
   HYBRID_DC: "Hybrid Cloud Infrastructure",
@@ -195,7 +204,7 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
                     className="inline-flex items-center justify-start rounded-full px-2 py-0.5 font-medium uppercase tracking-wider text-[0.6rem]"
                     style={{
                       backgroundColor: `${categoryColor}1A`,
-                      color: categoryColor,
+                      color: CATEGORY_TEXT_COLORS[entry.category as keyof typeof CATEGORY_TEXT_COLORS] || categoryColor,
                       border: `1px solid ${categoryColor}4D`
                     }}
                   >
