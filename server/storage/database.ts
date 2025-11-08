@@ -1705,19 +1705,20 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
     const today = filterDate || getMelbourneDate();
 
+    // Query from submissions table to match the leaderboard data
     const results = await db
       .select({
-        category: attempts.category,
+        category: submissions.category,
         count: sql<number>`count(*)::int`,
       })
-      .from(attempts)
+      .from(submissions)
       .where(
         and(
-          eq(attempts.eligible, true),
-          eq(attempts.attemptDay, today)
+          eq(submissions.announcedOnLeaderboard, true),
+          sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
         )
       )
-      .groupBy(attempts.category);
+      .groupBy(submissions.category);
 
     const stats: { [key: string]: number } = {};
     results.forEach(row => {
