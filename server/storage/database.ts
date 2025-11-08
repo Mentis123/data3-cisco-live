@@ -1247,9 +1247,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         solutionText: submissions.solutionText,
         structuredJson: submissions.structuredJson,
         subScores: submissions.subScores,
-        pitchScore: submissions.totalScore,
+        pitchScoreRaw: submissions.totalScore,
         triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
-        combinedScore: combinedScoreExpr,
+        combinedScoreRaw: combinedScoreExpr,
         evaluationNotes: submissions.evaluationNotes,
         createdAt: submissions.createdAt,
         name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
@@ -1262,11 +1262,41 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     if (!result) return null;
     
     // Parse JSON strings for subScores and structuredJson
+    const {
+      pitchScoreRaw,
+      combinedScoreRaw: _combinedScoreRaw,
+      subScores,
+      structuredJson,
+      ...rest
+    } = result;
+
+    const parsedSubScoresRaw = parseSubScores(subScores);
+    const parsedSubScores = parsedSubScoresRaw ?? {
+      clarity: 0,
+      impact: 0,
+      technology_fit: 0,
+      feasibility: 0,
+      business_value: 0,
+    };
+
+    const derivedPitchScore = parsedSubScoresRaw
+      ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+      : null;
+
+    const pitchScore = derivedPitchScore ?? pitchScoreRaw ?? 0;
+    const combinedScore = (rest.triviaScore ?? 0) + pitchScore;
+
+    const parsedStructuredJson = typeof structuredJson === 'string'
+      ? JSON.parse(structuredJson)
+      : structuredJson;
+
     return {
-        ...result,
-        totalScore: result.combinedScore,
-        subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
-        structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
+      ...rest,
+      pitchScore,
+      combinedScore,
+      totalScore: combinedScore,
+      subScores: parsedSubScores,
+      structuredJson: parsedStructuredJson,
     };
   },
 
@@ -1283,9 +1313,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         evaluationNotes: submissions.evaluationNotes,
         createdAt: submissions.createdAt,
         name: sql<string>`${participants.firstName} || ' ' || ${participants.lastName}`,
-        pitchScore: submissions.totalScore,
+        pitchScoreRaw: submissions.totalScore,
         triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
-        combinedScore: combinedScoreExpr,
+        combinedScoreRaw: combinedScoreExpr,
       })
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id))
@@ -1310,12 +1340,44 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           .limit(limit);
 
     // Parse JSON strings for each result
-    return results.map(result => ({
-      ...result,
-      totalScore: result.combinedScore,
-      subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
-      structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
-    }));
+    return results.map(result => {
+      const {
+        pitchScoreRaw,
+        combinedScoreRaw: _combinedScoreRaw,
+        subScores,
+        structuredJson,
+        ...rest
+      } = result;
+
+      const parsedSubScoresRaw = parseSubScores(subScores);
+      const parsedSubScores = parsedSubScoresRaw ?? {
+        clarity: 0,
+        impact: 0,
+        technology_fit: 0,
+        feasibility: 0,
+        business_value: 0,
+      };
+
+      const derivedPitchScore = parsedSubScoresRaw
+        ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+        : null;
+
+      const pitchScore = derivedPitchScore ?? pitchScoreRaw ?? 0;
+      const combinedScore = (rest.triviaScore ?? 0) + pitchScore;
+
+      const parsedStructuredJson = typeof structuredJson === 'string'
+        ? JSON.parse(structuredJson)
+        : structuredJson;
+
+      return {
+        ...rest,
+        pitchScore,
+        combinedScore,
+        totalScore: combinedScore,
+        subScores: parsedSubScores,
+        structuredJson: parsedStructuredJson,
+      };
+    });
   },
 
     async getWordCloudData(): Promise<{ text: string; value: number }[]> {
@@ -2260,8 +2322,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           company: users.company,
           role: users.role,
           triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
-          pitchScore: submissions.totalScore,
-          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
+          pitchScoreRaw: submissions.totalScore,
+          subScores: submissions.subScores,
           passed: attempts.passed,
           // All raffle entries are eligible by definition (only created when eligible)
           eligible: sql<boolean>`true`.as('eligible'),
@@ -2272,7 +2334,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .orderBy(desc(schema.raffleEntries.createdAt));
 
-      return entries;
+      return entries.map(({ pitchScoreRaw, subScores, ...entry }) => {
+        const parsedSubScores = parseSubScores(subScores);
+        const derivedPitchScore = parsedSubScores
+          ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+          : null;
+
+        const pitchScore = derivedPitchScore ?? pitchScoreRaw ?? null;
+        const combinedScore = (entry.triviaScore ?? 0) + (pitchScore ?? 0);
+
+        return {
+          ...entry,
+          pitchScore,
+          combinedScore,
+        };
+      });
     },
 
     async deleteRaffleEntry(id: string) {
