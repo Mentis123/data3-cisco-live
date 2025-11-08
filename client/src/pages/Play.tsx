@@ -291,12 +291,13 @@ Just describe it naturally - what's the problem that needs solving?`
 
   const chatMutation = useMutation({
     mutationFn: async ({ message }: { message: string }) => {
-      const response = await apiRequest("POST", "/api/chat", { 
-        sessionToken, 
+      const response = await apiRequest("POST", "/api/chat", {
+        sessionToken,
         messages: [{ role: "user", content: message }],
         sprintStep: state.step,
         previousProblem: state.problem?.userInput,
-        previousImpact: state.impact?.userInput
+        previousImpact: state.impact?.userInput,
+        category: activeCategory ?? undefined,
       });
       return response.json();
     },

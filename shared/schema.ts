@@ -246,6 +246,7 @@ export const chatSchema = z.object({
     content: z.string(),
   })),
   sprintStep: z.number().optional(),
+  category: z.string().optional(),
 });
 
 export const submitSolutionSchema = z.object({
