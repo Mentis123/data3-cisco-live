@@ -1984,6 +1984,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         })
         .from(submissions)
         .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .where(eq(submissions.announcedOnLeaderboard, true)) // CRITICAL: Only show announced submissions
         .orderBy(desc(submissions.createdAt))
         .limit(1);
 
