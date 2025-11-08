@@ -1991,9 +1991,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       { id: 'SCALE', name: 'SCALE', displayName: 'Scale', color: 'bg-[#0891b2]', isSystemCategory: true },
       { id: 'EXPERTISE', name: 'EXPERTISE', displayName: 'Expertise', color: 'bg-[#059669]', isSystemCategory: true },
       { id: 'SECURE_CONNECTIVITY', name: 'SECURE_CONNECTIVITY', displayName: 'Zero Trust & Secure Connectivity', color: 'bg-[#00BCF2]', isSystemCategory: true },
-      { id: 'HYBRID_DC', name: 'HYBRID_DC', displayName: 'Hybrid Cloud Infrastructure', color: 'bg-[#8A2BE2]', isSystemCategory: true },
+      { id: 'HYBRID_DC', name: 'HYBRID_DC', displayName: 'Hybrid Cloud Infrastructure', color: 'bg-[#6B21A8]', isSystemCategory: true },
       { id: 'COLLAB_CX', name: 'COLLAB_CX', displayName: 'Collaboration & Customer Experience', color: 'bg-[#F97316]', isSystemCategory: true },
-      { id: 'OBSERVABILITY', name: 'OBSERVABILITY', displayName: 'Observability & Automation', color: 'bg-[#A855F7]', isSystemCategory: true },
+      { id: 'OBSERVABILITY', name: 'OBSERVABILITY', displayName: 'Observability & Automation', color: 'bg-[#EAB308]', isSystemCategory: true },
       { id: 'EDGE_IOT', name: 'EDGE_IOT', displayName: 'Edge & IoT Automation', color: 'bg-[#22C55E]', isSystemCategory: true }
     ];
     

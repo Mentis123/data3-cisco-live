@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName } from "@/constants/categories";
 
 interface DetailedEntry {
   id: string;
@@ -72,30 +73,15 @@ interface Category {
   createdAt?: string;
 }
 
-const CATEGORY_NAMES: Record<string, string> = {
-  "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
-  "HYBRID_DC": "Hybrid Cloud Infrastructure",
-  "COLLAB_CX": "Collaboration & Customer Experience",
-  "OBSERVABILITY": "Observability & Automation",
-  "EDGE_IOT": "Edge & IoT Automation"
-};
-
-// Consistent color scheme matching Leaderboard.tsx
-const CATEGORY_COLORS: Record<string, string> = {
-  // Solution categories - bright colors
-  "SECURE_CONNECTIVITY": "bg-[#00BCF2]",  // Cyan
-  "HYBRID_DC": "bg-[#8A2BE2]",            // Indigo
-  "COLLAB_CX": "bg-[#F97316]",            // Orange
-  "OBSERVABILITY": "bg-[#A855F7]",        // Purple
-  "EDGE_IOT": "bg-[#22C55E]",             // Green
-  // General stats categories - muted colors
-  "GENERAL": "bg-[#64748b]",              // Slate
-  "SCALE": "bg-[#0891b2]",                // Cyan-600
-  "EXPERTISE": "bg-[#059669]",            // Emerald-600
-  "INFRASTRUCTURE": "bg-[#dc2626]",       // Red-600
-  "SECURITY": "bg-[#ca8a04]",             // Yellow-600
-  "CLOUD": "bg-[#2563eb]",                // Blue-600
-  "NETWORKING": "bg-[#7c3aed]"            // Violet-600
+const CATEGORY_BADGE_MAP: Record<string, string> = {
+  ...BASE_CATEGORY_BADGE_CLASSES,
+  GENERAL: "bg-[#64748b]", // Slate
+  SCALE: "bg-[#0891b2]", // Cyan-600
+  EXPERTISE: "bg-[#059669]", // Emerald-600
+  INFRASTRUCTURE: "bg-[#dc2626]", // Red-600
+  SECURITY: "bg-[#ca8a04]", // Yellow-600
+  CLOUD: "bg-[#2563eb]", // Blue-600
+  NETWORKING: "bg-[#7c3aed]", // Violet-600
 };
 
 // Category Management Component
@@ -334,9 +320,9 @@ function CategoryForm({ category, onSubmit, onCancel }: {
 
   const availableColors = [
     { value: 'bg-[#00BCF2]', label: 'Cyan' },
-    { value: 'bg-[#8A2BE2]', label: 'Indigo' },
+    { value: 'bg-[#6B21A8]', label: 'Indigo' },
     { value: 'bg-[#F97316]', label: 'Orange' },
-    { value: 'bg-[#A855F7]', label: 'Purple' },
+    { value: 'bg-[#EAB308]', label: 'Amber' },
     { value: 'bg-[#22C55E]', label: 'Green' },
     { value: 'bg-[#64748b]', label: 'Slate' },
     { value: 'bg-[#0891b2]', label: 'Cyan-600' },
@@ -579,7 +565,7 @@ function StatsManagement({ editingStat, setEditingStat, creatingNewStat, setCrea
                       <td className="py-3 px-2 text-primary font-bold">{stat.value}</td>
                       <td className="py-3 px-2 text-sm text-muted-foreground">{stat.description || '-'}</td>
                       <td className="py-3 px-2">
-                        <Badge className={`${CATEGORY_COLORS[stat.category] || 'bg-gray-500'} text-white`}>
+                        <Badge className={`${CATEGORY_BADGE_MAP[stat.category] || 'bg-gray-500'} text-white`}>
                           {stat.category}
                         </Badge>
                       </td>
@@ -965,8 +951,8 @@ export default function AdminLeaderboard() {
                             <div className="font-medium">{entry.name}</div>
                           </td>
                           <td className="py-3 px-2">
-                            <Badge className={`${CATEGORY_COLORS[entry.category] || 'bg-gray-500'} text-white`}>
-                              {CATEGORY_NAMES[entry.category] || entry.category}
+                            <Badge className={`${CATEGORY_BADGE_MAP[entry.category] || 'bg-gray-500'} text-white`}>
+                              {getCategoryName(entry.category)}
                             </Badge>
                           </td>
                           <td className="py-3 px-2">
@@ -1217,7 +1203,7 @@ export default function AdminLeaderboard() {
                 {/* Metadata */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Category: {CATEGORY_NAMES[submissionDetails.category]}</span>
+                    <span>Category: {getCategoryName(submissionDetails.category)}</span>
                     <span>Submitted: {new Date(submissionDetails.createdAt).toLocaleString()}</span>
                   </div>
                 </div>
