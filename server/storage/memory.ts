@@ -1137,7 +1137,9 @@ export function createMemoryStorage() {
       const combinedScores = completedAttempts
         .map((attempt) => {
           const submission = submissionsStore.find((s) => s.id === attempt.submissionId);
-          const triviaScore = attempt.totalScore || 0;
+          // Use triviaScore (not totalScore) to avoid double-counting pitch score
+          // totalScore gets updated to combined score after submission is complete
+          const triviaScore = attempt.triviaScore || 0;
           const pitchScore = submission ? calculatePitchScore(submission.subScores) : 0;
           return triviaScore + pitchScore;
         })

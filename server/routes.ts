@@ -706,11 +706,13 @@ export async function registerRoutes(
               combinedScore = pitchScore;
             }
 
+            // Calculate bot bar for this category and today (Melbourne timezone)
+            // IMPORTANT: Calculate BEFORE attaching the current submission so the bot bar
+            // represents the threshold from previous submissions only
+            botBar = await storage.calculateBotBar(category, today);
+
             // Attach submission to trivia attempt
             await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
-
-            // Calculate bot bar for this category and today (Melbourne timezone)
-            botBar = await storage.calculateBotBar(category, today);
 
             // Check eligibility: combined score >= bot bar
             isEligible = combinedScore >= botBar;
