@@ -1752,9 +1752,10 @@ export async function registerRoutes(
       await storage.setResetTimestamp('raffle', adminUser, 'Via big reset');
       await storage.setResetTimestamp('scored_submissions', adminUser, 'Via big reset');
       await storage.setResetTimestamp('bot_bar', adminUser, 'Via big reset');
+      await storage.setResetTimestamp('word_cloud', adminUser, 'Via big reset');
 
-      // Deactivate word cloud entries
-      const wordsCleaned = await storage.deactivateAllWordCloudEntries();
+      // Permanently delete word cloud entries
+      const wordsCleaned = await storage.deleteAllWordCloudEntries();
 
       log(`BIG RESET executed by ${adminUser} at ${resetTimestamp.resetAt}`);
 
@@ -1834,10 +1835,10 @@ export async function registerRoutes(
       }
 
       const currentCount = await storage.getWordCloudEntriesCount();
-      const wordsCleared = await storage.deactivateAllWordCloudEntries();
+      const wordsCleared = await storage.deleteAllWordCloudEntries();
       await storage.setResetTimestamp('word_cloud', adminUser, notes);
 
-      log(`Word cloud reset by ${adminUser} - ${wordsCleared} words deactivated`);
+      log(`Word cloud reset by ${adminUser} - ${wordsCleared} words permanently deleted`);
 
       res.json({
         success: true,
