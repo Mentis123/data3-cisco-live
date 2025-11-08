@@ -1,5 +1,6 @@
 import newChallengerSound from "@assets/new_challenger_1757850442377.mp3";
 import flashSound from "@assets/flash_1757855169590.mp3";
+import raffleWinnerSound from "@assets/raffle_winner.mp3";
 import homeSoundFile from "@assets/home_sound.mp3";
 import buzzSoundFile from "@assets/buzz.mp3";
 import clickSoundFile from "@assets/click.mp3";
@@ -11,6 +12,7 @@ export class AudioManager {
   private static instance: AudioManager;
   private challengerAudio: HTMLAudioElement | null = null;
   private flashAudio: HTMLAudioElement | null = null;
+  private raffleWinnerAudio: HTMLAudioElement | null = null;
   private homeAudio: HTMLAudioElement | null = null;
   private buzzAudio: HTMLAudioElement | null = null;
   private clickAudio: HTMLAudioElement | null = null;
@@ -131,6 +133,13 @@ export class AudioManager {
       this.flashAudio.preload = "auto";
       this.flashAudio.volume = 0.45; // Reduced by 50% from 0.9
       this.flashAudio.muted = this.isMuted;
+    }
+
+    if (!this.raffleWinnerAudio) {
+      this.raffleWinnerAudio = new Audio(raffleWinnerSound);
+      this.raffleWinnerAudio.preload = "auto";
+      this.raffleWinnerAudio.volume = 0.45; // Same volume as flash sound
+      this.raffleWinnerAudio.muted = this.isMuted;
     }
 
     if (!this.homeAudio) {
@@ -268,11 +277,11 @@ export class AudioManager {
       return false;
     }
 
-    if (!this.challengerAudio || !this.flashAudio || !this.homeAudio || !this.buzzAudio || !this.clickAudio) {
+    if (!this.challengerAudio || !this.flashAudio || !this.raffleWinnerAudio || !this.homeAudio || !this.buzzAudio || !this.clickAudio) {
       this.initializeAudioElements();
     }
 
-    return Boolean(this.challengerAudio && this.flashAudio && this.homeAudio && this.buzzAudio && this.clickAudio);
+    return Boolean(this.challengerAudio && this.flashAudio && this.raffleWinnerAudio && this.homeAudio && this.buzzAudio && this.clickAudio);
   }
 
   public static getInstance(): AudioManager {
@@ -302,6 +311,30 @@ export class AudioManager {
       await this.flashAudio.play();
     } catch (error) {
       console.warn('Could not play flash sound:', error);
+      // Don't throw error - audio failure shouldn't break the app
+    }
+  }
+
+  public async playRaffleWinnerSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.raffleWinnerAudio || this.isMuted) return;
+
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Raffle winner sound skipped - sound effects are disabled');
+      return;
+    }
+
+    try {
+      // Reset to beginning if already playing
+      this.raffleWinnerAudio.currentTime = 0;
+
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.raffleWinnerAudio.volume = 0.45;
+
+      // Play the raffle winner sound immediately
+      await this.raffleWinnerAudio.play();
+    } catch (error) {
+      console.warn('Could not play raffle winner sound:', error);
       // Don't throw error - audio failure shouldn't break the app
     }
   }
@@ -593,6 +626,9 @@ export class AudioManager {
     if (this.flashAudio) {
       this.flashAudio.muted = this.isMuted;
     }
+    if (this.raffleWinnerAudio) {
+      this.raffleWinnerAudio.muted = this.isMuted;
+    }
     if (this.homeAudio) {
       this.homeAudio.muted = this.isMuted;
     }
@@ -669,6 +705,10 @@ export class AudioManager {
       this.flashAudio.pause();
       this.flashAudio.currentTime = 0;
     }
+    if (this.raffleWinnerAudio) {
+      this.raffleWinnerAudio.pause();
+      this.raffleWinnerAudio.currentTime = 0;
+    }
     if (this.homeAudio) {
       this.homeAudio.pause();
       this.homeAudio.currentTime = 0;
@@ -693,6 +733,9 @@ export class AudioManager {
     }
     if (this.flashAudio) {
       this.flashAudio.load();
+    }
+    if (this.raffleWinnerAudio) {
+      this.raffleWinnerAudio.load();
     }
     if (this.homeAudio) {
       this.homeAudio.load();
@@ -971,6 +1014,10 @@ class AudioManagerWrapper {
 
   playFlashSound() {
     return this.getInstance().playFlashSound();
+  }
+
+  playRaffleWinnerSound() {
+    return this.getInstance().playRaffleWinnerSound();
   }
 
   playNewChallengerSound() {
