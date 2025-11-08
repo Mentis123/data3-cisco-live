@@ -864,6 +864,17 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Submission not found" });
       }
 
+      log(`[announce] Submission details:`, {
+        id: submission.id,
+        totalScore: submission.totalScore,
+        combinedScore: submission.combinedScore,
+        pitchScore: submission.pitchScore,
+        triviaScore: submission.triviaScore,
+        category: submission.category,
+        createdAt: submission.createdAt,
+        announcedOnLeaderboard: submission.announcedOnLeaderboard
+      });
+
       // SAFETY CHECK: Prevent duplicate announcements
       if (submission.announcedOnLeaderboard) {
         log(`[announce] ⚠️  Submission ${id} has already been announced - skipping duplicate`);
