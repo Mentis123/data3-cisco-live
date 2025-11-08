@@ -116,9 +116,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     setShowContent(false);
     setShouldStartAnimation(true);
     console.log('[NewSubmissionAnnouncement] State set - phase: flash, showContent: false, shouldStartAnimation: true');
-    broadcastLeaderboardAnnouncement();
-    announceSubmission();
-  }, [announceSubmission, broadcastLeaderboardAnnouncement]);
+  }, []);
 
   // Handle user clicking to start the animation sequence
   const handleStartAnimation = () => {
@@ -190,6 +188,9 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   // No auto-dismiss - user must manually continue
 
   const handleDismiss = () => {
+    broadcastLeaderboardAnnouncement();
+    announceSubmission();
+
     if (onDismiss) {
       onDismiss();
     } else {
@@ -262,9 +263,6 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
               setAnimationPhase('display');
               setShowContent(true);
               setShouldStartAnimation(false); // Don't trigger animation timers
-              // Still trigger broadcasts for leaderboard
-              broadcastLeaderboardAnnouncement();
-              announceSubmission();
             }, 100);
           }}
         />
