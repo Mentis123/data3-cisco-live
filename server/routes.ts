@@ -895,26 +895,31 @@ export async function registerRoutes(
       const leaderboard = await storage.getLeaderboard(1000, undefined, today, true);
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= submission.totalScore) + 1;
 
-      log(`[announce] 📊 Announcing submission: ${id} | Participant: ${participant.firstName} ${participant.lastName.charAt(0)}. | Score: ${submission.totalScore} | Rank: ${targetRank}`);
-
       // Mark submission as announced
       await storage.markSubmissionAsAnnounced(id);
       log(`[announce] ✅ Submission ${id} marked as announced in database`);
 
-      // Broadcast WebSocket update to leaderboard
-      broadcastScoreUpdate({
-        id: submission.id,
-        name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
-        category: submission.category,
-        targetRank: targetRank || leaderboard.length + 1,
-        finalScore: submission.totalScore,
-        totalScore: submission.totalScore,
-        pitchScore: submission.pitchScore ?? null,
-        triviaScore: submission.triviaScore ?? null,
-        botBar,
-        isEligible,
-      });
-      log(`[announce] 📡 WebSocket broadcast sent for submission: ${id}`);
+      // Only broadcast if user beat the bot (to avoid embarrassing low scores)
+      if (isEligible) {
+        log(`[announce] 📊 Announcing submission: ${id} | Participant: ${participant.firstName} ${participant.lastName.charAt(0)}. | Score: ${submission.totalScore} | Rank: ${targetRank} | Beat bot ✅`);
+
+        // Broadcast WebSocket update to leaderboard
+        broadcastScoreUpdate({
+          id: submission.id,
+          name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
+          category: submission.category,
+          targetRank: targetRank || leaderboard.length + 1,
+          finalScore: submission.totalScore,
+          totalScore: submission.totalScore,
+          pitchScore: submission.pitchScore ?? null,
+          triviaScore: submission.triviaScore ?? null,
+          botBar,
+          isEligible,
+        });
+        log(`[announce] 📡 WebSocket broadcast sent for submission: ${id}`);
+      } else {
+        log(`[announce] 🤫 Silently adding to leaderboard: ${id} | Participant: ${participant.firstName} ${participant.lastName.charAt(0)}. | Score: ${submission.totalScore} | Did not beat bot (${botBar}) - no announcement`);
+      }
 
       res.json({ success: true });
     } catch (error) {
