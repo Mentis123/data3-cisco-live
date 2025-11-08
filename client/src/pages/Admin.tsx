@@ -15,6 +15,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName } from "@/constants/categories";
 import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle } from "lucide-react";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { CartesianGrid, Cell, Line, LineChart, Scatter, TooltipProps, XAxis, YAxis } from "recharts";
 
 interface BetaAdminOverview {
   stats: {
@@ -1311,25 +1314,165 @@ function BotBarStatsTab() {
     );
   }
 
-  // Filter data
-  let filteredSubmissions = submissions;
-  if (selectedCategory !== "all") {
-    filteredSubmissions = filteredSubmissions.filter(s => s.category === selectedCategory);
+  const filteredSubmissions = useMemo(() => {
+    let scoped = submissions;
+    if (selectedCategory !== "all") {
+      scoped = scoped.filter(s => s.category === selectedCategory);
+    }
+    if (selectedDate !== "all") {
+      scoped = scoped.filter(s => s.date === selectedDate);
+    }
+    return scoped.slice();
+  }, [submissions, selectedCategory, selectedDate]);
+
+  const sortedSubmissions = useMemo(
+    () =>
+      filteredSubmissions
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime()
+        ),
+    [filteredSubmissions]
+  );
+
+  const seedScore = 60;
+  const seedCount = 10;
+
+  interface BotBarChartDatum {
+    id: string;
+    entryNumber: number;
+    type: "seed" | "submission";
+    rawScore: number;
+    runningAverage: number;
+    startedAt: string | null;
+    participantLabel: string;
+    category: string | null;
+    eligible: boolean | null;
   }
-  if (selectedDate !== "all") {
-    filteredSubmissions = filteredSubmissions.filter(s => s.date === selectedDate);
-  }
+
+  const chartData = useMemo<BotBarChartDatum[]>(() => {
+    const data: BotBarChartDatum[] = [];
+    let runningTotal = 0;
+    let entryCount = 0;
+
+    for (let i = 0; i < seedCount; i += 1) {
+      runningTotal += seedScore;
+      entryCount += 1;
+      const average = Number((runningTotal / entryCount).toFixed(2));
+      data.push({
+        id: `seed-${i + 1}`,
+        entryNumber: entryCount,
+        type: "seed",
+        rawScore: seedScore,
+        runningAverage: average,
+        startedAt: null,
+        participantLabel: `Seed Entry ${i + 1}`,
+        category: null,
+        eligible: null,
+      });
+    }
+
+    sortedSubmissions.forEach(submission => {
+      runningTotal += submission.combinedScore;
+      entryCount += 1;
+      const average = Number((runningTotal / entryCount).toFixed(2));
+
+      const name = submission.firstName && submission.lastName
+        ? `${submission.firstName} ${submission.lastName}`
+        : submission.emailHash
+        ? `User ${submission.emailHash.slice(0, 8)}`
+        : "Anonymous";
+
+      data.push({
+        id: submission.attemptId,
+        entryNumber: entryCount,
+        type: "submission",
+        rawScore: submission.combinedScore,
+        runningAverage: average,
+        startedAt: submission.startedAt,
+        participantLabel: name,
+        category: submission.category,
+        eligible: submission.eligible,
+      });
+    });
+
+    return data;
+  }, [seedCount, seedScore, sortedSubmissions]);
+
+  const currentBotBar = chartData.length
+    ? chartData[chartData.length - 1].runningAverage
+    : seedScore;
+  const realSubmissionCount = Math.max(chartData.length - seedCount, 0);
 
   // Calculate summary stats
   const totalSubmissions = filteredSubmissions.length;
   const eligibleCount = filteredSubmissions.filter(s => s.eligible).length;
   const ineligibleCount = totalSubmissions - eligibleCount;
-  const avgBotBar = filteredSubmissions.length > 0
-    ? filteredSubmissions.reduce((sum, s) => sum + s.botBar, 0) / filteredSubmissions.length
-    : 0;
+  const avgBotBar = chartData.length > 0
+    ? chartData.reduce((sum, point) => sum + point.runningAverage, 0) / chartData.length
+    : seedScore;
   const avgCombinedScore = filteredSubmissions.length > 0
     ? filteredSubmissions.reduce((sum, s) => sum + s.combinedScore, 0) / filteredSubmissions.length
     : 0;
+
+  const chartConfig = useMemo(
+    () => ({
+      runningAverage: {
+        label: "Bot Bar",
+        color: "hsl(var(--chart-1))",
+      },
+      entry: {
+        label: "Entry",
+        color: "hsl(var(--chart-2))",
+      },
+    }),
+    []
+  );
+
+  const handlePointClick = (point: BotBarChartDatum) => {
+    toast({
+      title:
+        point.type === "seed"
+          ? `${point.participantLabel}`
+          : `${point.participantLabel} ${point.category ? `(${getCategoryName(point.category)})` : ""}`.trim(),
+      description:
+        point.type === "seed"
+          ? `Baseline seed score keeps the bot bar at ${point.runningAverage}.`
+          : `Score: ${point.rawScore} • New bot bar: ${point.runningAverage}`,
+    });
+  };
+
+  const BotBarTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (!active || !payload?.length) {
+      return null;
+    }
+
+    const point = payload[0].payload as BotBarChartDatum;
+    const submissionDetails = (point.type === "submission"
+      ? [
+          `Score: ${point.rawScore}`,
+          `Eligibility: ${point.eligible ? "Eligible" : "Ineligible"}`,
+          point.startedAt ? `Started: ${new Date(point.startedAt).toLocaleString()}` : null,
+        ]
+      : ["Seed baseline entry"]).filter(Boolean) as string[];
+
+    return (
+      <div className="grid gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
+        <div className="font-semibold">Entry #{point.entryNumber}</div>
+        <div className="text-muted-foreground">
+          {point.participantLabel}
+          {point.category ? ` · ${getCategoryName(point.category)}` : ""}
+        </div>
+        <div className="grid gap-1 pt-1">
+          {submissionDetails.map(detail => (
+            <div key={detail as string}>{detail}</div>
+          ))}
+          <div className="font-medium">New Bot Bar: {point.runningAverage}</div>
+        </div>
+      </div>
+    );
+  };
 
   // Group by date and bot bar to show progression
   const groupedByDateAndBotBar = filteredSubmissions.reduce((acc, sub) => {
@@ -1350,12 +1493,19 @@ function BotBarStatsTab() {
     new Date(b.date).getTime() - new Date(a.date).getTime() || b.botBar - a.botBar
   );
 
+  const scatterColors = {
+    seed: "#94a3b8",
+    submission: "#0ea5e9",
+  } as const;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Bot Bar Statistics</h2>
-          <p className="text-muted-foreground">Individual submissions showing bot bar thresholds and scores</p>
+          <p className="text-muted-foreground">
+            Bot bar starts at {seedScore} based on ten seed scores; every new submission adjusts the running average shown below.
+          </p>
         </div>
         <div className="flex gap-2">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -1386,52 +1536,167 @@ function BotBarStatsTab() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Submissions</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Current Bot Bar</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalSubmissions}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Eligible</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{eligibleCount}</div>
+            <div className="text-3xl font-bold">{currentBotBar.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {totalSubmissions > 0 ? ((eligibleCount / totalSubmissions) * 100).toFixed(1) : 0}%
+              Derived from {realSubmissionCount} submission{realSubmissionCount === 1 ? "" : "s"} and {seedCount} seeded entries.
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ineligible</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Seed Baseline</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-600">{ineligibleCount}</div>
+            <div className="text-3xl font-bold">{seedScore}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {totalSubmissions > 0 ? ((ineligibleCount / totalSubmissions) * 100).toFixed(1) : 0}%
+              Ten synthetic entries anchor the bot bar before real data arrives.
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Bot Bar / Score</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Eligibility Mix</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{avgBotBar.toFixed(1)}</div>
+            <div className="flex items-end gap-3">
+              <div>
+                <div className="text-2xl font-bold text-green-600">{eligibleCount}</div>
+                <p className="text-xs text-muted-foreground">Eligible</p>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-red-600">{ineligibleCount}</div>
+                <p className="text-xs text-muted-foreground">Ineligible</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {totalSubmissions > 0 ? ((eligibleCount / totalSubmissions) * 100).toFixed(1) : "0.0"}% of filtered submissions meet the bar.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Average Scores</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{avgCombinedScore.toFixed(1)}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Avg Score: {avgCombinedScore.toFixed(1)}
+              Mean bot bar across entries: {avgBotBar.toFixed(1)}
             </p>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Bot Bar Progression</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Hover or click any point to see how each entry shifts the running average. Seeds provide the opening baseline.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ChartContainer config={chartConfig} className="min-h-[320px] w-full">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="4 4" />
+              <XAxis
+                dataKey="entryNumber"
+                tickFormatter={(value) => `#${value}`}
+                label={{ value: "Entry", position: "insideBottomRight", offset: -6 }}
+              />
+              <YAxis
+                domain={[Math.max(seedScore - 10, 0), "auto"]}
+                label={{ value: "Bot Bar", angle: -90, position: "insideLeft" }}
+              />
+              <ChartTooltip cursor={{ strokeDasharray: "4 4" }} content={<BotBarTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="runningAverage"
+                stroke="var(--color-runningAverage)"
+                strokeWidth={2}
+                dot={({ cx, cy, payload }) => (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={4}
+                    fill={scatterColors[(payload as BotBarChartDatum).type]}
+                    stroke="var(--color-runningAverage)"
+                    strokeWidth={2}
+                    className="cursor-pointer"
+                    onClick={() => handlePointClick(payload as BotBarChartDatum)}
+                  />
+                )}
+                activeDot={{ r: 6 }}
+              />
+              <Scatter
+                dataKey="runningAverage"
+                name="Entries"
+                fill="var(--color-entry)"
+                onClick={({ payload }) => handlePointClick(payload as BotBarChartDatum)}
+              >
+                {chartData.map(point => (
+                  <Cell
+                    key={point.id}
+                    fill={scatterColors[point.type]}
+                    cursor="pointer"
+                  />
+                ))}
+              </Scatter>
+            </LineChart>
+          </ChartContainer>
+
+          <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+            {chartData.map(point => (
+              <HoverCard key={point.id}>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`font-mono ${
+                      point.type === "seed"
+                        ? "border-dashed text-muted-foreground"
+                        : ""
+                    }`}
+                    onClick={() => handlePointClick(point)}
+                  >
+                    #{point.entryNumber}
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-64" sideOffset={8}>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold">{point.participantLabel}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {point.type === "seed"
+                        ? "Seed baseline entry"
+                        : `${point.category ? getCategoryName(point.category) : "Unknown category"}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      New bot bar: {point.runningAverage}
+                    </p>
+                    {point.type === "submission" && (
+                      <p className="text-xs text-muted-foreground">
+                        Score: {point.rawScore} · {point.eligible ? "Eligible" : "Ineligible"}
+                      </p>
+                    )}
+                    {point.startedAt && (
+                      <p className="text-xs text-muted-foreground">
+                        Started: {new Date(point.startedAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Individual Submissions Table */}
       <Card>
