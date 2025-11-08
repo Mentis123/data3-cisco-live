@@ -1307,6 +1307,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getAdminLeaderboard(limit: number = 100, filterDate?: string): Promise<any[]> {
+    // Get reset timestamp for leaderboard
+    const resetTimestamp = await this.getResetTimestamp('leaderboard');
+
     const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
 
     const baseQuery = db
@@ -1327,12 +1330,25 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       .innerJoin(participants, eq(submissions.participantId, participants.id))
       .leftJoin(attempts, eq(attempts.submissionId, submissions.id));
 
+    // Build WHERE conditions
+    const conditions = [];
+
+    // Apply reset timestamp filter if exists
+    if (resetTimestamp) {
+      conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+    }
+
+    // Add date filter if provided
+    if (filterDate) {
+      conditions.push(
+        sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`
+      );
+    }
+
     // Build the query with optional where clause
-    const results = filterDate
+    const results = conditions.length > 0
       ? await baseQuery
-          .where(
-            sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`,
-          )
+          .where(conditions.length === 1 ? conditions[0] : and(...conditions))
           .orderBy(
             desc(sql`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
             submissions.createdAt
@@ -1390,10 +1406,22 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Fetch word cloud data from database (this is the primary source now)
     // Data can be synced from submissions using the syncWordCloudFromSubmissions() function
     try {
+      // Get reset timestamp for word_cloud
+      const resetTimestamp = await this.getResetTimestamp('word_cloud');
+
+      // Build WHERE conditions
+      const conditions = [];
+      conditions.push(eq(schema.wordCloudEntries.active, true));
+
+      // Apply reset timestamp filter if exists
+      if (resetTimestamp) {
+        conditions.push(sql`${schema.wordCloudEntries.createdAt} >= ${resetTimestamp}`);
+      }
+
       const entries = await db
         .select()
         .from(schema.wordCloudEntries)
-        .where(eq(schema.wordCloudEntries.active, true))
+        .where(and(...conditions))
         .orderBy(desc(schema.wordCloudEntries.count));
 
       // If we have entries in the database, use them
@@ -1716,6 +1744,22 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
     const today = filterDate || getMelbourneDate();
 
+    // Get reset timestamp for scored_submissions
+    const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+
+    // Build WHERE conditions
+    const conditions = [];
+
+    // Filter by date
+    conditions.push(
+      sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
+    );
+
+    // Apply reset timestamp filter if exists
+    if (resetTimestamp) {
+      conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+    }
+
     // Query from submissions table - count all submissions from today regardless of announcement status
     const results = await db
       .select({
@@ -1723,9 +1767,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         count: sql<number>`count(*)::int`,
       })
       .from(submissions)
-      .where(
-        sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
-      )
+      .where(and(...conditions))
       .groupBy(submissions.category);
 
     const stats: { [key: string]: number } = {};
@@ -1969,7 +2011,18 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getRecentSubmission(): Promise<any> {
     try {
-      const [result] = await db
+      // Get reset timestamp for scored_submissions
+      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+
+      // Build WHERE conditions
+      const conditions = [];
+
+      // Apply reset timestamp filter if exists
+      if (resetTimestamp) {
+        conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+      }
+
+      const query = db
         .select({
           id: submissions.id,
           participantId: submissions.participantId,
@@ -1987,6 +2040,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .orderBy(desc(submissions.createdAt))
         .limit(1);
 
+      const [result] = conditions.length > 0
+        ? await query.where(and(...conditions))
+        : await query;
+
       if (!result) return null;
 
       // Parse JSON strings for subScores and structuredJson
@@ -2003,7 +2060,18 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getTopProblemCategory(): Promise<string> {
     try {
-      const [result] = await db
+      // Get reset timestamp for scored_submissions
+      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+
+      // Build WHERE conditions
+      const conditions = [];
+
+      // Apply reset timestamp filter if exists
+      if (resetTimestamp) {
+        conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+      }
+
+      const query = db
         .select({
           category: submissions.category,
           count: sql<number>`count(*)::int`,
@@ -2012,6 +2080,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .groupBy(submissions.category)
         .orderBy(desc(sql`count(*)`))
         .limit(1);
+
+      const [result] = conditions.length > 0
+        ? await query.where(and(...conditions))
+        : await query;
 
       return result?.category || "SECURE_CONNECTIVITY";
     } catch (error) {
@@ -2457,8 +2529,22 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async syncWordCloudFromSubmissions(): Promise<{ synced: number; message: string }> {
       try {
+        // Get reset timestamp for word_cloud to only sync from post-reset submissions
+        const resetTimestamp = await this.getResetTimestamp('word_cloud');
+
+        // Build WHERE conditions for submissions query
+        const conditions = [];
+
+        // Apply reset timestamp filter if exists
+        if (resetTimestamp) {
+          conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+        }
+
         // Generate word cloud data from submissions (using the existing logic)
-        const allSubmissions = await db.select().from(submissions);
+        const query = db.select().from(submissions);
+        const allSubmissions = conditions.length > 0
+          ? await query.where(and(...conditions))
+          : await query;
 
         if (allSubmissions.length === 0) {
           return { synced: 0, message: 'No submissions found to generate word cloud from' };
@@ -3096,7 +3182,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async deleteAllWordCloudEntries(): Promise<number> {
-      const result = await db.delete(wordCloudEntries);
+      // Deactivate all word cloud entries instead of deleting them
+      // This allows filtering by reset timestamp
+      const result = await db
+        .update(wordCloudEntries)
+        .set({ active: false, updatedAt: new Date() });
       return result.rowCount || 0;
     },
   };
