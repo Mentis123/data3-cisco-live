@@ -878,17 +878,17 @@ export default function Leaderboard() {
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
     console.log('🥊 RING ENTRY:', entry);
 
-    // Play entry sounds (flash + announce) - FORCE PLAY (bypass immersive filter)
+    // Play entry sounds (flash + trivia enter) - FORCE PLAY (bypass immersive filter)
     console.log('[Leaderboard] Playing flash sound...');
     audioManager.forcePlayFlashSound()
       .then(() => console.log('[Leaderboard] Flash sound played successfully'))
       .catch(err => console.warn('[Leaderboard] Flash sound failed:', err));
 
     setTimeout(() => {
-      console.log('[Leaderboard] Playing challenger sound...');
-      audioManager.forcePlayNewChallengerSound()
-        .then(() => console.log('[Leaderboard] Challenger sound played successfully'))
-        .catch(err => console.warn('[Leaderboard] Challenger sound failed:', err));
+      console.log('[Leaderboard] Playing trivia enter sound...');
+      audioManager.forcePlayTriviaEnterSound()
+        .then(() => console.log('[Leaderboard] Trivia enter sound played successfully'))
+        .catch(err => console.warn('[Leaderboard] Trivia enter sound failed:', err));
     }, 750);
 
     const now = Date.now();
@@ -1204,7 +1204,12 @@ export default function Leaderboard() {
           console.log(`[Leaderboard] New challenger detected in ${listName} (WebSockets disabled):`, entry);
           audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
           setTimeout(() => {
-            audioManager.playNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
+            // Use different sound based on the list type
+            if (listName === 'pitch') {
+              audioManager.playPitchEnterSound().catch(err => console.warn('Pitch enter sound failed:', err));
+            } else {
+              audioManager.playTriviaEnterSound().catch(err => console.warn('Trivia enter sound failed:', err));
+            }
           }, 750);
         }
 

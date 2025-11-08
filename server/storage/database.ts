@@ -2734,12 +2734,34 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           .where(eq(schema.users.emailHash, winnerEntry[0].emailHash))
           .limit(1);
 
+        // Get attempt details for score
+        const attempt = await db
+          .select()
+          .from(schema.attempts)
+          .where(eq(schema.attempts.id, winnerEntry[0].attemptId))
+          .limit(1);
+
+        // Get submission details if exists
+        let pitchScore = 0;
+        if (attempt[0]?.submissionId) {
+          const submission = await db
+            .select()
+            .from(schema.submissions)
+            .where(eq(schema.submissions.id, attempt[0].submissionId))
+            .limit(1);
+          pitchScore = submission[0]?.totalScore || 0;
+        }
+
+        const triviaScore = attempt[0]?.triviaScore || 0;
+        const combinedScore = triviaScore + pitchScore;
+
         return {
           winner: {
             ...winnerEntry[0],
             firstName: winnerUser[0]?.firstName || null,
             lastName: winnerUser[0]?.lastName || null,
             email: winnerUser[0]?.email || null,
+            combinedScore: combinedScore,
           },
           draw: draw,
           totalEntries: -1, // We don't know the original count
@@ -2775,6 +2797,27 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(eq(schema.users.emailHash, winner.emailHash))
         .limit(1);
 
+      // Get attempt details for score
+      const attempt = await db
+        .select()
+        .from(schema.attempts)
+        .where(eq(schema.attempts.id, winner.attemptId))
+        .limit(1);
+
+      // Get submission details if exists
+      let pitchScore = 0;
+      if (attempt[0]?.submissionId) {
+        const submission = await db
+          .select()
+          .from(schema.submissions)
+          .where(eq(schema.submissions.id, attempt[0].submissionId))
+          .limit(1);
+        pitchScore = submission[0]?.totalScore || 0;
+      }
+
+      const triviaScore = attempt[0]?.triviaScore || 0;
+      const combinedScore = triviaScore + pitchScore;
+
       // Record the draw in the database
       const [draw] = await db
         .insert(schema.raffleDraws)
@@ -2792,6 +2835,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           firstName: winnerUser[0]?.firstName || null,
           lastName: winnerUser[0]?.lastName || null,
           email: winnerUser[0]?.email || null,
+          combinedScore: combinedScore,
         },
         draw: draw,
         totalEntries: entries.length,
@@ -2830,12 +2874,34 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(eq(schema.users.emailHash, winnerEntry[0].emailHash))
         .limit(1);
 
+      // Get attempt details for score
+      const attempt = await db
+        .select()
+        .from(schema.attempts)
+        .where(eq(schema.attempts.id, winnerEntry[0].attemptId))
+        .limit(1);
+
+      // Get submission details if exists
+      let pitchScore = 0;
+      if (attempt[0]?.submissionId) {
+        const submission = await db
+          .select()
+          .from(schema.submissions)
+          .where(eq(schema.submissions.id, attempt[0].submissionId))
+          .limit(1);
+        pitchScore = submission[0]?.totalScore || 0;
+      }
+
+      const triviaScore = attempt[0]?.triviaScore || 0;
+      const combinedScore = triviaScore + pitchScore;
+
       return {
         winner: {
           ...winnerEntry[0],
           firstName: winnerUser[0]?.firstName || null,
           lastName: winnerUser[0]?.lastName || null,
           email: winnerUser[0]?.email || null,
+          combinedScore: combinedScore,
         },
         draw: draw,
       };
