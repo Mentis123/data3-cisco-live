@@ -440,7 +440,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
     <div className="flex flex-col items-center justify-center gap-4 h-full py-4">
       <div className="w-full flex justify-center">
         <PieChart width={300} height={chartHeight}>
-          <Pie data={categoryData} cx="50%" cy="50%" outerRadius={chartRadius} fill="#8884d8" dataKey="value">
+          <Pie data={categoryData} cx="50%" cy="50%" outerRadius={chartRadius} dataKey="value">
             {categoryData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
