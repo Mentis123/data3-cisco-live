@@ -3,6 +3,8 @@ import flashSound from "@assets/flash_1757855169590.mp3";
 import homeSoundFile from "@assets/home_sound.mp3";
 import buzzSoundFile from "@assets/buzz.mp3";
 import clickSoundFile from "@assets/click.mp3";
+import triviaEnterSoundFile from "@assets/enter_ring.mp3";
+import pitchEnterSoundFile from "@assets/project_pitch.mp3";
 
 export const MUSIC_VOLUME_CHANGE_EVENT = "data3:music-volume-change";
 
@@ -14,6 +16,8 @@ export class AudioManager {
   private homeAudio: HTMLAudioElement | null = null;
   private buzzAudio: HTMLAudioElement | null = null;
   private clickAudio: HTMLAudioElement | null = null;
+  private triviaEnterAudio: HTMLAudioElement | null = null;
+  private pitchEnterAudio: HTMLAudioElement | null = null;
   private audioContext: AudioContext | null = null;
   private clickAudioBuffer: AudioBuffer | null = null;
   private homeAudioGainNode: GainNode | null = null;
@@ -176,6 +180,20 @@ export class AudioManager {
       this.clickAudio.volume = 0.6; // 60% volume - crisp but not overwhelming
       this.clickAudio.muted = this.isMuted;
     }
+
+    if (!this.triviaEnterAudio) {
+      this.triviaEnterAudio = new Audio(triviaEnterSoundFile);
+      this.triviaEnterAudio.preload = "auto";
+      this.triviaEnterAudio.volume = 0.2; // Same as challenger sound
+      this.triviaEnterAudio.muted = this.isMuted;
+    }
+
+    if (!this.pitchEnterAudio) {
+      this.pitchEnterAudio = new Audio(pitchEnterSoundFile);
+      this.pitchEnterAudio.preload = "auto";
+      this.pitchEnterAudio.volume = 0.2; // Same as challenger sound
+      this.pitchEnterAudio.muted = this.isMuted;
+    }
   }
 
   private initializeWebAudio() {
@@ -268,11 +286,11 @@ export class AudioManager {
       return false;
     }
 
-    if (!this.challengerAudio || !this.flashAudio || !this.homeAudio || !this.buzzAudio || !this.clickAudio) {
+    if (!this.challengerAudio || !this.flashAudio || !this.homeAudio || !this.buzzAudio || !this.clickAudio || !this.triviaEnterAudio || !this.pitchEnterAudio) {
       this.initializeAudioElements();
     }
 
-    return Boolean(this.challengerAudio && this.flashAudio && this.homeAudio && this.buzzAudio && this.clickAudio);
+    return Boolean(this.challengerAudio && this.flashAudio && this.homeAudio && this.buzzAudio && this.clickAudio && this.triviaEnterAudio && this.pitchEnterAudio);
   }
 
   public static getInstance(): AudioManager {
@@ -565,6 +583,54 @@ export class AudioManager {
     });
   }
 
+  public async playTriviaEnterSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.triviaEnterAudio || this.isMuted) return;
+
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Trivia enter sound skipped - sound effects are disabled');
+      return;
+    }
+
+    try {
+      // Reset to beginning if already playing
+      this.triviaEnterAudio.currentTime = 0;
+
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.triviaEnterAudio.volume = 0.2;
+
+      // Play the trivia enter sound
+      await this.triviaEnterAudio.play();
+    } catch (error) {
+      console.warn('Could not play trivia enter sound:', error);
+      // Don't throw error - audio failure shouldn't break the app
+    }
+  }
+
+  public async playPitchEnterSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.pitchEnterAudio || this.isMuted) return;
+
+    // Don't play if sounds are disabled
+    if (!this.soundsEnabled) {
+      console.log('[AudioManager] Pitch enter sound skipped - sound effects are disabled');
+      return;
+    }
+
+    try {
+      // Reset to beginning if already playing
+      this.pitchEnterAudio.currentTime = 0;
+
+      // Sound effects are NOT affected by music volume - stay at full volume
+      this.pitchEnterAudio.volume = 0.2;
+
+      // Play the pitch enter sound
+      await this.pitchEnterAudio.play();
+    } catch (error) {
+      console.warn('Could not play pitch enter sound:', error);
+      // Don't throw error - audio failure shouldn't break the app
+    }
+  }
+
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
@@ -601,6 +667,12 @@ export class AudioManager {
     }
     if (this.clickAudio) {
       this.clickAudio.muted = this.isMuted;
+    }
+    if (this.triviaEnterAudio) {
+      this.triviaEnterAudio.muted = this.isMuted;
+    }
+    if (this.pitchEnterAudio) {
+      this.pitchEnterAudio.muted = this.isMuted;
     }
   }
 
@@ -681,6 +753,14 @@ export class AudioManager {
       this.clickAudio.pause();
       this.clickAudio.currentTime = 0;
     }
+    if (this.triviaEnterAudio) {
+      this.triviaEnterAudio.pause();
+      this.triviaEnterAudio.currentTime = 0;
+    }
+    if (this.pitchEnterAudio) {
+      this.pitchEnterAudio.pause();
+      this.pitchEnterAudio.currentTime = 0;
+    }
   }
 
   public preload(): void {
@@ -702,6 +782,12 @@ export class AudioManager {
     }
     if (this.clickAudio) {
       this.clickAudio.load();
+    }
+    if (this.triviaEnterAudio) {
+      this.triviaEnterAudio.load();
+    }
+    if (this.pitchEnterAudio) {
+      this.pitchEnterAudio.load();
     }
   }
 
@@ -950,6 +1036,82 @@ export class AudioManager {
       }
     }
   }
+
+  /**
+   * Force play trivia enter sound - bypasses immersive mode and muted state
+   * This is used for critical announcements like the leaderboard
+   */
+  public async forcePlayTriviaEnterSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.triviaEnterAudio) return;
+
+    try {
+      // Temporarily unmute for this sound
+      const wasMuted = this.triviaEnterAudio.muted;
+      this.triviaEnterAudio.muted = false;
+
+      // Reset to beginning if already playing
+      this.triviaEnterAudio.currentTime = 0;
+
+      // Set volume
+      this.triviaEnterAudio.volume = 0.2;
+
+      // Play the trivia enter sound
+      await this.triviaEnterAudio.play();
+
+      // Restore muted state after sound duration (approximately 2 seconds)
+      setTimeout(() => {
+        if (this.triviaEnterAudio) {
+          this.triviaEnterAudio.muted = wasMuted;
+        }
+      }, 2500);
+
+      console.log('[AudioManager] Force played trivia enter sound (bypassed immersive filter)');
+    } catch (error) {
+      console.warn('Could not force play trivia enter sound:', error);
+      // Restore muted state even on error
+      if (this.triviaEnterAudio) {
+        this.triviaEnterAudio.muted = this.isMuted;
+      }
+    }
+  }
+
+  /**
+   * Force play pitch enter sound - bypasses immersive mode and muted state
+   * This is used for critical announcements like the leaderboard
+   */
+  public async forcePlayPitchEnterSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.pitchEnterAudio) return;
+
+    try {
+      // Temporarily unmute for this sound
+      const wasMuted = this.pitchEnterAudio.muted;
+      this.pitchEnterAudio.muted = false;
+
+      // Reset to beginning if already playing
+      this.pitchEnterAudio.currentTime = 0;
+
+      // Set volume
+      this.pitchEnterAudio.volume = 0.2;
+
+      // Play the pitch enter sound
+      await this.pitchEnterAudio.play();
+
+      // Restore muted state after sound duration (approximately 2 seconds)
+      setTimeout(() => {
+        if (this.pitchEnterAudio) {
+          this.pitchEnterAudio.muted = wasMuted;
+        }
+      }, 2500);
+
+      console.log('[AudioManager] Force played pitch enter sound (bypassed immersive filter)');
+    } catch (error) {
+      console.warn('Could not force play pitch enter sound:', error);
+      // Restore muted state even on error
+      if (this.pitchEnterAudio) {
+        this.pitchEnterAudio.muted = this.isMuted;
+      }
+    }
+  }
 }
 
 // Lazy-initialized singleton wrapper to avoid module load-time initialization issues
@@ -1091,6 +1253,22 @@ class AudioManagerWrapper {
 
   forcePlayNewChallengerSound() {
     return this.getInstance().forcePlayNewChallengerSound();
+  }
+
+  playTriviaEnterSound() {
+    return this.getInstance().playTriviaEnterSound();
+  }
+
+  playPitchEnterSound() {
+    return this.getInstance().playPitchEnterSound();
+  }
+
+  forcePlayTriviaEnterSound() {
+    return this.getInstance().forcePlayTriviaEnterSound();
+  }
+
+  forcePlayPitchEnterSound() {
+    return this.getInstance().forcePlayPitchEnterSound();
   }
 }
 
