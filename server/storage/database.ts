@@ -2363,6 +2363,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async getBotBarStats() {
+      // Get reset timestamp for bot bar
+      const resetTimestamp = await this.getResetTimestamp('bot_bar');
+
+      const conditions = [
+        eq(attempts.mode, 'ring'),
+        isNotNull(attempts.endedAt),
+        isNotNull(attempts.botBar),
+        isNotNull(submissions.id) // Only include attempts with completed submissions
+      ];
+
+      // Apply reset timestamp filter if exists
+      if (resetTimestamp) {
+        conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+      }
+
       // Get individual submissions with bot bar information
       const stats = await db
         .select({
@@ -2385,14 +2400,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .from(attempts)
         .leftJoin(users, eq(attempts.emailHash, users.emailHash))
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
-        .where(
-          and(
-            eq(attempts.mode, 'ring'),
-            isNotNull(attempts.endedAt),
-            isNotNull(attempts.botBar),
-            isNotNull(submissions.id) // Only include attempts with completed submissions
-          )
-        )
+        .where(and(...conditions))
         .orderBy(desc(attempts.startedAt));
 
       return stats;
