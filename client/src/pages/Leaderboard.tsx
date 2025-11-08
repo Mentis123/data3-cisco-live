@@ -63,18 +63,18 @@ interface ActiveChallenger {
 // Consistent color scheme for all categories
 const CATEGORY_COLORS = {
   SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#8A2BE2",            // Indigo
+  HYBRID_DC: "#6B21A8",            // Dark Purple
   COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#A855F7",        // Purple
+  OBSERVABILITY: "#EAB308",        // Yellow
   EDGE_IOT: "#22C55E"              // Green
 };
 
 // Lighter text colors for better contrast on badges
 const CATEGORY_TEXT_COLORS = {
   SECURE_CONNECTIVITY: "#78DCFF",  // Light Cyan
-  HYBRID_DC: "#B794F6",            // Light Indigo
+  HYBRID_DC: "#A78BFA",            // Light Purple
   COLLAB_CX: "#FFA559",            // Light Orange
-  OBSERVABILITY: "#C084FC",        // Light Purple
+  OBSERVABILITY: "#FDE047",        // Light Yellow
   EDGE_IOT: "#86EFAC"              // Light Green
 };
 
@@ -89,9 +89,9 @@ const CATEGORY_NAMES = {
 // Tailwind class equivalents for badges
 const CATEGORY_BADGE_CLASSES: Record<string, string> = {
   SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
-  HYBRID_DC: "bg-[#8A2BE2]",            // Indigo
+  HYBRID_DC: "bg-[#6B21A8]",            // Dark Purple
   COLLAB_CX: "bg-[#F97316]",            // Orange
-  OBSERVABILITY: "bg-[#A855F7]",        // Purple
+  OBSERVABILITY: "bg-[#EAB308]",        // Yellow
   EDGE_IOT: "bg-[#22C55E]"              // Green
 };
 
