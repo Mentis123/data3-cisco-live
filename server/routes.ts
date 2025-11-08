@@ -1302,7 +1302,7 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      const { category, stem, choices, correctIndex, dropIndex, hint9s, difficulty, tags, explanation, active, version } = req.body;
+      const { category, stem, choices, correctIndex, dropIndex, hint9s, tags, explanation, active, version } = req.body;
 
       const item = await storage.createTriviaItem({
         category,
@@ -1311,7 +1311,6 @@ export async function registerRoutes(
         correctIndex,
         dropIndex,
         hint9s,
-        difficulty,
         tags,
         explanation: explanation || null,
         active: active ?? true,
@@ -1328,7 +1327,7 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      const { category, stem, choices, correctIndex, dropIndex, hint9s, difficulty, tags, explanation, active, version } = req.body;
+      const { category, stem, choices, correctIndex, dropIndex, hint9s, tags, explanation, active, version } = req.body;
 
       await storage.updateTriviaItem(req.params.id, {
         category,
@@ -1337,7 +1336,6 @@ export async function registerRoutes(
         correctIndex,
         dropIndex,
         hint9s,
-        difficulty,
         tags,
         explanation,
         active,

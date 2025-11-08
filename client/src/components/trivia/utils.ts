@@ -25,7 +25,6 @@ export interface TriviaDeckCard {
   correctIndex: number;
   dropIndex: number | null;
   hint9s: string;
-  difficulty: number;
   tags?: string[] | null;
   explanation?: string | null;
 }

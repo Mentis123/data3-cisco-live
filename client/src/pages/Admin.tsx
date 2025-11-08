@@ -51,7 +51,6 @@ interface TriviaItem {
   correctIndex: number;
   dropIndex: number;
   hint9s: string;
-  difficulty: number;
   tags: string[];
   explanation: string | null;
   active: boolean;
@@ -161,11 +160,6 @@ const CATEGORY_NAMES: Record<string, string> = {
   "EDGE_IOT": "Edge & IoT Automation",
 };
 
-const DIFFICULTY_LABELS: Record<number, string> = {
-  1: "Easy",
-  2: "Medium",
-  3: "Hard",
-};
 
 function OverviewTab() {
   const adminKey = localStorage.getItem("adminKey") || "";
@@ -506,7 +500,6 @@ function TriviaItemCard({
               <Badge className={CATEGORY_COLORS[item.category] || "bg-gray-500"}>
                 {item.category}
               </Badge>
-              <Badge variant="outline">{DIFFICULTY_LABELS[item.difficulty] || "Unknown"}</Badge>
               {!item.active && <Badge variant="destructive">Inactive</Badge>}
               <span className="text-xs text-muted-foreground">
                 Shown: {item.stats.timesShown} • Correct: {item.stats.correctRate}%
@@ -563,7 +556,6 @@ function TriviaItemDialog({
     correctIndex: item?.correctIndex ?? 0,
     dropIndex: item?.dropIndex ?? 3,
     hint9s: item?.hint9s || "",
-    difficulty: item?.difficulty ?? 2,
     tags: item?.tags || [],
     explanation: item?.explanation || "",
     active: item?.active ?? true,
@@ -598,23 +590,6 @@ function TriviaItemDialog({
                 <SelectItem value="COLLAB_CX">Collaboration & Customer Experience</SelectItem>
                 <SelectItem value="OBSERVABILITY">Observability & Automation</SelectItem>
                 <SelectItem value="EDGE_IOT">Edge & IoT Automation</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Difficulty</Label>
-              <Select
-                value={String(formData.difficulty)}
-                onValueChange={(value) => setFormData({ ...formData, difficulty: Number(value) })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Easy</SelectItem>
-                  <SelectItem value="2">Medium</SelectItem>
-                  <SelectItem value="3">Hard</SelectItem>
                 </SelectContent>
               </Select>
             </div>
