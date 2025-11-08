@@ -38,13 +38,13 @@ interface NewSubmissionAnnouncementProps {
 
 const BRAND_PRIMARY = "#00AEFF";
 
-// Consistent color scheme for all categories aligned to Data#3 palette
+// Consistent color scheme for all categories aligned to the leaderboard palette
 const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: BRAND_PRIMARY,
-  HYBRID_DC: BRAND_PRIMARY,
-  COLLAB_CX: BRAND_PRIMARY,
-  OBSERVABILITY: BRAND_PRIMARY,
-  EDGE_IOT: BRAND_PRIMARY
+  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
+  HYBRID_DC: "#8A2BE2",            // Indigo
+  COLLAB_CX: "#F97316",            // Orange
+  OBSERVABILITY: "#38BDF8",        // Sky
+  EDGE_IOT: "#22C55E"              // Green
 };
 
 const CATEGORY_NAMES = {
