@@ -1485,26 +1485,30 @@ export default function Leaderboard() {
 
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img
-              src={leaderboardFullImage}
-              alt="Leaderboard"
-              className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
-            />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">
-                Live Leaderboard
-              </h1>
-              {!isPresentationMode && (
+        {!isPresentationMode && (
+          <div className="mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <img
+                src={leaderboardFullImage}
+                alt="Leaderboard"
+                className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
+              />
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-white">
+                  Live Leaderboard
+                </h1>
                 <p className="text-sm text-[#78DCFF]/80">
                   Real-time rankings & active challengers
                 </p>
               )}
             </div>
-          </div>
-          {/* Desktop-only navigation */}
-          {!isPresentationMode && (
+            {/* Beat the Bot - centered on desktop, visible on same line */}
+            <div className="flex-shrink-0">
+              <p className="text-2xl lg:text-3xl font-bold text-data3-pale-blue">
+                Beat the Bot
+              </p>
+            </div>
+            {/* Desktop-only navigation */}
             <div className="hidden lg:flex gap-3">
               <Button
                 onClick={() => window.location.href = '/'}
@@ -1515,13 +1519,6 @@ export default function Leaderboard() {
               </Button>
             </div>
           )}
-        </div>
-
-        {/* Beat the Bot Section */}
-        <div className="mb-6 text-center">
-          <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-data3-pale-blue">
-            Beat the Bot
-          </p>
         </div>
 
         {/* View Controls */}
