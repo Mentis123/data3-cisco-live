@@ -1914,7 +1914,7 @@ function WordCloudTab() {
               type="checkbox"
               checked={selectedIds.size === entries?.length && entries?.length > 0}
               onChange={toggleSelectAll}
-              className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+              className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-primary"
             />
             <span className="text-sm font-medium text-muted-foreground">
               Select All
@@ -1926,14 +1926,18 @@ function WordCloudTab() {
               {entries?.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                  className={`flex items-center justify-between p-3 border rounded-lg transition-colors shadow-sm ${
+                    selectedIds.has(entry.id)
+                      ? "bg-primary/10 border-primary/70 ring-1 ring-primary/40"
+                      : "hover:bg-accent/50"
+                  }`}
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(entry.id)}
                       onChange={() => toggleSelection(entry.id)}
-                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-primary"
                       onClick={(e) => e.stopPropagation()}
                     />
                     <div className="flex-1">
