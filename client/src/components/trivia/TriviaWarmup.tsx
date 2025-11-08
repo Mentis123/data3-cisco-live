@@ -33,20 +33,17 @@ interface TriviaWarmupProps {
 }
 
 const TRIVIA_TRACK_DETAILS: Record<TriviaCardCategory, { description: string }> = {
-  SECURE_CONNECTIVITY: {
-    description: "Can you recall the zero-trust stats before the countdown hits zero?",
+  NETWORKING: {
+    description: "Can you recall the connectivity stats before the countdown hits zero?",
   },
-  HYBRID_DC: {
-    description: "Prove you know our scale across data centres and elastic infrastructure.",
+  SECURITY: {
+    description: "Prove you know zero-trust security metrics and threat detection.",
   },
-  COLLAB_CX: {
+  COLLABORATION: {
     description: "Customer experience numbers are on the line — lock them in fast.",
   },
-  OBSERVABILITY: {
-    description: "Find the metrics that keep MTTR low and trust sky high.",
-  },
-  EDGE_IOT: {
-    description: "Stay sharp on the stats powering the production floor.",
+  DATA_CENTER: {
+    description: "Master the stats for cloud infrastructure and AI workloads.",
   },
 };
 
