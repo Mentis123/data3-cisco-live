@@ -1488,11 +1488,14 @@ export default function Leaderboard() {
         {!isPresentationMode && (
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img
-                src={leaderboardFullImage}
-                alt="Leaderboard"
-                className="h-16 w-16 rounded-xl object-cover shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40"
-              />
+              <div className="h-16 w-16 overflow-hidden rounded-xl shadow-xl shadow-[#007BC3]/30 ring-2 ring-[#00AEFF]/40">
+                <img
+                  src={leaderboardFullImage}
+                  alt="Leaderboard"
+                  className="h-full w-full object-cover"
+                  style={{ transform: 'scale(1.8)' }}
+                />
+              </div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-white">
                   Live Leaderboard
