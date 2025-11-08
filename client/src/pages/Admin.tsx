@@ -146,7 +146,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",
   "HYBRID_DC": "bg-[#8A2BE2]",
   "COLLAB_CX": "bg-[#F97316]",
-  "OBSERVABILITY": "bg-[#38BDF8]",
+  "OBSERVABILITY": "bg-[#A855F7]",
   "EDGE_IOT": "bg-[#22C55E]",
   "GENERAL": "bg-[#64748b]",
   "SCALE": "bg-[#0891b2]",

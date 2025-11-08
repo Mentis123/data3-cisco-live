@@ -43,7 +43,7 @@ const CATEGORY_COLORS = {
   SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
   HYBRID_DC: "#8A2BE2",            // Indigo
   COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#38BDF8",        // Sky
+  OBSERVABILITY: "#A855F7",        // Purple
   EDGE_IOT: "#22C55E"              // Green
 };
 

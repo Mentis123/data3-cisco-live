@@ -55,8 +55,8 @@ export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; 
   },
   OBSERVABILITY: {
     name: "Observability & Automation",
-    accent: "bg-[#38BDF8]",
-    color: "#38BDF8",
+    accent: "bg-[#A855F7]",
+    color: "#A855F7",
     icon: "📊",
     blurb: "Detect, triage and resolve incidents before they become customer-facing outages.",
     description: "Detect, triage and resolve incidents before they become customer-facing outages.",
