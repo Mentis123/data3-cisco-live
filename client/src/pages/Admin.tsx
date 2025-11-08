@@ -2572,6 +2572,313 @@ function LeaderboardTab() {
   );
 }
 
+function ResetConsoleTab() {
+  const { toast } = useToast();
+  const adminKey = localStorage.getItem("adminKey") || "";
+  const [showBigResetModal, setShowBigResetModal] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [showTacticalModal, setShowTacticalModal] = useState<string | null>(null);
+  const [isArmed, setIsArmed] = useState(false);
+
+  // Fetch reset status
+  const { data: resetStatus, refetch: refetchStatus } = useQuery({
+    queryKey: ["/api/beta-admin/reset/status"],
+    queryFn: async () => {
+      const response = await fetch("/api/beta-admin/reset/status", {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch reset status");
+      return response.json();
+    },
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
+  // Big Reset mutation
+  const bigResetMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/beta-admin/reset/big-reset", {
+        method: "POST",
+        headers: {
+          "x-admin-key": adminKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ adminUser: "Admin Console" }),
+      });
+      if (!response.ok) throw new Error("Failed to execute big reset");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "BIG RESET Complete",
+        description: `All systems reset. New T+0: ${new Date(data.resetAt).toLocaleString()}`,
+      });
+      setShowBigResetModal(false);
+      setConfirmText("");
+      setIsArmed(false);
+      refetchStatus();
+    },
+    onError: () => {
+      toast({ title: "Big Reset Failed", variant: "destructive" });
+    },
+  });
+
+  // Tactical reset mutations
+  const createTacticalResetMutation = (scope: string) => {
+    return useMutation({
+      mutationFn: async () => {
+        const response = await fetch(`/api/beta-admin/reset/${scope}`, {
+          method: "POST",
+          headers: {
+            "x-admin-key": adminKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ adminUser: "Admin Console" }),
+        });
+        if (!response.ok) throw new Error(`Failed to reset ${scope}`);
+        return response.json();
+      },
+      onSuccess: (data) => {
+        const message = scope === 'word-cloud'
+          ? `${data.wordsCleared} words deactivated`
+          : `${data.entriesHidden || 0} entries hidden`;
+        toast({
+          title: `${scope.charAt(0).toUpperCase() + scope.slice(1).replace(/-/g, ' ')} Reset`,
+          description: message,
+        });
+        setShowTacticalModal(null);
+        refetchStatus();
+      },
+      onError: () => {
+        toast({ title: `Failed to reset ${scope}`, variant: "destructive" });
+      },
+    });
+  };
+
+  const leaderboardResetMutation = createTacticalResetMutation('leaderboard');
+  const raffleResetMutation = createTacticalResetMutation('raffle');
+  const wordCloudResetMutation = createTacticalResetMutation('word-cloud');
+  const scoredSubmissionsResetMutation = createTacticalResetMutation('scored-submissions');
+  const botBarResetMutation = createTacticalResetMutation('bot-bar');
+
+  const tacticalResets = [
+    {
+      id: 'leaderboard',
+      title: 'Leaderboard',
+      description: 'Hide all leaderboard entries',
+      count: resetStatus?.currentCounts?.leaderboard || 0,
+      lastReset: resetStatus?.resetTimestamps?.leaderboard,
+      mutation: leaderboardResetMutation,
+    },
+    {
+      id: 'raffle',
+      title: 'Raffle',
+      description: 'Hide all raffle entries',
+      count: resetStatus?.currentCounts?.raffle || 0,
+      lastReset: resetStatus?.resetTimestamps?.raffle,
+      mutation: raffleResetMutation,
+    },
+    {
+      id: 'word-cloud',
+      title: 'Word Cloud',
+      description: 'Deactivate all word cloud entries',
+      count: resetStatus?.currentCounts?.wordCloud || 0,
+      lastReset: resetStatus?.resetTimestamps?.word_cloud,
+      mutation: wordCloudResetMutation,
+    },
+    {
+      id: 'scored-submissions',
+      title: 'Scored Submissions',
+      description: 'Hide all scored submissions',
+      count: resetStatus?.currentCounts?.scoredSubmissions || 0,
+      lastReset: resetStatus?.resetTimestamps?.scored_submissions,
+      mutation: scoredSubmissionsResetMutation,
+    },
+    {
+      id: 'bot-bar',
+      title: 'Bot Bar',
+      description: 'Reset to seed average (60)',
+      count: null,
+      lastReset: resetStatus?.resetTimestamps?.bot_bar,
+      mutation: botBarResetMutation,
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card className="border-2 border-primary">
+        <CardHeader>
+          <CardTitle className="text-2xl">Reset Console - Command Center</CardTitle>
+          <p className="text-muted-foreground">
+            Non-destructive data management. All resets preserve historical data via timestamp filtering.
+          </p>
+        </CardHeader>
+      </Card>
+
+      {/* Critical Operations */}
+      <Card className="border-2 border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">Critical Operations</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-destructive/10 rounded-lg">
+            <div>
+              <h3 className="text-lg font-bold">BIG RESET</h3>
+              <p className="text-sm text-muted-foreground">
+                Reset ALL systems. Affects: Leaderboard, Raffle, Word Cloud, Scored Submissions, Bot Bar
+              </p>
+              {resetStatus?.resetTimestamps?.global && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last reset: {new Date(resetStatus.resetTimestamps.global).toLocaleString()}
+                </p>
+              )}
+            </div>
+            <Button
+              variant={isArmed ? "destructive" : "outline"}
+              size="lg"
+              className={isArmed ? "animate-pulse" : ""}
+              onClick={() => {
+                if (!isArmed) {
+                  setIsArmed(true);
+                  setTimeout(() => setIsArmed(false), 5000);
+                } else {
+                  setShowBigResetModal(true);
+                }
+              }}
+            >
+              {isArmed ? "ARMED - CLICK TO EXECUTE" : "BIG RESET"}
+            </Button>
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground">
+            System time: {new Date().toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' })} (Melbourne)
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tactical Resets */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Tactical Resets</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {tacticalResets.map((reset) => (
+            <Card key={reset.id} className="hover:border-primary transition-colors">
+              <CardHeader>
+                <CardTitle className="text-lg">{reset.title}</CardTitle>
+                <p className="text-sm text-muted-foreground">{reset.description}</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {reset.count !== null && (
+                  <div className="text-2xl font-bold text-primary">
+                    {reset.count} entries
+                  </div>
+                )}
+                {reset.lastReset && (
+                  <p className="text-xs text-muted-foreground">
+                    Last reset: {new Date(reset.lastReset).toLocaleString()}
+                  </p>
+                )}
+                {!reset.lastReset && (
+                  <p className="text-xs text-muted-foreground">Never reset</p>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowTacticalModal(reset.id)}
+                  disabled={reset.mutation.isPending}
+                >
+                  {reset.mutation.isPending ? "Resetting..." : "FLUSH"}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Big Reset Modal */}
+      <Dialog open={showBigResetModal} onOpenChange={setShowBigResetModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Confirm BIG RESET</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm">
+              This will reset ALL systems:
+            </p>
+            <ul className="text-sm list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Leaderboard - Hide all entries</li>
+              <li>Raffle - Hide all entries</li>
+              <li>Word Cloud - Deactivate all words</li>
+              <li>Scored Submissions - Hide all submissions</li>
+              <li>Bot Bar - Reset to seed average (60)</li>
+            </ul>
+            <div className="space-y-2">
+              <Label>Type "CONFIRM" to proceed:</Label>
+              <Input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="CONFIRM"
+                className="font-mono"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowBigResetModal(false);
+              setConfirmText("");
+            }}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={confirmText !== "CONFIRM" || bigResetMutation.isPending}
+              onClick={() => bigResetMutation.mutate()}
+            >
+              {bigResetMutation.isPending ? "Resetting..." : "Execute BIG RESET"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tactical Reset Modal */}
+      {showTacticalModal && (
+        <Dialog open={!!showTacticalModal} onOpenChange={() => setShowTacticalModal(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Confirm {tacticalResets.find(r => r.id === showTacticalModal)?.title} Reset
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm">
+                {tacticalResets.find(r => r.id === showTacticalModal)?.description}
+              </p>
+              {tacticalResets.find(r => r.id === showTacticalModal)?.count !== null && (
+                <p className="text-sm text-muted-foreground">
+                  This will hide {tacticalResets.find(r => r.id === showTacticalModal)?.count} entries.
+                </p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowTacticalModal(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  const reset = tacticalResets.find(r => r.id === showTacticalModal);
+                  reset?.mutation.mutate();
+                }}
+              >
+                Confirm Reset
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
 function DBAdminTab() {
   const { toast } = useToast();
   const adminKey = localStorage.getItem("adminKey") || "";
@@ -2981,6 +3288,7 @@ export default function Admin() {
             <TabsTrigger value="wordcloud">Word Cloud</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             <TabsTrigger value="botbarstats">Bot Bar Stats</TabsTrigger>
+            <TabsTrigger value="resetconsole">Reset Console</TabsTrigger>
             <TabsTrigger value="dbadmin">DB Admin</TabsTrigger>
           </TabsList>
 
@@ -3010,6 +3318,10 @@ export default function Admin() {
 
           <TabsContent value="botbarstats">
             <BotBarStatsTab />
+          </TabsContent>
+
+          <TabsContent value="resetconsole">
+            <ResetConsoleTab />
           </TabsContent>
 
           <TabsContent value="dbadmin">

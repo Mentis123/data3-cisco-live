@@ -1658,6 +1658,200 @@ export async function registerRoutes(
     }
   });
 
+  // Reset Console endpoints
+  app.get("/api/beta-admin/reset/status", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const resetStates = await storage.getAllResetTimestamps();
+
+      // Get current counts for each system
+      const melbourneDate = getMelbourneDate(new Date());
+      const leaderboardCount = await storage.getScoredSubmissionsCount();
+      const raffleCount = await storage.getRaffleEntriesCount(melbourneDate);
+      const wordCloudCount = await storage.getWordCloudEntriesCount();
+
+      res.json({
+        resetTimestamps: resetStates,
+        currentCounts: {
+          leaderboard: leaderboardCount,
+          raffle: raffleCount,
+          wordCloud: wordCloudCount,
+          scoredSubmissions: leaderboardCount,
+        },
+      });
+    } catch (error) {
+      log(`Error getting reset status: ${error}`);
+      res.status(500).json({ message: "Failed to get reset status" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/big-reset", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      // Set global reset timestamp - this affects all systems
+      const resetTimestamp = await storage.setResetTimestamp('global', adminUser, notes);
+
+      // Also set individual resets for all systems
+      await storage.setResetTimestamp('leaderboard', adminUser, 'Via big reset');
+      await storage.setResetTimestamp('raffle', adminUser, 'Via big reset');
+      await storage.setResetTimestamp('scored_submissions', adminUser, 'Via big reset');
+      await storage.setResetTimestamp('bot_bar', adminUser, 'Via big reset');
+
+      // Deactivate word cloud entries
+      const wordsCleaned = await storage.deactivateAllWordCloudEntries();
+
+      log(`BIG RESET executed by ${adminUser} at ${resetTimestamp.resetAt}`);
+
+      res.json({
+        success: true,
+        resetAt: resetTimestamp.resetAt,
+        affectedSystems: ['leaderboard', 'raffle', 'word_cloud', 'scored_submissions', 'bot_bar'],
+        wordsCleaned,
+      });
+    } catch (error) {
+      log(`Error executing big reset: ${error}`);
+      res.status(500).json({ message: "Failed to execute big reset" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/leaderboard", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      const currentCount = await storage.getScoredSubmissionsCount();
+      const resetTimestamp = await storage.setResetTimestamp('leaderboard', adminUser, notes);
+
+      log(`Leaderboard reset by ${adminUser} - ${currentCount} entries hidden`);
+
+      res.json({
+        success: true,
+        resetAt: resetTimestamp.resetAt,
+        entriesHidden: currentCount,
+      });
+    } catch (error) {
+      log(`Error resetting leaderboard: ${error}`);
+      res.status(500).json({ message: "Failed to reset leaderboard" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/raffle", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      const melbourneDate = getMelbourneDate(new Date());
+      const currentCount = await storage.getRaffleEntriesCount(melbourneDate);
+      const resetTimestamp = await storage.setResetTimestamp('raffle', adminUser, notes);
+
+      log(`Raffle reset by ${adminUser} - ${currentCount} entries hidden`);
+
+      res.json({
+        success: true,
+        resetAt: resetTimestamp.resetAt,
+        entriesHidden: currentCount,
+      });
+    } catch (error) {
+      log(`Error resetting raffle: ${error}`);
+      res.status(500).json({ message: "Failed to reset raffle" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/word-cloud", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      const currentCount = await storage.getWordCloudEntriesCount();
+      const wordsCleared = await storage.deactivateAllWordCloudEntries();
+      await storage.setResetTimestamp('word_cloud', adminUser, notes);
+
+      log(`Word cloud reset by ${adminUser} - ${wordsCleared} words deactivated`);
+
+      res.json({
+        success: true,
+        wordsCleared,
+      });
+    } catch (error) {
+      log(`Error resetting word cloud: ${error}`);
+      res.status(500).json({ message: "Failed to reset word cloud" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/scored-submissions", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      const currentCount = await storage.getScoredSubmissionsCount();
+      const resetTimestamp = await storage.setResetTimestamp('scored_submissions', adminUser, notes);
+
+      log(`Scored submissions reset by ${adminUser} - ${currentCount} submissions hidden`);
+
+      res.json({
+        success: true,
+        resetAt: resetTimestamp.resetAt,
+        submissionsHidden: currentCount,
+      });
+    } catch (error) {
+      log(`Error resetting scored submissions: ${error}`);
+      res.status(500).json({ message: "Failed to reset scored submissions" });
+    }
+  });
+
+  app.post("/api/beta-admin/reset/bot-bar", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      const { adminUser, notes } = req.body;
+      if (!adminUser) {
+        res.status(400).json({ message: "adminUser is required" });
+        return;
+      }
+
+      const resetTimestamp = await storage.setResetTimestamp('bot_bar', adminUser, notes);
+
+      log(`Bot bar reset by ${adminUser} - all categories will return to 60`);
+
+      res.json({
+        success: true,
+        resetAt: resetTimestamp.resetAt,
+        message: 'Bot bar reset to seed average (60) for all categories',
+      });
+    } catch (error) {
+      log(`Error resetting bot bar: ${error}`);
+      res.status(500).json({ message: "Failed to reset bot bar" });
+    }
+  });
+
   // Feedback endpoints
   app.post("/api/feedback", async (req, res) => {
     try {

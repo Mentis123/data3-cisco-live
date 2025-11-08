@@ -11,6 +11,9 @@ import {
   answers,
   triviaItems,
   chatSessions,
+  resetTimestamps,
+  raffleEntries,
+  wordCloudEntries,
 } from "../../shared/schema.js";
 import type {
   InsertParticipant,
@@ -26,6 +29,8 @@ import type {
   InsertAnswer,
   TriviaItem,
   ChatSession,
+  ResetTimestamp,
+  InsertResetTimestamp,
 } from "../../shared/schema.js";
 import { createHash, randomUUID } from "crypto";
 
@@ -1017,6 +1022,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const SEED_SCORE = 60;
       const SEED_SUM = SEED_COUNT * SEED_SCORE;
 
+      // Get reset timestamp for bot bar
+      const resetTimestamp = await this.getResetTimestamp('bot_bar');
+
+      const conditions = [
+        eq(attempts.category, category),
+        eq(attempts.mode, "ring"),
+        sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${dateStr}`,
+        sql`${submissions.id} IS NOT NULL`, // Only include attempts with completed submissions
+      ];
+
+      // Apply reset timestamp filter if exists
+      if (resetTimestamp) {
+        conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+      }
+
       const [aggregates] = await db
         .select({
           actualSum: sql<number>`COALESCE(SUM(${submissions.totalScore}), 0)`,
@@ -1024,14 +1044,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         })
         .from(attempts)
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
-        .where(
-          and(
-            eq(attempts.category, category),
-            eq(attempts.mode, "ring"),
-            sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${dateStr}`,
-            sql`${submissions.id} IS NOT NULL`, // Only include attempts with completed submissions
-          )
-        );
+        .where(and(...conditions));
 
       const actualSum = aggregates?.actualSum ?? 0;
       const actualCount = aggregates?.actualCount ?? 0;
@@ -1182,6 +1195,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async getLeaderboard(limit: number = 100, category?: string, filterDate?: string, includeUnannounced: boolean = false): Promise<any[]> {
+    // Get reset timestamp for leaderboard
+    const resetTimestamp = await this.getResetTimestamp('leaderboard');
+
     let query = db
       .select({
         id: submissions.id,
@@ -1201,6 +1217,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Only filter by announcedOnLeaderboard if we're not including unannounced submissions
     if (!includeUnannounced) {
       conditions.push(eq(submissions.announcedOnLeaderboard, true));
+    }
+
+    // Apply reset timestamp filter if exists
+    if (resetTimestamp) {
+      conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
     }
 
     if (filterDate) {
@@ -2896,6 +2917,106 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const result = await db
         .delete(schema.raffleEntries)
         .where(sql`${schema.raffleEntries.raffleDate} < ${cutoffDateStr}`);
+
+      return result.rowCount || 0;
+    },
+
+    // ========================================
+    // Reset Timestamps Methods
+    // ========================================
+
+    async getResetTimestamp(scope: string): Promise<Date | null> {
+      const [result] = await db
+        .select({ resetAt: resetTimestamps.resetAt })
+        .from(resetTimestamps)
+        .where(eq(resetTimestamps.scope, scope))
+        .orderBy(desc(resetTimestamps.createdAt))
+        .limit(1);
+
+      return result?.resetAt || null;
+    },
+
+    async setResetTimestamp(scope: string, adminUser: string, notes?: string): Promise<ResetTimestamp> {
+      const [result] = await db
+        .insert(resetTimestamps)
+        .values({
+          scope,
+          resetAt: new Date(),
+          adminUser,
+          notes: notes || null,
+        })
+        .returning();
+
+      if (!result) {
+        throw new Error(`Failed to create reset timestamp for scope: ${scope}`);
+      }
+
+      return result;
+    },
+
+    async getAllResetTimestamps(): Promise<Record<string, Date | null>> {
+      const scopes = ['global', 'leaderboard', 'raffle', 'word_cloud', 'scored_submissions', 'bot_bar'];
+      const results: Record<string, Date | null> = {};
+
+      for (const scope of scopes) {
+        results[scope] = await this.getResetTimestamp(scope);
+      }
+
+      return results;
+    },
+
+    async getRaffleEntriesCount(raffleDate: string): Promise<number> {
+      const resetTimestamp = await this.getResetTimestamp('raffle');
+
+      const conditions = [eq(raffleEntries.raffleDate, raffleDate)];
+
+      if (resetTimestamp) {
+        conditions.push(sql`${raffleEntries.createdAt} >= ${resetTimestamp}`);
+      }
+
+      const [result] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(raffleEntries)
+        .where(and(...conditions));
+
+      return result?.count || 0;
+    },
+
+    async getWordCloudEntriesCount(): Promise<number> {
+      const [result] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(wordCloudEntries)
+        .where(eq(wordCloudEntries.active, true));
+
+      return result?.count || 0;
+    },
+
+    async getScoredSubmissionsCount(category?: string): Promise<number> {
+      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+
+      const conditions = [eq(submissions.announcedOnLeaderboard, true)];
+
+      if (resetTimestamp) {
+        conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+      }
+
+      if (category) {
+        conditions.push(eq(submissions.category, category));
+      }
+
+      const [result] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(submissions)
+        .where(and(...conditions));
+
+      return result?.count || 0;
+    },
+
+    async deactivateAllWordCloudEntries(): Promise<number> {
+      const result = await db
+        .update(wordCloudEntries)
+        .set({ active: false })
+        .where(eq(wordCloudEntries.active, true));
 
       return result.rowCount || 0;
     },
