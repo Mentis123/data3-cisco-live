@@ -878,18 +878,11 @@ export default function Leaderboard() {
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
     console.log('🥊 RING ENTRY:', entry);
 
-    // Play entry sounds (flash + trivia enter) - FORCE PLAY (bypass immersive filter)
-    console.log('[Leaderboard] Playing flash sound...');
-    audioManager.forcePlayFlashSound()
-      .then(() => console.log('[Leaderboard] Flash sound played successfully'))
-      .catch(err => console.warn('[Leaderboard] Flash sound failed:', err));
-
-    setTimeout(() => {
-      console.log('[Leaderboard] Playing trivia enter sound...');
-      audioManager.forcePlayTriviaEnterSound()
-        .then(() => console.log('[Leaderboard] Trivia enter sound played successfully'))
-        .catch(err => console.warn('[Leaderboard] Trivia enter sound failed:', err));
-    }, 750);
+    // Play trivia enter sound - FORCE PLAY (bypass immersive filter)
+    console.log('[Leaderboard] Playing trivia enter sound...');
+    audioManager.forcePlayTriviaEnterSound()
+      .then(() => console.log('[Leaderboard] Trivia enter sound played successfully'))
+      .catch(err => console.warn('[Leaderboard] Trivia enter sound failed:', err));
 
     const now = Date.now();
     const newChallenger = {
@@ -1202,15 +1195,12 @@ export default function Leaderboard() {
         // New challenger from API
         if (websocketsDisabled && !previousById.has(entry.attemptId)) {
           console.log(`[Leaderboard] New challenger detected in ${listName} (WebSockets disabled):`, entry);
-          audioManager.playFlashSound().catch(err => console.warn('Flash sound failed:', err));
-          setTimeout(() => {
-            // Use different sound based on the list type
-            if (listName === 'pitch') {
-              audioManager.playPitchEnterSound().catch(err => console.warn('Pitch enter sound failed:', err));
-            } else {
-              audioManager.playTriviaEnterSound().catch(err => console.warn('Trivia enter sound failed:', err));
-            }
-          }, 750);
+          // Use different sound based on the list type
+          if (listName === 'pitch') {
+            audioManager.playPitchEnterSound().catch(err => console.warn('Pitch enter sound failed:', err));
+          } else {
+            audioManager.playTriviaEnterSound().catch(err => console.warn('Trivia enter sound failed:', err));
+          }
         }
 
         return {
