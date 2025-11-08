@@ -88,7 +88,6 @@ interface TriviaCardPayload {
   correctIndex: number;
   dropIndex: number;
   hint9s: string;
-  difficulty: number;
   tags: string[];
   explanation: string | null;
   version: number;
@@ -137,7 +136,6 @@ const raffleEntriesStore: Array<{
 }> = [];
 const chatSessionsStore = new Map<string, MemoryChatSession>();
 
-const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
 const ACTIVE_RING_WINDOW_MINUTES = 15;
@@ -190,7 +188,6 @@ function loadTriviaItems(): TriviaItem[] {
       correctIndex: item.correct_index,
       dropIndex: item.drop_index,
       hint9s: item.hint_9s,
-      difficulty: item.difficulty,
       tags: typeof item.tags === "string"
         ? item.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
         : Array.isArray(item.tags) ? item.tags : [],
@@ -777,43 +774,13 @@ export function createMemoryStorage() {
       throw new Error(`No trivia items available for category ${category}`);
     }
 
-    const byDifficulty = new Map<number, TriviaItem[]>();
-    for (const item of items) {
-      const diff = item.difficulty ?? 2;
-      const bucket = byDifficulty.get(diff) ?? [];
-      bucket.push(item);
-      byDifficulty.set(diff, bucket);
-    }
-
-    const selected: TriviaItem[] = [];
-    const leftover: TriviaItem[] = [];
-
-    for (const [difficulty, target] of Object.entries(TRIVIA_TARGETS)) {
-      const diff = Number(difficulty);
-      const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
-      const required = target as number;
-      for (let i = 0; i < bucket.length; i++) {
-        if (selected.length < deckSize && i < required) {
-          selected.push(bucket[i]!);
-        } else {
-          leftover.push(bucket[i]!);
-        }
-      }
-    }
-
-    if (selected.length < deckSize) {
-      const filler = shuffleArray(leftover);
-      for (const item of filler) {
-        if (selected.length >= deckSize) break;
-        selected.push(item);
-      }
-    }
-
-    if (selected.length < deckSize) {
+    if (items.length < deckSize) {
       throw new Error(`Insufficient trivia items to build a deck for ${category}`);
     }
 
-    const deck = shuffleArray(selected.slice(0, deckSize));
+    // Shuffle all available items and select the requested deck size
+    const shuffled = shuffleArray(items);
+    const deck = shuffled.slice(0, deckSize);
     const cards: TriviaCardPayload[] = [];
     const snapshot: TriviaCardSnapshot = [];
     let maxVersion = 1;
@@ -839,7 +806,6 @@ export function createMemoryStorage() {
         correctIndex: correctIndex >= 0 ? correctIndex : 0,
         dropIndex: dropIndex >= 0 ? dropIndex : 0,
         hint9s: item.hint9s,
-        difficulty: item.difficulty ?? 2,
         tags: Array.isArray(item.tags) ? item.tags : [],
         explanation: item.explanation ?? null,
         version: item.version ?? 1,
@@ -962,27 +928,16 @@ export function createMemoryStorage() {
     },
 
     async getTriviaCategories() {
-      const summary = new Map<
-        string,
-        { category: string; total: number; easy: number; medium: number; hard: number }
-      >();
+      const summary = new Map<string, { category: string; total: number }>();
 
       for (const item of triviaItemsStore) {
         if (item.active === false) continue;
-        const entry =
-          summary.get(item.category) ?? {
-            category: item.category,
-            total: 0,
-            easy: 0,
-            medium: 0,
-            hard: 0,
-          };
+        const entry = summary.get(item.category) ?? {
+          category: item.category,
+          total: 0,
+        };
 
         entry.total += 1;
-        if (item.difficulty === 1) entry.easy += 1;
-        else if (item.difficulty === 2) entry.medium += 1;
-        else entry.hard += 1;
-
         summary.set(item.category, entry);
       }
 
@@ -1090,7 +1045,6 @@ export function createMemoryStorage() {
           correctIndex: snapshot.correctIndex,
           dropIndex: snapshot.dropIndex,
           hint9s: item.hint9s,
-          difficulty: item.difficulty ?? 2,
           tags: Array.isArray(item.tags) ? item.tags : [],
           explanation: item.explanation ?? null,
           version: item.version ?? 1,

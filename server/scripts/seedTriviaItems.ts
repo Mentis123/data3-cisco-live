@@ -17,7 +17,6 @@ interface RawTriviaRow {
   correct_index: number | string;
   drop_index: number | string;
   hint_9s: string;
-  difficulty: number | string;
   tags?: string | string[];
   explanation?: string | null;
 }
@@ -100,8 +99,6 @@ async function main() {
       throw new Error(`Trivia card ${row.id} has invalid drop_index ${dropIndex}`);
     }
 
-    const difficulty = parseNumber(row.difficulty ?? 2, 2);
-
     return {
       id: row.id,
       category: row.category,
@@ -110,7 +107,6 @@ async function main() {
       correctIndex,
       dropIndex,
       hint9s: row.hint_9s,
-      difficulty,
       tags: parseTags(row.tags),
       explanation: row.explanation ?? null,
       active: true,
@@ -136,7 +132,6 @@ async function main() {
           correctIndex: sql`excluded.correct_index`,
           dropIndex: sql`excluded.drop_index`,
           hint9s: sql`excluded.hint_9s`,
-          difficulty: sql`excluded.difficulty`,
           tags: sql`excluded.tags`,
           explanation: sql`excluded.explanation`,
           active: sql`excluded.active`,

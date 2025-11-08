@@ -75,7 +75,6 @@ interface TriviaCardPayload {
   correctIndex: number;
   dropIndex: number;
   hint9s: string;
-  difficulty: number;
   tags: string[];
   explanation: string | null;
   version: number;
@@ -101,7 +100,6 @@ type TriviaCardSnapshot = Array<{
   dropIndex: number;
 }>;
 
-const TRIVIA_TARGETS: Record<number, number> = { 1: 1, 2: 3, 3: 1 };
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
 const ACTIVE_RING_WINDOW_MINUTES = 15;
@@ -312,7 +310,6 @@ async function ensureTriviaSchema(db: NeonDatabase<typeof schema>) {
         "correct_index" smallint NOT NULL,
         "drop_index" smallint NOT NULL,
         "hint_9s" text NOT NULL,
-        "difficulty" smallint NOT NULL,
         "tags" text[] DEFAULT '{}'::text[],
         "explanation" text,
         "active" boolean NOT NULL DEFAULT true,
@@ -562,43 +559,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       throw new Error(`No trivia items available for category ${category}`);
     }
 
-    const byDifficulty = new Map<number, TriviaItem[]>();
-    for (const item of rawItems) {
-      const diff = item.difficulty ?? 2;
-      const bucket = byDifficulty.get(diff) ?? [];
-      bucket.push(item);
-      byDifficulty.set(diff, bucket);
-    }
-
-    const selected: TriviaItem[] = [];
-    const leftover: TriviaItem[] = [];
-
-    for (const [difficulty, target] of Object.entries(TRIVIA_TARGETS)) {
-      const diff = Number(difficulty);
-      const bucket = shuffleArray(byDifficulty.get(diff) ?? []);
-      const required = target as number;
-      for (let i = 0; i < bucket.length; i++) {
-        if (selected.length < deckSize && i < required) {
-          selected.push(bucket[i]!);
-        } else {
-          leftover.push(bucket[i]!);
-        }
-      }
-    }
-
-    if (selected.length < deckSize) {
-      const filler = shuffleArray(leftover);
-      for (const item of filler) {
-        if (selected.length >= deckSize) break;
-        selected.push(item);
-      }
-    }
-
-    if (selected.length < deckSize) {
+    if (rawItems.length < deckSize) {
       throw new Error(`Insufficient trivia items to build a deck for ${category}`);
     }
 
-    const deck = shuffleArray(selected.slice(0, deckSize));
+    // Shuffle all available items and select the requested deck size
+    const shuffled = shuffleArray(rawItems);
+    const deck = shuffled.slice(0, deckSize);
 
     const cards: TriviaCardPayload[] = [];
     const snapshot: TriviaCardSnapshot = [];
@@ -625,7 +592,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         correctIndex: correctIndex >= 0 ? correctIndex : 0,
         dropIndex: dropIndex >= 0 ? dropIndex : 0,
         hint9s: item.hint9s,
-        difficulty: item.difficulty ?? 2,
         tags: Array.isArray(item.tags) ? item.tags : [],
         explanation: item.explanation ?? null,
         version: item.version ?? 1,
@@ -677,7 +643,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         correctIndex: typeof entry.correctIndex === "number" ? entry.correctIndex : 0,
         dropIndex: typeof entry.dropIndex === "number" ? entry.dropIndex : 0,
         hint9s: item.hint9s,
-        difficulty: item.difficulty ?? 2,
         tags: Array.isArray(item.tags) ? item.tags : [],
         explanation: item.explanation ?? null,
         version: item.version ?? 1,
@@ -774,39 +739,18 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const rows = await db
         .select({
           category: triviaItems.category,
-          difficulty: triviaItems.difficulty,
           count: sql<number>`count(*)`,
         })
         .from(triviaItems)
         .where(eq(triviaItems.active, true))
-        .groupBy(triviaItems.category, triviaItems.difficulty);
+        .groupBy(triviaItems.category);
 
-      const summary = new Map<
-        string,
-        { category: string; total: number; easy: number; medium: number; hard: number }
-      >();
-
-      for (const row of rows) {
-        const category = row.category;
-        const entry =
-          summary.get(category) ?? {
-            category,
-            total: 0,
-            easy: 0,
-            medium: 0,
-            hard: 0,
-          };
-
-        entry.total += Number(row.count ?? 0);
-        const difficulty = row.difficulty ?? 2;
-        if (difficulty === 1) entry.easy += Number(row.count ?? 0);
-        else if (difficulty === 2) entry.medium += Number(row.count ?? 0);
-        else entry.hard += Number(row.count ?? 0);
-
-        summary.set(category, entry);
-      }
-
-      return Array.from(summary.values()).sort((a, b) => a.category.localeCompare(b.category));
+      return rows
+        .map((row) => ({
+          category: row.category,
+          total: Number(row.count ?? 0),
+        }))
+        .sort((a, b) => a.category.localeCompare(b.category));
     },
 
     async getPracticeTriviaDeck(category: string, deckSize?: number) {
@@ -996,7 +940,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
             correctIndex: snapshot.correctIndex,
             dropIndex: snapshot.dropIndex,
             hint9s: item.hint9s,
-            difficulty: item.difficulty ?? 2,
             tags: Array.isArray(item.tags) ? item.tags : [],
             explanation: item.explanation ?? null,
             version: item.version ?? 1,
@@ -2229,7 +2172,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const items = await db
         .select()
         .from(triviaItems)
-        .orderBy(triviaItems.category, triviaItems.difficulty);
+        .orderBy(triviaItems.category, triviaItems.id);
 
       // Get usage stats for each item
       const usageStats = await db
@@ -2268,7 +2211,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       correctIndex: number;
       dropIndex: number;
       hint9s: string;
-      difficulty: number;
       tags: string[];
       explanation: string | null;
       active: boolean;
@@ -2290,7 +2232,6 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         correctIndex?: number;
         dropIndex?: number;
         hint9s?: string;
-        difficulty?: number;
         tags?: string[];
         explanation?: string | null;
         active?: boolean;

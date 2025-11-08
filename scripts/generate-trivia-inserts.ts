@@ -17,7 +17,6 @@ interface TriviaItem {
   correct_index: number;
   drop_index: number;
   hint_9s: string;
-  difficulty: number;
   tags: string;
   explanation: string;
 }
@@ -63,7 +62,6 @@ for (const item of triviaData) {
   correct_index,
   drop_index,
   hint_9s,
-  difficulty,
   tags,
   explanation
 ) VALUES (
@@ -74,7 +72,6 @@ for (const item of triviaData) {
   ${item.correct_index},
   ${item.drop_index},
   '${escapeSql(item.hint_9s)}',
-  ${item.difficulty},
   ${tagsToArray(item.tags)},
   '${escapeSql(item.explanation)}'
 );`;

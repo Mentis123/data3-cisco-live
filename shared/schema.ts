@@ -105,7 +105,6 @@ export const triviaItems = pgTable("trivia_items", {
   correctIndex: smallint("correct_index").notNull(),
   dropIndex: smallint("drop_index").notNull(),
   hint9s: text("hint_9s").notNull(),
-  difficulty: smallint("difficulty").notNull(),
   tags: text("tags").array().default(sql`'{}'::text[]`),
   explanation: text("explanation"),
   active: boolean("active").notNull().default(true),
