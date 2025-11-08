@@ -71,7 +71,7 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 - Header image with custom Melbourne tech skyline.
 - Exit/Home buttons with confirmation dialogs to prevent data loss.
 - Category management system in the admin dashboard with persistent custom categories stored in database.
-- Protected system categories (GENERAL, SCALE, EXPERTISE, and 5 solution types) cannot be edited or deleted.
+- Protected system categories (GENERAL, SCALE, EXPERTISE, and 4 solution types) cannot be edited or deleted.
 - Custom categories (INFRASTRUCTURE, SECURITY, CLOUD, NETWORKING) can be fully managed with CRUD operations.
 - Post-submission UI displays category-specific stats with color-coded headers for 5 minutes, then reverts to general stats.
 - Word cloud consolidates case variations of common solution phrases to keep the display tidy.

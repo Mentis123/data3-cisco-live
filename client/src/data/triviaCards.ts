@@ -1,16 +1,14 @@
 export type TriviaCardCategory =
-  | "SECURE_CONNECTIVITY"
-  | "HYBRID_DC"
-  | "COLLAB_CX"
-  | "OBSERVABILITY"
-  | "EDGE_IOT";
+  | "NETWORKING"
+  | "SECURITY"
+  | "COLLABORATION"
+  | "DATA_CENTER";
 
 export const triviaCardCategories: TriviaCardCategory[] = [
-  "SECURE_CONNECTIVITY",
-  "HYBRID_DC",
-  "COLLAB_CX",
-  "OBSERVABILITY",
-  "EDGE_IOT",
+  "NETWORKING",
+  "SECURITY",
+  "COLLABORATION",
+  "DATA_CENTER",
 ];
 
 export function isTriviaCardCategory(value: string): value is TriviaCardCategory {
@@ -29,137 +27,111 @@ export interface TriviaCard {
 }
 
 export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; accent: string; blurb: string; icon: string; color: string; description: string }> = {
-  SECURE_CONNECTIVITY: {
-    name: "Zero Trust & Secure Connectivity",
+  NETWORKING: {
+    name: "Networking",
     accent: "bg-[#00BCF2]",
     color: "#00BCF2",
-    icon: "🔒",
-    blurb: "Lock the perimeter and the device posture without slowing trusted workflows.",
-    description: "Lock the perimeter and the device posture without slowing trusted workflows.",
+    icon: "🌐",
+    blurb: "High-performance secure connectivity that scales with the business.",
+    description: "High-performance secure connectivity that scales with the business.",
   },
-  HYBRID_DC: {
-    name: "Hybrid Cloud Infrastructure",
+  SECURITY: {
+    name: "Security",
     accent: "bg-[#6B21A8]",
     color: "#6B21A8",
-    icon: "☁️",
-    blurb: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
-    description: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
+    icon: "🛡️",
+    blurb: "Zero trust network access and intelligent threat detection.",
+    description: "Zero trust network access and intelligent threat detection.",
   },
-  COLLAB_CX: {
-    name: "Collaboration & Customer Experience",
+  COLLABORATION: {
+    name: "Collaboration",
     accent: "bg-[#F97316]",
     color: "#F97316",
     icon: "👥",
-    blurb: "Remove the friction that keeps agents and knowledge workers from delighting customers.",
-    description: "Remove the friction that keeps agents and knowledge workers from delighting customers.",
+    blurb: "Seamless communication and exceptional omnichannel customer experiences.",
+    description: "Seamless communication and exceptional omnichannel customer experiences.",
   },
-  OBSERVABILITY: {
-    name: "Observability & Automation",
-    accent: "bg-[#EAB308]",
-    color: "#EAB308",
-    icon: "📊",
-    blurb: "Detect, triage and resolve incidents before they become customer-facing outages.",
-    description: "Detect, triage and resolve incidents before they become customer-facing outages.",
-  },
-  EDGE_IOT: {
-    name: "Edge & IoT Automation",
-    accent: "bg-[#22C55E]",
-    color: "#22C55E",
-    icon: "🔌",
-    blurb: "Push intelligence to the edge to eliminate costly delays on the production floor.",
-    description: "Push intelligence to the edge to eliminate costly delays on the production floor.",
+  DATA_CENTER: {
+    name: "Cloud & AI",
+    accent: "bg-[#059669]",
+    color: "#059669",
+    icon: "🏢",
+    blurb: "Secure, resilient infrastructure for traditional and AI workloads.",
+    description: "Secure, resilient infrastructure for traditional and AI workloads.",
   },
 };
 
 export const triviaCardDeck: TriviaCard[] = [
   {
-    id: "secure-vpn-zero-trust",
-    category: "SECURE_CONNECTIVITY",
-    title: "Finance VPN with lateral movement",
+    id: "networking-branch-congestion",
+    category: "NETWORKING",
+    title: "Branch network congestion during peak hours",
     scenario:
-      "Finance analysts still connect to Oracle financials through a legacy VPN. Devices miss posture checks and one compromised laptop accessed twelve systems before the SOC noticed.",
+      "Eight branch offices experience severe slowdowns between 9-11 AM when video calls spike. The legacy MPLS circuits can't scale without six-month lead times, and IT lacks visibility into which applications consume bandwidth.",
     prompt:
-      "What high-scoring move keeps the analysts productive while closing the lateral movement risk right away?",
+      "How do you restore performance and gain control without waiting for carrier upgrades?",
     winningMove:
-      "Pivot the estate onto Cisco Secure Connect with per-application segmentation and enforced device posture. Pair the change with Duo risk-based authentication so analysts stay inside a zero-trust policy without losing access to the finance stack.",
+      "Deploy Cisco SD-WAN with application-aware routing to prioritize video traffic over the existing internet links. Add Meraki wireless to offload mobile devices and leverage ThousandEyes to monitor end-to-end application performance across all sites.",
     rationale:
-      "This answer lands the secure connectivity dial because it replaces the flat VPN with a SASE fabric, enforces device trust and keeps critical apps reachable without hair-pinning traffic.",
+      "This solution addresses the networking category by improving connectivity, optimizing traffic flow, and providing visibility without requiring new physical circuits.",
     scoringSignals: [
-      "Calls out Secure Connect or SASE with per-app segmentation",
-      "Mentions device posture / Duo adaptive access",
-      "Keeps the finance workflow online during the cutover",
+      "Mentions SD-WAN or intelligent path selection",
+      "Addresses application prioritization or QoS",
+      "Includes monitoring or visibility tools",
     ],
   },
   {
-    id: "hybrid-capacity-lag",
-    category: "HYBRID_DC",
-    title: "Provisioning bottleneck in hybrid estate",
+    id: "security-credential-theft",
+    category: "SECURITY",
+    title: "Credential theft from phishing campaign",
     scenario:
-      "Three Melbourne data centres run 340 VMs on ageing hardware. Provisioning a new analytics sandbox still takes 6–8 weeks while product teams expect a 48-hour turnaround.",
+      "Fifteen employees clicked a phishing link, exposing credentials to internal finance systems. The legacy VPN grants full network access once authenticated, allowing lateral movement before security detected the breach.",
     prompt:
-      "How do you unlock the capacity fast enough for sprint teams without overspending on stranded hardware?",
+      "What prevents future credential compromises from escalating into full network breaches?",
     winningMove:
-      "Stand up Intersight automation to surface the 77% idle compute, then burst the analytics sandboxes into Cisco UCS X-Series managed from the same control plane. Use Terraform workflows so dev teams request capacity that lands in minutes, not weeks.",
+      "Implement Cisco Duo for multi-factor authentication and device trust checks on every access attempt. Layer Umbrella DNS security to block phishing domains before users click, and deploy zero trust network access with Secure Access to segment application access by identity.",
     rationale:
-      "The response blends optimisation of the on-prem estate with elastic expansion, which is the hybrid cloud dial. It shortens lead time, reuses existing spend and adds automation hooks developers can self-serve.",
+      "This response hits the security category by adding identity protection, threat prevention, and zero trust segmentation to contain breaches.",
     scoringSignals: [
-      "Identifies idle capacity and ties it to a control plane (Intersight)",
-      "Introduces elastic expansion (X-Series or cloud burst)",
-      "Mentions automation / infrastructure-as-code to speed delivery",
+      "References MFA, Duo, or identity verification",
+      "Mentions zero trust or network segmentation",
+      "Includes threat prevention (Umbrella, DNS security)",
     ],
   },
   {
-    id: "collab-contact-center",
-    category: "COLLAB_CX",
-    title: "Low FCR in the contact centre",
+    id: "collaboration-low-fcr",
+    category: "COLLABORATION",
+    title: "Low first-call resolution in support center",
     scenario:
-      "Customer care only resolves 34% of enquiries on the first call. Agents juggle six disconnected apps and escalate 73% of tickets for supervisor lookups, adding twelve minutes per incident.",
+      "Customer support resolves only 38% of enquiries on the first call. Agents toggle between eight different systems to find customer history, and supervisors lack real-time coaching visibility, resulting in 14-minute average handle times.",
     prompt:
-      "What unlocks faster resolutions without adding more headcount?",
+      "How do you improve resolution rates without hiring more agents?",
     winningMove:
-      "Roll Webex Contact Center with the Customer Experience Insights workspace so every interaction pulls CRM, knowledge base and sentiment data into one pane. Layer AI summarisation to feed supervisors real-time coaching instead of manual escalations.",
+      "Deploy Webex Contact Center with an integrated agent desktop that surfaces CRM, knowledge base, and customer sentiment in a single view. Add AI-powered call transcription and real-time supervisor dashboards to enable proactive coaching during live interactions.",
     rationale:
-      "It attacks the collaboration dial by unifying the desktop, reducing handle time and empowering supervisors with data instead of manual catch-up.",
+      "This solution targets the collaboration category by unifying communication tools, reducing friction for agents, and improving customer experience metrics.",
     scoringSignals: [
-      "Highlights a unified agent desktop (Webex Contact Center, AI workspaces)",
-      "References AI assistance or summarisation to kill the escalations",
-      "Connects to FCR / handle time improvements tied to KPIs",
+      "Mentions Webex Contact Center or unified desktop",
+      "References AI assistance, transcription, or sentiment analysis",
+      "Ties solution to metrics like FCR or handle time",
     ],
   },
   {
-    id: "observability-latency",
-    category: "OBSERVABILITY",
-    title: "Reactive incident response",
+    id: "datacenter-vm-provisioning",
+    category: "DATA_CENTER",
+    title: "VM provisioning delays blocking development",
     scenario:
-      "Ops only hears about outages after 23-minute user complaints. Root cause hunts stretch past four hours because telemetry lives in fifteen toolsets.",
+      "The data centre runs 450 virtual machines on aging hardware. Development teams request new environments weekly, but provisioning takes 4-6 weeks due to manual processes and capacity constraints, causing sprint delays.",
     prompt:
-      "How do you shrink detection and MTTR so execs trust the platform again?",
+      "How do you accelerate provisioning while optimizing existing infrastructure investment?",
     winningMove:
-      "Deploy Full-Stack Observability with AppDynamics Cloud and ThousandEyes so digital experience and infrastructure traces land in one timeline. Automate runbooks with Crosswork so alerts trigger remediation playbooks instead of Slack firefights.",
+      "Implement Cisco Intersight to gain visibility into underutilized compute resources, then deploy UCS X-Series for elastic capacity expansion. Automate provisioning with Terraform integration so developers self-service environments that spin up in minutes instead of weeks.",
     rationale:
-      "Combining FSO visibility with automation delivers the observability dial: faster detection, correlated insights and scripted resolution steps.",
+      "This addresses the data centre category by modernizing infrastructure, automating operations, and bridging on-premises capacity with scalable solutions.",
     scoringSignals: [
-      "Mentions AppDynamics + ThousandEyes or FSO bundle",
-      "Talks about correlated telemetry across stack layers",
-      "Calls out automation or runbooks that reduce MTTR",
-    ],
-  },
-  {
-    id: "edge-latency-false-shutdowns",
-    category: "EDGE_IOT",
-    title: "Edge latency causes false shutdowns",
-    scenario:
-      "Manufacturing sensors push 2.3 TB of data to the cloud each day. The 340 ms round trip means 12 false-positive shutdowns a month, costing $47K in lost production.",
-    prompt:
-      "What lets operations trust the alerts without waiting on the cloud round trip?",
-    winningMove:
-      "Move analytics to Cisco Edge Intelligence on ruggedised compute beside the line. Stream only anomalies back to the cloud and feed Site Manager automation so maintenance teams schedule interventions before downtime hits.",
-    rationale:
-      "Processing data at the edge is the Edge & IoT dial. It slashes latency, reduces false positives and ties insights to automated maintenance actions.",
-    scoringSignals: [
-      "Calls out edge analytics / Edge Intelligence or similar",
-      "Explains how latency drops and false positives disappear",
-      "Connects insights to automated maintenance or Site Manager",
+      "Mentions Intersight, UCS, or infrastructure automation",
+      "References capacity optimization or elastic expansion",
+      "Includes infrastructure-as-code or self-service provisioning",
     ],
   },
 ];

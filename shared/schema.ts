@@ -251,7 +251,7 @@ export const chatSchema = z.object({
 
 export const submitSolutionSchema = z.object({
   sessionToken: z.string(),
-  category: z.enum(["SECURE_CONNECTIVITY", "HYBRID_DC", "COLLAB_CX", "OBSERVABILITY", "EDGE_IOT"]).optional(), // Category now auto-assigned
+  category: z.enum(["NETWORKING", "SECURITY", "COLLABORATION", "DATA_CENTER"]).optional(), // Category now auto-assigned
   solutionText: z.string(),
   triviaAttemptId: z.string().optional(),
   structuredFields: z.object({

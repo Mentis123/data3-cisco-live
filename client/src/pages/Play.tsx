@@ -75,18 +75,17 @@ const UNIFIED_THEME: CategoryTheme = {
 };
 
 const CATEGORY_THEMES: Record<TriviaCardCategory, CategoryTheme> = {
-  SECURE_CONNECTIVITY: UNIFIED_THEME,
-  HYBRID_DC: UNIFIED_THEME,
-  COLLAB_CX: UNIFIED_THEME,
-  OBSERVABILITY: UNIFIED_THEME,
-  EDGE_IOT: UNIFIED_THEME,
+  NETWORKING: UNIFIED_THEME,
+  SECURITY: UNIFIED_THEME,
+  COLLABORATION: UNIFIED_THEME,
+  DATA_CENTER: UNIFIED_THEME,
 };
 
 const getCategoryTheme = (category: string | null | undefined): CategoryTheme => {
   if (category && isTriviaCardCategory(category)) {
     return CATEGORY_THEMES[category];
   }
-  return CATEGORY_THEMES.EDGE_IOT;
+  return CATEGORY_THEMES.NETWORKING;
 };
 
 // Helper function to format markdown bold syntax into HTML
@@ -490,13 +489,12 @@ Just describe it naturally - what's the problem that needs solving?`
 
     // Easter egg: Cat command shows categories
     if (userMessage.toLowerCase() === 'cat') {
-      const categoryList = `Here are the 5 categories:
+      const categoryList = `Here are the 4 categories:
 
-1. SECURE_CONNECTIVITY - Zero Trust & Secure Connectivity
-2. HYBRID_DC - Hybrid Cloud Infrastructure
-3. COLLAB_CX - Collaboration & Customer Experience
-4. OBSERVABILITY - Observability & Automation
-5. EDGE_IOT - Edge & IoT Automation
+1. NETWORKING - Networking
+2. SECURITY - Security
+3. COLLABORATION - Collaboration
+4. DATA_CENTER - Cloud & AI
 
 Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scoring).`;
       
@@ -506,7 +504,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
     }
 
     // Handle category selection (e.g., "1a", "3b", etc.)
-    const categoryMatch = userMessage.match(/^([1-5])([ab])$/i);
+    const categoryMatch = userMessage.match(/^([1-4])([ab])$/i);
     if (categoryMatch) {
       const categoryNum = parseInt(categoryMatch[1]);
       const scoringLevel = categoryMatch[2].toLowerCase();

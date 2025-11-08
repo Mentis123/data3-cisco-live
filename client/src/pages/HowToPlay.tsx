@@ -123,7 +123,7 @@ export default function HowToPlay() {
               <AccordionContent className="px-6 pb-6 pt-0">
                 <div className="space-y-4 text-sm text-data3-white/85">
                   <p className="text-base">
-                    Pick one of five business challenge categories that match your expertise or curiosity. Your trivia and pitch will both use this track.
+                    Pick one of four business challenge categories that match your expertise or curiosity. Your trivia and pitch will both use this track.
                   </p>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {categories.map((category) => (

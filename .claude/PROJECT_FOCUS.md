@@ -16,14 +16,13 @@
 - Eventually port /beta to main site
 - Currently in WIP (Work in Progress) state
 
-### Categories (5 total)
-1. **SECURE_CONNECTIVITY** - Zero Trust & Secure Connectivity (25 questions)
-2. **HYBRID_DC** - Hybrid Cloud Infrastructure (25 questions)
-3. **COLLAB_CX** - Collaboration & Customer Experience (25 questions)
-4. **OBSERVABILITY** - Observability & Automation (25 questions)
-5. **EDGE_IOT** - Edge & IoT Automation (25 questions)
+### Categories (4 total)
+1. **NETWORKING** - Networking (25 questions)
+2. **SECURITY** - Security (18 questions)
+3. **COLLABORATION** - Collaboration (18 questions)
+4. **DATA_CENTER** - Cloud & AI (20 questions)
 
-**Total Questions**: 125 trivia questions (25 per category)
+**Total Questions**: 81 trivia questions
 **Deck Size**: 5 questions per round (1 easy, 3 medium, 1 hard)
 
 ### Architecture Overview
@@ -33,7 +32,7 @@
 - **Scoring**: Trivia (0-30 max) + Case Card (0-20 max) = Total (0-50)
 
 ### Current Status (Post-Review)
-- All 5 trivia categories fully functional with JSON fallback
+- All 4 trivia categories fully functional with JSON fallback
 - Dojo training mode: LIVE
 - Ring mode with trivia warmup: LIVE
 - Case builder: IN DEVELOPMENT (showing placeholder)

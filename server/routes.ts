@@ -72,11 +72,10 @@ function ensureAdminAccess(req: Request, res: Response): boolean {
 const rateLimits = new Map<string, number>();
 
 const CATEGORIES = [
-  { key: "SECURE_CONNECTIVITY", name: "Zero Trust & Secure Connectivity", description: "Zero Trust security, network security, firewalls, VPN, secure remote access, identity management, threat detection" },
-  { key: "HYBRID_DC", name: "Hybrid Cloud Infrastructure", description: "Hybrid cloud automation, on-prem and cloud orchestration, virtualization, storage, compute and fabric operations" },
-  { key: "COLLAB_CX", name: "Collaboration & Customer Experience", description: "Customer and employee experience, contact centre modernisation, AI-assisted agents, unified communications" },
-  { key: "OBSERVABILITY", name: "Observability & Automation", description: "Telemetry, full-stack observability, incident automation, AIOps workflows, runbooks and remediation" },
-  { key: "EDGE_IOT", name: "Edge & IoT Automation", description: "Industrial IoT, edge compute, smart facilities, automation at the edge, secure device onboarding" },
+  { key: "NETWORKING", name: "Networking", description: "Network infrastructure, switches, routers, SD-WAN, wireless networking, network automation, bandwidth optimization, network performance, Catalyst, Meraki, network segmentation, QoS" },
+  { key: "SECURITY", name: "Security", description: "Cybersecurity, firewalls, threat detection, identity management, zero trust, SASE, Secure Access Service Edge, security operations, compliance, endpoint protection, vulnerability management, Duo, Umbrella, SecureX, hypershield, SSE, Secure Service Edge" },
+  { key: "COLLABORATION", name: "Collaboration", description: "Team collaboration, unified communications, video conferencing, contact center, Webex, customer experience, customer service, messaging platforms, voice services, meeting solutions, hybrid work enablement" },
+  { key: "DATA_CENTER", name: "Cloud & AI", description: "Data centre infrastructure, cloud integration, virtualization, compute resources, storage systems, hyperconverged infrastructure, hybrid cloud solutions, UCS, HyperFlex, ACI, infrastructure automation, capacity planning, virtualisation, datacenter, datacentre" },
 ];
 
 const startTriviaAttemptSchema = z.object({
