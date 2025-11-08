@@ -672,7 +672,7 @@ export async function registerRoutes(
         subScores: JSON.stringify(evaluation.subscores),
         totalScore: pitchScore,
         evaluationNotes: evaluation.notes_short,
-        announcedOnLeaderboard: true, // Mark as announced immediately so it appears on live leaderboard
+        announcedOnLeaderboard: false, // Will be set to true when user clicks "DISMISS" on results page
       });
 
       // Calculate combined score and handle raffle eligibility
@@ -799,19 +799,20 @@ export async function registerRoutes(
         }
       }
 
-      // Broadcast WebSocket update
-      broadcastScoreUpdate({
-        id: submission.id,
-        name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
-        category,
-        targetRank: targetRank || leaderboard.length + 1,
-        finalScore: combinedScore,
-        totalScore: combinedScore,
-        pitchScore,
-        triviaScore,
-        botBar,
-        isEligible,
-      });
+      // DO NOT broadcast WebSocket update here - it will be broadcast when user clicks "DISMISS"
+      // on the results page, via the /api/submission/:id/announce endpoint
+      // broadcastScoreUpdate({
+      //   id: submission.id,
+      //   name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
+      //   category,
+      //   targetRank: targetRank || leaderboard.length + 1,
+      //   finalScore: combinedScore,
+      //   totalScore: combinedScore,
+      //   pitchScore,
+      //   triviaScore,
+      //   botBar,
+      //   isEligible,
+      // });
 
       await storage.updateChatSession(sessionToken, {
         category,
@@ -854,9 +855,57 @@ export async function registerRoutes(
   app.post("/api/submission/:id/announce", async (req, res) => {
     try {
       const { id } = req.params;
+
+      // Get the submission details
+      const submission = await storage.getSubmission(id);
+      if (!submission) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+
+      // Get participant details
+      const participant = await storage.getParticipant(submission.participantId);
+      if (!participant) {
+        return res.status(404).json({ message: "Participant not found" });
+      }
+
+      // Get trivia attempt to retrieve botBar and isEligible
+      let botBar: number | null = null;
+      let isEligible = false;
+      const triviaAttempts = await storage.getTriviaAttemptsByParticipant(submission.participantId);
+      const triviaAttempt = triviaAttempts.find((attempt: any) => attempt.submissionId === id);
+
+      if (triviaAttempt) {
+        botBar = triviaAttempt.botBar ?? null;
+        isEligible = triviaAttempt.eligible ?? false;
+      }
+
+      // Get today's date in Melbourne timezone
+      const today = getMelbourneDate();
+
+      // Calculate rank
+      const leaderboard = await storage.getLeaderboard(1000, undefined, today, true);
+      const targetRank = leaderboard.findIndex(entry => entry.totalScore <= submission.totalScore) + 1;
+
+      // Mark submission as announced
       await storage.markSubmissionAsAnnounced(id);
+
+      // Broadcast WebSocket update to leaderboard
+      broadcastScoreUpdate({
+        id: submission.id,
+        name: `${participant.firstName} ${participant.lastName.charAt(0)}.`,
+        category: submission.category,
+        targetRank: targetRank || leaderboard.length + 1,
+        finalScore: submission.totalScore,
+        totalScore: submission.totalScore,
+        pitchScore: submission.pitchScore ?? null,
+        triviaScore: submission.triviaScore ?? null,
+        botBar,
+        isEligible,
+      });
+
       res.json({ success: true });
     } catch (error) {
+      console.error('[express] Failed to announce submission:', error);
       res.status(500).json({ message: "Failed to announce submission: " + (error as Error).message });
     }
   });
