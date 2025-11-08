@@ -1013,12 +1013,14 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async calculateBotBar(category: string, dateStr: string): Promise<number> {
-      // Get all completed ring attempts for this category on this date
-      const completedAttempts = await db
+      const SEED_COUNT = 10;
+      const SEED_SCORE = 60;
+      const SEED_SUM = SEED_COUNT * SEED_SCORE;
+
+      const [aggregates] = await db
         .select({
-          attemptId: attempts.id,
-          triviaScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0)`,
-          subScores: submissions.subScores,
+          actualSum: sql<number>`COALESCE(SUM(${submissions.totalScore}), 0)`,
+          actualCount: sql<number>`COUNT(${submissions.id})`,
         })
         .from(attempts)
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
@@ -1026,38 +1028,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           and(
             eq(attempts.category, category),
             eq(attempts.mode, "ring"),
-            eq(attempts.passed, true),
             sql`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne') = ${dateStr}`,
-            sql`${submissions.id} IS NOT NULL` // Only include attempts with completed submissions
+            sql`${submissions.id} IS NOT NULL`, // Only include attempts with completed submissions
           )
         );
 
-      // Need at least 5 completed submissions to use dynamic bot bar
-      const MINIMUM_SUBMISSIONS = 5;
-      const FALLBACK_BOT_BAR = 60; // 60% of 100 points
+      const actualSum = aggregates?.actualSum ?? 0;
+      const actualCount = aggregates?.actualCount ?? 0;
 
-      if (completedAttempts.length < MINIMUM_SUBMISSIONS) {
-        return FALLBACK_BOT_BAR;
+      const denominator = SEED_COUNT + actualCount;
+      if (denominator === 0) {
+        return SEED_SCORE;
       }
 
-      // Calculate combined scores (trivia + pitch)
-      const combinedScores = completedAttempts.map((attempt) => {
-        const triviaScore = attempt.triviaScore || 0;
-        const pitchScore = calculatePitchScore(attempt.subScores);
-        return triviaScore + pitchScore;
-      });
-
-      // Sort and find median
-      combinedScores.sort((a, b) => a - b);
-      const midpoint = Math.floor(combinedScores.length / 2);
-
-      if (combinedScores.length % 2 === 0) {
-        // Even number of scores: average the two middle values
-        return Math.round((combinedScores[midpoint - 1]! + combinedScores[midpoint]!) / 2);
-      } else {
-        // Odd number of scores: return the middle value
-        return combinedScores[midpoint]!;
-      }
+      const mean = (SEED_SUM + actualSum) / denominator;
+      return Math.round(mean);
     },
 
     async getTriviaAttempt(attemptId: string): Promise<Attempt | null> {
