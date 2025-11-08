@@ -159,6 +159,7 @@ export const raffleDraws = pgTable("raffle_draws", {
   rngSeed: text("rng_seed").notNull(),
   adminUser: text("admin_user").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+  announcedAt: timestamp("announced_at", { withTimezone: true }),
 });
 
 export const leaderboardCache = pgTable(

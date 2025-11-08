@@ -2435,6 +2435,7 @@ function DBAdminTab() {
       combinedScore: number;
       category: string;
       drawId?: string;
+      raffleDate?: string;
     }) => {
       console.log('🎉 [Admin] Broadcasting raffle winner:', winnerData);
       const response = await fetch("/api/beta-admin/broadcast-raffle-winner", {
@@ -2648,6 +2649,7 @@ function DBAdminTab() {
                     combinedScore: selectedWinner.winner.combinedScore || 0,
                     category: selectedWinner.winner.category,
                     drawId: selectedWinner.draw?.id,
+                    raffleDate: selectedWinner.draw?.raffleDate,
                   });
                 }}
                 disabled={broadcastWinnerMutation.isPending}

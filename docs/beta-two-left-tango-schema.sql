@@ -103,7 +103,8 @@ CREATE TABLE IF NOT EXISTS raffle_draws (
   winner_entry_id uuid REFERENCES raffle_entries(id),
   rng_seed text NOT NULL,
   admin_user text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  announced_at timestamptz
 );
 
 -- Optional cache for pre-rendered leaderboard payloads.

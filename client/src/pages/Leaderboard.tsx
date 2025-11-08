@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -576,7 +576,37 @@ export default function Leaderboard() {
   // New submission detection state
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
   const isInitialDataLoad = useRef(true);
-  const lastSeenRaffleWinnerIdRef = useRef<string | null>(null);
+  const sessionStartedAtRef = useRef<number>(Date.now());
+  const lastSeenRaffleWinnerRef = useRef<{ drawId: string | null; announcedAt: string | null }>({
+    drawId: null,
+    announcedAt: null,
+  });
+
+  const persistLastSeenRaffleWinner = useCallback((drawId: string | null, announcedAt: string | null) => {
+    lastSeenRaffleWinnerRef.current = { drawId, announcedAt };
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('leaderboard:lastRaffleWinner', JSON.stringify({ drawId, announcedAt }));
+
+      if (drawId) {
+        sessionStorage.setItem('leaderboard:lastRaffleWinnerId', drawId);
+      } else {
+        sessionStorage.removeItem('leaderboard:lastRaffleWinnerId');
+      }
+
+      if (announcedAt) {
+        sessionStorage.setItem('leaderboard:lastRaffleWinnerAnnouncedAt', announcedAt);
+      } else {
+        sessionStorage.removeItem('leaderboard:lastRaffleWinnerAnnouncedAt');
+      }
+    } catch (error) {
+      console.warn('[Leaderboard] Unable to persist last raffle winner metadata:', error);
+    }
+  }, []);
 
   const websocketsDisabled = import.meta.env.VITE_ENABLE_WEBSOCKETS === 'false';
 
@@ -622,21 +652,32 @@ export default function Leaderboard() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Restore last seen raffle winner id to prevent duplicate reveals on reloads
+  // Restore last seen raffle winner metadata to prevent duplicate reveals on reloads
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
 
     try {
-      const storedWinnerId = sessionStorage.getItem('leaderboard:lastRaffleWinnerId');
-      if (storedWinnerId) {
-        lastSeenRaffleWinnerIdRef.current = storedWinnerId;
+      const storedWinner = sessionStorage.getItem('leaderboard:lastRaffleWinner');
+      if (storedWinner) {
+        const parsed = JSON.parse(storedWinner) as { drawId?: unknown; announcedAt?: unknown } | null;
+        const drawId = parsed && typeof parsed.drawId === 'string' ? parsed.drawId : null;
+        const announcedAt = parsed && typeof parsed.announcedAt === 'string' ? parsed.announcedAt : null;
+        lastSeenRaffleWinnerRef.current = { drawId, announcedAt };
+        return;
+      }
+
+      const legacyDrawId = sessionStorage.getItem('leaderboard:lastRaffleWinnerId');
+      const legacyAnnouncedAt = sessionStorage.getItem('leaderboard:lastRaffleWinnerAnnouncedAt');
+
+      if (legacyDrawId || legacyAnnouncedAt) {
+        persistLastSeenRaffleWinner(legacyDrawId ?? null, legacyAnnouncedAt ?? null);
       }
     } catch (error) {
       console.warn('[Leaderboard] Unable to restore last raffle winner id:', error);
     }
-  }, []);
+  }, [persistLastSeenRaffleWinner]);
 
   // Preload audio on component mount
   useEffect(() => {
@@ -661,18 +702,31 @@ export default function Leaderboard() {
       return;
     }
 
-    if (lastSeenRaffleWinnerIdRef.current === latestRaffleWinner.drawId) {
+    if (!latestRaffleWinner.announcedAt) {
+      return;
+    }
+
+    const announcedAtMs = Date.parse(latestRaffleWinner.announcedAt);
+    if (Number.isNaN(announcedAtMs)) {
+      console.warn('[Leaderboard] Ignoring raffle winner with unparsable announcedAt:', latestRaffleWinner.announcedAt);
+      return;
+    }
+
+    if (announcedAtMs < sessionStartedAtRef.current) {
+      console.log('[Leaderboard] Ignoring raffle winner announced before this session started');
+      return;
+    }
+
+    const lastSeen = lastSeenRaffleWinnerRef.current;
+    if (
+      lastSeen.drawId === latestRaffleWinner.drawId &&
+      lastSeen.announcedAt === latestRaffleWinner.announcedAt
+    ) {
       return;
     }
 
     console.log('🎉 [Leaderboard] Poll detected new raffle winner:', latestRaffleWinner);
-    lastSeenRaffleWinnerIdRef.current = latestRaffleWinner.drawId;
-
-    try {
-      sessionStorage.setItem('leaderboard:lastRaffleWinnerId', latestRaffleWinner.drawId);
-    } catch (error) {
-      console.warn('[Leaderboard] Unable to persist last raffle winner id:', error);
-    }
+    persistLastSeenRaffleWinner(latestRaffleWinner.drawId, latestRaffleWinner.announcedAt);
 
     setRaffleWinnerData({
       initials: latestRaffleWinner.initials,
@@ -680,7 +734,7 @@ export default function Leaderboard() {
       category: latestRaffleWinner.category,
     });
     setShowRaffleWinner(true);
-  }, [websocketsDisabled, latestRaffleWinner]);
+  }, [websocketsDisabled, latestRaffleWinner, persistLastSeenRaffleWinner]);
 
   // Check for WELCOME NEW CHALLENGER trigger from announcement page
   useEffect(() => {
@@ -807,13 +861,12 @@ export default function Leaderboard() {
         ? message.data.drawId
         : `ws-${Date.now()}`;
 
-    lastSeenRaffleWinnerIdRef.current = winnerIdFromMessage;
+    const announcedAtFromMessage =
+      typeof message.data.announcedAt === 'string' && message.data.announcedAt.length > 0
+        ? message.data.announcedAt
+        : new Date().toISOString();
 
-    try {
-      sessionStorage.setItem('leaderboard:lastRaffleWinnerId', winnerIdFromMessage);
-    } catch (error) {
-      console.warn('[Leaderboard] Unable to persist broadcast raffle winner id:', error);
-    }
+    persistLastSeenRaffleWinner(winnerIdFromMessage, announcedAtFromMessage);
 
     setRaffleWinnerData({
       initials: message.data.initials,

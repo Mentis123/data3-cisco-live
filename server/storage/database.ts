@@ -2846,7 +2846,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .select({
           drawId: schema.raffleDraws.id,
           raffleDate: schema.raffleDraws.raffleDate,
-          announcedAt: schema.raffleDraws.createdAt,
+          announcedAt: schema.raffleDraws.announcedAt,
           winnerEntryId: schema.raffleDraws.winnerEntryId,
           category: schema.raffleEntries.category,
           firstName: users.firstName,
@@ -2858,14 +2858,34 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .leftJoin(users, eq(schema.raffleEntries.emailHash, users.emailHash))
         .leftJoin(attempts, eq(schema.raffleEntries.attemptId, attempts.id))
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
-        .orderBy(desc(schema.raffleDraws.createdAt))
+        .where(isNotNull(schema.raffleDraws.announcedAt))
+        .orderBy(desc(schema.raffleDraws.announcedAt))
         .limit(1);
 
-      if (!latestDraw || !latestDraw.winnerEntryId || !latestDraw.category) {
+      if (!latestDraw || !latestDraw.winnerEntryId || !latestDraw.category || !latestDraw.announcedAt) {
         return null;
       }
 
       return latestDraw;
+    },
+
+    async markRaffleWinnerAnnounced(drawId: string): Promise<Date> {
+      const announcedAt = new Date();
+      const [updated] = await db
+        .update(schema.raffleDraws)
+        .set({ announcedAt })
+        .where(eq(schema.raffleDraws.id, drawId))
+        .returning({ announcedAt: schema.raffleDraws.announcedAt });
+
+      if (!updated) {
+        throw new Error(`Raffle draw ${drawId} not found`);
+      }
+
+      if (!updated.announcedAt) {
+        throw new Error(`Failed to mark raffle draw ${drawId} as announced`);
+      }
+
+      return updated.announcedAt;
     },
 
     async clearOldRaffleEntries(daysOld: number) {
