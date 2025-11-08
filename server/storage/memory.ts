@@ -1106,18 +1106,20 @@ export function createMemoryStorage() {
     },
 
     async calculateBotBar(category: string, dateStr: string): Promise<number> {
+      const SEED_COUNT = 10;
+      const SEED_SCORE = 60;
+      const SEED_SUM = SEED_COUNT * SEED_SCORE;
+
       // Filter completed ring attempts for this category and date
       const completedAttempts = triviaAttemptsStore.filter((attempt) => {
-        if (attempt.category !== category || attempt.mode !== "ring" || !attempt.passed) {
+        if (attempt.category !== category || attempt.mode !== "ring") {
           return false;
         }
 
-        // Check if date matches using attemptDay field (which uses Melbourne timezone)
         if (attempt.attemptDay !== dateStr) {
           return false;
         }
 
-        // Check if has completed submission
         if (!attempt.submissionId) {
           return false;
         }
@@ -1125,41 +1127,22 @@ export function createMemoryStorage() {
         return true;
       });
 
-      // Need at least 5 completed submissions to use dynamic bot bar
-      const MINIMUM_SUBMISSIONS = 5;
-      const FALLBACK_BOT_BAR = 60; // 60% of 100 points
+      const actualSum = completedAttempts.reduce((sum, attempt) => {
+        const submission = submissionsStore.find((s) => s.id === attempt.submissionId);
+        const triviaScore = attempt.triviaScore || 0;
+        const pitchScore = submission ? calculatePitchScore(submission.subScores) : 0;
+        return sum + triviaScore + pitchScore;
+      }, 0);
 
-      if (completedAttempts.length < MINIMUM_SUBMISSIONS) {
-        return FALLBACK_BOT_BAR;
+      const actualCount = completedAttempts.length;
+      const denominator = SEED_COUNT + actualCount;
+
+      if (denominator === 0) {
+        return SEED_SCORE;
       }
 
-      // Calculate combined scores (trivia + pitch)
-      const combinedScores = completedAttempts
-        .map((attempt) => {
-          const submission = submissionsStore.find((s) => s.id === attempt.submissionId);
-          // Use triviaScore (not totalScore) to avoid double-counting pitch score
-          // totalScore gets updated to combined score after submission is complete
-          const triviaScore = attempt.triviaScore || 0;
-          const pitchScore = submission ? calculatePitchScore(submission.subScores) : 0;
-          return triviaScore + pitchScore;
-        })
-        .filter((score) => score > 0); // Filter out invalid scores
-
-      if (combinedScores.length < MINIMUM_SUBMISSIONS) {
-        return FALLBACK_BOT_BAR;
-      }
-
-      // Sort and find median
-      combinedScores.sort((a, b) => a - b);
-      const midpoint = Math.floor(combinedScores.length / 2);
-
-      if (combinedScores.length % 2 === 0) {
-        // Even number of scores: average the two middle values
-        return Math.round((combinedScores[midpoint - 1]! + combinedScores[midpoint]!) / 2);
-      } else {
-        // Odd number of scores: return the middle value
-        return combinedScores[midpoint]!;
-      }
+      const mean = (SEED_SUM + actualSum) / denominator;
+      return Math.round(mean);
     },
 
     async getTriviaAttempt(attemptId: string): Promise<Attempt | null> {
