@@ -1705,7 +1705,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
     const today = filterDate || getMelbourneDate();
 
-    // Query from submissions table to match the leaderboard data
+    // Query from submissions table - count all submissions from today regardless of announcement status
     const results = await db
       .select({
         category: submissions.category,
@@ -1713,10 +1713,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       })
       .from(submissions)
       .where(
-        and(
-          eq(submissions.announcedOnLeaderboard, true),
-          sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
-        )
+        sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
       )
       .groupBy(submissions.category);
 

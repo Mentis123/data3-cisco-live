@@ -1409,17 +1409,11 @@ export function createMemoryStorage() {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
       const today = filterDate || getMelbourneDate();
 
-      // Query from submissions to match the leaderboard data
+      // Query from submissions - count all submissions from today regardless of announcement status
       return submissionsStore.reduce<Record<string, number>>((acc, submission) => {
-        // Only count announced submissions from today
-        if (submission.announcedOnLeaderboard) {
-          // Check if submission was created on the filter date
-          if (filterDate) {
-            const submissionDate = getMelbourneDate(submission.createdAt);
-            if (submissionDate !== today) {
-              return acc;
-            }
-          }
+        // Check if submission was created on the filter date
+        const submissionDate = getMelbourneDate(submission.createdAt);
+        if (submissionDate === today) {
           acc[submission.category] = (acc[submission.category] ?? 0) + 1;
         }
         return acc;
