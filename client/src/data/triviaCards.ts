@@ -39,8 +39,8 @@ export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; 
   },
   HYBRID_DC: {
     name: "Hybrid Cloud Infrastructure",
-    accent: "bg-[#8A2BE2]",
-    color: "#8A2BE2",
+    accent: "bg-[#6B21A8]",
+    color: "#6B21A8",
     icon: "☁️",
     blurb: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
     description: "Shorten lead times and right-size spend across on-prem and cloud footprints.",
@@ -55,8 +55,8 @@ export const triviaCardCategoryMeta: Record<TriviaCardCategory, { name: string; 
   },
   OBSERVABILITY: {
     name: "Observability & Automation",
-    accent: "bg-[#A855F7]",
-    color: "#A855F7",
+    accent: "bg-[#EAB308]",
+    color: "#EAB308",
     icon: "📊",
     blurb: "Detect, triage and resolve incidents before they become customer-facing outages.",
     description: "Detect, triage and resolve incidents before they become customer-facing outages.",
