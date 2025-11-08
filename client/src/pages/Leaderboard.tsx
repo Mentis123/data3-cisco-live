@@ -1486,7 +1486,7 @@ export default function Leaderboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         {!isPresentationMode && (
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <img
                 src={leaderboardFullImage}
@@ -1502,6 +1502,12 @@ export default function Leaderboard() {
                 </p>
               </div>
             </div>
+            {/* Beat the Bot - centered on desktop, visible on same line */}
+            <div className="flex-shrink-0">
+              <p className="text-2xl lg:text-3xl font-bold text-data3-pale-blue">
+                Beat the Bot
+              </p>
+            </div>
             {/* Desktop-only navigation */}
             <div className="hidden lg:flex gap-3">
               <Button
@@ -1512,15 +1518,6 @@ export default function Leaderboard() {
                 Home
               </Button>
             </div>
-          </div>
-        )}
-
-        {/* Beat the Bot Section */}
-        {!isPresentationMode && (
-          <div className="mb-6 text-center">
-            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-data3-pale-blue">
-              Beat the Bot
-            </p>
           </div>
         )}
 
