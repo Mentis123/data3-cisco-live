@@ -496,7 +496,7 @@ function renderActiveChallengersView(
         {hasTrivia ? (
           <div className="space-y-3">
             {triviaChallengers.map((challenger) =>
-              renderChallengerCard(challenger, "Trivia Challenge", "fas fa-brain")
+              renderChallengerCard(challenger, "Category", "fas fa-brain")
             )}
           </div>
         ) : (
@@ -515,7 +515,7 @@ function renderActiveChallengersView(
         {hasPitch ? (
           <div className="space-y-3">
             {projectPitchChallengers.map((challenger) =>
-              renderChallengerCard(challenger, "Project Pitch", "fas fa-lightbulb")
+              renderChallengerCard(challenger, "Category", "fas fa-lightbulb")
             )}
           </div>
         ) : (

@@ -1878,6 +1878,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
         // If passed is false, they're still on trivia
         // If passed is true, they've completed trivia and are on project pitch
+        console.log(`[getActiveRingAttemptsByStage] Challenger ${initials} (${row.attemptId}): passed=${row.passed}, category=${row.category}`);
         if (row.passed) {
           projectPitchChallengers.push(challenger);
         } else {
@@ -1885,6 +1886,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         }
       });
 
+      console.log(`[getActiveRingAttemptsByStage] Returning ${triviaChallengers.length} trivia challengers, ${projectPitchChallengers.length} pitch challengers`);
       return {
         triviaChallengers,
         projectPitchChallengers,
