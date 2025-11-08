@@ -9,9 +9,22 @@ import { useWebSocket } from "@/lib/websocket";
 import { animateScoreCountUp } from "@/lib/anim";
 import { audioManager } from "@/lib/audio";
 import { formatNameToInitials } from "@/lib/utils";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  LabelList,
+} from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
+import { CATEGORY_BADGE_CLASSES, CATEGORY_COLORS, CATEGORY_NAMES, DEFAULT_CATEGORY_COLOR } from "@/constants/categories";
 
 interface LeaderboardEntry {
   id: string;
@@ -38,32 +51,6 @@ interface DashboardData {
   topCategory: string;
   activeChallengers?: ActiveChallengerPayload[];
 }
-
-// Unified Data#3 brand color scheme for all categories
-const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#8A2BE2",            // Indigo
-  COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#A855F7",        // Purple
-  EDGE_IOT: "#22C55E"              // Green
-};
-
-const CATEGORY_NAMES = {
-  SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Hybrid Cloud Infrastructure",
-  COLLAB_CX: "Collaboration & Customer Experience",
-  OBSERVABILITY: "Observability & Automation",
-  EDGE_IOT: "Edge & IoT Automation"
-};
-
-// Unified Tailwind class for category badges
-const CATEGORY_BADGE_CLASSES: Record<string, string> = {
-  SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
-  HYBRID_DC: "bg-[#8A2BE2]",            // Indigo
-  COLLAB_CX: "bg-[#F97316]",            // Orange
-  OBSERVABILITY: "bg-[#A855F7]",        // Purple
-  EDGE_IOT: "bg-[#22C55E]"              // Green
-};
 
 export default function LegacyLeaderboard() {
   // Scroll to top on page load
@@ -705,7 +692,7 @@ export default function LegacyLeaderboard() {
               {rows.map((entry, index) => {
                 const hasEntry = Boolean(entry);
                 const categoryColor = entry
-                  ? CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#1cc8e4'
+                  ? CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR
                   : undefined;
 
                 return (
@@ -952,7 +939,7 @@ export default function LegacyLeaderboard() {
     const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => ({
       name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
       value: count,
-      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || '#888888'
+      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR
     })).filter(item => item.value > 0); // Only include categories with data
 
     const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
@@ -1207,7 +1194,10 @@ export default function LegacyLeaderboard() {
               <CardContent className="p-8 sm:p-12 text-center space-y-6">
                 {/* Flash effect overlay */}
                 <div className="announcement-strobe absolute inset-0 rounded-[inherit]"
-                     style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }} />
+                     style={{
+                       backgroundColor:
+                         CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR,
+                     }} />
 
                 {/* Content */}
                 <div className="relative z-10 space-y-6">
@@ -1225,7 +1215,10 @@ export default function LegacyLeaderboard() {
                   <div className="flex justify-center my-8">
                     <div
                       className="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center text-6xl sm:text-7xl font-black text-white shadow-2xl"
-                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                      style={{
+                        backgroundColor:
+                          CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR,
+                      }}
                     >
                       {challengerData.initials}
                     </div>
@@ -1235,7 +1228,10 @@ export default function LegacyLeaderboard() {
                   <div>
                     <Badge
                       className="text-xl sm:text-2xl px-6 py-3 font-bold text-white"
-                      style={{ backgroundColor: CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || '#00AEFF' }}
+                      style={{
+                        backgroundColor:
+                          CATEGORY_COLORS[challengerData.category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR,
+                      }}
                     >
                       {CATEGORY_NAMES[challengerData.category as keyof typeof CATEGORY_NAMES] || challengerData.category}
                     </Badge>

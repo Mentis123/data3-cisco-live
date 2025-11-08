@@ -13,6 +13,13 @@ import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import leaderboardFullImage from "@assets/leaderboardfull.jpg";
 import { Data3Logo } from "@/components/Data3Logo";
 import { RaffleWinnerReveal } from "@/components/RaffleWinnerReveal";
+import {
+  CATEGORY_BADGE_CLASSES,
+  CATEGORY_COLORS,
+  CATEGORY_NAMES,
+  CATEGORY_TEXT_COLORS,
+  DEFAULT_CATEGORY_COLOR,
+} from "@/constants/categories";
 
 interface LeaderboardEntry {
   id: string;
@@ -59,41 +66,6 @@ interface ActiveChallenger {
   fading: boolean;
   lastSeenInApi?: number; // Track when we last saw this in API response for cleanup
 }
-
-// Consistent color scheme for all categories
-const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#6B21A8",            // Dark Purple
-  COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#EAB308",        // Yellow
-  EDGE_IOT: "#22C55E"              // Green
-};
-
-// Lighter text colors for better contrast on badges
-const CATEGORY_TEXT_COLORS = {
-  SECURE_CONNECTIVITY: "#78DCFF",  // Light Cyan
-  HYBRID_DC: "#A78BFA",            // Light Purple
-  COLLAB_CX: "#FFA559",            // Light Orange
-  OBSERVABILITY: "#FDE047",        // Light Yellow
-  EDGE_IOT: "#86EFAC"              // Light Green
-};
-
-const CATEGORY_NAMES = {
-  SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Hybrid Cloud Infrastructure",
-  COLLAB_CX: "Collaboration & Customer Experience",
-  OBSERVABILITY: "Observability & Automation",
-  EDGE_IOT: "Edge & IoT Automation"
-};
-
-// Tailwind class equivalents for badges
-const CATEGORY_BADGE_CLASSES: Record<string, string> = {
-  SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
-  HYBRID_DC: "bg-[#6B21A8]",            // Dark Purple
-  COLLAB_CX: "bg-[#F97316]",            // Orange
-  OBSERVABILITY: "bg-[#EAB308]",        // Yellow
-  EDGE_IOT: "bg-[#22C55E]"              // Green
-};
 
 function normalizeCategoryStats(
   stats: DashboardData["categoryStats"],
@@ -235,7 +207,8 @@ function renderChallengerCard(
   stageLabel: string,
   stageIcon: string
 ): ReactNode {
-  const categoryColor = CATEGORY_COLORS[challenger.category as keyof typeof CATEGORY_COLORS] || "#00BCF2";
+  const categoryColor =
+    CATEGORY_COLORS[challenger.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.SECURE_CONNECTIVITY;
   const categoryName = CATEGORY_NAMES[challenger.category as keyof typeof CATEGORY_NAMES];
 
   return (
@@ -442,7 +415,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
     .map(([category, count]) => ({
       name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
       value: count,
-      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || "#00AEFF"
+      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR
     }))
     .filter((item) => item.value > 0);
 
@@ -1636,7 +1609,7 @@ export default function Leaderboard() {
                 {activeView === "categories" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      <i className="fas fa-chart-pie text-[#8A2BE2] mr-3"></i>
+                      <i className="fas fa-chart-pie text-[#6B21A8] mr-3"></i>
                       Problem Categories
                     </CardTitle>
                     <p className="mt-2 text-sm text-[#78DCFF]/80">

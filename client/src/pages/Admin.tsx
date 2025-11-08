@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName } from "@/constants/categories";
 import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle } from "lucide-react";
 
 interface BetaAdminOverview {
@@ -141,23 +142,11 @@ interface ActiveChallenger {
   elapsedMinutes: number;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "SECURE_CONNECTIVITY": "bg-[#00BCF2]",
-  "HYBRID_DC": "bg-[#6B21A8]",
-  "COLLAB_CX": "bg-[#F97316]",
-  "OBSERVABILITY": "bg-[#EAB308]",
-  "EDGE_IOT": "bg-[#22C55E]",
-  "GENERAL": "bg-[#64748b]",
-  "SCALE": "bg-[#0891b2]",
-  "EXPERTISE": "bg-[#059669]",
-};
-
-const CATEGORY_NAMES: Record<string, string> = {
-  "SECURE_CONNECTIVITY": "Zero Trust & Secure Connectivity",
-  "HYBRID_DC": "Hybrid Cloud Infrastructure",
-  "COLLAB_CX": "Collaboration & Customer Experience",
-  "OBSERVABILITY": "Observability & Automation",
-  "EDGE_IOT": "Edge & IoT Automation",
+const CATEGORY_BADGE_MAP: Record<string, string> = {
+  ...BASE_CATEGORY_BADGE_CLASSES,
+  GENERAL: "bg-[#64748b]",
+  SCALE: "bg-[#0891b2]",
+  EXPERTISE: "bg-[#059669]",
 };
 
 
@@ -255,7 +244,7 @@ function OverviewTab() {
                           ? `User ${attempt.emailHash.slice(0, 8)}`
                           : "Anonymous"}
                       </span>
-                      <Badge className={CATEGORY_COLORS[attempt.category] || "bg-gray-500"}>
+                      <Badge className={CATEGORY_BADGE_MAP[attempt.category] || "bg-gray-500"}>
                         {attempt.category}
                       </Badge>
                       <Badge variant={attempt.mode === "ring" ? "default" : "outline"}>
@@ -497,7 +486,7 @@ function TriviaItemCard({
         <div className="flex justify-between items-start gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={CATEGORY_COLORS[item.category] || "bg-gray-500"}>
+              <Badge className={CATEGORY_BADGE_MAP[item.category] || "bg-gray-500"}>
                 {item.category}
               </Badge>
               {!item.active && <Badge variant="destructive">Inactive</Badge>}
@@ -809,8 +798,8 @@ function ScoredSubmissionsTab() {
                       <div className="font-medium">{entry.name}</div>
                     </td>
                     <td className="py-3 px-2">
-                      <Badge className={`${CATEGORY_COLORS[entry.category] || 'bg-gray-500'} text-white`}>
-                        {CATEGORY_NAMES[entry.category] || entry.category}
+                      <Badge className={`${CATEGORY_BADGE_MAP[entry.category] || 'bg-gray-500'} text-white`}>
+                        {getCategoryName(entry.category)}
                       </Badge>
                     </td>
                     <td className="py-3 px-2">
@@ -1177,7 +1166,7 @@ function RaffleTab() {
                           ? `${entry.firstName} ${entry.lastName}`
                           : `User ${entry.emailHash.slice(0, 8)}`}
                       </span>
-                      <Badge className={CATEGORY_COLORS[entry.category] || "bg-gray-500"}>
+                      <Badge className={CATEGORY_BADGE_MAP[entry.category] || "bg-gray-500"}>
                         {entry.category}
                       </Badge>
                       {entry.eligible && (
@@ -1376,7 +1365,7 @@ function BotBarStatsTab() {
             <SelectContent>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
-                  {cat === "all" ? "All Categories" : CATEGORY_NAMES[cat] || cat}
+                  {cat === "all" ? "All Categories" : getCategoryName(cat)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1464,8 +1453,8 @@ function BotBarStatsTab() {
                     <div className="flex justify-between items-center mb-3 pb-2 border-b">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{new Date(group.date).toLocaleDateString()}</span>
-                        <Badge className={CATEGORY_COLORS[group.category] || "bg-gray-500"}>
-                          {CATEGORY_NAMES[group.category] || group.category}
+                        <Badge className={CATEGORY_BADGE_MAP[group.category] || "bg-gray-500"}>
+                          {getCategoryName(group.category)}
                         </Badge>
                       </div>
                       <div className="text-sm">
@@ -2235,8 +2224,8 @@ function LeaderboardTab() {
                           : <span className="text-muted-foreground">N/A</span>}
                       </td>
                       <td className="p-3">
-                        <Badge className={CATEGORY_COLORS[challenger.category]}>
-                          {CATEGORY_NAMES[challenger.category] || challenger.category}
+                        <Badge className={CATEGORY_BADGE_MAP[challenger.category]}>
+                          {getCategoryName(challenger.category)}
                         </Badge>
                       </td>
                       <td className="p-3 text-sm text-muted-foreground">
@@ -2357,7 +2346,6 @@ function DBAdminTab() {
       return response.json();
     },
     onSuccess: (data) => {
-      setClearLeaderboardConfirm(false);
       toast({
         title: "Leaderboard cache cleared",
         description: `Cleared ${data.deletedCount} cached entries`

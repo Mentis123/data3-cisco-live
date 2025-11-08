@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatNameToInitials } from "@/lib/utils";
 import { audioManager } from "@/lib/audio";
 import { RingVideoModal } from "@/components/RingVideoModal";
+import { CATEGORY_COLORS, CATEGORY_NAMES, DEFAULT_CATEGORY_COLOR } from "@/constants/categories";
 
 interface SubmissionData {
   id: string;
@@ -36,25 +37,6 @@ interface NewSubmissionAnnouncementProps {
   onDismiss?: () => void;
 }
 
-const BRAND_PRIMARY = "#00AEFF";
-
-// Consistent color scheme for all categories aligned to the leaderboard palette
-const CATEGORY_COLORS = {
-  SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
-  HYBRID_DC: "#8A2BE2",            // Indigo
-  COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#A855F7",        // Purple
-  EDGE_IOT: "#22C55E"              // Green
-};
-
-const CATEGORY_NAMES = {
-  SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
-  HYBRID_DC: "Hybrid Cloud Infrastructure",
-  COLLAB_CX: "Collaboration & Customer Experience",
-  OBSERVABILITY: "Observability & Automation",
-  EDGE_IOT: "Edge & IoT Automation"
-};
-
 const CATEGORY_ICONS = {
   SECURE_CONNECTIVITY: "fa-shield-alt",
   HYBRID_DC: "fa-cloud",
@@ -74,7 +56,8 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
   const hasTriggeredBroadcastRef = useRef(false);
   const hasAnnouncedRef = useRef(false);
 
-  const categoryColor = CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || BRAND_PRIMARY;
+  const categoryColor =
+    CATEGORY_COLORS[submission.category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR;
   const categoryName = CATEGORY_NAMES[submission.category as keyof typeof CATEGORY_NAMES] || submission.category;
   const categoryIcon = CATEGORY_ICONS[submission.category as keyof typeof CATEGORY_ICONS] || "fa-star";
 
