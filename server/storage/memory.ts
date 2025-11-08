@@ -1409,10 +1409,18 @@ export function createMemoryStorage() {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
       const today = filterDate || getMelbourneDate();
 
-      return triviaAttemptsStore.reduce<Record<string, number>>((acc, attempt) => {
-        // Only count eligible attempts from today
-        if (attempt.eligible && attempt.attemptDay === today) {
-          acc[attempt.category] = (acc[attempt.category] ?? 0) + 1;
+      // Query from submissions to match the leaderboard data
+      return submissionsStore.reduce<Record<string, number>>((acc, submission) => {
+        // Only count announced submissions from today
+        if (submission.announcedOnLeaderboard) {
+          // Check if submission was created on the filter date
+          if (filterDate) {
+            const submissionDate = getMelbourneDate(submission.createdAt);
+            if (submissionDate !== today) {
+              return acc;
+            }
+          }
+          acc[submission.category] = (acc[submission.category] ?? 0) + 1;
         }
         return acc;
       }, {});
