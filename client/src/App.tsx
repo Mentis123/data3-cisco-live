@@ -24,6 +24,7 @@ import Old from "@/pages/Old";
 import OldPlay from "@/pages/OldPlay";
 import LeaderboardIdeas from "@/pages/LeaderboardIdeas";
 import Videos from "@/pages/Videos";
+import PRStatusTracker from "@/pages/PRStatusTracker";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -77,6 +78,7 @@ function Router() {
         <Route path="/stand" component={StandMessaging} />
         <Route path="/announcement" component={NewSubmissionAnnouncementPage} />
         <Route path="/videos" component={Videos} />
+        <Route path="/pr-status" component={PRStatusTracker} />
 
         {/* Backward compatibility - redirect /beta routes to root */}
         <Route path="/beta" component={Home} />
