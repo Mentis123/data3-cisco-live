@@ -1367,6 +1367,36 @@ export default function Leaderboard() {
     );
   }
 
+  const viewOptions = [
+    {
+      key: "rankings" as const,
+      icon: "fa-trophy",
+      label: "Rankings",
+      hasContent: true,
+    },
+    {
+      key: "wordcloud" as const,
+      icon: "fa-cloud",
+      label: "Technologies",
+      hasContent: displayData.wordCloud.length > 0,
+    },
+    {
+      key: "categories" as const,
+      icon: "fa-chart-pie",
+      label: "Categories",
+      hasContent: Object.values(displayData.categoryStats).some((value) => value > 0),
+    },
+  ];
+
+  const autoRotateButtonClasses = `transition-all duration-200 ${
+    isAutoRotateEnabled
+      ? "bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30"
+      : "bg-[#000045]/60 border-[#00AEFF]/20 text-white/70 hover:bg-white/10"
+  }`;
+  const autoRotateIcon = isAutoRotateEnabled ? "fa-pause" : "fa-play";
+  const autoRotateLabel = isAutoRotateEnabled ? "Pause" : "Play";
+  const autoRotateTitle = isAutoRotateEnabled ? "Pause auto-rotation" : "Resume auto-rotation";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-data3-blue-black via-[#000025] to-data3-blue-black p-4 text-data3-white sm:p-6 lg:p-8">
       {/* Raffle Winner Reveal */}
@@ -1499,74 +1529,100 @@ export default function Leaderboard() {
 
         {/* View Controls */}
         {!isPresentationMode && (
-          <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
-            {/* Mobile Home Button */}
-            <Button
-              onClick={() => window.location.href = '/'}
-              variant="outline"
-              size="sm"
-              className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
-              title="Go to Home"
-            >
-              <i className="fas fa-home"></i>
-            </Button>
-            {/* Tab Buttons */}
-            <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
-              {[
-                {
-                  key: "rankings",
-                  icon: "fa-trophy",
-                  label: "Rankings",
-                  hasContent: true
-                },
-                {
-                  key: "wordcloud",
-                  icon: "fa-cloud",
-                  label: "Technologies",
-                  hasContent: displayData?.wordCloud.length > 0
-                },
-                {
-                  key: "categories",
-                  icon: "fa-chart-pie",
-                  label: "Categories",
-                  hasContent: displayData && Object.values(displayData.categoryStats).some(v => v > 0)
-                }
-              ].map((view) => (
+          <div className="mb-6 space-y-3">
+            {/* Mobile: Home + Auto-Rotate row */}
+            <div className="flex gap-2 justify-center sm:hidden">
+              <Button
+                onClick={() => (window.location.href = '/')}
+                variant="outline"
+                size="sm"
+                className="flex-1 lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
+                title="Go to Home"
+                aria-label="Go to Home"
+              >
+                <i className="fas fa-home"></i>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
+                className={`flex-1 ${autoRotateButtonClasses}`}
+                title={autoRotateTitle}
+                aria-label={autoRotateTitle}
+              >
+                <i className={`fas ${autoRotateIcon}`}></i>
+                <span className="sr-only">{autoRotateLabel}</span>
+              </Button>
+            </div>
+
+            {/* Mobile: Tab buttons */}
+            <div className="sm:hidden flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg justify-center">
+              {viewOptions.map((view) => (
                 <Button
                   key={view.key}
                   variant={activeView === view.key ? "default" : "ghost"}
                   size="sm"
                   onClick={() => {
-                    setActiveView(view.key as any);
+                    setActiveView(view.key);
                     setIsAutoRotateEnabled(false);
                   }}
-                  className={`flex-1 sm:flex-initial transition-all duration-200 ${
+                  className={`flex-1 transition-all duration-200 ${
                     activeView === view.key
                       ? 'bg-[#00AEFF]/20 border border-[#00AEFF]/40 text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20'
                       : 'hover:bg-white/10 text-white/70 hover:text-white'
                   }`}
+                  title={`Show ${view.label}`}
+                  aria-label={`Show ${view.label}`}
                 >
-                  <i className={`fas ${view.icon} sm:mr-2`}></i>
-                  <span className="hidden sm:inline">{view.label}</span>
+                  <i className={`fas ${view.icon}`}></i>
                 </Button>
               ))}
             </div>
 
-            {/* Pause/Play Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
-              className={`transition-all duration-200 ${
-                isAutoRotateEnabled
-                  ? 'bg-green-500/20 border-green-400/40 text-green-100 hover:bg-green-500/30'
-                  : 'bg-[#000045]/60 border-[#00AEFF]/20 text-white/70 hover:bg-white/10'
-              }`}
-              title={isAutoRotateEnabled ? 'Pause auto-rotation' : 'Resume auto-rotation'}
-            >
-              <i className={`fas ${isAutoRotateEnabled ? 'fa-pause' : 'fa-play'} sm:mr-2`}></i>
-              <span className="hidden sm:inline">{isAutoRotateEnabled ? 'Pause' : 'Play'}</span>
-            </Button>
+            {/* Tablet/Desktop: Controls */}
+            <div className="hidden sm:flex flex-row gap-3 items-center justify-center">
+              <Button
+                onClick={() => (window.location.href = '/')}
+                variant="outline"
+                size="sm"
+                className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
+                title="Go to Home"
+              >
+                <i className="fas fa-home sm:mr-2"></i>
+                <span className="hidden sm:inline">Home</span>
+              </Button>
+              <div className="flex gap-2 p-1.5 bg-[#000045]/60 rounded-xl border border-[#00AEFF]/20 shadow-lg flex-1 sm:flex-initial justify-center">
+                {viewOptions.map((view) => (
+                  <Button
+                    key={view.key}
+                    variant={activeView === view.key ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setActiveView(view.key);
+                      setIsAutoRotateEnabled(false);
+                    }}
+                    className={`flex-1 sm:flex-initial transition-all duration-200 ${
+                      activeView === view.key
+                        ? 'bg-[#00AEFF]/20 border border-[#00AEFF]/40 text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20'
+                        : 'hover:bg-white/10 text-white/70 hover:text-white'
+                    }`}
+                  >
+                    <i className={`fas ${view.icon} sm:mr-2`}></i>
+                    <span className="hidden sm:inline">{view.label}</span>
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAutoRotateEnabled(!isAutoRotateEnabled)}
+                className={`${autoRotateButtonClasses}`}
+                title={autoRotateTitle}
+              >
+                <i className={`fas ${autoRotateIcon} sm:mr-2`}></i>
+                <span className="hidden sm:inline">{autoRotateLabel}</span>
+              </Button>
+            </div>
           </div>
         )}
 
