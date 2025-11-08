@@ -2850,6 +2850,7 @@ function DBAdminTab() {
                     <div><strong>Name:</strong> {selectedWinner.winner.firstName} {selectedWinner.winner.lastName}</div>
                     <div><strong>Email:</strong> {selectedWinner.winner.email || <span className="text-muted-foreground italic">Not available</span>}</div>
                     <div><strong>Category:</strong> {selectedWinner.winner.category}</div>
+                    <div><strong>Score:</strong> {selectedWinner.winner.combinedScore}</div>
                     <div><strong>Entry Date:</strong> {new Date(selectedWinner.winner.createdAt).toLocaleString()}</div>
                   </div>
                 </div>
