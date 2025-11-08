@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 export function ImmersiveToggle() {
   const [isImmersive, setIsImmersive] = useState(false); // Default to immersive OFF
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (!showTooltip) return;
@@ -24,10 +25,30 @@ export function ImmersiveToggle() {
     setIsImmersive(audioManager.isImmersiveMode());
   }, []);
 
+  useEffect(() => {
+    // Track fullscreen state to hide button in presentation mode
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   const handleToggle = () => {
     const newImmersiveState = audioManager.toggleImmersive();
     setIsImmersive(newImmersiveState);
   };
+
+  // Hide button in fullscreen/presentation mode
+  if (isFullscreen) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 left-4 z-[150]">

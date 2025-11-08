@@ -20,6 +20,7 @@ export function SettingsMenu() {
   const [soundsEnabled, setSoundsEnabled] = useState(true);
   const [volumePercent, setVolumePercent] = useState(100);
   const [volumeControlSupported, setVolumeControlSupported] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Initialize state from audioManager
   useEffect(() => {
@@ -27,6 +28,21 @@ export function SettingsMenu() {
     setSoundsEnabled(audioManager.isSoundsEnabled());
     setVolumePercent(audioManager.getMusicVolumePercent());
     setVolumeControlSupported(audioManager.isVolumeControlSupported());
+  }, []);
+
+  useEffect(() => {
+    // Track fullscreen state to hide settings in presentation mode
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   const handleToggleMusic = () => {
@@ -52,6 +68,11 @@ export function SettingsMenu() {
   const handleFeedbackClick = () => {
     setIsFeedbackOpen(true);
   };
+
+  // Hide settings menu in fullscreen/presentation mode
+  if (isFullscreen) {
+    return null;
+  }
 
   return (
     <>
