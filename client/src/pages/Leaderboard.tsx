@@ -1437,6 +1437,15 @@ export default function Leaderboard() {
           </div>
         )}
 
+        {/* Beat the Bot Section */}
+        {!isPresentationMode && (
+          <div className="mb-6 text-center">
+            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-data3-pale-blue">
+              Beat the Bot
+            </p>
+          </div>
+        )}
+
         {/* View Controls */}
         {!isPresentationMode && (
           <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center">
