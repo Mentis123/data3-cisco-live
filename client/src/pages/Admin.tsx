@@ -1299,22 +1299,25 @@ function BotBarStatsTab() {
     }
   }, [uniqueDates, hasAutoSelectedDate]);
 
-  if (isLoading) {
-    return <div className="text-center py-8">Loading bot bar statistics...</div>;
+  // Constants needed for calculations
+  const seedScore = 60;
+  const seedCount = 10;
+
+  interface BotBarChartDatum {
+    id: string;
+    entryNumber: number;
+    type: "seed" | "submission";
+    rawScore: number;
+    runningAverage: number;
+    startedAt: string | null;
+    participantLabel: string;
+    category: string | null;
+    eligible: boolean | null;
   }
 
-  if (!submissions || submissions.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">No bot bar data available yet.</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Bot bar stats will appear once participants complete Ring mode submissions.
-        </p>
-      </div>
-    );
-  }
-
+  // All useMemo hooks must be called before any early returns
   const filteredSubmissions = useMemo(() => {
+    if (!submissions) return [];
     let scoped = submissions;
     if (selectedCategory !== "all") {
       scoped = scoped.filter(s => s.category === selectedCategory);
@@ -1335,21 +1338,6 @@ function BotBarStatsTab() {
         ),
     [filteredSubmissions]
   );
-
-  const seedScore = 60;
-  const seedCount = 10;
-
-  interface BotBarChartDatum {
-    id: string;
-    entryNumber: number;
-    type: "seed" | "submission";
-    rawScore: number;
-    runningAverage: number;
-    startedAt: string | null;
-    participantLabel: string;
-    category: string | null;
-    eligible: boolean | null;
-  }
 
   const chartData = useMemo<BotBarChartDatum[]>(() => {
     const data: BotBarChartDatum[] = [];
@@ -1400,22 +1388,6 @@ function BotBarStatsTab() {
     return data;
   }, [seedCount, seedScore, sortedSubmissions]);
 
-  const currentBotBar = chartData.length
-    ? chartData[chartData.length - 1].runningAverage
-    : seedScore;
-  const realSubmissionCount = Math.max(chartData.length - seedCount, 0);
-
-  // Calculate summary stats
-  const totalSubmissions = filteredSubmissions.length;
-  const eligibleCount = filteredSubmissions.filter(s => s.eligible).length;
-  const ineligibleCount = totalSubmissions - eligibleCount;
-  const avgBotBar = chartData.length > 0
-    ? chartData.reduce((sum, point) => sum + point.runningAverage, 0) / chartData.length
-    : seedScore;
-  const avgCombinedScore = filteredSubmissions.length > 0
-    ? filteredSubmissions.reduce((sum, s) => sum + s.combinedScore, 0) / filteredSubmissions.length
-    : 0;
-
   const chartConfig = useMemo(
     () => ({
       runningAverage: {
@@ -1429,6 +1401,37 @@ function BotBarStatsTab() {
     }),
     []
   );
+
+  // Derived calculations (not hooks, but depend on hook results)
+  const currentBotBar = chartData.length
+    ? chartData[chartData.length - 1].runningAverage
+    : seedScore;
+  const realSubmissionCount = Math.max(chartData.length - seedCount, 0);
+  const totalSubmissions = filteredSubmissions.length;
+  const eligibleCount = filteredSubmissions.filter(s => s.eligible).length;
+  const ineligibleCount = totalSubmissions - eligibleCount;
+  const avgBotBar = chartData.length > 0
+    ? chartData.reduce((sum, point) => sum + point.runningAverage, 0) / chartData.length
+    : seedScore;
+  const avgCombinedScore = filteredSubmissions.length > 0
+    ? filteredSubmissions.reduce((sum, s) => sum + s.combinedScore, 0) / filteredSubmissions.length
+    : 0;
+
+  // Early returns AFTER all hooks have been called
+  if (isLoading) {
+    return <div className="text-center py-8">Loading bot bar statistics...</div>;
+  }
+
+  if (!submissions || submissions.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No bot bar data available yet.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Bot bar stats will appear once participants complete Ring mode submissions.
+        </p>
+      </div>
+    );
+  }
 
   const handlePointClick = (point: BotBarChartDatum) => {
     toast({
