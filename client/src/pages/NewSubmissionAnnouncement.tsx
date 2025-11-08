@@ -168,11 +168,16 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     }
   }, [animationPhase, shouldStartAnimation]);
 
+  // Auto-announce submission when component mounts
+  // This ensures the submission appears on the leaderboard even if user navigates away
+  useEffect(() => {
+    announceSubmission();
+  }, [announceSubmission]);
+
   // No auto-dismiss - user must manually continue
 
   const handleDismiss = () => {
     broadcastLeaderboardAnnouncement();
-    announceSubmission();
 
     if (onDismiss) {
       onDismiss();
