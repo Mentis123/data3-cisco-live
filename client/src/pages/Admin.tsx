@@ -2683,7 +2683,7 @@ function ResetConsoleTab() {
     {
       id: 'word-cloud',
       title: 'Word Cloud',
-      description: 'Deactivate all word cloud entries',
+      description: 'Permanently delete all word cloud entries',
       count: resetStatus?.currentCounts?.wordCloud || 0,
       lastReset: resetStatus?.resetTimestamps?.word_cloud,
       mutation: wordCloudResetMutation,

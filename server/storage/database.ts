@@ -3094,5 +3094,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
       return result.rowCount || 0;
     },
+
+    async deleteAllWordCloudEntries(): Promise<number> {
+      const result = await db.delete(wordCloudEntries);
+      return result.rowCount || 0;
+    },
   };
 }
