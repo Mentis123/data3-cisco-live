@@ -1750,6 +1750,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Build WHERE conditions
     const conditions = [];
 
+    // Only count announced submissions to match leaderboard behavior
+    conditions.push(eq(submissions.announcedOnLeaderboard, true));
+
     // Filter by date
     conditions.push(
       sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${today}`
@@ -1760,7 +1763,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
     }
 
-    // Query from submissions table - count all submissions from today regardless of announcement status
+    // Query from submissions table - count only announced submissions
     const results = await db
       .select({
         category: submissions.category,
