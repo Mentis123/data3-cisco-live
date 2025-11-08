@@ -673,6 +673,7 @@ export async function registerRoutes(
         evaluationNotes: evaluation.notes_short,
         announcedOnLeaderboard: false, // Will be set to true when user clicks "DISMISS" on results page
       });
+      log(`[submit] ✅ Submission created: ${submission.id} | announcedOnLeaderboard: false | Participant: ${session.participantId}`);
 
       // Calculate combined score and handle raffle eligibility
       let triviaScore = 0;
@@ -854,16 +855,25 @@ export async function registerRoutes(
   app.post("/api/submission/:id/announce", async (req, res) => {
     try {
       const { id } = req.params;
+      log(`[announce] 🎯 Announcement request received for submission: ${id}`);
 
       // Get the submission details
       const submission = await storage.getSubmission(id);
       if (!submission) {
+        log(`[announce] ❌ Submission not found: ${id}`);
         return res.status(404).json({ message: "Submission not found" });
+      }
+
+      // SAFETY CHECK: Prevent duplicate announcements
+      if (submission.announcedOnLeaderboard) {
+        log(`[announce] ⚠️  Submission ${id} has already been announced - skipping duplicate`);
+        return res.json({ success: true, alreadyAnnounced: true });
       }
 
       // Get participant details
       const participant = await storage.getParticipant(submission.participantId);
       if (!participant) {
+        log(`[announce] ❌ Participant not found for submission: ${id}`);
         return res.status(404).json({ message: "Participant not found" });
       }
 
@@ -885,8 +895,11 @@ export async function registerRoutes(
       const leaderboard = await storage.getLeaderboard(1000, undefined, today, true);
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= submission.totalScore) + 1;
 
+      log(`[announce] 📊 Announcing submission: ${id} | Participant: ${participant.firstName} ${participant.lastName.charAt(0)}. | Score: ${submission.totalScore} | Rank: ${targetRank}`);
+
       // Mark submission as announced
       await storage.markSubmissionAsAnnounced(id);
+      log(`[announce] ✅ Submission ${id} marked as announced in database`);
 
       // Broadcast WebSocket update to leaderboard
       broadcastScoreUpdate({
@@ -901,9 +914,11 @@ export async function registerRoutes(
         botBar,
         isEligible,
       });
+      log(`[announce] 📡 WebSocket broadcast sent for submission: ${id}`);
 
       res.json({ success: true });
     } catch (error) {
+      log(`[announce] ❌ Failed to announce submission: ${error}`);
       console.error('[express] Failed to announce submission:', error);
       res.status(500).json({ message: "Failed to announce submission: " + (error as Error).message });
     }
