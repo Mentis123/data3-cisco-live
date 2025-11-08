@@ -572,6 +572,7 @@ export default function Leaderboard() {
     score: number;
     rank: number;
   } | null>(null);
+  const challengerOverlayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // New submission detection state
   const [knownSubmissionIds, setKnownSubmissionIds] = useState<Set<string>>(new Set());
@@ -878,7 +879,7 @@ export default function Leaderboard() {
   }
   });
 
-  const triggerScoreAnimation = (entryId: string, score?: number | null) => {
+  const triggerScoreAnimation = useCallback((entryId: string, score?: number | null) => {
     if (score === undefined || score === null) {
       return;
     }
@@ -889,7 +890,7 @@ export default function Leaderboard() {
         animateScoreCountUp(element as HTMLElement, score);
       }
     }, 100);
-  };
+  }, []);
 
   // Handle ring entry
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
@@ -1023,15 +1024,20 @@ export default function Leaderboard() {
   });
 
   // Handle new submission detected on leaderboard
-  const handleNewSubmission = (submission: {
+  const handleNewSubmission = useCallback((submission: {
     id: string;
     name: string;
     category: string;
-    totalScore: number;
+    totalScore?: number;
+    finalScore?: number;
+    targetRank?: number | null;
+    pitchScore?: number | null;
+    triviaScore?: number | null;
+    botBar?: number | null;
+    isEligible?: boolean;
   }) => {
-    console.log('🚨 NEW SUBMISSION DETECTED ON LEADERBOARD! Playing sounds...', submission);
+    console.log('🚨 NEW SUBMISSION DETECTED ON LEADERBOARD! Playing sounds and showing overlay...', submission);
 
-    // Add to known submissions
     setKnownSubmissionIds(prev => {
       if (prev.has(submission.id)) {
         return prev;
@@ -1041,12 +1047,40 @@ export default function Leaderboard() {
       return next;
     });
 
-    // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
     audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
       audioManager.forcePlayNewChallengerSound().catch(err => console.warn('Challenger sound failed:', err));
     }, 750);
-  };
+
+    const formattedInitials = formatNameToInitials(submission.name);
+    const fallbackInitials = submission.name
+      .split(' ')
+      .filter(Boolean)
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase();
+
+    setChallengerData({
+      initials: formattedInitials || fallbackInitials || submission.name.substring(0, 2).toUpperCase(),
+      category: submission.category,
+      score: submission.finalScore ?? submission.totalScore ?? 0,
+      rank: submission.targetRank ?? 0,
+    });
+
+    setShowChallengerOverlay(true);
+
+    if (challengerOverlayTimeoutRef.current) {
+      clearTimeout(challengerOverlayTimeoutRef.current);
+    }
+
+    challengerOverlayTimeoutRef.current = setTimeout(() => {
+      setShowChallengerOverlay(false);
+      setChallengerData(null);
+    }, 10000);
+
+    triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
+    refetch();
+  }, [refetch, triggerScoreAnimation]);
 
   // Update display data and detect new submissions
   useEffect(() => {
@@ -1073,7 +1107,19 @@ export default function Leaderboard() {
       return;
     }
 
-    // Check for new entries in the leaderboard
+    const computeRank = (id?: string | null): number | undefined => {
+      if (!id || !data.leaderboard) {
+        return undefined;
+      }
+
+      const index = data.leaderboard.findIndex(item => item.id === id);
+      if (index === -1) {
+        return undefined;
+      }
+
+      return index + 1;
+    };
+
     const leaderboardNewEntry = data.leaderboard?.find(entry => !knownSubmissionIds.has(entry.id));
     if (leaderboardNewEntry) {
       console.log('[Leaderboard] New leaderboard entry detected:', leaderboardNewEntry);
@@ -1081,10 +1127,33 @@ export default function Leaderboard() {
         id: leaderboardNewEntry.id,
         name: leaderboardNewEntry.name,
         category: leaderboardNewEntry.category,
-        totalScore: leaderboardNewEntry.totalScore
+        totalScore: leaderboardNewEntry.totalScore,
+        finalScore: leaderboardNewEntry.totalScore,
+        targetRank: computeRank(leaderboardNewEntry.id) ?? undefined,
+      });
+      return;
+    }
+
+    if (data.recentSubmission && !knownSubmissionIds.has(data.recentSubmission.id)) {
+      console.log('[Leaderboard] Recent submission detected:', data.recentSubmission);
+      handleNewSubmission({
+        id: data.recentSubmission.id,
+        name: data.recentSubmission.name,
+        category: data.recentSubmission.category,
+        totalScore: data.recentSubmission.totalScore,
+        finalScore: data.recentSubmission.finalScore ?? data.recentSubmission.totalScore,
+        targetRank: computeRank(data.recentSubmission.id) ?? undefined,
       });
     }
-  }, [data, knownSubmissionIds]);
+  }, [data, knownSubmissionIds, handleNewSubmission]);
+
+  useEffect(() => {
+    return () => {
+      if (challengerOverlayTimeoutRef.current) {
+        clearTimeout(challengerOverlayTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!data) {
