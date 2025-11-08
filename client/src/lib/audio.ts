@@ -3,8 +3,8 @@ import flashSound from "@assets/flash_1757855169590.mp3";
 import homeSoundFile from "@assets/home_sound.mp3";
 import buzzSoundFile from "@assets/buzz.mp3";
 import clickSoundFile from "@assets/click.mp3";
-import triviaEnterSoundFile from "@assets/trivia_enter.mp3";
-import pitchEnterSoundFile from "@assets/pitch_enter.mp3";
+import triviaEnterSoundFile from "@assets/enter_ring.mp3";
+import pitchEnterSoundFile from "@assets/project_pitch.mp3";
 
 export const MUSIC_VOLUME_CHANGE_EVENT = "data3:music-volume-change";
 
