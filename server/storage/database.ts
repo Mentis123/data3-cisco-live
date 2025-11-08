@@ -1208,8 +1208,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       })
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id))
-      .orderBy(desc(submissions.totalScore), submissions.createdAt)
-      .limit(limit);
+      .orderBy(desc(submissions.totalScore), submissions.createdAt);
 
     // Build WHERE conditions
     const conditions = [];
@@ -1235,11 +1234,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       conditions.push(eq(submissions.category, category));
     }
 
+    // Apply WHERE clause before LIMIT to ensure we filter first, then limit
     if (conditions.length > 0) {
-      return await query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
+      query = query.where(conditions.length === 1 ? conditions[0] : and(...conditions));
     }
 
-    return await query;
+    // Apply LIMIT after WHERE to get top N filtered results
+    return await query.limit(limit);
   },
 
     async getSubmission(id: string): Promise<any> {
