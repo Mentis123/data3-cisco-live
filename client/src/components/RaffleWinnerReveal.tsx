@@ -150,7 +150,7 @@ export function RaffleWinnerReveal({
                   className="w-full h-full object-contain"
                   onEnded={handleVideoEnd}
                   playsInline
-                  muted={false}
+                  muted={true}
                 />
               </div>
 
