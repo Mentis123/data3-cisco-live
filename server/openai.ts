@@ -3,9 +3,34 @@ import { SPRINT_PROMPTS, SPRINT_SYSTEM } from "./sprintPrompts.js";
 import { PITCH_PROMPTS, PITCH_SYSTEM } from "./pitchPrompts.js";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key" 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
 });
+
+const CATEGORY_DISPLAY_NAMES: Record<string, string> = {
+  SECURE_CONNECTIVITY: "Zero Trust & Secure Connectivity",
+  HYBRID_DC: "Hybrid Cloud Infrastructure",
+  COLLAB_CX: "Collaboration & Customer Experience",
+  OBSERVABILITY: "Observability & Automation",
+  EDGE_IOT: "Edge & IoT Automation",
+};
+
+function formatPromptWithCategory(prompt: string, categoryKey?: string): string {
+  if (!categoryKey) {
+    return prompt;
+  }
+
+  const normalizedKey = categoryKey.toUpperCase();
+  const displayName = CATEGORY_DISPLAY_NAMES[normalizedKey]
+    ?? normalizedKey
+      .split("_")
+      .map((segment) => segment.charAt(0) + segment.slice(1).toLowerCase())
+      .join(" ");
+
+  return prompt
+    .replaceAll("[CATEGORY]", displayName)
+    .replaceAll("[category]", displayName);
+}
 
 // Model options: "gpt-4o-mini" (faster, cheaper) or "gpt-4o" (better quality, slower)
 // Using GPT-4o for better reasoning and guidance quality
@@ -84,7 +109,8 @@ Return this exact JSON structure:
 
 export async function chatWithAssistant(
   messages: Array<{role: string, content: string}>,
-  sprintStep?: number
+  sprintStep?: number,
+  category?: string
 ): Promise<string> {
   try {
     const formattedMessages = messages.map(msg => ({
@@ -93,7 +119,7 @@ export async function chatWithAssistant(
     }));
 
     // Use pitch-specific system prompt for the new Project Pitch flow
-    let systemPrompt = PITCH_SYSTEM;
+    let systemPrompt = formatPromptWithCategory(PITCH_SYSTEM, category);
     if (sprintStep === 1) {
       systemPrompt = PITCH_PROMPTS.step1_problem;
     } else if (sprintStep === 2) {
@@ -101,6 +127,8 @@ export async function chatWithAssistant(
     } else if (sprintStep === 3) {
       systemPrompt = PITCH_PROMPTS.step3_solution;
     }
+
+    systemPrompt = formatPromptWithCategory(systemPrompt, category);
 
     const response = await openai.chat.completions.create({
       model: CHAT_MODEL,

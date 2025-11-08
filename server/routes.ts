@@ -485,7 +485,7 @@ export async function registerRoutes(
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { sessionToken, messages, sprintStep } = chatSchema.parse(req.body);
+      const { sessionToken, messages, sprintStep, category } = chatSchema.parse(req.body);
       const session = await storage.getChatSession(sessionToken);
 
       if (!session) {
@@ -495,7 +495,11 @@ export async function registerRoutes(
       const updatedMessages = [...(session.messages ?? []), ...messages];
 
       // Pass sprintStep to AI for context-aware responses
-      const response = await chatWithAssistant(updatedMessages, sprintStep);
+      const response = await chatWithAssistant(
+        updatedMessages,
+        sprintStep,
+        category ?? session.category ?? undefined
+      );
 
       // Add assistant response to session
       updatedMessages.push({ role: "assistant", content: response });
