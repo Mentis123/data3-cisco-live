@@ -54,11 +54,10 @@ Score using these criteria (MAX 8 POINTS EACH):
 
 CATEGORY VALIDATION (Critical for Criterion 3):
 The participant selected a trivia category. Their Cisco tech solution MUST fit that category:
-- SECURE_CONNECTIVITY: Zero Trust, VPN, firewalls, identity, threat detection
-- HYBRID_DC: Data center, cloud, HyperFlex, UCS, ACI, storage, compute
-- COLLAB_CX: Webex, contact center, unified comms, video, collaboration
-- OBSERVABILITY: Monitoring, ThousandEyes, AppDynamics, analytics, automation
-- EDGE_IOT: IoT platforms, edge computing, industrial networks, Meraki
+- NETWORKING: Switches, routers, connectivity, SD-WAN, wireless, Catalyst, Meraki
+- SECURITY: Firewalls, threat detection, zero trust, identity, SASE, Duo, Umbrella, SecureX, hypershield
+- COLLABORATION: Webex, contact center, unified communications, video, collaboration, customer experience
+- DATA_CENTER: Data centre, cloud, virtualization, compute, storage, UCS, HyperFlex, ACI
 
 If solution doesn't match their category, cap Technology Fit at 3 points max.
 
@@ -129,13 +128,12 @@ export async function categorizeProposal(
         {
           role: "system",
           content: `You understand the Data#3 Solution Sprint categories. Categorize the following business problem and solution into ONE of these categories:
-SECURE_CONNECTIVITY - Zero Trust security, network security, firewalls, VPN, secure remote access, identity management, threat detection
-HYBRID_DC - Data center infrastructure, cloud integration, virtualization, storage, compute, hybrid cloud solutions
-COLLAB_CX - Video conferencing, team collaboration, contact center, communication platforms, unified communications
-OBSERVABILITY - Network monitoring, analytics, performance management, troubleshooting, visibility tools, automation
-EDGE_IOT - IoT solutions, edge computing, industrial networks, smart building technologies, sensor networks
+NETWORKING - Network infrastructure, switches, routers, SD-WAN, wireless networking, network automation, bandwidth optimization, network performance, Catalyst, Meraki
+SECURITY - Cybersecurity, firewalls, threat detection, identity management, zero trust, SASE, security operations, compliance, endpoint protection, Duo, Umbrella, SecureX, hypershield
+COLLABORATION - Team collaboration, unified communications, video conferencing, contact center, Webex, customer experience, messaging platforms, voice services, meeting solutions
+DATA_CENTER - Data centre infrastructure, cloud integration, virtualization, compute resources, storage systems, hybrid cloud solutions, UCS, HyperFlex, ACI, infrastructure automation
 
-Respond with only the category key (e.g., "SECURE_CONNECTIVITY"). Nothing else.`
+Respond with only the category key (e.g., "NETWORKING"). Nothing else.`
         },
         {
           role: "user",
@@ -145,12 +143,12 @@ Respond with only the category key (e.g., "SECURE_CONNECTIVITY"). Nothing else.`
       max_completion_tokens: 50,
     });
 
-    const category = response.choices[0].message.content?.trim() || "OBSERVABILITY";
-    
+    const category = response.choices[0].message.content?.trim() || "NETWORKING";
+
     // Validate category
-    const validCategories = ["SECURE_CONNECTIVITY", "HYBRID_DC", "COLLAB_CX", "OBSERVABILITY", "EDGE_IOT"];
+    const validCategories = ["NETWORKING", "SECURITY", "COLLABORATION", "DATA_CENTER"];
     if (!validCategories.includes(category)) {
-      return "OBSERVABILITY";
+      return "NETWORKING";
     }
     
     return category;
