@@ -1829,6 +1829,10 @@ export function createMemoryStorage() {
       return null;
     },
 
+    async markRaffleWinnerAnnounced() {
+      throw new Error("Raffle winner announcement tracking requires database storage");
+    },
+
     async clearOldRaffleEntries() {
       throw new Error("Raffle entry management requires database storage");
     },

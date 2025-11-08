@@ -1570,7 +1570,7 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      const { firstName, lastName, combinedScore, category, drawId } = req.body;
+      const { firstName, lastName, combinedScore, category, drawId, raffleDate } = req.body;
 
       if (!firstName || !lastName || combinedScore === undefined || !category) {
         res.status(400).json({ message: "firstName, lastName, combinedScore, and category are required" });
@@ -1582,15 +1582,33 @@ export async function registerRoutes(
 
       let winnerDrawId: string | null = typeof drawId === "string" && drawId.length > 0 ? drawId : null;
 
-      if (!winnerDrawId) {
+      if (!winnerDrawId && raffleDate) {
         try {
-          const latestDraw = await storage.getLatestRaffleWinner();
-          if (latestDraw?.drawId) {
-            winnerDrawId = latestDraw.drawId;
+          const drawForDate = await storage.getRaffleDrawByDate(raffleDate);
+          if (drawForDate?.draw?.id) {
+            winnerDrawId = drawForDate.draw.id;
           }
         } catch (error) {
-          log(`[broadcast-raffle-winner] Failed to resolve drawId automatically: ${error}`);
+          log(`[broadcast-raffle-winner] Failed to resolve drawId for ${raffleDate}: ${error}`);
         }
+      }
+
+      if (!winnerDrawId) {
+        res.status(400).json({ message: "Unable to determine raffle draw id for announcement" });
+        return;
+      }
+
+      let announcedAtIso: string | undefined;
+
+      try {
+        const announcedAt = await storage.markRaffleWinnerAnnounced(winnerDrawId);
+        announcedAtIso = announcedAt instanceof Date ? announcedAt.toISOString() : new Date(announcedAt as string).toISOString();
+      } catch (error) {
+        log(`[broadcast-raffle-winner] Failed to mark draw ${winnerDrawId} as announced: ${error}`);
+      }
+
+      if (!announcedAtIso) {
+        announcedAtIso = new Date().toISOString();
       }
 
       // Broadcast to all connected WebSocket clients
@@ -1599,10 +1617,18 @@ export async function registerRoutes(
         totalScore: combinedScore,
         category,
         drawId: winnerDrawId ?? undefined,
+        announcedAt: announcedAtIso,
       });
 
       log(`Broadcast raffle winner: ${initials} (${category}) - ${combinedScore} points`);
-      res.json({ success: true, initials, totalScore: combinedScore, category, drawId: winnerDrawId ?? undefined });
+      res.json({
+        success: true,
+        initials,
+        totalScore: combinedScore,
+        category,
+        drawId: winnerDrawId ?? undefined,
+        announcedAt: announcedAtIso,
+      });
     } catch (error: any) {
       log(`Error broadcasting raffle winner: ${error}`);
       res.status(500).json({ message: error.message || "Failed to broadcast raffle winner" });
