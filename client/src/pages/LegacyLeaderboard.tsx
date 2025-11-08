@@ -44,7 +44,7 @@ const CATEGORY_COLORS = {
   SECURE_CONNECTIVITY: "#00BCF2",  // Cyan
   HYBRID_DC: "#8A2BE2",            // Indigo
   COLLAB_CX: "#F97316",            // Orange
-  OBSERVABILITY: "#38BDF8",        // Sky
+  OBSERVABILITY: "#A855F7",        // Purple
   EDGE_IOT: "#22C55E"              // Green
 };
 
@@ -61,7 +61,7 @@ const CATEGORY_BADGE_CLASSES: Record<string, string> = {
   SECURE_CONNECTIVITY: "bg-[#00BCF2]",  // Cyan
   HYBRID_DC: "bg-[#8A2BE2]",            // Indigo
   COLLAB_CX: "bg-[#F97316]",            // Orange
-  OBSERVABILITY: "bg-[#38BDF8]",        // Sky
+  OBSERVABILITY: "bg-[#A855F7]",        // Purple
   EDGE_IOT: "bg-[#22C55E]"              // Green
 };
 

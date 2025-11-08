@@ -86,7 +86,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "SECURE_CONNECTIVITY": "bg-[#00BCF2]",  // Cyan
   "HYBRID_DC": "bg-[#8A2BE2]",            // Indigo
   "COLLAB_CX": "bg-[#F97316]",            // Orange
-  "OBSERVABILITY": "bg-[#38BDF8]",        // Sky
+  "OBSERVABILITY": "bg-[#A855F7]",        // Purple
   "EDGE_IOT": "bg-[#22C55E]",             // Green
   // General stats categories - muted colors
   "GENERAL": "bg-[#64748b]",              // Slate
@@ -336,7 +336,7 @@ function CategoryForm({ category, onSubmit, onCancel }: {
     { value: 'bg-[#00BCF2]', label: 'Cyan' },
     { value: 'bg-[#8A2BE2]', label: 'Indigo' },
     { value: 'bg-[#F97316]', label: 'Orange' },
-    { value: 'bg-[#38BDF8]', label: 'Sky' },
+    { value: 'bg-[#A855F7]', label: 'Purple' },
     { value: 'bg-[#22C55E]', label: 'Green' },
     { value: 'bg-[#64748b]', label: 'Slate' },
     { value: 'bg-[#0891b2]', label: 'Cyan-600' },
