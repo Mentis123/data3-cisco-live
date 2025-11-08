@@ -1464,9 +1464,6 @@ function BotBarStatsTab() {
                     <div className="flex justify-between items-center mb-3 pb-2 border-b">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{new Date(group.date).toLocaleDateString()}</span>
-                        <Badge className={CATEGORY_COLORS[group.category] || "bg-gray-500"}>
-                          {CATEGORY_NAMES[group.category] || group.category}
-                        </Badge>
                       </div>
                       <div className="text-sm">
                         <span className="font-bold">Bot Bar: {group.botBar}</span>
