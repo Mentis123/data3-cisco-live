@@ -209,6 +209,15 @@ export const wordCloudEntries = pgTable("word_cloud_entries", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`),
 });
 
+export const resetTimestamps = pgTable("reset_timestamps", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  scope: text("scope").notNull(), // 'global', 'leaderboard', 'raffle', 'word_cloud', 'scored_submissions', 'bot_bar'
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+  adminUser: text("admin_user").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+});
+
 export const insertParticipantSchema = createInsertSchema(participants).omit({
   id: true,
   createdAt: true,
@@ -278,6 +287,11 @@ export const insertWordCloudEntrySchema = createInsertSchema(wordCloudEntries).o
   updatedAt: true,
 });
 
+export const insertResetTimestampSchema = createInsertSchema(resetTimestamps).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertParticipant = z.infer<typeof insertParticipantSchema>;
 export type Participant = typeof participants.$inferSelect;
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
@@ -299,3 +313,5 @@ export type InsertChatbotFeedback = typeof chatbotFeedback.$inferInsert;
 export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertWordCloudEntry = z.infer<typeof insertWordCloudEntrySchema>;
 export type WordCloudEntry = typeof wordCloudEntries.$inferSelect;
+export type InsertResetTimestamp = z.infer<typeof insertResetTimestampSchema>;
+export type ResetTimestamp = typeof resetTimestamps.$inferSelect;
