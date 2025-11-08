@@ -1503,7 +1503,7 @@ export default function Leaderboard() {
                 <p className="text-sm text-[#78DCFF]/80">
                   Real-time rankings & active challengers
                 </p>
-              )}
+              </div>
             </div>
             {/* Beat the Bot - centered on desktop, visible on same line */}
             <div className="flex-shrink-0">
@@ -1521,8 +1521,8 @@ export default function Leaderboard() {
                 Home
               </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* View Controls */}
         {!isPresentationMode && (
