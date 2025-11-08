@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName } from "@/constants/categories";
+import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName, CATEGORY_KEYS, CATEGORY_NAMES } from "@/constants/categories";
 import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle } from "lucide-react";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
@@ -248,7 +248,7 @@ function OverviewTab() {
                           : "Anonymous"}
                       </span>
                       <Badge className={CATEGORY_BADGE_MAP[attempt.category] || "bg-gray-500"}>
-                        {attempt.category}
+                        {getCategoryName(attempt.category)}
                       </Badge>
                       <Badge variant={attempt.mode === "ring" ? "default" : "outline"}>
                         {attempt.mode.toUpperCase()}
@@ -490,7 +490,7 @@ function TriviaItemCard({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Badge className={CATEGORY_BADGE_MAP[item.category] || "bg-gray-500"}>
-                {item.category}
+                {getCategoryName(item.category)}
               </Badge>
               {!item.active && <Badge variant="destructive">Inactive</Badge>}
               <span className="text-xs text-muted-foreground">
@@ -542,7 +542,7 @@ function TriviaItemDialog({
   onSave: (data: Partial<TriviaItem>) => void;
 }) {
   const [formData, setFormData] = useState<Partial<TriviaItem>>({
-    category: item?.category || "SECURE_CONNECTIVITY",
+    category: item?.category || CATEGORY_KEYS[0], // Dynamic: uses first category from constants
     stem: item?.stem || "",
     choices: item?.choices || ["", "", "", ""],
     correctIndex: item?.correctIndex ?? 0,
@@ -577,11 +577,11 @@ function TriviaItemDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="SECURE_CONNECTIVITY">Zero Trust & Security</SelectItem>
-                <SelectItem value="HYBRID_DC">Hybrid Cloud Infrastructure</SelectItem>
-                <SelectItem value="COLLAB_CX">Collaboration & Customer Experience</SelectItem>
-                <SelectItem value="OBSERVABILITY">Observability & Automation</SelectItem>
-                <SelectItem value="EDGE_IOT">Edge & IoT Automation</SelectItem>
+                  {CATEGORY_KEYS.map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {CATEGORY_NAMES[key]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -1170,7 +1170,7 @@ function RaffleTab() {
                           : `User ${entry.emailHash.slice(0, 8)}`}
                       </span>
                       <Badge className={CATEGORY_BADGE_MAP[entry.category] || "bg-gray-500"}>
-                        {entry.category}
+                        {getCategoryName(entry.category)}
                       </Badge>
                       {entry.eligible && (
                         <Badge className="bg-green-500">Eligible</Badge>
