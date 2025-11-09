@@ -454,7 +454,12 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
         <PieChart width={300} height={chartHeight}>
           <Pie data={categoryData} cx="50%" cy="50%" outerRadius={chartRadius} dataKey="value">
             {categoryData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                stroke={entry.color}
+                strokeWidth={2}
+              />
             ))}
           </Pie>
           <Tooltip
@@ -1725,7 +1730,7 @@ export default function Leaderboard() {
                 {activeView === "categories" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      <i className="fas fa-chart-pie text-[#6B21A8] mr-3"></i>
+                      <i className="fas fa-chart-pie text-security-purple mr-3" style={{ color: '#6B21A8' }}></i>
                       Problem Categories
                     </CardTitle>
                     <p className="mt-2 text-sm text-[#78DCFF]/80">

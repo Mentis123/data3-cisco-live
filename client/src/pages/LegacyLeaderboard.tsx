@@ -1004,14 +1004,19 @@ export default function LegacyLeaderboard() {
                   cx="50%"
                   cy="50%"
                   outerRadius={chartRadius}
-                  fill="#8884d8"
                   dataKey="value"
+                  isAnimationActive={false}
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      stroke={entry.color}
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number, name: string) => {
                     const percent = ((value / totalSubmissions) * 100).toFixed(1);
                     return [`${value} submissions (${percent}%)`, name];
