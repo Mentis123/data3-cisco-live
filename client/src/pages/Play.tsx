@@ -746,7 +746,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               <CardHeader className="space-y-2">
                 <CardTitle className="text-2xl font-semibold text-white">Register</CardTitle>
                 <p className="text-sm text-slate-200/80">
-                  Use the name on your Cisco Live badge. Only initials appear on the leaderboard; we use the full name for raffle verification.
+                  Use the name on your Cisco Live badge. Only your first name and last initial appear on the leaderboard; we use the full name for raffle verification.
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
