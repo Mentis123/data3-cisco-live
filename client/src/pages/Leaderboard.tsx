@@ -450,7 +450,20 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 h-full py-4">
-      <div className="w-full flex justify-center">
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <filter id="fix-purple-rendering">
+            <feColorMatrix
+              type="matrix"
+              values="1.2 0 0 0 -0.1
+                      0 1 0 0 -0.05
+                      0 0 1.15 0 0.05
+                      0 0 0 1 0"
+            />
+          </filter>
+        </defs>
+      </svg>
+      <div className="w-full flex justify-center category-pie-chart-wrapper">
         <PieChart width={300} height={chartHeight}>
           <Pie data={categoryData} cx="50%" cy="50%" outerRadius={chartRadius} dataKey="value">
             {categoryData.map((entry, index) => (
@@ -459,6 +472,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
                 fill={entry.color}
                 stroke={entry.color}
                 strokeWidth={2}
+                style={entry.color === 'rgb(107, 33, 168)' ? { filter: 'url(#fix-purple-rendering)' } : undefined}
               />
             ))}
           </Pie>
@@ -1745,8 +1759,15 @@ export default function Leaderboard() {
                 {activeView === "categories" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      <i className="fas fa-chart-pie text-security-purple mr-3" style={{ color: 'rgb(107, 33, 168)' }}></i>
-                      Problem Categories
+                      <span className="inline-flex items-center gap-3">
+                        <i className="fas fa-chart-pie mr-0" style={{
+                          background: 'rgb(107, 33, 168)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
+                        }}></i>
+                        Problem Categories
+                      </span>
                     </CardTitle>
                     <p className="mt-2 text-sm text-[#78DCFF]/80">
                       Distribution by category
