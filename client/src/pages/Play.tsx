@@ -815,7 +815,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <span className={`text-sm leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : 'text-slate-200/90'}`}>
                       I agree to the{' '}
                       <a
-                        href="https://www.data3.com/"
+                        href="https://pages.data3.com/2506_7601-Cisco-Live-Customer-Event---1202_Cisco-Live-TCs.html"
                         target="_blank"
                         rel="noreferrer"
                         className="underline decoration-dotted underline-offset-4 text-cyan-300 hover:text-cyan-200"
