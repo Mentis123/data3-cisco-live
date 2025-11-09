@@ -1934,10 +1934,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .orderBy(desc(attempts.startedAt));
 
       return rows.map((row) => {
-        const firstInitial = row.firstName?.trim()?.[0] ?? "";
-        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const firstName = row.firstName?.trim() || '';
+        const lastInitial = row.lastName?.trim()?.[0]?.toUpperCase() || '';
         const fallback = row.attemptId.slice(0, 2).toUpperCase();
-        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+        const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
         return {
           attemptId: row.attemptId,
@@ -1983,10 +1983,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const projectPitchChallengers: Array<{ attemptId: string; initials: string; category: string; startedAt: string }> = [];
 
       rows.forEach((row) => {
-        const firstInitial = row.firstName?.trim()?.[0] ?? "";
-        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const firstName = row.firstName?.trim() || '';
+        const lastInitial = row.lastName?.trim()?.[0]?.toUpperCase() || '';
         const fallback = row.attemptId.slice(0, 2).toUpperCase();
-        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+        const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
         const challenger = {
           attemptId: row.attemptId,
@@ -2053,10 +2053,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .orderBy(desc(attempts.startedAt));
 
       return rows.map((row) => {
-        const firstInitial = row.firstName?.trim()?.[0] ?? "";
-        const lastInitial = row.lastName?.trim()?.[0] ?? "";
+        const firstName = row.firstName?.trim() || '';
+        const lastInitial = row.lastName?.trim()?.[0]?.toUpperCase() || '';
         const fallback = row.attemptId.slice(0, 2).toUpperCase();
-        const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+        const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
         const startedAt = row.startedAt ? new Date(row.startedAt) : new Date();
         const elapsedMinutes = Math.floor((Date.now() - startedAt.getTime()) / (1000 * 60));
