@@ -731,7 +731,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </div>
               <div className="space-y-4">
                 <p className="max-w-2xl text-pretty text-lg text-slate-200">
-                  Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
+                  Enter your Cisco Live details, answer 5 trivia then build a project pitch with the AI Coach to earn a raffle entry.
                 </p>
                 {triviaScore !== null && (
                   <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-sm font-semibold text-cyan-200">
@@ -744,7 +744,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
               <CardHeader className="space-y-2">
-                <CardTitle className="text-2xl font-semibold text-white">Badge check-in</CardTitle>
+                <CardTitle className="text-2xl font-semibold text-white">Register</CardTitle>
                 <p className="text-sm text-slate-200/80">
                   Use the name on your Cisco Live badge. Only initials appear on the leaderboard; we use the full name for raffle verification.
                 </p>
@@ -889,7 +889,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     </li>
                     <li className="flex items-start gap-3">
                       <span aria-hidden="true" className="text-cyan-300">🎫</span>
-                      <span>Daily Meta AI Glasses raffle eligibility</span>
+                      <span>Meta AI Glasses raffle eligibility</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span aria-hidden="true" className="text-cyan-300">⏱️</span>
