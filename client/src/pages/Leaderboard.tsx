@@ -159,41 +159,51 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
           <div
             key={entry ? entry.id : `placeholder-${index}`}
             data-entry-id={entry ? entry.id : undefined}
-            className={`grid grid-cols-[auto,1fr,auto] items-center gap-3 rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
+            className={`flex items-center gap-4 rounded-2xl border backdrop-blur-xl transition-all duration-300 py-3 px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
           >
+            {/* Rank Badge - Large */}
             <div
-              className={`flex items-center justify-center rounded-full font-black tracking-tight h-8 w-8 text-sm ${getRankClasses(index, hasEntry)}`}
+              className={`flex items-center justify-center rounded-full font-black tracking-tight h-14 w-14 text-2xl flex-shrink-0 ${getRankClasses(index, hasEntry)}`}
             >
               {String(index + 1).padStart(2, "0")}
             </div>
-            <div className="min-w-0 text-left">
-              <p className={`text-base font-semibold tracking-tight truncate ${hasEntry ? "text-white" : "text-[#78DCFF]/60"}`}>
+
+            {/* Initials - Large, same height as rank */}
+            <div className="flex-shrink-0">
+              <p className={`text-2xl font-black tracking-tight ${hasEntry ? "text-white" : "text-[#78DCFF]/60"}`}>
                 {entry ? formatNameToInitials(entry.name) : "Awaiting Challenger"}
               </p>
-              <div className="mt-1 flex flex-wrap items-center justify-start gap-1 text-[#78DCFF]/80">
-                {entry ? (
-                  <span
-                    className="inline-flex items-center justify-start rounded-full px-2 py-0.5 font-medium uppercase tracking-wider text-[0.6rem]"
-                    style={{
-                      backgroundColor: `${categoryColor}1A`,
-                      color: CATEGORY_TEXT_COLORS[entry.category as keyof typeof CATEGORY_TEXT_COLORS] || categoryColor,
-                      border: `1px solid ${categoryColor}4D`
-                    }}
-                  >
-                    {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
-                  </span>
-                ) : (
-                  <span className="uppercase tracking-wider text-[0.6rem] text-[#78DCFF]/60">Open Slot</span>
-                )}
-              </div>
             </div>
-            <div className="text-right">
+
+            {/* Spacer to push category badge to the right */}
+            <div className="flex-1"></div>
+
+            {/* Category Badge - Large, positioned to the right */}
+            <div className="flex-shrink-0">
+              {entry ? (
+                <span
+                  className="inline-flex items-center justify-center rounded-full px-4 py-2 font-bold uppercase tracking-wider text-sm"
+                  style={{
+                    backgroundColor: `${categoryColor}1A`,
+                    color: CATEGORY_TEXT_COLORS[entry.category as keyof typeof CATEGORY_TEXT_COLORS] || categoryColor,
+                    border: `2px solid ${categoryColor}4D`
+                  }}
+                >
+                  {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
+                </span>
+              ) : (
+                <span className="uppercase tracking-wider text-sm text-[#78DCFF]/60">Open Slot</span>
+              )}
+            </div>
+
+            {/* Score - Far right */}
+            <div className="text-right flex-shrink-0">
               <p
-                className={`score-value font-black tabular-nums tracking-tight text-xl ${hasEntry ? "text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]" : "text-white/40"}`}
+                className={`score-value font-black tabular-nums tracking-tight text-2xl ${hasEntry ? "text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]" : "text-white/40"}`}
               >
                 {entry ? entry.totalScore.toString().padStart(2, "0") : "--"}
               </p>
-              <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.55rem]">pts</p>
+              <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.6rem]">pts</p>
             </div>
           </div>
         );
