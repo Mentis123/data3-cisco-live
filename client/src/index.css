@@ -857,5 +857,16 @@
   font-weight: 500 !important;
   text-rendering: geometricPrecision !important;
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Force correct Security purple color in pie charts - override any browser rendering issues */
+.recharts-sector[fill="#6B21A8"],
+.recharts-sector[stroke="#6B21A8"] {
+  fill: #6B21A8 !important;
+  stroke: #6B21A8 !important;
+}
+
+/* Force Security purple color for icons and text */
+.text-security-purple {
+  color: #6B21A8 !important;
 }
