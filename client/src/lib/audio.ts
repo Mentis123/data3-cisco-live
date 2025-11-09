@@ -24,6 +24,10 @@ export class AudioManager {
   private clickAudioBuffer: AudioBuffer | null = null;
   private homeAudioGainNode: GainNode | null = null;
   private homeAudioSourceNode: MediaElementAudioSourceNode | null = null;
+  private triviaEnterAudioGainNode: GainNode | null = null;
+  private triviaEnterAudioSourceNode: MediaElementAudioSourceNode | null = null;
+  private pitchEnterAudioGainNode: GainNode | null = null;
+  private pitchEnterAudioSourceNode: MediaElementAudioSourceNode | null = null;
   private isAudioSupported: boolean;
   private isMuted: boolean = true; // Default to muted (OFF)
   private isImmersive: boolean = false; // Will be loaded from localStorage
@@ -193,15 +197,59 @@ export class AudioManager {
     if (!this.triviaEnterAudio) {
       this.triviaEnterAudio = new Audio(triviaEnterSoundFile);
       this.triviaEnterAudio.preload = "auto";
-      this.triviaEnterAudio.volume = 0.2; // Same as challenger sound
+      this.triviaEnterAudio.volume = this.useWebAudioForVolume ? 1.0 : 0.2; // Use full volume if Web Audio API will control it
       this.triviaEnterAudio.muted = this.isMuted;
+
+      // Set up Web Audio API routing for volume control on mobile
+      if (this.useWebAudioForVolume && this.audioContext) {
+        try {
+          // Create a MediaElementSourceNode from the audio element
+          this.triviaEnterAudioSourceNode = this.audioContext.createMediaElementSource(this.triviaEnterAudio);
+
+          // Create a GainNode for volume control
+          this.triviaEnterAudioGainNode = this.audioContext.createGain();
+          this.triviaEnterAudioGainNode.gain.value = 0.2; // 20% volume
+
+          // Connect: source -> gain -> destination
+          this.triviaEnterAudioSourceNode.connect(this.triviaEnterAudioGainNode);
+          this.triviaEnterAudioGainNode.connect(this.audioContext.destination);
+
+          console.log('[AudioManager] Trivia enter audio routed through Web Audio API for mobile');
+        } catch (error) {
+          console.warn('[AudioManager] Failed to set up Web Audio API routing for trivia enter audio:', error);
+          // Fall back to direct volume control
+          this.triviaEnterAudio.volume = 0.2;
+        }
+      }
     }
 
     if (!this.pitchEnterAudio) {
       this.pitchEnterAudio = new Audio(pitchEnterSoundFile);
       this.pitchEnterAudio.preload = "auto";
-      this.pitchEnterAudio.volume = 0.2; // Same as challenger sound
+      this.pitchEnterAudio.volume = this.useWebAudioForVolume ? 1.0 : 0.2; // Use full volume if Web Audio API will control it
       this.pitchEnterAudio.muted = this.isMuted;
+
+      // Set up Web Audio API routing for volume control on mobile
+      if (this.useWebAudioForVolume && this.audioContext) {
+        try {
+          // Create a MediaElementSourceNode from the audio element
+          this.pitchEnterAudioSourceNode = this.audioContext.createMediaElementSource(this.pitchEnterAudio);
+
+          // Create a GainNode for volume control
+          this.pitchEnterAudioGainNode = this.audioContext.createGain();
+          this.pitchEnterAudioGainNode.gain.value = 0.2; // 20% volume
+
+          // Connect: source -> gain -> destination
+          this.pitchEnterAudioSourceNode.connect(this.pitchEnterAudioGainNode);
+          this.pitchEnterAudioGainNode.connect(this.audioContext.destination);
+
+          console.log('[AudioManager] Pitch enter audio routed through Web Audio API for mobile');
+        } catch (error) {
+          console.warn('[AudioManager] Failed to set up Web Audio API routing for pitch enter audio:', error);
+          // Fall back to direct volume control
+          this.pitchEnterAudio.volume = 0.2;
+        }
+      }
     }
   }
 
@@ -1088,6 +1136,12 @@ export class AudioManager {
     if (!this.ensureAudioReady() || !this.triviaEnterAudio) return;
 
     try {
+      // Resume AudioContext if suspended (required for mobile)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+        console.log('[AudioManager] Resumed AudioContext for trivia enter sound');
+      }
+
       // Temporarily unmute for this sound
       const wasMuted = this.triviaEnterAudio.muted;
       this.triviaEnterAudio.muted = false;
@@ -1095,8 +1149,12 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.triviaEnterAudio.currentTime = 0;
 
-      // Set volume
-      this.triviaEnterAudio.volume = 0.2;
+      // Set volume (use GainNode on mobile, direct volume on desktop)
+      if (this.useWebAudioForVolume && this.triviaEnterAudioGainNode) {
+        this.triviaEnterAudioGainNode.gain.value = 0.2;
+      } else {
+        this.triviaEnterAudio.volume = 0.2;
+      }
 
       // Play the trivia enter sound
       await this.triviaEnterAudio.play();
@@ -1126,6 +1184,12 @@ export class AudioManager {
     if (!this.ensureAudioReady() || !this.pitchEnterAudio) return;
 
     try {
+      // Resume AudioContext if suspended (required for mobile)
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+        console.log('[AudioManager] Resumed AudioContext for pitch enter sound');
+      }
+
       // Temporarily unmute for this sound
       const wasMuted = this.pitchEnterAudio.muted;
       this.pitchEnterAudio.muted = false;
@@ -1133,8 +1197,12 @@ export class AudioManager {
       // Reset to beginning if already playing
       this.pitchEnterAudio.currentTime = 0;
 
-      // Set volume
-      this.pitchEnterAudio.volume = 0.2;
+      // Set volume (use GainNode on mobile, direct volume on desktop)
+      if (this.useWebAudioForVolume && this.pitchEnterAudioGainNode) {
+        this.pitchEnterAudioGainNode.gain.value = 0.2;
+      } else {
+        this.pitchEnterAudio.volume = 0.2;
+      }
 
       // Play the pitch enter sound
       await this.pitchEnterAudio.play();
