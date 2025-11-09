@@ -468,6 +468,15 @@ export async function registerRoutes(
       });
 
       const result = await storage.completeTriviaAttempt(payload);
+
+      // Broadcast ring exit immediately after trivia completion
+      // Everyone who completes trivia moves to Pitch stage (qualified: true)
+      // Pass/fail only matters at the end when comparing combined score to bot bar
+      broadcastRingExit({
+        attemptId: result.attempt.id,
+        qualified: true // Always move to Pitch after completing trivia
+      });
+
       res.json({
         attemptId: result.attempt.id,
         totalScore: result.totalScore,
@@ -785,10 +794,11 @@ export async function registerRoutes(
       const targetRank = leaderboard.findIndex(entry => entry.totalScore <= combinedScore) + 1;
 
       // Broadcast ring exit if this was a ring attempt
+      // After pitch submission, remove from active ring (qualified: false removes from all lists)
       if (persistedTriviaAttemptId) {
         broadcastRingExit({
           attemptId: persistedTriviaAttemptId,
-          qualified: isEligible
+          qualified: false // Remove from active ring after submission
         });
 
         // Broadcast raffle qualification announcement (only if they qualified)
