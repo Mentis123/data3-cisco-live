@@ -101,9 +101,9 @@ export default function HowToPlay() {
         {/* Playbook accordion */}
         <section className="space-y-6">
           <div className="space-y-3 text-left">
-            <h2 className="text-3xl font-semibold sm:text-4xl">Your Winning Playbook</h2>
+            <h2 className="text-3xl font-semibold sm:text-4xl">Tips and Tricks</h2>
             <p className="text-data3-white/70 max-w-3xl">
-              Master these moves to dominate the competition. Each section reveals the strategies and scoring rules you need to beat the Bot Bar and claim your raffle entry.
+              Master these moves to dominate the competition. Each section reveals the strategies and scoring rules you need to Beat the Bot and earn a raffle entry.
             </p>
           </div>
 
@@ -408,7 +408,7 @@ export default function HowToPlay() {
                 <div className="rounded-2xl border border-yellow-400/40 bg-gradient-to-br from-yellow-500/20 via-orange-500/10 to-white/5 p-6 text-sm text-data3-white/85">
                   <div className="mb-4 flex items-center gap-3 text-white">
                     <i className="fas fa-gift text-yellow-300 text-3xl"></i>
-                    <p className="text-2xl font-semibold">Meta AI Glasses up for grabs daily</p>
+                    <p className="text-2xl font-semibold">Meta AI Glasses up for grabs</p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-xl border border-yellow-400/40 bg-yellow-500/20 p-4">
@@ -424,7 +424,7 @@ export default function HowToPlay() {
                         </li>
                         <li className="flex items-center gap-2">
                           <i className="fas fa-random text-yellow-300"></i>
-                          Daily winner selected automatically
+                          Winners selected automatically
                         </li>
                       </ul>
                     </div>
@@ -441,7 +441,7 @@ export default function HowToPlay() {
                         </li>
                         <li className="flex items-center gap-2">
                           <i className="fas fa-map-marker-alt text-yellow-300"></i>
-                          Collect at the Data#3 stand before the day ends
+                          Data3 will arrange delivery
                         </li>
                       </ul>
                     </div>
@@ -670,7 +670,7 @@ export default function HowToPlay() {
             <Link href="/leaderboard">
               <Button size="lg" variant="outline" className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10">
                 <i className="fas fa-trophy mr-2"></i>
-                View Leaderboard
+                Leaderboard
               </Button>
             </Link>
             <Link href="/">

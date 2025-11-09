@@ -731,7 +731,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
               </div>
               <div className="space-y-4">
                 <p className="max-w-2xl text-pretty text-lg text-slate-200">
-                  Check in with your Cisco Live badge name and email, answer 5 trivia then face the Sprint Coach and build your project pitch. Score high enough and win a raffle entry.
+                  Enter your Cisco Live details, answer 5 trivia then build a project pitch with the AI Coach to earn a raffle entry.
                 </p>
                 {triviaScore !== null && (
                   <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-sm font-semibold text-cyan-200">
@@ -744,7 +744,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
 
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
               <CardHeader className="space-y-2">
-                <CardTitle className="text-2xl font-semibold text-white">Badge check-in</CardTitle>
+                <CardTitle className="text-2xl font-semibold text-white">Register</CardTitle>
                 <p className="text-sm text-slate-200/80">
                   Use the name on your Cisco Live badge. Only initials appear on the leaderboard; we use the full name for raffle verification.
                 </p>
@@ -815,7 +815,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     <span className={`text-sm leading-relaxed ${showTermsError ? 'text-destructive font-semibold' : 'text-slate-200/90'}`}>
                       I agree to the{' '}
                       <a
-                        href="https://www.data3.com/"
+                        href="https://pages.data3.com/2506_7601-Cisco-Live-Customer-Event---1202_Cisco-Live-TCs.html"
                         target="_blank"
                         rel="noreferrer"
                         className="underline decoration-dotted underline-offset-4 text-cyan-300 hover:text-cyan-200"
@@ -889,7 +889,7 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     </li>
                     <li className="flex items-start gap-3">
                       <span aria-hidden="true" className="text-cyan-300">🎫</span>
-                      <span>Daily Meta AI Glasses raffle eligibility</span>
+                      <span>Meta AI Glasses raffle eligibility</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span aria-hidden="true" className="text-cyan-300">⏱️</span>
@@ -1063,10 +1063,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
+                <h1 className="text-4xl font-semibold sm:text-5xl">The Ring</h1>
               </div>
               <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
+                Welcome to the Ring. Answer Data#3 trivia to earn a spot on the leaderboard.
               </p>
             </div>
             <TriviaWarmup
@@ -1118,11 +1118,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         role: "assistant",
                         content: `You scored ${score || 0}/60 on trivia, ${firstName}.
 
-Let's build your project pitch in 3 focused steps. I'll guide you through each one.
+The next step is to pitch a project to earn up to 40 more points.
 
-<strong>What problem are you solving?</strong>
+The AI Coach will guide you through the steps.
 
-Describe a specific challenge that wastes time, creates friction, or impacts productivity.`
+Start by describing a tech related problem at work, the AI Coach will help you explain how it impacts your company. The better your explanation, the more points you earn.`
                       }
                     });
                   }, 300);
@@ -1143,7 +1143,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
               </Link>
               <Link href="/dojo">
                 <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-                  Train in the Dojo
+                  Practice in the Dojo
                 </Button>
               </Link>
             </div>
@@ -2101,7 +2101,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <i className="fas fa-check-circle text-sm text-green-400"></i>
-                          <span className="text-sm text-slate-200">Ready to review your pitch?</span>
+                          <span className="text-sm text-slate-200">Click to submit your pitch</span>
                         </div>
                         <Button
                           onClick={handleSubmitCommand}

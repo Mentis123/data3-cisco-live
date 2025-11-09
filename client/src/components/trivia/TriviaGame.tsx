@@ -15,8 +15,10 @@ type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete"
 
 /**
  * TriviaMode determines UI behavior:
+
  * - "dojo": Practice mode with manual "Continue" button between questions
- * - "ring": Official mode with auto-advance (1.4s delay)
+ * - "ring": Official mode with auto-advance (4s delay)
+
  */
 type TriviaMode = "dojo" | "ring";
 
@@ -278,7 +280,7 @@ export function TriviaGame({
       } else {
         resetForQuestion(nextIndex);
       }
-    }, 1400);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [mode, phase, questionIndex, questions.length, currentQuestion, earnedPoints, selectedIndex]);

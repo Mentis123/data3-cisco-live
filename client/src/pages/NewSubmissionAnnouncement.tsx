@@ -252,6 +252,16 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       ? Math.min(FINAL_MAX, Math.round(computedTotal))
       : (typeof submission.totalScore === "number" ? submission.totalScore : 0);
 
+  // Validate and normalize botBar - should be 0-100
+  let displayBotBar = submission.botBar;
+  if (typeof submission.botBar === "number") {
+    if (submission.botBar < 0 || submission.botBar > 100) {
+      console.error('[NewSubmissionAnnouncement] Invalid botBar value:', submission.botBar, '- expected 0-100');
+      // If botBar seems to be a raw sum instead of a mean, cap it to 100
+      displayBotBar = Math.min(100, Math.max(0, submission.botBar));
+    }
+  }
+
   console.log('[NewSubmissionAnnouncement] Rendering announcement:', {
     finalScore,
     pitchScore,
@@ -259,6 +269,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     rank: submission.rank,
     rankDisplay,
     botBar: submission.botBar,
+    displayBotBar,
     isEligible: submission.isEligible,
     subScores: submission.subScores
   });
@@ -502,7 +513,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-sm sm:text-base md:text-lg text-white/90">
-                            Your score of <span className="font-bold text-green-400">{finalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{submission.botBar}</span>!
+                            Your score of <span className="font-bold text-green-400">{finalScore}</span>/<span className="font-bold text-green-200">{FINAL_MAX}</span> exceeded the bot bar of <span className="font-bold">{displayBotBar}</span>!
                           </p>
                           {submission.raffleEntered && (
                             <div className="mt-3 pt-3 border-t border-green-500/30">
@@ -535,7 +546,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
                             </h3>
                           </div>
                           <p className="text-sm sm:text-base md:text-lg text-white/90">
-                            Your score of <span className="font-bold">{finalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{submission.botBar}</span>
+                            Your score of <span className="font-bold">{finalScore}</span>/<span className="font-bold text-white/70">{FINAL_MAX}</span> didn't exceed the bot bar of <span className="font-bold text-orange-400">{displayBotBar}</span>
                           </p>
                           <p className="text-xs sm:text-sm md:text-base text-white/70 mt-2">
                             Try again to beat the bot and enter the raffle!

@@ -407,7 +407,7 @@ export default function Home() {
           </p>
           <div className="space-y-2">
             <p className="text-lg sm:text-xl text-data3-white/90">Practice in the Dojo.</p>
-            <p className="text-lg sm:text-xl text-data3-white/90">Hit the Ring when you're ready.</p>
+            <p className="text-lg sm:text-xl text-data3-white/90">Enter the ring when you're ready.</p>
             <p className="text-lg sm:text-xl text-data3-white/90">Every win is a raffle entry.</p>
           </div>
         </section>
@@ -549,14 +549,14 @@ export default function Home() {
                 }}
               >
                 <div className="relative aspect-square">
-                  <img src={leaderboardImage} alt="View Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
+                  <img src={leaderboardImage} alt="Leaderboard" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-300 group-hover:opacity-100" style={{ transform: 'scale(1.8)' }} />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent transition-colors duration-300 group-hover:from-white/15 group-hover:via-white/10 group-hover:to-white/5" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
                     <button className="nav-tile-button pointer-events-none">
                       <div className="nav-tile-button-inner">
                         <div className="nav-tile-button-shine" aria-hidden="true"></div>
                         <div className="nav-tile-button-top-white"></div>
-                        <span className="nav-tile-button-text text-2xl sm:text-3xl">View Leaderboard</span>
+                        <span className="nav-tile-button-text text-2xl sm:text-3xl">Leaderboard</span>
                       </div>
                     </button>
                   </div>
