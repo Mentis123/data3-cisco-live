@@ -2138,9 +2138,14 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           evaluationNotes: submissions.evaluationNotes,
           createdAt: submissions.createdAt,
           name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
+          pitchScore: submissions.pitchScore,
+          triviaScore: submissions.triviaScore,
+          botBar: attempts.botBar,
+          isEligible: attempts.eligible,
         })
         .from(submissions)
         .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .leftJoin(attempts, eq(attempts.submissionId, submissions.id))
         .where(eq(submissions.announcedOnLeaderboard, true)) // CRITICAL: Only show announced submissions
         .orderBy(desc(submissions.createdAt))
         .limit(1);

@@ -1070,8 +1070,7 @@ export default function Leaderboard() {
     botBar?: number | null;
     isEligible?: boolean;
   }) => {
-    console.log('🚨 NEW SUBMISSION DETECTED ON LEADERBOARD! Playing sounds and showing overlay...', submission);
-
+    // Mark this submission as known
     setKnownSubmissionIds(prev => {
       if (prev.has(submission.id)) {
         return prev;
@@ -1080,6 +1079,17 @@ export default function Leaderboard() {
       next.add(submission.id);
       return next;
     });
+
+    // Only announce if user beat the bot (or isEligible is undefined for backward compatibility)
+    if (submission.isEligible === false) {
+      console.log('🤫 NEW SUBMISSION (silently added - did not beat bot bar):', submission);
+      // Silently add to leaderboard without announcement
+      triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
+      refetch();
+      return;
+    }
+
+    console.log('🚨 NEW SUBMISSION DETECTED ON LEADERBOARD! Playing sounds and showing overlay...', submission);
 
     audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
     setTimeout(() => {
@@ -1177,6 +1187,10 @@ export default function Leaderboard() {
         totalScore: data.recentSubmission.totalScore,
         finalScore: data.recentSubmission.finalScore ?? data.recentSubmission.totalScore,
         targetRank: computeRank(data.recentSubmission.id) ?? undefined,
+        pitchScore: data.recentSubmission.pitchScore ?? null,
+        triviaScore: data.recentSubmission.triviaScore ?? null,
+        botBar: data.recentSubmission.botBar ?? null,
+        isEligible: data.recentSubmission.isEligible,
       });
     }
   }, [data, knownSubmissionIds, handleNewSubmission]);
