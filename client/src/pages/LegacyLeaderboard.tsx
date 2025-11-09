@@ -32,6 +32,7 @@ interface LeaderboardEntry {
   category: string;
   totalScore: number;
   createdAt: string;
+  isEligible?: boolean;
 }
 
 interface ActiveChallengerPayload {
@@ -131,11 +132,7 @@ export default function LegacyLeaderboard() {
     botBar?: number | null;
     isEligible?: boolean;
   }) => {
-    console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds and showing overlay...', submission);
-
-    setIsAnnouncementMode(true);
-    setNewSubmissionTime(Date.now());
-
+    // Mark this submission as known first
     setKnownSubmissionIds(prev => {
       if (prev.has(submission.id)) {
         return prev;
@@ -145,6 +142,20 @@ export default function LegacyLeaderboard() {
       next.add(submission.id);
       return next;
     });
+
+    // Only announce if user beat the bot (or isEligible is undefined for backward compatibility)
+    if (submission.isEligible === false) {
+      console.log('🤫 NEW SUBMISSION (silently added - did not beat bot bar):', submission);
+      // Silently add to leaderboard without announcement
+      triggerScoreAnimation(submission.id, submission.finalScore ?? submission.totalScore);
+      refetch();
+      return;
+    }
+
+    console.log('🚨 NEW SUBMISSION DETECTED! Playing sounds and showing overlay...', submission);
+
+    setIsAnnouncementMode(true);
+    setNewSubmissionTime(Date.now());
 
     // Play announcement sounds - FORCE PLAY (bypass immersive filter for leaderboard)
     audioManager.forcePlayFlashSound().catch(err => console.warn('Flash sound failed:', err));
@@ -498,7 +509,8 @@ export default function LegacyLeaderboard() {
         name: leaderboardNewEntry.name,
         category: leaderboardNewEntry.category,
         totalScore: leaderboardNewEntry.totalScore,
-        targetRank: computeRank(leaderboardNewEntry.id) ?? undefined
+        targetRank: computeRank(leaderboardNewEntry.id) ?? undefined,
+        isEligible: leaderboardNewEntry.isEligible,
       });
       return;
     }
@@ -509,7 +521,8 @@ export default function LegacyLeaderboard() {
         name: data.recentSubmission.name,
         category: data.recentSubmission.category,
         totalScore: data.recentSubmission.totalScore,
-        targetRank: computeRank(data.recentSubmission.id) ?? undefined
+        targetRank: computeRank(data.recentSubmission.id) ?? undefined,
+        isEligible: data.recentSubmission.isEligible,
       });
     }
   }, [data, handleNewSubmission, knownSubmissionIds]);

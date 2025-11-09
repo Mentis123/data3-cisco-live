@@ -1287,9 +1287,11 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         createdAt: submissions.createdAt,
         announcedOnLeaderboard: submissions.announcedOnLeaderboard,
         name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
+        isEligible: attempts.eligible,
       })
       .from(submissions)
       .innerJoin(participants, eq(submissions.participantId, participants.id))
+      .leftJoin(attempts, eq(attempts.submissionId, submissions.id))
       .orderBy(desc(submissions.totalScore), submissions.createdAt);
 
     // Build WHERE conditions

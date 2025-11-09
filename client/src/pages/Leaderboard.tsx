@@ -27,6 +27,7 @@ interface LeaderboardEntry {
   category: string;
   totalScore: number;
   createdAt: string;
+  isEligible?: boolean;
 }
 
 interface ActiveChallengerPayload {
@@ -1184,6 +1185,7 @@ export default function Leaderboard() {
         totalScore: leaderboardNewEntry.totalScore,
         finalScore: leaderboardNewEntry.totalScore,
         targetRank: computeRank(leaderboardNewEntry.id) ?? undefined,
+        isEligible: leaderboardNewEntry.isEligible,
       });
       return;
     }
