@@ -46,7 +46,7 @@ export function RaffleWinnerReveal({
           setPhase("celebrate");
           triggerFlashAndRise(() => {});
           createConfetti();
-          audioManager.playRaffleWinnerSound();
+          audioManager.forcePlayRaffleWinnerSound();
         }, 1000);
       };
 
@@ -61,7 +61,7 @@ export function RaffleWinnerReveal({
           setPhase("celebrate");
           triggerFlashAndRise(() => {});
           createConfetti();
-          audioManager.playRaffleWinnerSound();
+          audioManager.forcePlayRaffleWinnerSound();
         }, 1000);
       });
     } else {
@@ -71,7 +71,7 @@ export function RaffleWinnerReveal({
         setPhase("celebrate");
         triggerFlashAndRise(() => {});
         createConfetti();
-        audioManager.playRaffleWinnerSound();
+        audioManager.forcePlayRaffleWinnerSound();
       }, 1000);
     }
 
@@ -95,7 +95,7 @@ export function RaffleWinnerReveal({
         setPhase("celebrate");
         triggerFlashAndRise(() => {});
         createConfetti();
-        audioManager.playRaffleWinnerSound();
+        audioManager.forcePlayRaffleWinnerSound();
       }, 800);
     }, 2000);
   };

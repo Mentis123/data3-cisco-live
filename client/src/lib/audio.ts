@@ -142,7 +142,7 @@ export class AudioManager {
     if (!this.raffleWinnerAudio) {
       this.raffleWinnerAudio = new Audio(raffleWinnerSound);
       this.raffleWinnerAudio.preload = "auto";
-      this.raffleWinnerAudio.volume = 0.45; // Same volume as flash sound
+      this.raffleWinnerAudio.volume = 0.9; // Doubled from 0.45 for extra impact
       this.raffleWinnerAudio.muted = this.isMuted;
     }
 
@@ -347,7 +347,7 @@ export class AudioManager {
       this.raffleWinnerAudio.currentTime = 0;
 
       // Sound effects are NOT affected by music volume - stay at full volume
-      this.raffleWinnerAudio.volume = 0.45;
+      this.raffleWinnerAudio.volume = 0.9;
 
       // Play the raffle winner sound immediately
       await this.raffleWinnerAudio.play();
@@ -1155,6 +1155,44 @@ export class AudioManager {
       }
     }
   }
+
+  /**
+   * Force play raffle winner sound - bypasses immersive mode and muted state
+   * This is used for critical announcements like the leaderboard
+   */
+  public async forcePlayRaffleWinnerSound(): Promise<void> {
+    if (!this.ensureAudioReady() || !this.raffleWinnerAudio) return;
+
+    try {
+      // Temporarily unmute for this sound
+      const wasMuted = this.raffleWinnerAudio.muted;
+      this.raffleWinnerAudio.muted = false;
+
+      // Reset to beginning if already playing
+      this.raffleWinnerAudio.currentTime = 0;
+
+      // Set volume - doubled for extra impact
+      this.raffleWinnerAudio.volume = 0.9;
+
+      // Play the raffle winner sound
+      await this.raffleWinnerAudio.play();
+
+      // Restore muted state after sound duration (approximately 2 seconds)
+      setTimeout(() => {
+        if (this.raffleWinnerAudio) {
+          this.raffleWinnerAudio.muted = wasMuted;
+        }
+      }, 2500);
+
+      console.log('[AudioManager] Force played raffle winner sound (bypassed immersive filter)');
+    } catch (error) {
+      console.warn('Could not force play raffle winner sound:', error);
+      // Restore muted state even on error
+      if (this.raffleWinnerAudio) {
+        this.raffleWinnerAudio.muted = this.isMuted;
+      }
+    }
+  }
 }
 
 // Lazy-initialized singleton wrapper to avoid module load-time initialization issues
@@ -1316,6 +1354,10 @@ class AudioManagerWrapper {
 
   forcePlayPitchEnterSound() {
     return this.getInstance().forcePlayPitchEnterSound();
+  }
+
+  forcePlayRaffleWinnerSound() {
+    return this.getInstance().forcePlayRaffleWinnerSound();
   }
 }
 
