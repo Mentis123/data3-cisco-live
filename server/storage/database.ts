@@ -2401,13 +2401,14 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .from(schema.raffleEntries)
         .where(eq(schema.raffleEntries.raffleDate, today));
 
-      const recentAttempts = await db
+      const recentAttemptsRaw = await db
         .select({
           id: attempts.id,
           category: attempts.category,
           mode: attempts.mode,
           triviaScore: attempts.triviaScore,
-          pitchScore: submissions.totalScore,
+          pitchScoreRaw: submissions.totalScore,
+          subScores: submissions.subScores,
           combinedScore: sql<number | null>`COALESCE(${attempts.totalScore}, COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0))`,
           passed: attempts.passed,
           eligible: attempts.eligible,
@@ -2423,6 +2424,23 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .orderBy(desc(attempts.startedAt))
         .limit(20);
+
+      // Post-process to calculate correct pitch score from subScores (same as raffle entries)
+      const recentAttempts = recentAttemptsRaw.map(({ pitchScoreRaw, subScores, ...entry }) => {
+        const parsedSubScores = parseSubScores(subScores);
+        const derivedPitchScore = parsedSubScores
+          ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+          : null;
+
+        const pitchScore = derivedPitchScore ?? pitchScoreRaw ?? null;
+        const combinedScore = (entry.triviaScore ?? 0) + (pitchScore ?? 0);
+
+        return {
+          ...entry,
+          pitchScore,
+          combinedScore,
+        };
+      });
 
       return {
         stats: {
