@@ -78,7 +78,7 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     }
   }, [submission.id]);
 
-  const announceSubmission = useCallback(() => {
+  const announceSubmission = useCallback(async () => {
     if (hasAnnouncedRef.current) {
       console.log('[NewSubmissionAnnouncement] Already announced, skipping');
       return;
@@ -87,27 +87,27 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     hasAnnouncedRef.current = true;
     console.log('[NewSubmissionAnnouncement] Announcing submission:', submission.id);
 
-    fetch(`/api/submission/${submission.id}/announce`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then(response => {
-        console.log('[NewSubmissionAnnouncement] Announce response status:', response.status);
-        return response.json();
-      })
-      .then(data => {
-        console.log('[NewSubmissionAnnouncement] Announce response data:', data);
-        if (data.success) {
-          console.log('[NewSubmissionAnnouncement] ✅ Submission announced successfully');
-        } else {
-          console.error('[NewSubmissionAnnouncement] ❌ Announce failed:', data);
-        }
-      })
-      .catch(error => {
-        console.error('[NewSubmissionAnnouncement] ❌ Failed to announce submission:', error);
-        // Reset flag so they can try again
-        hasAnnouncedRef.current = false;
+    try {
+      const response = await fetch(`/api/submission/${submission.id}/announce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       });
+
+      console.log('[NewSubmissionAnnouncement] Announce response status:', response.status);
+      const data = await response.json();
+      console.log('[NewSubmissionAnnouncement] Announce response data:', data);
+
+      if (data.success) {
+        console.log('[NewSubmissionAnnouncement] ✅ Submission announced successfully');
+      } else {
+        console.error('[NewSubmissionAnnouncement] ❌ Announce failed:', data);
+      }
+    } catch (error) {
+      console.error('[NewSubmissionAnnouncement] ❌ Failed to announce submission:', error);
+      // Reset flag so they can try again
+      hasAnnouncedRef.current = false;
+      throw error; // Re-throw so handleDismiss knows it failed
+    }
   }, [submission.id]);
 
   const startAnnouncementSequence = useCallback(() => {
@@ -187,9 +187,16 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
 
   // No auto-dismiss - user must manually continue
 
-  const handleDismiss = () => {
+  const handleDismiss = async () => {
     broadcastLeaderboardAnnouncement();
-    announceSubmission();
+
+    // Wait for announcement to complete before navigating
+    try {
+      await announceSubmission();
+      console.log('[NewSubmissionAnnouncement] Announcement complete, navigating to leaderboard');
+    } catch (error) {
+      console.error('[NewSubmissionAnnouncement] Announcement failed, but navigating anyway:', error);
+    }
 
     if (onDismiss) {
       onDismiss();
