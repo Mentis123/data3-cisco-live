@@ -583,13 +583,13 @@ export function TriviaWarmup({
                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl sm:h-24 sm:w-24">
                   <img
                     src={dojoFullImage}
-                    alt="Training Dojo"
+                    alt="Practice Dojo"
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{ transform: 'scale(1.8)' }}
                   />
                 </div>
                 <div className="space-y-3 text-left">
-                  <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Training Dojo</CardTitle>
+                  <CardTitle className="text-3xl font-semibold text-white sm:text-4xl">Practice Dojo</CardTitle>
                 </div>
               </div>
             </>

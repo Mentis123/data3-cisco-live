@@ -535,7 +535,7 @@ export default function HowToPlay() {
                   <div className="rounded-xl border border-pink-400/30 bg-pink-500/10 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <i className="fas fa-graduation-cap text-pink-400"></i>
-                      <p className="font-semibold text-white">Training dojo</p>
+                      <p className="font-semibold text-white">Practice dojo</p>
                     </div>
                     <p>Unlimited training runs with explanations help you get the rhythm before going official.</p>
                   </div>
@@ -583,7 +583,7 @@ export default function HowToPlay() {
                       What if I'm not an expert in my category?
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4 pt-0 text-sm text-data3-white/85">
-                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Training Dojo</span> to see explanations and build confidence before your official run.
+                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Practice Dojo</span> to see explanations and build confidence before your official run.
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -641,7 +641,7 @@ export default function HowToPlay() {
                         <i className="fas fa-graduation-cap text-white text-xl"></i>
                       </div>
                       <div>
-                        <CardTitle className="text-2xl text-white">Training Dojo</CardTitle>
+                        <CardTitle className="text-2xl text-white">Practice Dojo</CardTitle>
                         <p className="text-sm text-purple-200/80 mt-1">Learn and improve</p>
                       </div>
                     </div>
@@ -670,7 +670,7 @@ export default function HowToPlay() {
             <Link href="/leaderboard">
               <Button size="lg" variant="outline" className="w-full border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10">
                 <i className="fas fa-trophy mr-2"></i>
-                View Leaderboard
+                Leaderboard
               </Button>
             </Link>
             <Link href="/">
