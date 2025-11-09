@@ -415,7 +415,7 @@ export default function TileShowcase() {
                     {index === 3 && "🏆"}
                   </div>
                   <h2 className="text-xl md:text-2xl font-bold">
-                    {index === 0 && "Training Dojo"}
+                    {index === 0 && "Practice Dojo"}
                     {index === 1 && "Combat Arena"}
                     {index === 2 && "Target Practice"}
                     {index === 3 && "Tournament Hall"}

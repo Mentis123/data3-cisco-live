@@ -583,7 +583,7 @@ export default function HowToPlay() {
                       What if I'm not an expert in my category?
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4 pt-0 text-sm text-data3-white/85">
-                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Training Dojo</span> to see explanations and build confidence before your official run.
+                      Hints arrive as the timer counts down, and the AI coach nudges you toward category-aligned solutions. <span className="font-semibold text-white">Practice Dojo</span> to see explanations and build confidence before your official run.
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -641,7 +641,7 @@ export default function HowToPlay() {
                         <i className="fas fa-graduation-cap text-white text-xl"></i>
                       </div>
                       <div>
-                        <CardTitle className="text-2xl text-white">Training Dojo</CardTitle>
+                        <CardTitle className="text-2xl text-white">Practice Dojo</CardTitle>
                         <p className="text-sm text-purple-200/80 mt-1">Learn and improve</p>
                       </div>
                     </div>
