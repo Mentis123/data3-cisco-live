@@ -2505,6 +2505,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           raffleDate: schema.raffleEntries.raffleDate,
           category: schema.raffleEntries.category,
           emailHash: schema.raffleEntries.emailHash,
+          email: users.email,
           attemptId: schema.raffleEntries.attemptId,
           createdAt: schema.raffleEntries.createdAt,
           firstName: users.firstName,
