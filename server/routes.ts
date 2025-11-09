@@ -389,11 +389,13 @@ export async function registerRoutes(
 
         // Broadcast ring entry if it's a ring mode attempt
         if (payload.mode === "ring" && playerProfile) {
-          const initials = `${playerProfile.firstName?.[0] || ''}${playerProfile.lastName?.[0] || ''}`.toUpperCase();
-          log(`[Trivia] Broadcasting ring entry for attempt ${attempt.id} with initials ${initials}`);
+          const firstName = playerProfile.firstName || '';
+          const lastInitial = playerProfile.lastName?.[0]?.toUpperCase() || '';
+          const displayName = `${firstName} ${lastInitial}`.trim() + (lastInitial ? '.' : '');
+          log(`[Trivia] Broadcasting ring entry for attempt ${attempt.id} with name ${displayName}`);
           broadcastRingEntry({
             attemptId: attempt.id,
-            initials,
+            initials: displayName,
             category: attempt.category
           });
         } else {
@@ -1344,10 +1346,9 @@ export async function registerRoutes(
         return;
       }
 
-      const firstInitial = latestWinner.firstName?.charAt(0)?.toUpperCase() ?? "";
+      const firstName = latestWinner.firstName ?? "";
       const lastInitial = latestWinner.lastName?.charAt(0)?.toUpperCase() ?? "";
-      const initials = [firstInitial, lastInitial].filter(Boolean).join(".");
-      const formattedInitials = initials ? `${initials}.` : "";
+      const formattedInitials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : firstName || "";
 
       const raffleDateValue = latestWinner.raffleDate as unknown;
       let raffleDate: string;
@@ -1685,8 +1686,8 @@ export async function registerRoutes(
         return;
       }
 
-      // Calculate initials from first and last name
-      const initials = `${firstName.charAt(0).toUpperCase()}.${lastName.charAt(0).toUpperCase()}.`;
+      // Format name as firstName + last initial
+      const initials = `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
 
       let winnerDrawId: string | null = typeof drawId === "string" && drawId.length > 0 ? drawId : null;
 

@@ -6,14 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a full name to show only first initial and last initial
+ * Formats a full name to show first name and last initial
  * @param fullName - The full name to format (e.g., "John Doe")
- * @returns Formatted initials (e.g., "J. D.")
+ * @returns Formatted name (e.g., "John D.")
  *
  * Examples:
- * - "John Doe" → "J. D."
- * - "Mary Jane Smith" → "M. S."
- * - "Bob" → "B."
+ * - "John Doe" → "John D."
+ * - "Mary Jane Smith" → "Mary S."
+ * - "Bob" → "Bob"
  * - "" → ""
  */
 export function formatNameToInitials(fullName: string): string {
@@ -28,13 +28,13 @@ export function formatNameToInitials(fullName: string): string {
   }
 
   if (nameParts.length === 1) {
-    // Single name: just first initial
-    return `${nameParts[0].charAt(0).toUpperCase()}.`;
+    // Single name: return as-is
+    return nameParts[0];
   }
 
-  // Multiple names: first initial and last initial
-  const firstInitial = nameParts[0].charAt(0).toUpperCase();
+  // Multiple names: first name and last initial
+  const firstName = nameParts[0];
   const lastInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
 
-  return `${firstInitial}. ${lastInitial}.`;
+  return `${firstName} ${lastInitial}.`;
 }
