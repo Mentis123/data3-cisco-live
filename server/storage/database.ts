@@ -2741,11 +2741,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         let pitchScore = 0;
         if (attempt[0]?.submissionId) {
           const submission = await db
-            .select()
+            .select({
+              totalScore: schema.submissions.totalScore,
+              subScores: schema.submissions.subScores,
+            })
             .from(schema.submissions)
             .where(eq(schema.submissions.id, attempt[0].submissionId))
             .limit(1);
-          pitchScore = submission[0]?.totalScore || 0;
+
+          if (submission[0]) {
+            const parsedSubScores = parseSubScores(submission[0].subScores);
+            const derivedPitchScore = parsedSubScores
+              ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+              : null;
+            pitchScore = derivedPitchScore ?? submission[0].totalScore ?? 0;
+          }
         }
 
         const triviaScore = attempt[0]?.triviaScore || 0;
@@ -2804,11 +2814,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       let pitchScore = 0;
       if (attempt[0]?.submissionId) {
         const submission = await db
-          .select()
+          .select({
+            totalScore: schema.submissions.totalScore,
+            subScores: schema.submissions.subScores,
+          })
           .from(schema.submissions)
           .where(eq(schema.submissions.id, attempt[0].submissionId))
           .limit(1);
-        pitchScore = submission[0]?.totalScore || 0;
+
+        if (submission[0]) {
+          const parsedSubScores = parseSubScores(submission[0].subScores);
+          const derivedPitchScore = parsedSubScores
+            ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+            : null;
+          pitchScore = derivedPitchScore ?? submission[0].totalScore ?? 0;
+        }
       }
 
       const triviaScore = attempt[0]?.triviaScore || 0;
@@ -2881,11 +2901,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       let pitchScore = 0;
       if (attempt[0]?.submissionId) {
         const submission = await db
-          .select()
+          .select({
+            totalScore: schema.submissions.totalScore,
+            subScores: schema.submissions.subScores,
+          })
           .from(schema.submissions)
           .where(eq(schema.submissions.id, attempt[0].submissionId))
           .limit(1);
-        pitchScore = submission[0]?.totalScore || 0;
+
+        if (submission[0]) {
+          const parsedSubScores = parseSubScores(submission[0].subScores);
+          const derivedPitchScore = parsedSubScores
+            ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+            : null;
+          pitchScore = derivedPitchScore ?? submission[0].totalScore ?? 0;
+        }
       }
 
       const triviaScore = attempt[0]?.triviaScore || 0;
@@ -2904,7 +2934,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async getLatestRaffleWinner() {
-      const [latestDraw] = await db
+      const [latestDrawRaw] = await db
         .select({
           drawId: schema.raffleDraws.id,
           raffleDate: schema.raffleDraws.raffleDate,
@@ -2913,7 +2943,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           category: schema.raffleEntries.category,
           firstName: users.firstName,
           lastName: users.lastName,
-          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
+          triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
+          pitchScoreRaw: submissions.totalScore,
+          subScores: submissions.subScores,
         })
         .from(schema.raffleDraws)
         .leftJoin(schema.raffleEntries, eq(schema.raffleDraws.winnerEntryId, schema.raffleEntries.id))
@@ -2924,11 +2956,24 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .orderBy(desc(schema.raffleDraws.announcedAt))
         .limit(1);
 
-      if (!latestDraw || !latestDraw.winnerEntryId || !latestDraw.category || !latestDraw.announcedAt) {
+      if (!latestDrawRaw || !latestDrawRaw.winnerEntryId || !latestDrawRaw.category || !latestDrawRaw.announcedAt) {
         return null;
       }
 
-      return latestDraw;
+      // Calculate correct pitch score from subScores
+      const parsedSubScores = parseSubScores(latestDrawRaw.subScores);
+      const derivedPitchScore = parsedSubScores
+        ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+        : null;
+      const pitchScore = derivedPitchScore ?? latestDrawRaw.pitchScoreRaw ?? 0;
+      const combinedScore = (latestDrawRaw.triviaScore ?? 0) + pitchScore;
+
+      const { pitchScoreRaw, subScores, triviaScore, ...latestDraw } = latestDrawRaw;
+
+      return {
+        ...latestDraw,
+        combinedScore,
+      };
     },
 
     async markRaffleWinnerAnnounced(drawId: string): Promise<Date> {
