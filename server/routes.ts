@@ -1587,13 +1587,27 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      log("[word-cloud-sync] Starting sync from submissions...");
-      const result = await storage.syncWordCloudFromSubmissions();
+      log("[word-cloud-sync] Starting sync from submissions (since reset)...");
+      const result = await storage.syncWordCloudFromSubmissions(false);
       log(`[word-cloud-sync] ${result.message}`);
       res.json(result);
     } catch (error) {
       log(`Error syncing word cloud: ${error}`);
       res.status(500).json({ message: "Failed to sync word cloud from submissions" });
+    }
+  });
+
+  app.post("/api/beta-admin/word-cloud/sync-all", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      log("[word-cloud-sync-all] Starting sync from ALL submissions (ignoring reset)...");
+      const result = await storage.syncWordCloudFromSubmissions(true);
+      log(`[word-cloud-sync-all] ${result.message}`);
+      res.json(result);
+    } catch (error) {
+      log(`Error syncing word cloud: ${error}`);
+      res.status(500).json({ message: "Failed to sync word cloud from all submissions" });
     }
   });
 
