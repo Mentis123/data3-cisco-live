@@ -159,7 +159,7 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
           <div
             key={entry ? entry.id : `placeholder-${index}`}
             data-entry-id={entry ? entry.id : undefined}
-            className={`flex flex-wrap items-center gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-2 sm:py-3 sm:px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
+            className={`flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-2 sm:py-3 sm:px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
           >
             {/* Rank Badge - Responsive */}
             <div
@@ -176,10 +176,10 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
             </div>
 
             {/* Spacer to push category badge and score to the right on desktop */}
-            <div className="hidden sm:block flex-1"></div>
+            <div className="flex-1 hidden sm:block"></div>
 
-            {/* Category Badge - Responsive, wraps on mobile */}
-            <div className="flex-shrink-0 order-last sm:order-none">
+            {/* Category Badge - Responsive, wraps on mobile but inline on desktop */}
+            <div className="flex-shrink-0 w-full sm:w-auto order-last sm:order-none">
               {entry ? (
                 <span
                   className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
@@ -310,7 +310,7 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
                   <span
                     className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40"
                     style={{
-                      fontSize: "clamp(18px, 7vw, 56px)",
+                      fontSize: "clamp(20px, 8vw, 56px)",
                       opacity,
                       textShadow: "0 0 10px rgba(0, 174, 255, 0.5)",
                       whiteSpace: "nowrap"
@@ -329,12 +329,12 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
               opacity = 0.95;
               zIndex = 20;
 
-              // Mobile-responsive positioning using viewport units and smaller offsets
+              // Responsive positioning: constrained on mobile, original positions on desktop
               const positions = [
-                { x: "min(-80px, -15vw)", y: "min(-50px, -10vw)" },
-                { x: "min(90px, 15vw)", y: "min(-40px, -8vw)" },
-                { x: "min(-80px, -15vw)", y: "min(55px, 12vw)" },
-                { x: "min(85px, 15vw)", y: "min(45px, 10vw)" }
+                { x: "max(-150px, -20vw)", y: "max(-80px, -15vw)" },
+                { x: "min(160px, 20vw)", y: "max(-60px, -12vw)" },
+                { x: "max(-140px, -20vw)", y: "min(90px, 18vw)" },
+                { x: "min(150px, 20vw)", y: "min(70px, 15vw)" }
               ];
 
               const pos = positions[index - 1];
@@ -355,7 +355,7 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
                   <span
                     className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
                     style={{
-                      fontSize: "clamp(14px, 4vw, 32px)",
+                      fontSize: "clamp(16px, 4.5vw, 32px)",
                       opacity,
                       textShadow: "0 0 10px rgba(0, 174, 255, 0.5)"
                     }}
@@ -372,11 +372,11 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
             opacity = 0.8;
             zIndex = 10;
 
-            // Outer ring - hidden on very small screens, smaller offsets on mobile
+            // Outer ring - responsive positioning, hidden on very small screens
             const outerPositions = [
-              { x: "min(-110px, -20vw)", y: "min(-75px, -15vw)" },
-              { x: "0px", y: "min(90px, 18vw)" },
-              { x: "min(100px, 18vw)", y: "min(-65px, -13vw)" }
+              { x: "max(-200px, -22vw)", y: "max(-120px, -18vw)" },
+              { x: "0px", y: "min(150px, 22vw)" },
+              { x: "min(180px, 22vw)", y: "max(-100px, -16vw)" }
             ];
 
             const pos = outerPositions[index - 5];
@@ -386,7 +386,7 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
             return (
               <div
                 key={word.text}
-                className="absolute hidden xs:block"
+                className="absolute hidden sm:block"
                 style={{
                   top: "50%",
                   left: "50%",
@@ -397,7 +397,7 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
                 <span
                   className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
                   style={{
-                    fontSize: "clamp(12px, 3.5vw, 24px)",
+                    fontSize: "clamp(14px, 3.5vw, 24px)",
                     opacity,
                     textShadow: "0 0 10px rgba(0, 174, 255, 0.5)"
                   }}
