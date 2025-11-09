@@ -235,13 +235,13 @@ function renderChallengerCard(
     >
       <div className="flex items-center gap-3">
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white flex-shrink-0"
+          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0 whitespace-nowrap"
           style={{ backgroundColor: categoryColor }}
         >
           {challenger.initials}
         </div>
         <div
-          className="h-12 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0"
+          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0"
           style={{ backgroundColor: `${categoryColor}`, color: 'white' }}
         >
           {categoryName}
