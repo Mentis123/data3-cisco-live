@@ -1118,11 +1118,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                         role: "assistant",
                         content: `You scored ${score || 0}/60 on trivia, ${firstName}.
 
-Let's build your project pitch in 3 focused steps. I'll guide you through each one.
+The next step is to pitch a project to earn up to 40 more points.
 
-<strong>What problem are you solving?</strong>
+The AI Coach will guide you through the steps.
 
-Describe a specific challenge that wastes time, creates friction, or impacts productivity.`
+Start by describing a tech related problem at work, the AI Coach will help you explain how it impacts your company. The better your explanation, the more points you earn.`
                       }
                     });
                   }, 300);
