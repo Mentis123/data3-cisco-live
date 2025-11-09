@@ -2602,7 +2602,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       }
 
       // Get individual submissions with bot bar information
-      const stats = await db
+      const statsRaw = await db
         .select({
           attemptId: attempts.id,
           date: sql<string>`DATE(${attempts.startedAt} AT TIME ZONE 'Australia/Melbourne')`.as('date'),
@@ -2612,8 +2612,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           lastName: users.lastName,
           company: users.company,
           triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
-          pitchScore: submissions.totalScore,
-          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
+          pitchScoreRaw: submissions.totalScore,
+          subScores: submissions.subScores,
           botBar: attempts.botBar,
           eligible: attempts.eligible,
           passed: attempts.passed,
@@ -2625,6 +2625,23 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .where(and(...conditions))
         .orderBy(desc(attempts.startedAt));
+
+      // Post-process to calculate correct pitch score from subScores (same as leaderboard and recent attempts)
+      const stats = statsRaw.map(({ pitchScoreRaw, subScores, ...entry }) => {
+        const parsedSubScores = parseSubScores(subScores);
+        const derivedPitchScore = parsedSubScores
+          ? Object.values(parsedSubScores).reduce((sum, score) => sum + score, 0)
+          : null;
+
+        const pitchScore = derivedPitchScore ?? pitchScoreRaw ?? null;
+        const combinedScore = (entry.triviaScore ?? 0) + (pitchScore ?? 0);
+
+        return {
+          ...entry,
+          pitchScore,
+          combinedScore,
+        };
+      });
 
       return stats;
     },
