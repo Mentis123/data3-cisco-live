@@ -470,10 +470,11 @@ export async function registerRoutes(
       const result = await storage.completeTriviaAttempt(payload);
 
       // Broadcast ring exit immediately after trivia completion
-      // This tells the leaderboard to move the user from Trivia to Pitch stage
+      // Everyone who completes trivia moves to Pitch stage (qualified: true)
+      // Pass/fail only matters at the end when comparing combined score to bot bar
       broadcastRingExit({
         attemptId: result.attempt.id,
-        qualified: result.attempt.passed ?? false
+        qualified: true // Always move to Pitch after completing trivia
       });
 
       res.json({
