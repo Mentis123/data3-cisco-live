@@ -422,7 +422,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
     .map(([category, count]) => {
       const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR;
       // Debug logging to help diagnose pie chart color issues
-      console.log(`[Pie Chart] Category: "${category}", Color: "${color}"`);
+      console.log(`[Pie Chart] Category: "${category}", Color: "${color}", Type: ${typeof color}`);
       return {
         name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
         value: count,
