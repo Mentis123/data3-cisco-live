@@ -2637,10 +2637,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       await db.delete(schema.wordCloudEntries).where(inArray(schema.wordCloudEntries.id, ids));
     },
 
-    async syncWordCloudFromSubmissions(): Promise<{ synced: number; message: string }> {
+    async syncWordCloudFromSubmissions(ignoreReset: boolean = false): Promise<{ synced: number; message: string }> {
       try {
         // Get reset timestamp for word_cloud to only sync from post-reset submissions
-        const resetTimestamp = await this.getResetTimestamp('word_cloud');
+        const resetTimestamp = ignoreReset ? null : await this.getResetTimestamp('word_cloud');
 
         // Build WHERE conditions for submissions query
         const conditions = [];
@@ -2890,9 +2890,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           syncedCount++;
         }
 
+        const resetInfo = ignoreReset ? ' (all submissions)' : resetTimestamp ? ' (since reset)' : '';
         return {
           synced: syncedCount,
-          message: `Successfully synced ${syncedCount} word cloud entries from ${allSubmissions.length} submissions`
+          message: `Successfully synced ${syncedCount} word cloud entries from ${allSubmissions.length} submissions${resetInfo}`
         };
       } catch (error) {
         console.error('[syncWordCloudFromSubmissions] Error:', error);

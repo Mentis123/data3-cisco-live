@@ -1826,6 +1826,19 @@ function WordCloudTab() {
     },
   });
 
+  // Fetch reset status
+  const { data: resetStatus } = useQuery({
+    queryKey: ["/api/beta-admin/reset/status"],
+    queryFn: async () => {
+      const response = await fetch("/api/beta-admin/reset/status", {
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!response.ok) throw new Error("Failed to fetch reset status");
+      return response.json();
+    },
+    refetchInterval: 10000,
+  });
+
   // Fetch word cloud visualization data
   const { data: wordCloudData } = useQuery<{ text: string; value: number }[]>({
     queryKey: ["/api/word-cloud-display"],
@@ -2132,6 +2145,12 @@ function WordCloudTab() {
               </span>
             )}
           </p>
+          {resetStatus?.resetTimestamps?.word_cloud && (
+            <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+              <i className="fas fa-clock mr-1"></i>
+              Reset active: Only syncing submissions after {new Date(resetStatus.resetTimestamps.word_cloud).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           {selectedIds.size > 0 && (
@@ -2145,6 +2164,10 @@ function WordCloudTab() {
           )}
           <Button
             variant="outline"
+            title={resetStatus?.resetTimestamps?.word_cloud
+              ? `Sync submissions after ${new Date(resetStatus.resetTimestamps.word_cloud).toLocaleDateString()}`
+              : "Sync all submissions (no reset active)"
+            }
             onClick={async () => {
               try {
                 const response = await fetch("/api/beta-admin/word-cloud/sync", {
@@ -2165,7 +2188,32 @@ function WordCloudTab() {
             }}
           >
             <i className="fas fa-sync w-4 h-4 mr-2"></i>
-            Sync from Submissions
+            Sync Since Reset
+          </Button>
+          <Button
+            variant="outline"
+            title="Sync from ALL submissions, ignoring reset timestamp"
+            onClick={async () => {
+              try {
+                const response = await fetch("/api/beta-admin/word-cloud/sync-all", {
+                  method: "POST",
+                  headers: { "x-admin-key": adminKey },
+                });
+                if (!response.ok) throw new Error("Failed to sync all");
+                const result = await response.json();
+                toast({ title: "Success", description: result.message });
+                refetch();
+              } catch (error) {
+                toast({
+                  title: "Sync All failed",
+                  description: "Could not sync word cloud from all submissions",
+                  variant: "destructive"
+                });
+              }
+            }}
+          >
+            <i className="fas fa-sync-alt w-4 h-4 mr-2"></i>
+            Sync All
           </Button>
           <Button onClick={() => setCreatingNew(true)}>
             <Plus className="w-4 h-4 mr-2" />
