@@ -2101,7 +2101,7 @@ Start by describing a tech related problem at work, the AI Coach will help you e
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <i className="fas fa-check-circle text-sm text-green-400"></i>
-                          <span className="text-sm text-slate-200">Ready to review your pitch?</span>
+                          <span className="text-sm text-slate-200">Click to submit your pitch</span>
                         </div>
                         <Button
                           onClick={handleSubmitCommand}
