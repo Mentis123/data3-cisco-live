@@ -1521,6 +1521,7 @@ export function createMemoryStorage() {
       const attempt = triviaAttemptsStore.find((a) => a.id === attemptId);
       if (attempt) {
         attempt.endedAt = new Date();
+        attempt.submissionId = 'ADMIN_REMOVED'; // Mark as removed to exclude from active list
       }
     },
 
@@ -1536,6 +1537,7 @@ export function createMemoryStorage() {
           && attempt.startedAt.getTime() < cutoff
         ) {
           attempt.endedAt = new Date();
+          attempt.submissionId = 'ADMIN_REMOVED'; // Mark as removed to exclude from active list
           count++;
         }
       });
@@ -1549,6 +1551,7 @@ export function createMemoryStorage() {
       triviaAttemptsStore.forEach((attempt) => {
         if (attempt.mode === "ring" && !attempt.endedAt) {
           attempt.endedAt = new Date();
+          attempt.submissionId = 'ADMIN_REMOVED'; // Mark as removed to exclude from active list
           count++;
         }
       });

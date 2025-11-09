@@ -1782,7 +1782,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     try {
       await db
         .update(attempts)
-        .set({ endedAt: new Date() })
+        .set({
+          endedAt: new Date(),
+          submissionId: 'ADMIN_REMOVED' // Mark as removed to exclude from active list
+        })
         .where(eq(attempts.id, attemptId));
     } catch (error) {
       console.error('[forceEndRingAttempt] Error ending ring attempt:', error);
@@ -1796,7 +1799,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
       const result = await db
         .update(attempts)
-        .set({ endedAt: new Date() })
+        .set({
+          endedAt: new Date(),
+          submissionId: 'ADMIN_REMOVED' // Mark as removed to exclude from active list
+        })
         .where(
           and(
             eq(attempts.mode, "ring"),
@@ -1817,7 +1823,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     try {
       const result = await db
         .update(attempts)
-        .set({ endedAt: new Date() })
+        .set({
+          endedAt: new Date(),
+          submissionId: 'ADMIN_REMOVED' // Mark as removed to exclude from active list
+        })
         .where(
           and(
             eq(attempts.mode, "ring"),
