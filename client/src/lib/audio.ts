@@ -224,6 +224,15 @@ export class AudioManager {
     }
   }
 
+  private isMobileDevice(): boolean {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return false;
+    }
+
+    const userAgent = navigator.userAgent;
+    return /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  }
+
   private detectVolumeControlSupport(): void {
     // Test if programmatic volume control is supported
     // On iOS and some mobile browsers, the volume property accepts values but doesn't actually control playback
@@ -1193,6 +1202,44 @@ export class AudioManager {
       }
     }
   }
+
+  /**
+   * Play trivia enter sound with conditional logic:
+   * - Desktop: Force play (bypass immersive mode)
+   * - Mobile: Respect immersive mode and sound settings
+   */
+  public async playTriviaEnterSoundConditional(): Promise<void> {
+    const isMobile = this.isMobileDevice();
+
+    if (isMobile) {
+      // On mobile, respect immersive mode and sound settings
+      console.log('[AudioManager] Mobile device - respecting sound settings for trivia enter');
+      return this.playTriviaEnterSound();
+    } else {
+      // On desktop, force play
+      console.log('[AudioManager] Desktop device - force playing trivia enter sound');
+      return this.forcePlayTriviaEnterSound();
+    }
+  }
+
+  /**
+   * Play pitch enter sound with conditional logic:
+   * - Desktop: Force play (bypass immersive mode)
+   * - Mobile: Respect immersive mode and sound settings
+   */
+  public async playPitchEnterSoundConditional(): Promise<void> {
+    const isMobile = this.isMobileDevice();
+
+    if (isMobile) {
+      // On mobile, respect immersive mode and sound settings
+      console.log('[AudioManager] Mobile device - respecting sound settings for pitch enter');
+      return this.playPitchEnterSound();
+    } else {
+      // On desktop, force play
+      console.log('[AudioManager] Desktop device - force playing pitch enter sound');
+      return this.forcePlayPitchEnterSound();
+    }
+  }
 }
 
 // Lazy-initialized singleton wrapper to avoid module load-time initialization issues
@@ -1358,6 +1405,14 @@ class AudioManagerWrapper {
 
   forcePlayRaffleWinnerSound() {
     return this.getInstance().forcePlayRaffleWinnerSound();
+  }
+
+  playTriviaEnterSoundConditional() {
+    return this.getInstance().playTriviaEnterSoundConditional();
+  }
+
+  playPitchEnterSoundConditional() {
+    return this.getInstance().playPitchEnterSoundConditional();
   }
 }
 

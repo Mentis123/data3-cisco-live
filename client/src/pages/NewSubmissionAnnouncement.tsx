@@ -129,9 +129,9 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
       if (videoDataStr) {
         const videoData = JSON.parse(videoDataStr);
 
-        // Play pitch enter sound for user if they qualified (force play - always plays)
+        // Play pitch enter sound for user if they qualified (conditional: force on desktop, respect settings on mobile)
         if (videoData.isWinner) {
-          audioManager.forcePlayPitchEnterSound()
+          audioManager.playPitchEnterSoundConditional()
             .then(() => console.log('[NewSubmissionAnnouncement] Pitch enter sound played for user'))
             .catch(err => console.warn('[NewSubmissionAnnouncement] Pitch enter sound failed:', err));
         }

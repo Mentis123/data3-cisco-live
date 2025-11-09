@@ -1088,8 +1088,8 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   setTriviaAttemptId(attemptId);
                 }
 
-                // Play trivia enter sound for user (force play - always plays)
-                audioManager.forcePlayTriviaEnterSound()
+                // Play trivia enter sound for user (conditional: force on desktop, respect settings on mobile)
+                audioManager.playTriviaEnterSoundConditional()
                   .then(() => console.log('[Play] Trivia enter sound played for user'))
                   .catch(err => console.warn('[Play] Trivia enter sound failed:', err));
 
