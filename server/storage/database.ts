@@ -1268,7 +1268,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async getSubmission(id: string): Promise<any> {
-    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
+    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
 
     const [result] = await db
       .select({
@@ -1335,7 +1335,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Get reset timestamp for leaderboard
     const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
-    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
+    const combinedScoreExpr = sql<number>`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`;
 
     const baseQuery = db
       .select({
@@ -1375,13 +1375,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       ? await baseQuery
           .where(conditions.length === 1 ? conditions[0] : and(...conditions))
           .orderBy(
-            desc(sql`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
+            desc(sql`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
             submissions.createdAt
           )
           .limit(limit)
       : await baseQuery
           .orderBy(
-            desc(sql`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
+            desc(sql`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`),
             submissions.createdAt
           )
           .limit(limit);
@@ -1769,8 +1769,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     async getCategoryStats(filterDate?: string): Promise<{ [key: string]: number }> {
     const today = filterDate || getMelbourneDate();
 
-    // Get reset timestamp for scored_submissions
-    const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+    // Get reset timestamp for leaderboard
+    const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
     // Build WHERE conditions
     const conditions = [];
@@ -2041,8 +2041,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getRecentSubmission(): Promise<any> {
     try {
-      // Get reset timestamp for scored_submissions
-      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+      // Get reset timestamp for leaderboard
+      const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
       // Build WHERE conditions
       const conditions = [];
@@ -2091,8 +2091,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getTopProblemCategory(): Promise<string> {
     try {
-      // Get reset timestamp for scored_submissions
-      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+      // Get reset timestamp for leaderboard
+      const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
       // Build WHERE conditions
       const conditions = [];
@@ -2307,7 +2307,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           mode: attempts.mode,
           triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
           pitchScore: submissions.totalScore,
-          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`,
           passed: attempts.passed,
           eligible: attempts.eligible,
           startedAt: attempts.startedAt,
@@ -2493,7 +2493,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           company: users.company,
           triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
           pitchScore: submissions.totalScore,
-          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
+          combinedScore: sql<number>`COALESCE(${attempts.triviaScore}, 0) + COALESCE(${submissions.totalScore}, 0)`.as('combined_score'),
           botBar: attempts.botBar,
           eligible: attempts.eligible,
           passed: attempts.passed,
@@ -3183,7 +3183,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     },
 
     async getScoredSubmissionsCount(category?: string): Promise<number> {
-      const resetTimestamp = await this.getResetTimestamp('scored_submissions');
+      const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
       const conditions = [eq(submissions.announcedOnLeaderboard, true)];
 
