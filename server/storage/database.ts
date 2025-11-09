@@ -1188,15 +1188,26 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   },
 
     async markSubmissionAsAnnounced(submissionId: string): Promise<void> {
-      await db
+      console.log(`[database] Marking submission ${submissionId} as announced`);
+      const result = await db
         .update(submissions)
         .set({ announcedOnLeaderboard: true })
-        .where(eq(submissions.id, submissionId));
+        .where(eq(submissions.id, submissionId))
+        .returning({ id: submissions.id, announcedOnLeaderboard: submissions.announcedOnLeaderboard, totalScore: submissions.totalScore });
+      console.log(`[database] Marked submission as announced:`, result);
     },
 
     async getLeaderboard(limit: number = 100, category?: string, filterDate?: string, includeUnannounced: boolean = false): Promise<any[]> {
     // Get reset timestamp for leaderboard
     const resetTimestamp = await this.getResetTimestamp('leaderboard');
+
+    console.log('[database] getLeaderboard called with:', {
+      limit,
+      category,
+      filterDate,
+      includeUnannounced,
+      resetTimestamp
+    });
 
     let query = db
       .select({
@@ -1204,6 +1215,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         totalScore: submissions.totalScore,
         category: submissions.category,
         createdAt: submissions.createdAt,
+        announcedOnLeaderboard: submissions.announcedOnLeaderboard,
         name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
       })
       .from(submissions)
@@ -1240,7 +1252,19 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
 
     // Apply LIMIT after WHERE to get top N filtered results
-    return await query.limit(limit);
+    const results = await query.limit(limit);
+
+    console.log(`[database] getLeaderboard returned ${results.length} results (first 3):`,
+      results.slice(0, 3).map(r => ({
+        id: r.id.substring(0, 8),
+        score: r.totalScore,
+        announced: r.announcedOnLeaderboard,
+        createdAt: r.createdAt
+      }))
+    );
+
+    // Remove announcedOnLeaderboard from results before returning
+    return results.map(({ announcedOnLeaderboard, ...rest }) => rest);
   },
 
     async getSubmission(id: string): Promise<any> {
