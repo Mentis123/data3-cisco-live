@@ -111,7 +111,7 @@ export default function Beta() {
               </Link>
             </div>
             <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 text-center">
-              Training dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
+              Practice dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
             </p>
           </div>
           <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 sm:gap-6 mx-auto">

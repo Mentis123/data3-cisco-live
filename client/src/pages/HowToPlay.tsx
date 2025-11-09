@@ -535,9 +535,9 @@ export default function HowToPlay() {
                   <div className="rounded-xl border border-pink-400/30 bg-pink-500/10 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <i className="fas fa-graduation-cap text-pink-400"></i>
-                      <p className="font-semibold text-white">Training dojo</p>
+                      <p className="font-semibold text-white">Practice dojo</p>
                     </div>
-                    <p>Unlimited training runs with explanations help you get the rhythm before going official.</p>
+                    <p>Unlimited practice runs with explanations help you get the rhythm before going official.</p>
                   </div>
                 </div>
               </AccordionContent>
