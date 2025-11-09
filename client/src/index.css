@@ -861,12 +861,22 @@
 
 /* Force correct Security purple color in pie charts - override any browser rendering issues */
 .recharts-sector[fill="#6B21A8"],
-.recharts-sector[stroke="#6B21A8"] {
-  fill: #6B21A8 !important;
-  stroke: #6B21A8 !important;
+.recharts-sector[stroke="#6B21A8"],
+.recharts-sector[fill="rgb(107, 33, 168)"],
+.recharts-sector[stroke="rgb(107, 33, 168)"] {
+  fill: rgb(107, 33, 168) !important;
+  stroke: rgb(107, 33, 168) !important;
 }
 
 /* Force Security purple color for icons and text */
 .text-security-purple {
-  color: #6B21A8 !important;
+  color: rgb(107, 33, 168) !important;
+}
+
+/* Override forced colors mode if browser is applying it */
+@media (forced-colors: active) {
+  .recharts-sector[fill="rgb(107, 33, 168)"],
+  .text-security-purple {
+    forced-color-adjust: none !important;
+  }
 }

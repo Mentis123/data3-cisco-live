@@ -422,7 +422,7 @@ function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]):
     .map(([category, count]) => {
       const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR;
       // Debug logging to help diagnose pie chart color issues
-      console.log(`[Pie Chart] Category: "${category}", Color: "${color}"`);
+      console.log(`[Pie Chart] Category: "${category}", Color: "${color}", Type: ${typeof color}`);
       return {
         name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
         value: count,
@@ -1745,7 +1745,7 @@ export default function Leaderboard() {
                 {activeView === "categories" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      <i className="fas fa-chart-pie text-security-purple mr-3" style={{ color: '#6B21A8' }}></i>
+                      <i className="fas fa-chart-pie text-security-purple mr-3" style={{ color: 'rgb(107, 33, 168)' }}></i>
                       Problem Categories
                     </CardTitle>
                     <p className="mt-2 text-sm text-[#78DCFF]/80">
