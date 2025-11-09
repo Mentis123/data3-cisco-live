@@ -419,11 +419,16 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
 
 function renderCategoryStatsView(categoryStats: DashboardData["categoryStats"]): ReactNode {
   const categoryData = Object.entries(categoryStats)
-    .map(([category, count]) => ({
-      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
-      value: count,
-      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR
-    }))
+    .map(([category, count]) => {
+      const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR;
+      // Debug logging to help diagnose pie chart color issues
+      console.log(`[Pie Chart] Category: "${category}", Color: "${color}"`);
+      return {
+        name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
+        value: count,
+        color
+      };
+    })
     .filter((item) => item.value > 0);
 
   const totalSubmissions = Object.values(categoryStats).reduce((a, b) => a + Number(b), 0);

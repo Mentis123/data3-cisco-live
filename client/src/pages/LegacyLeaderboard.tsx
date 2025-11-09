@@ -936,11 +936,16 @@ export default function LegacyLeaderboard() {
   };
 
   const renderCategoryStats = () => {
-    const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => ({
-      name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
-      value: count,
-      color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR
-    })).filter(item => item.value > 0); // Only include categories with data
+    const categoryData = Object.entries(displayData.categoryStats).map(([category, count]) => {
+      const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || DEFAULT_CATEGORY_COLOR;
+      // Debug logging to help diagnose pie chart color issues
+      console.log(`[Legacy Pie Chart] Category: "${category}", Color: "${color}"`);
+      return {
+        name: CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES] || category,
+        value: count,
+        color
+      };
+    }).filter(item => item.value > 0); // Only include categories with data
 
     const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + b, 0);
 
