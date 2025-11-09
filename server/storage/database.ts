@@ -108,6 +108,7 @@ type TriviaCardSnapshot = Array<{
 const TRIVIA_ROUND_SIZE = 5;
 const MAX_TRIVIA_TIME_MS = 15_000; // 15 seconds to match frontend timer
 const ACTIVE_RING_WINDOW_MINUTES = 15;
+const AUTO_ANNOUNCE_GRACE_PERIOD_MS = 30_000; // 30 seconds grace period before auto-announcing
 
 type SessionMessage = {
   role: "user" | "assistant" | "system";
@@ -655,6 +656,71 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     }
 
     return cards;
+  };
+
+  const autoAnnouncePendingSubmissions = async (
+    {
+      resetTimestamp,
+      filterDate,
+      category,
+    }: {
+      resetTimestamp: Date | null;
+      filterDate?: string;
+      category?: string;
+    },
+  ): Promise<number> => {
+    const graceCutoff = new Date(Date.now() - AUTO_ANNOUNCE_GRACE_PERIOD_MS);
+
+    const conditions = [
+      eq(submissions.announcedOnLeaderboard, false),
+      sql`${submissions.createdAt} <= ${graceCutoff}`,
+    ];
+
+    if (resetTimestamp) {
+      conditions.push(sql`${submissions.createdAt} >= ${resetTimestamp}`);
+    }
+
+    if (filterDate) {
+      conditions.push(
+        sql`DATE(${submissions.createdAt} AT TIME ZONE 'Australia/Melbourne') = ${filterDate}`,
+      );
+    }
+
+    if (category) {
+      conditions.push(eq(submissions.category, category));
+    }
+
+    try {
+      const pending = await db
+        .select({ id: submissions.id })
+        .from(submissions)
+        .where(and(...conditions))
+        .limit(10);
+
+      if (pending.length === 0) {
+        return 0;
+      }
+
+      const pendingIds = pending.map((item) => item.id);
+
+      const updated = await db
+        .update(submissions)
+        .set({ announcedOnLeaderboard: true })
+        .where(inArray(submissions.id, pendingIds))
+        .returning({ id: submissions.id });
+
+      if (updated.length > 0) {
+        console.warn('[database] Auto-announced pending submissions after grace period', {
+          count: updated.length,
+          ids: updated.map((item) => item.id),
+        });
+      }
+
+      return updated.length;
+    } catch (error) {
+      console.error('[database] Failed to auto-announce pending submissions:', error);
+      return 0;
+    }
   };
 
   return {
@@ -1208,6 +1274,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       includeUnannounced,
       resetTimestamp
     });
+
+    if (!includeUnannounced) {
+      await autoAnnouncePendingSubmissions({ resetTimestamp, filterDate, category });
+    }
 
     let query = db
       .select({
@@ -1772,6 +1842,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     // Get reset timestamp for leaderboard
     const resetTimestamp = await this.getResetTimestamp('leaderboard');
 
+    await autoAnnouncePendingSubmissions({ resetTimestamp, filterDate: today });
+
     // Build WHERE conditions
     const conditions = [];
 
@@ -2043,6 +2115,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
     try {
       // Get reset timestamp for leaderboard
       const resetTimestamp = await this.getResetTimestamp('leaderboard');
+
+      await autoAnnouncePendingSubmissions({ resetTimestamp });
 
       // Build WHERE conditions
       const conditions = [];
@@ -3184,6 +3258,8 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async getScoredSubmissionsCount(category?: string): Promise<number> {
       const resetTimestamp = await this.getResetTimestamp('leaderboard');
+
+      await autoAnnouncePendingSubmissions({ resetTimestamp, category });
 
       const conditions = [eq(submissions.announcedOnLeaderboard, true)];
 
