@@ -2690,20 +2690,17 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           // Generic tech terms
           'system', 'systems', 'application', 'applications', 'apps', 'app', 'cloud', 'digital', 'data',
           'security', 'secure', 'connectivity', 'hybrid', 'observability', 'edge', 'iot', 'general',
-          'scale', 'expertise', 'cisco', 'zero', 'trust', 'fso', 'network', 'networks', 'platform',
-          'platforms', 'technology', 'technologies', 'client', 'clients', 'tool', 'tools', 'feature',
-          'features', 'capability', 'capabilities', 'integration', 'integrations', 'access', 'management'
+          'scale', 'expertise', 'cisco', 'zero', 'trust', 'fso', 'network', 'networks', 'networking',
+          'platform', 'platforms', 'technology', 'technologies', 'client', 'clients', 'tool', 'tools',
+          'feature', 'features', 'capability', 'capabilities', 'integration', 'integrations', 'access',
+          'management', 'collaboration', 'center', 'datacenter'
         ]);
 
         const categoryKeywords = [
-          'SECURE_CONNECTIVITY',
-          'HYBRID_DC',
-          'COLLAB_CX',
-          'OBSERVABILITY',
-          'EDGE_IOT',
-          'GENERAL',
-          'SCALE',
-          'EXPERTISE',
+          'NETWORKING',
+          'SECURITY',
+          'COLLABORATION',
+          'DATA_CENTER',
         ];
 
         const disallowedTokens = new Set<string>();
