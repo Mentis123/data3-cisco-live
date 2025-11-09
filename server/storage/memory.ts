@@ -1398,10 +1398,10 @@ export function createMemoryStorage() {
         )
         .map((attempt) => {
           const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
-          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
-          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const firstName = user?.firstName?.trim() || '';
+          const lastInitial = user?.lastName?.trim()?.[0]?.toUpperCase() || '';
           const fallback = attempt.id.slice(0, 2).toUpperCase();
-          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+          const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
           const startedAtIso = attempt.startedAt instanceof Date
             ? attempt.startedAt.toISOString()
@@ -1437,10 +1437,10 @@ export function createMemoryStorage() {
         )
         .forEach((attempt) => {
           const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
-          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
-          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const firstName = user?.firstName?.trim() || '';
+          const lastInitial = user?.lastName?.trim()?.[0]?.toUpperCase() || '';
           const fallback = attempt.id.slice(0, 2).toUpperCase();
-          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+          const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
           const startedAtIso = attempt.startedAt instanceof Date
             ? attempt.startedAt.toISOString()
@@ -1493,10 +1493,10 @@ export function createMemoryStorage() {
         )
         .map((attempt) => {
           const user = attempt.emailHash ? triviaUsersStore.get(attempt.emailHash) : null;
-          const firstInitial = user?.firstName?.trim()?.[0] ?? "";
-          const lastInitial = user?.lastName?.trim()?.[0] ?? "";
+          const firstName = user?.firstName?.trim() || '';
+          const lastInitial = user?.lastName?.trim()?.[0]?.toUpperCase() || '';
           const fallback = attempt.id.slice(0, 2).toUpperCase();
-          const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase() || fallback;
+          const initials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : (firstName || fallback);
 
           const startedAt = attempt.startedAt instanceof Date ? attempt.startedAt : new Date();
           const elapsedMinutes = Math.floor((Date.now() - startedAt.getTime()) / (1000 * 60));
