@@ -224,21 +224,18 @@ function renderChallengerCard(
     >
       <div className="flex items-center gap-3">
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white"
+          className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white flex-shrink-0"
           style={{ backgroundColor: categoryColor }}
         >
           {challenger.initials}
         </div>
-        <div className="flex-1">
-          <p className="text-white font-bold text-lg">{stageLabel}</p>
-          <Badge
-            className="text-xs mt-1"
-            style={{ backgroundColor: `${categoryColor}40`, color: categoryColor }}
-          >
-            {categoryName}
-          </Badge>
+        <div
+          className="h-12 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0"
+          style={{ backgroundColor: `${categoryColor}`, color: 'white' }}
+        >
+          {categoryName}
         </div>
-        <div className="text-[#78DCFF]/60">
+        <div className="text-[#78DCFF]/60 ml-auto">
           <i className={`${stageIcon} text-2xl`}></i>
         </div>
       </div>
@@ -917,41 +914,94 @@ export default function Leaderboard() {
   const handleRingExit = (data: { attemptId: string; qualified: boolean }) => {
     console.log('🚪 RING EXIT:', data);
 
-    // Mark challenger as fading in all lists
-    setActiveChallengers(prev =>
-      prev.map(challenger =>
-        challenger.attemptId === data.attemptId
-          ? { ...challenger, fading: true }
-          : challenger
-      )
-    );
-    setTriviaChallengers(prev =>
-      prev.map(challenger =>
-        challenger.attemptId === data.attemptId
-          ? { ...challenger, fading: true }
-          : challenger
-      )
-    );
-    setProjectPitchChallengers(prev =>
-      prev.map(challenger =>
-        challenger.attemptId === data.attemptId
-          ? { ...challenger, fading: true }
-          : challenger
-      )
-    );
+    if (data.qualified) {
+      // User qualified - move them from trivia to pitch
+      console.log('[Leaderboard] User qualified from trivia, moving to pitch');
 
-    // Remove after fade animation (2 seconds)
-    setTimeout(() => {
+      // Find the challenger in trivia list
+      const triviaChallenger = triviaChallengers.find(c => c.attemptId === data.attemptId);
+
+      if (triviaChallenger) {
+        // Mark as fading in trivia
+        setTriviaChallengers(prev =>
+          prev.map(challenger =>
+            challenger.attemptId === data.attemptId
+              ? { ...challenger, fading: true }
+              : challenger
+          )
+        );
+
+        // Remove from trivia after fade
+        setTimeout(() => {
+          setTriviaChallengers(prev =>
+            prev.filter(c => c.attemptId !== data.attemptId)
+          );
+        }, 2000);
+
+        // Add to pitch list immediately (with fresh timestamp)
+        const now = Date.now();
+        setProjectPitchChallengers(prev => {
+          // Check if already in pitch list
+          if (prev.some(c => c.attemptId === data.attemptId)) {
+            return prev;
+          }
+          // Add to pitch list
+          return [
+            {
+              ...triviaChallenger,
+              timestamp: now,
+              fading: false,
+              lastSeenInApi: now
+            },
+            ...prev
+          ];
+        });
+
+        // Play pitch enter sound
+        audioManager.forcePlayPitchEnterSound()
+          .then(() => console.log('[Leaderboard] Pitch enter sound played'))
+          .catch(err => console.warn('[Leaderboard] Pitch enter sound failed:', err));
+      }
+    } else {
+      // User didn't qualify - remove from all lists
+      console.log('[Leaderboard] User did not qualify, removing from all lists');
+
+      // Mark challenger as fading in all lists
       setActiveChallengers(prev =>
-        prev.filter(c => c.attemptId !== data.attemptId)
+        prev.map(challenger =>
+          challenger.attemptId === data.attemptId
+            ? { ...challenger, fading: true }
+            : challenger
+        )
       );
       setTriviaChallengers(prev =>
-        prev.filter(c => c.attemptId !== data.attemptId)
+        prev.map(challenger =>
+          challenger.attemptId === data.attemptId
+            ? { ...challenger, fading: true }
+            : challenger
+        )
       );
       setProjectPitchChallengers(prev =>
-        prev.filter(c => c.attemptId !== data.attemptId)
+        prev.map(challenger =>
+          challenger.attemptId === data.attemptId
+            ? { ...challenger, fading: true }
+            : challenger
+        )
       );
-    }, 2000);
+
+      // Remove after fade animation (2 seconds)
+      setTimeout(() => {
+        setActiveChallengers(prev =>
+          prev.filter(c => c.attemptId !== data.attemptId)
+        );
+        setTriviaChallengers(prev =>
+          prev.filter(c => c.attemptId !== data.attemptId)
+        );
+        setProjectPitchChallengers(prev =>
+          prev.filter(c => c.attemptId !== data.attemptId)
+        );
+      }, 2000);
+    }
   };
 
   // Handle raffle qualification
