@@ -1138,11 +1138,31 @@ export function createMemoryStorage() {
       const denominator = SEED_COUNT + actualCount;
 
       if (denominator === 0) {
+        console.log('[calculateBotBar] No submissions found, returning default SEED_SCORE:', SEED_SCORE);
         return SEED_SCORE;
       }
 
       const mean = (SEED_SUM + actualSum) / denominator;
-      return Math.round(mean);
+      const result = Math.round(mean);
+
+      console.log('[calculateBotBar] Calculation:', {
+        category,
+        date: dateStr,
+        actualSum,
+        actualCount,
+        SEED_SUM,
+        SEED_COUNT,
+        denominator,
+        mean,
+        result,
+      });
+
+      // Validate result is in expected range
+      if (result < 0 || result > 100) {
+        console.error('[calculateBotBar] ⚠️ WARNING: Bot bar result outside expected range (0-100):', result);
+      }
+
+      return result;
     },
 
     async getTriviaAttempt(attemptId: string): Promise<Attempt | null> {
