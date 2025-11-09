@@ -2680,7 +2680,13 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           : await query;
 
         if (allSubmissions.length === 0) {
-          return { synced: 0, message: 'No submissions found to generate word cloud from' };
+          // Clear existing auto-generated entries when there are no submissions
+          await db
+            .update(schema.wordCloudEntries)
+            .set({ active: false, updatedAt: new Date() })
+            .where(eq(schema.wordCloudEntries.source, 'auto'));
+
+          return { synced: 0, message: 'No submissions found - word cloud cleared' };
         }
 
         const stopWords = new Set([
