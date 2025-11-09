@@ -537,7 +537,7 @@ export default function HowToPlay() {
                       <i className="fas fa-graduation-cap text-pink-400"></i>
                       <p className="font-semibold text-white">Practice dojo</p>
                     </div>
-                    <p>Unlimited training runs with explanations help you get the rhythm before going official.</p>
+                    <p>Unlimited practice runs with explanations help you get the rhythm before going official.</p>
                   </div>
                 </div>
               </AccordionContent>

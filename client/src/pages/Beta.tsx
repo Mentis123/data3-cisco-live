@@ -111,7 +111,7 @@ export default function Beta() {
               </Link>
             </div>
             <p className="mx-auto max-w-3xl text-pretty text-lg text-slate-200/85 text-center">
-              Training dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
+              Practice dojo. Enter the Ring up to 5× per day (once per category). Every win is a raffle entry for today's Meta AI Glasses.
             </p>
           </div>
           <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 sm:gap-6 mx-auto">
@@ -133,7 +133,7 @@ export default function Beta() {
                   <img src={dojoImage} alt="Practice Dojo" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-60" />
                   <div className="absolute inset-0 bg-slate-950/40" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
-                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Training</span>
+                    <span className="text-sm uppercase tracking-[0.3em] text-primary/70">Practice</span>
                     <span className="text-xl font-semibold text-white">Practice Dojo</span>
                   </div>
                 </div>

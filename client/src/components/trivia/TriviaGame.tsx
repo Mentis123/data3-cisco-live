@@ -15,8 +15,10 @@ type TriviaPhase = "idle" | "ready" | "go" | "playing" | "feedback" | "complete"
 
 /**
  * TriviaMode determines UI behavior:
- * - "dojo": Training mode with manual "Continue" button between questions
+
+ * - "dojo": Practice mode with manual "Continue" button between questions
  * - "ring": Official mode with auto-advance (4s delay)
+
  */
 type TriviaMode = "dojo" | "ring";
 
