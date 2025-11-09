@@ -491,7 +491,7 @@ export function TriviaWarmup({
         <div className="space-y-3">
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">Choose Your Architecture</h2>
           <p className="text-sm text-slate-300/80 sm:text-base">
-            Click on a topic to test yourself before you enter the ring
+            Choose a topic to compete for a spot on the leaderboard.
           </p>
           {attemptError && (
             <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">

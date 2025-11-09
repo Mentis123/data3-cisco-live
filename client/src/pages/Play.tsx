@@ -1063,10 +1063,10 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <h1 className="text-4xl font-semibold sm:text-5xl">Beat the Bot</h1>
+                <h1 className="text-4xl font-semibold sm:text-5xl">The Ring</h1>
               </div>
               <p className="max-w-3xl text-pretty text-base text-data3-white/80 sm:text-lg">
-                This is your official attempt. Answer Data#3 trivia pulled from the live stats deck — your score counts toward the leaderboard.
+                Welcome to the Ring. Answer Data#3 trivia to earn a spot on the leaderboard.
               </p>
             </div>
             <TriviaWarmup
@@ -1143,7 +1143,7 @@ Describe a specific challenge that wastes time, creates friction, or impacts pro
               </Link>
               <Link href="/dojo">
                 <Button className="shadow-[0_25px_70px_-40px_rgba(0,174,255,0.9)]">
-                  Train in the Dojo
+                  Practice in the Dojo
                 </Button>
               </Link>
             </div>
