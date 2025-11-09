@@ -1088,6 +1088,11 @@ Reply with the number and letter (e.g., "1a" for low scoring, "1b" for high scor
                   setTriviaAttemptId(attemptId);
                 }
 
+                // Play trivia enter sound for user (respects immersive mode)
+                audioManager.playTriviaEnterSound()
+                  .then(() => console.log('[Play] Trivia enter sound played for user'))
+                  .catch(err => console.warn('[Play] Trivia enter sound failed:', err));
+
                 // Trigger boot-up sequence with animated text
                 setIsBooting(true);
                 setBootingText(`Analyzing your ${activeCategoryLabel || 'expertise'}...`);

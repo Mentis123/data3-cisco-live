@@ -894,9 +894,9 @@ export default function Leaderboard() {
   const handleRingEntry = (entry: { attemptId: string; initials: string; category: string }) => {
     console.log('🥊 RING ENTRY:', entry);
 
-    // Play trivia enter sound - only when immersive mode is enabled
+    // Play trivia enter sound - FORCE PLAY (bypass immersive filter)
     console.log('[Leaderboard] Playing trivia enter sound...');
-    audioManager.playTriviaEnterSound()
+    audioManager.forcePlayTriviaEnterSound()
       .then(() => console.log('[Leaderboard] Trivia enter sound played successfully'))
       .catch(err => console.warn('[Leaderboard] Trivia enter sound failed:', err));
 
@@ -976,8 +976,8 @@ export default function Leaderboard() {
           ];
         });
 
-        // Play pitch enter sound - only when immersive mode is enabled
-        audioManager.playPitchEnterSound()
+        // Play pitch enter sound
+        audioManager.forcePlayPitchEnterSound()
           .then(() => console.log('[Leaderboard] Pitch enter sound played'))
           .catch(err => console.warn('[Leaderboard] Pitch enter sound failed:', err));
       }

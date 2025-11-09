@@ -130,6 +130,14 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
         const videoData = JSON.parse(videoDataStr);
         setIsWinner(videoData.isWinner);
         setShowVideoModal(true);
+
+        // Play pitch enter sound for user if they qualified (respects immersive mode)
+        if (videoData.isWinner) {
+          audioManager.playPitchEnterSound()
+            .then(() => console.log('[NewSubmissionAnnouncement] Pitch enter sound played for user'))
+            .catch(err => console.warn('[NewSubmissionAnnouncement] Pitch enter sound failed:', err));
+        }
+
         // Clear the video flag
         sessionStorage.removeItem('shouldShowVideo');
         return;
