@@ -71,6 +71,7 @@ interface RaffleEntry {
   raffleDate: string;
   category: string;
   emailHash: string;
+  email: string | null;
   attemptId: string;
   createdAt: string;
   firstName: string | null;
@@ -1096,9 +1097,9 @@ function RaffleTab() {
       "Category",
       "First Name",
       "Last Name",
+      "Email",
       "Company",
       "Role",
-      "Email Hash",
       "Score",
       "Passed",
       "Eligible",
@@ -1111,9 +1112,9 @@ function RaffleTab() {
       entry.category,
       entry.firstName || "",
       entry.lastName || "",
+      entry.email || "",
       entry.company || "",
       entry.role || "",
-      entry.emailHash,
       entry.combinedScore ??
         (entry.triviaScore != null && entry.pitchScore != null
           ? entry.triviaScore + entry.pitchScore
@@ -1167,6 +1168,8 @@ function RaffleTab() {
                       <span className="font-medium">
                         {entry.firstName && entry.lastName
                           ? `${entry.firstName} ${entry.lastName}`
+                          : entry.email
+                          ? entry.email
                           : `User ${entry.emailHash.slice(0, 8)}`}
                       </span>
                       <Badge className={CATEGORY_BADGE_MAP[entry.category] || "bg-gray-500"}>
@@ -1177,6 +1180,7 @@ function RaffleTab() {
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
+                      {entry.email && <span>{entry.email} • </span>}
                       {entry.company && <span>{entry.company} • </span>}
                       {entry.role && <span>{entry.role} • </span>}
                       Score:{" "}
@@ -1194,9 +1198,6 @@ function RaffleTab() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-sm font-mono text-muted-foreground">
-                        {entry.emailHash.slice(0, 16)}...
-                      </div>
                       <div className="text-xs text-muted-foreground">
                         Raffle Date: {entry.raffleDate}
                       </div>
