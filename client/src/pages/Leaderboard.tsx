@@ -148,7 +148,7 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
   };
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-2 sm:space-y-3">
       {rows.map((entry, index) => {
         const hasEntry = Boolean(entry);
         const categoryColor = entry
@@ -159,30 +159,30 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
           <div
             key={entry ? entry.id : `placeholder-${index}`}
             data-entry-id={entry ? entry.id : undefined}
-            className={`flex items-center gap-4 rounded-2xl border backdrop-blur-xl transition-all duration-300 py-3 px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
+            className={`flex flex-wrap items-center gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-2 sm:py-3 sm:px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
           >
-            {/* Rank Badge - Large */}
+            {/* Rank Badge - Responsive */}
             <div
-              className={`flex items-center justify-center rounded-full font-black tracking-tight h-14 w-14 text-2xl flex-shrink-0 ${getRankClasses(index, hasEntry)}`}
+              className={`flex items-center justify-center rounded-full font-black tracking-tight h-10 w-10 text-lg sm:h-14 sm:w-14 sm:text-2xl flex-shrink-0 ${getRankClasses(index, hasEntry)}`}
             >
               {String(index + 1).padStart(2, "0")}
             </div>
 
-            {/* Initials - Large, same height as rank */}
+            {/* Initials - Responsive */}
             <div className="flex-shrink-0">
-              <p className={`text-2xl font-black tracking-tight ${hasEntry ? "text-white" : "text-[#78DCFF]/60"}`}>
+              <p className={`text-lg sm:text-2xl font-black tracking-tight ${hasEntry ? "text-white" : "text-[#78DCFF]/60"}`}>
                 {entry ? formatNameToInitials(entry.name) : "Awaiting Challenger"}
               </p>
             </div>
 
-            {/* Spacer to push category badge to the right */}
-            <div className="flex-1"></div>
+            {/* Spacer to push category badge and score to the right on desktop */}
+            <div className="hidden sm:block flex-1"></div>
 
-            {/* Category Badge - Large, positioned to the right */}
-            <div className="flex-shrink-0">
+            {/* Category Badge - Responsive, wraps on mobile */}
+            <div className="flex-shrink-0 order-last sm:order-none">
               {entry ? (
                 <span
-                  className="inline-flex items-center justify-center rounded-full px-4 py-2 font-bold uppercase tracking-wider text-sm"
+                  className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
                   style={{
                     backgroundColor: `${categoryColor}1A`,
                     color: CATEGORY_TEXT_COLORS[entry.category as keyof typeof CATEGORY_TEXT_COLORS] || categoryColor,
@@ -192,18 +192,18 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
                   {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
                 </span>
               ) : (
-                <span className="uppercase tracking-wider text-sm text-[#78DCFF]/60">Open Slot</span>
+                <span className="uppercase tracking-wider text-xs sm:text-sm text-[#78DCFF]/60">Open Slot</span>
               )}
             </div>
 
-            {/* Score - Far right */}
-            <div className="text-right flex-shrink-0">
+            {/* Score - Responsive, stays on same line with initials on mobile */}
+            <div className="text-right flex-shrink-0 ml-auto sm:ml-0">
               <p
-                className={`score-value font-black tabular-nums tracking-tight text-2xl ${hasEntry ? "text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]" : "text-white/40"}`}
+                className={`score-value font-black tabular-nums tracking-tight text-lg sm:text-2xl ${hasEntry ? "text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]" : "text-white/40"}`}
               >
                 {entry ? entry.totalScore.toString().padStart(2, "0") : "--"}
               </p>
-              <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.6rem]">pts</p>
+              <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.5rem] sm:text-[0.6rem]">pts</p>
             </div>
           </div>
         );
@@ -270,7 +270,7 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
   Math.max(...wordCloud.map((word) => word.value));
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center min-h-[400px]">
+    <div className="relative w-full h-full flex items-center justify-center min-h-[300px] sm:min-h-[400px]">
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-[#00AEFF] rounded-full filter blur-3xl animate-pulse"></div>
         <div
@@ -283,15 +283,14 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
         ></div>
       </div>
 
-      <div className="relative w-full h-full flex items-center justify-center">
+      <div className="relative w-full h-full flex items-center justify-center px-2 sm:px-4">
         {wordCloud
           .slice(0, 8)
           .map((word, index) => {
-            let size: number;
             let opacity: number;
             let zIndex: number;
-            let x: number;
-            let y: number;
+            let x: string;
+            let y: string;
 
             if (index === 0) {
               opacity = 1;
@@ -309,9 +308,9 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
                   }}
                 >
                   <span
-                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40"
+                    className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40"
                     style={{
-                      fontSize: "clamp(24px, 9vw, 56px)",
+                      fontSize: "clamp(18px, 7vw, 56px)",
                       opacity,
                       textShadow: "0 0 10px rgba(0, 174, 255, 0.5)",
                       whiteSpace: "nowrap"
@@ -327,15 +326,15 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
             }
 
             if (index < 5) {
-              size = 32;
               opacity = 0.95;
               zIndex = 20;
 
+              // Mobile-responsive positioning using viewport units and smaller offsets
               const positions = [
-                { x: -150, y: -80 },
-                { x: 160, y: -60 },
-                { x: -140, y: 90 },
-                { x: 150, y: 70 }
+                { x: "min(-80px, -15vw)", y: "min(-50px, -10vw)" },
+                { x: "min(90px, 15vw)", y: "min(-40px, -8vw)" },
+                { x: "min(-80px, -15vw)", y: "min(55px, 12vw)" },
+                { x: "min(85px, 15vw)", y: "min(45px, 10vw)" }
               ];
 
               const pos = positions[index - 1];
@@ -349,14 +348,14 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
                   style={{
                     top: "50%",
                     left: "50%",
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    transform: `translate(calc(-50% + ${x}), calc(-50% + ${y}))`,
                     zIndex
                   }}
                 >
                   <span
-                    className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                    className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
                     style={{
-                      fontSize: `${size}px`,
+                      fontSize: "clamp(14px, 4vw, 32px)",
                       opacity,
                       textShadow: "0 0 10px rgba(0, 174, 255, 0.5)"
                     }}
@@ -370,14 +369,14 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
               );
             }
 
-            size = 24;
             opacity = 0.8;
             zIndex = 10;
 
+            // Outer ring - hidden on very small screens, smaller offsets on mobile
             const outerPositions = [
-              { x: -200, y: -120 },
-              { x: 0, y: 150 },
-              { x: 180, y: -100 }
+              { x: "min(-110px, -20vw)", y: "min(-75px, -15vw)" },
+              { x: "0px", y: "min(90px, 18vw)" },
+              { x: "min(100px, 18vw)", y: "min(-65px, -13vw)" }
             ];
 
             const pos = outerPositions[index - 5];
@@ -387,18 +386,18 @@ function renderWordCloudView(wordCloud: DashboardData["wordCloud"]): ReactNode {
             return (
               <div
                 key={word.text}
-                className="absolute"
+                className="absolute hidden xs:block"
                 style={{
                   top: "50%",
                   left: "50%",
-                  transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                  transform: `translate(calc(-50% + ${x}), calc(-50% + ${y}))`,
                   zIndex
                 }}
               >
                 <span
-                  className="inline-block px-3 py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
+                  className="inline-block px-2 py-1 sm:px-3 sm:py-2 rounded-lg border-2 border-[#00AEFF]/40 bg-[#000045]/80 backdrop-blur-sm text-[#78DCFF] shadow-lg shadow-[#00AEFF]/20 hover:border-[#00AEFF]/60 hover:shadow-[#00AEFF]/40 whitespace-nowrap"
                   style={{
-                    fontSize: `${size}px`,
+                    fontSize: "clamp(12px, 3.5vw, 24px)",
                     opacity,
                     textShadow: "0 0 10px rgba(0, 174, 255, 0.5)"
                   }}
