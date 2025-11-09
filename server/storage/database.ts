@@ -1966,7 +1966,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           startedAt: attempts.startedAt,
           firstName: users.firstName,
           lastName: users.lastName,
-          passed: attempts.passed,
+          endedAt: attempts.endedAt,
         })
         .from(attempts)
         .leftJoin(users, eq(attempts.emailHash, users.emailHash))
@@ -1995,10 +1995,10 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           initials,
         };
 
-        // If passed is false, they're still on trivia
-        // If passed is true, they've completed trivia and are on project pitch
-        console.log(`[getActiveRingAttemptsByStage] Challenger ${initials} (${row.attemptId}): passed=${row.passed}, category=${row.category}`);
-        if (row.passed) {
+        // If endedAt is null, they're still on trivia
+        // If endedAt is set, they've completed trivia and are on project pitch
+        console.log(`[getActiveRingAttemptsByStage] Challenger ${initials} (${row.attemptId}): endedAt=${row.endedAt}, category=${row.category}`);
+        if (row.endedAt) {
           projectPitchChallengers.push(challenger);
         } else {
           triviaChallengers.push(challenger);
