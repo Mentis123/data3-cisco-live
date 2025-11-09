@@ -347,7 +347,7 @@ Just describe it naturally - what's the problem that needs solving?`
 
         // Store complete submission data for announcement page
         const submissionData = {
-          id: `submission-${Date.now()}`,
+          id: data.submissionId, // Use the real submission ID from the API response
           participantName: `${firstName} ${lastName.charAt(0)}.`,
           firstName,
           lastName,

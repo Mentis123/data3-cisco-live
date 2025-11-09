@@ -823,6 +823,7 @@ export async function registerRoutes(
       rateLimits.set(clientIP, now);
 
       const responseData = {
+        submissionId: submission.id, // Include the real submission ID for announcement
         triviaScore,
         pitchScore,
         finalScore: combinedScore,
