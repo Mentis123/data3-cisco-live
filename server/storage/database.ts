@@ -1153,6 +1153,35 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       return attempt || null;
     },
 
+    async getTriviaAttemptsByParticipant(participantId: string): Promise<Attempt[]> {
+      const result = await db
+        .select({
+          id: attempts.id,
+          emailHash: attempts.emailHash,
+          category: attempts.category,
+          mode: attempts.mode,
+          startedAt: attempts.startedAt,
+          endedAt: attempts.endedAt,
+          triviaScore: attempts.triviaScore,
+          totalScore: attempts.totalScore,
+          passed: attempts.passed,
+          eligible: attempts.eligible,
+          avgCorrectTimeMs: attempts.avgCorrectTimeMs,
+          botBar: attempts.botBar,
+          marketingOptIn: attempts.marketingOptIn,
+          consentCapturedAt: attempts.consentCapturedAt,
+          attemptDay: attempts.attemptDay,
+          cardSetVersion: attempts.cardSetVersion,
+          deckSnapshot: attempts.deckSnapshot,
+          submissionId: attempts.submissionId,
+        })
+        .from(attempts)
+        .innerJoin(submissions, eq(attempts.submissionId, submissions.id))
+        .where(eq(submissions.participantId, participantId));
+
+      return result;
+    },
+
     async updateTriviaAttemptBotBar(
       attemptId: string,
       botBar: number,
@@ -1865,12 +1894,12 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           solutionText: submissions.solutionText,
           structuredJson: submissions.structuredJson,
           subScores: submissions.subScores,
+          pitchScoreRaw: submissions.totalScore,
           totalScore: submissions.totalScore,
           evaluationNotes: submissions.evaluationNotes,
           createdAt: submissions.createdAt,
           name: sql<string>`${participants.firstName} || ' ' || substr(${participants.lastName}, 1, 1) || '.'`,
-          pitchScore: submissions.pitchScore,
-          triviaScore: submissions.triviaScore,
+          triviaScore: sql<number | null>`COALESCE(${attempts.triviaScore}, ${attempts.totalScore})`,
           botBar: attempts.botBar,
           isEligible: attempts.eligible,
         })
@@ -1888,9 +1917,26 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       if (!result) return null;
 
       // Parse JSON strings for subScores and structuredJson
+      const parsedSubScoresRaw = typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores;
+      const parsedSubScores = parsedSubScoresRaw ?? {
+        clarity: 0,
+        impact: 0,
+        technology_fit: 0,
+        feasibility: 0,
+        business_value: 0,
+      };
+
+      // Derive pitchScore from subScores
+      const derivedPitchScore = parsedSubScoresRaw
+        ? Object.values(parsedSubScores).reduce((sum: number, score: any) => sum + (typeof score === 'number' ? score : 0), 0)
+        : null;
+
+      const pitchScore = derivedPitchScore ?? result.pitchScoreRaw ?? 0;
+
       return {
         ...result,
-        subScores: typeof result.subScores === 'string' ? JSON.parse(result.subScores) : result.subScores,
+        pitchScore,
+        subScores: parsedSubScores,
         structuredJson: typeof result.structuredJson === 'string' ? JSON.parse(result.structuredJson) : result.structuredJson
       };
     } catch (error) {

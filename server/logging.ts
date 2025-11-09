@@ -1,4 +1,4 @@
-export function log(message: string, source = "express") {
+export function log(message: string, ...args: any[]) {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -6,6 +6,15 @@ export function log(message: string, source = "express") {
     hour12: true,
   });
 
-  console.log(`${formattedTime} [${source}] ${message}`);
+  // If the last argument is a string and args length is 1, treat it as source (backward compatibility)
+  const hasSource = args.length === 1 && typeof args[0] === "string" && !message.includes("{");
+  const source = hasSource ? args[0] : "express";
+  const extraArgs = hasSource ? [] : args;
+
+  if (extraArgs.length > 0) {
+    console.log(`${formattedTime} [${source}] ${message}`, ...extraArgs);
+  } else {
+    console.log(`${formattedTime} [${source}] ${message}`);
+  }
 }
 
