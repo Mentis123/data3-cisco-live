@@ -20,15 +20,15 @@ export const CATEGORY_NAMES: Record<CategoryKey, string> & Record<string, string
 };
 
 export const CATEGORY_COLORS: Record<CategoryKey, string> & Record<string, string> = {
-  NETWORKING: "#00BCF2", // Cyan
-  SECURITY: "#6B21A8", // Dark Purple
-  SECURE_CONNECTIVITY: "#6B21A8", // Dark Purple (legacy alias for SECURITY)
-  COLLABORATION: "#F97316", // Orange
-  DATA_CENTER: "#059669", // Emerald Green
+  NETWORKING: "#00D4FF", // Bright Cyan
+  SECURITY: "#8B5CF6", // Bright Purple
+  SECURE_CONNECTIVITY: "#8B5CF6", // Bright Purple (legacy alias for SECURITY)
+  COLLABORATION: "#FF8C00", // Bright Orange
+  DATA_CENTER: "#10B981", // Bright Green
   // Additional aliases to ensure purple is used for security
-  Security: "#6B21A8", // Dark Purple (case variation)
-  security: "#6B21A8", // Dark Purple (case variation)
-  "Secure Connectivity": "#6B21A8", // Dark Purple (display name variation)
+  Security: "#8B5CF6", // Bright Purple (case variation)
+  security: "#8B5CF6", // Bright Purple (case variation)
+  "Secure Connectivity": "#8B5CF6", // Bright Purple (display name variation)
 };
 
 export const CATEGORY_TEXT_COLORS: Record<CategoryKey, string> & Record<string, string> = {
@@ -44,15 +44,15 @@ export const CATEGORY_TEXT_COLORS: Record<CategoryKey, string> & Record<string, 
 };
 
 export const CATEGORY_BADGE_CLASSES: Record<CategoryKey, string> & Record<string, string> = {
-  NETWORKING: "bg-[#00BCF2]", // Cyan
-  SECURITY: "bg-[#6B21A8]", // Dark Purple
-  SECURE_CONNECTIVITY: "bg-[#6B21A8]", // Dark Purple (legacy alias for SECURITY)
-  COLLABORATION: "bg-[#F97316]", // Orange
-  DATA_CENTER: "bg-[#059669]", // Emerald Green
+  NETWORKING: "bg-[#00D4FF]", // Bright Cyan
+  SECURITY: "bg-[#8B5CF6]", // Bright Purple
+  SECURE_CONNECTIVITY: "bg-[#8B5CF6]", // Bright Purple (legacy alias for SECURITY)
+  COLLABORATION: "bg-[#FF8C00]", // Bright Orange
+  DATA_CENTER: "bg-[#10B981]", // Bright Green
   // Additional aliases to ensure consistency
-  Security: "bg-[#6B21A8]", // Dark Purple (case variation)
-  security: "bg-[#6B21A8]", // Dark Purple (case variation)
-  "Secure Connectivity": "bg-[#6B21A8]", // Dark Purple (display name variation)
+  Security: "bg-[#8B5CF6]", // Bright Purple (case variation)
+  security: "bg-[#8B5CF6]", // Bright Purple (case variation)
+  "Secure Connectivity": "bg-[#8B5CF6]", // Bright Purple (display name variation)
 };
 
 export const DEFAULT_CATEGORY_COLOR = "#00AEFF";
