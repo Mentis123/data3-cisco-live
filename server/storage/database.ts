@@ -1780,13 +1780,17 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
   async forceEndRingAttempt(attemptId: string): Promise<void> {
     try {
-      await db
+      console.log(`[forceEndRingAttempt] Ending ring attempt: ${attemptId}`);
+
+      const result = await db
         .update(attempts)
         .set({
           endedAt: new Date(),
           submissionId: 'ADMIN_REMOVED' // Mark as removed to exclude from active list
         })
         .where(eq(attempts.id, attemptId));
+
+      console.log(`[forceEndRingAttempt] Updated ${result.rowCount || 0} row(s)`);
     } catch (error) {
       console.error('[forceEndRingAttempt] Error ending ring attempt:', error);
       throw error;
@@ -1796,6 +1800,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
   async clearStaleRingAttempts(): Promise<number> {
     try {
       const cutoff = new Date(Date.now() - ACTIVE_RING_WINDOW_MINUTES * 60 * 1000);
+      console.log(`[clearStaleRingAttempts] Cutoff time: ${cutoff.toISOString()}`);
+
+      // First, check what we're about to clear
+      const toBeCleared = await db
+        .select({ id: attempts.id, startedAt: attempts.startedAt })
+        .from(attempts)
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.submissionId),
+            lt(attempts.startedAt, cutoff),
+          ),
+        );
+
+      console.log(`[clearStaleRingAttempts] Found ${toBeCleared.length} stale attempts to clear:`, toBeCleared);
 
       const result = await db
         .update(attempts)
@@ -1811,7 +1830,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ),
         );
 
-      return result.rowCount || 0;
+      const count = result.rowCount || 0;
+      console.log(`[clearStaleRingAttempts] Cleared ${count} stale ring attempts`);
+      return count;
     } catch (error) {
       console.error('[clearStaleRingAttempts] Error clearing stale ring attempts:', error);
       throw error;
@@ -1820,6 +1841,21 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
   async clearAllActiveRingAttempts(): Promise<number> {
     try {
+      console.log(`[clearAllActiveRingAttempts] Clearing all active ring attempts`);
+
+      // First, check what we're about to clear
+      const toBeCleared = await db
+        .select({ id: attempts.id, startedAt: attempts.startedAt, endedAt: attempts.endedAt })
+        .from(attempts)
+        .where(
+          and(
+            eq(attempts.mode, "ring"),
+            isNull(attempts.submissionId),
+          ),
+        );
+
+      console.log(`[clearAllActiveRingAttempts] Found ${toBeCleared.length} active attempts to clear:`, toBeCleared);
+
       const result = await db
         .update(attempts)
         .set({
@@ -1833,7 +1869,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ),
         );
 
-      return result.rowCount || 0;
+      const count = result.rowCount || 0;
+      console.log(`[clearAllActiveRingAttempts] Cleared ${count} active ring attempts`);
+      return count;
     } catch (error) {
       console.error('[clearAllActiveRingAttempts] Error clearing all active ring attempts:', error);
       throw error;
