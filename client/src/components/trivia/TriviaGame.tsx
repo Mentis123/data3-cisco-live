@@ -402,6 +402,16 @@ export function TriviaGame({
 
   const completionContent = (
     <div className="w-full max-w-sm space-y-3.5 rounded-xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-5 text-center shadow-lg shadow-emerald-500/30 max-[480px]:space-y-3 max-[480px]:p-4">
+      {mode === "ring" && (
+        <div className="mb-4 -mt-1 rounded-lg border-2 border-yellow-400/60 bg-gradient-to-r from-yellow-500/30 via-amber-500/30 to-yellow-500/30 px-4 py-3 shadow-lg shadow-yellow-500/40 animate-pulse max-[480px]:px-3 max-[480px]:py-2">
+          <p className="text-lg font-black uppercase tracking-wide text-yellow-100 drop-shadow-lg max-[480px]:text-base">
+            🎯 You're Almost There!
+          </p>
+          <p className="mt-1 text-sm font-semibold text-yellow-50/90 max-[480px]:text-xs">
+            Continue to Project Pitch to complete your raffle entry
+          </p>
+        </div>
+      )}
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/30 text-2xl text-emerald-300 max-[480px]:h-12 max-[480px]:w-12 max-[480px]:text-xl">
         🎉
       </div>
