@@ -271,14 +271,42 @@ function OverviewTab() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {attempt.passed ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                    {attempt.eligible ? (
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <div className="cursor-help">
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80">
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold">Raffle Qualified ✓</h4>
+                            <p className="text-xs text-muted-foreground">
+                              Combined score exceeded the bot bar threshold. Eligible for raffle entry.
+                            </p>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <div className="cursor-help">
+                            <XCircle className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80">
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold">Did Not Qualify</h4>
+                            <p className="text-xs text-muted-foreground">
+                              Combined score did not exceed the bot bar threshold. Not eligible for raffle.
+                            </p>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     )}
-                    {attempt.eligible && (
+                    {attempt.eligible && attempt.mode === "ring" && (
                       <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700">
-                        Raffle
+                        🎫 Raffle
                       </Badge>
                     )}
                   </div>
