@@ -1124,21 +1124,43 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
       const mean = (SEED_SUM + actualSum) / denominator;
       const result = Math.round(mean);
 
+      // Calculate average from actual submissions for comparison
+      const actualAverage = actualCount > 0 ? Math.round(actualSum / actualCount) : 0;
+
       console.log('[calculateBotBar] Calculation:', {
         category,
         date: dateStr,
         actualSum,
         actualCount,
+        actualAverage,
         SEED_SUM,
         SEED_COUNT,
         denominator,
         mean,
         result,
+        note: 'Bot bar formula: (SEED_SUM + actualSum) / (SEED_COUNT + actualCount)'
       });
 
       // Validate result is in expected range
       if (result < 0 || result > 100) {
         console.error('[calculateBotBar] ⚠️ WARNING: Bot bar result outside expected range (0-100):', result);
+      }
+
+      // Warning if bot bar is significantly different from expected
+      if (result < 50) {
+        console.warn('[calculateBotBar] ⚠️ Bot bar is unusually low (<50):', {
+          result,
+          actualCount,
+          actualAverage,
+          note: 'This suggests many low-scoring submissions'
+        });
+      } else if (result > 75) {
+        console.warn('[calculateBotBar] ⚠️ Bot bar is unusually high (>75):', {
+          result,
+          actualCount,
+          actualAverage,
+          note: 'This suggests many high-scoring submissions'
+        });
       }
 
       return result;

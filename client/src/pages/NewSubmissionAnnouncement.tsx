@@ -266,6 +266,23 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     }
   }
 
+  // CRITICAL VALIDATION: Check for any discrepancies in the qualification logic
+  if (submission.botBar !== undefined && submission.isEligible !== undefined) {
+    const shouldBeEligible = finalScore >= submission.botBar;
+    if (shouldBeEligible !== submission.isEligible) {
+      console.error('[NewSubmissionAnnouncement] ❌ ELIGIBILITY MISMATCH DETECTED:', {
+        finalScore,
+        botBar: submission.botBar,
+        isEligible: submission.isEligible,
+        shouldBeEligible,
+        discrepancy: `Backend says ${submission.isEligible ? 'ELIGIBLE' : 'NOT ELIGIBLE'} but math says ${shouldBeEligible ? 'ELIGIBLE' : 'NOT ELIGIBLE'}`,
+        submissionId: submission.id,
+        triviaScore,
+        pitchScore
+      });
+    }
+  }
+
   console.log('[NewSubmissionAnnouncement] Rendering announcement:', {
     finalScore,
     pitchScore,
@@ -275,7 +292,8 @@ export default function NewSubmissionAnnouncement({ submission, onDismiss }: New
     botBar: submission.botBar,
     displayBotBar,
     isEligible: submission.isEligible,
-    subScores: submission.subScores
+    subScores: submission.subScores,
+    calculatedEligibility: submission.botBar !== undefined ? finalScore >= submission.botBar : 'N/A'
   });
 
   return (

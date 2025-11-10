@@ -207,14 +207,14 @@ function OverviewTab() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {attempt.passed ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                    {attempt.eligible ? (
+                      <CheckCircle className="w-5 h-5 text-green-500" title="Beat bot bar - raffle qualified" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
+                      <XCircle className="w-5 h-5 text-muted-foreground" title="Did not beat bot bar" />
                     )}
-                    {attempt.eligible && (
+                    {attempt.eligible && attempt.mode === "ring" && (
                       <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700">
-                        Raffle
+                        🎫 Raffle
                       </Badge>
                     )}
                   </div>
