@@ -29,8 +29,8 @@ export class AudioManager {
   private pitchEnterAudioGainNode: GainNode | null = null;
   private pitchEnterAudioSourceNode: MediaElementAudioSourceNode | null = null;
   private isAudioSupported: boolean;
-  private isMuted: boolean = true; // Default to muted (OFF)
-  private isImmersive: boolean = false; // Will be loaded from localStorage
+  private isMuted: boolean = false; // Default to unmuted (ON) when immersive mode is enabled
+  private isImmersive: boolean = true; // Default to immersive mode ON
   private musicEnabled: boolean = true; // Music on/off
   private soundsEnabled: boolean = true; // Sound effects on/off
   private musicVolume: number = 1.0; // Music/video volume relative to sound effects (0.0 to 1.0, default 100%)

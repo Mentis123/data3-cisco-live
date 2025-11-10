@@ -4,7 +4,7 @@ import { audioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
 export function ImmersiveToggle() {
-  const [isImmersive, setIsImmersive] = useState(false); // Default to immersive OFF
+  const [isImmersive, setIsImmersive] = useState(true); // Default to immersive ON
   const [showTooltip, setShowTooltip] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
