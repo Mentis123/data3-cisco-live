@@ -1085,7 +1085,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
 
     async calculateBotBar(category: string, dateStr: string): Promise<number> {
       const SEED_COUNT = 10;
-      const SEED_SCORE = 60;
+      const SEED_SCORE = 50;
       const SEED_SUM = SEED_COUNT * SEED_SCORE;
 
       // Get reset timestamp for bot bar
