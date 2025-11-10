@@ -229,20 +229,20 @@ function renderChallengerCard(
         challenger.fading ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
       }`}
       style={{
-        borderColor: `${categoryColor}60`,
-        backgroundColor: `${categoryColor}15`
+        borderColor: `${categoryColor}CC`,
+        backgroundColor: `${categoryColor}20`
       }}
     >
       <div className="flex items-center gap-3">
         <div
           className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0 whitespace-nowrap"
-          style={{ backgroundColor: categoryColor }}
+          style={{ backgroundColor: `${categoryColor}E6` }}
         >
           {challenger.initials}
         </div>
         <div
           className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0"
-          style={{ backgroundColor: `${categoryColor}`, color: 'white' }}
+          style={{ backgroundColor: `${categoryColor}E6`, color: 'white' }}
         >
           {categoryName}
         </div>
