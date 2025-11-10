@@ -1811,8 +1811,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ),
         );
 
-      // Drizzle returns an array of updated rows, so we can get the count
-      return Array.isArray(result) ? result.length : 0;
+      return result.rowCount || 0;
     } catch (error) {
       console.error('[clearStaleRingAttempts] Error clearing stale ring attempts:', error);
       throw error;
@@ -1834,8 +1833,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
           ),
         );
 
-      // Drizzle returns an array of updated rows, so we can get the count
-      return Array.isArray(result) ? result.length : 0;
+      return result.rowCount || 0;
     } catch (error) {
       console.error('[clearAllActiveRingAttempts] Error clearing all active ring attempts:', error);
       throw error;
