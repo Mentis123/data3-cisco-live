@@ -25,14 +25,14 @@
 | **Scored Submissions** | `submissions` | database.ts:1184 | Same as leaderboard |
 | **Bot Bar** | Calculated from `submissions` | database.ts:1015 | Filter submissions in calc |
 
-### 3. **Bot Bar "10 at 60" Mechanism** ✓
+### 3. **Bot Bar "10 at 50" Mechanism** ✓
 **Validated:** database.ts:1015-1046
 ```typescript
 SEED_COUNT = 10
-SEED_SCORE = 60
-Average = (600 + actualSum) / (10 + actualCount)
+SEED_SCORE = 50
+Average = (500 + actualSum) / (10 + actualCount)
 ```
-**Reset Behavior:** When bot bar resets, only count submissions AFTER reset timestamp → defaults back to 60
+**Reset Behavior:** When bot bar resets, only count submissions AFTER reset timestamp → defaults back to 50
 
 ### 4. **Melbourne Timezone Handling** ✓
 **Validated:** All date filters use:

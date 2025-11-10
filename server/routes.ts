@@ -1974,12 +1974,12 @@ export async function registerRoutes(
 
       const resetTimestamp = await storage.setResetTimestamp('bot_bar', adminUser, notes);
 
-      log(`Bot bar reset by ${adminUser} - all categories will return to 60`);
+      log(`Bot bar reset by ${adminUser} - all categories will return to 50`);
 
       res.json({
         success: true,
         resetAt: resetTimestamp.resetAt,
-        message: 'Bot bar reset to seed average (60) for all categories',
+        message: 'Bot bar reset to seed average (50) for all categories',
       });
     } catch (error) {
       log(`Error resetting bot bar: ${error}`);
