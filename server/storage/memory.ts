@@ -1392,7 +1392,7 @@ export function createMemoryStorage() {
       const active = triviaAttemptsStore
         .filter((attempt) =>
           attempt.mode === "ring"
-          && !attempt.endedAt
+          && !attempt.submissionId // Match leaderboard criteria
           && attempt.startedAt instanceof Date
           && attempt.startedAt.getTime() >= cutoff,
         )
@@ -1487,7 +1487,7 @@ export function createMemoryStorage() {
       const active = triviaAttemptsStore
         .filter((attempt) =>
           attempt.mode === "ring"
-          && !attempt.endedAt
+          && !attempt.submissionId // Match leaderboard criteria
           && attempt.startedAt instanceof Date
           && attempt.startedAt.getTime() >= cutoff,
         )
@@ -1532,7 +1532,7 @@ export function createMemoryStorage() {
       triviaAttemptsStore.forEach((attempt) => {
         if (
           attempt.mode === "ring"
-          && !attempt.endedAt
+          && !attempt.submissionId // Match leaderboard criteria
           && attempt.startedAt instanceof Date
           && attempt.startedAt.getTime() < cutoff
         ) {
@@ -1549,7 +1549,7 @@ export function createMemoryStorage() {
       let count = 0;
 
       triviaAttemptsStore.forEach((attempt) => {
-        if (attempt.mode === "ring" && !attempt.endedAt) {
+        if (attempt.mode === "ring" && !attempt.submissionId) { // Match leaderboard criteria
           attempt.endedAt = new Date();
           attempt.submissionId = 'ADMIN_REMOVED'; // Mark as removed to exclude from active list
           count++;

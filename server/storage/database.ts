@@ -1627,7 +1627,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, "ring"),
-            isNull(attempts.endedAt),
+            isNull(attempts.submissionId), // Match leaderboard criteria
             gt(attempts.startedAt, cutoff),
           ),
         )
@@ -1746,7 +1746,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, "ring"),
-            isNull(attempts.endedAt),
+            isNull(attempts.submissionId), // Match leaderboard criteria
             gt(attempts.startedAt, cutoff),
           ),
         )
@@ -1806,7 +1806,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, "ring"),
-            isNull(attempts.endedAt),
+            isNull(attempts.submissionId), // Match leaderboard criteria
             lt(attempts.startedAt, cutoff),
           ),
         );
@@ -1829,7 +1829,7 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .where(
           and(
             eq(attempts.mode, "ring"),
-            isNull(attempts.endedAt),
+            isNull(attempts.submissionId), // Match leaderboard criteria
           ),
         );
 
