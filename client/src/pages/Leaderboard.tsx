@@ -185,9 +185,9 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
                 <span
                   className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
                   style={{
-                    backgroundColor: `${categoryColor}1A`,
-                    color: CATEGORY_TEXT_COLORS[entry.category as keyof typeof CATEGORY_TEXT_COLORS] || categoryColor,
-                    border: `2px solid ${categoryColor}4D`
+                    backgroundColor: `${categoryColor}E6`,
+                    color: '#FFFFFF',
+                    border: `2px solid ${categoryColor}`
                   }}
                 >
                   {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
