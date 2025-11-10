@@ -1282,7 +1282,8 @@ export async function registerRoutes(
       await storage.forceEndRingAttempt(req.params.attemptId);
       res.json({ message: "Challenger removed successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Failed to remove challenger" });
+      console.error('[remove-challenger] Error:', error);
+      res.status(500).json({ message: "Failed to remove challenger", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -1293,7 +1294,8 @@ export async function registerRoutes(
       const count = await storage.clearStaleRingAttempts();
       res.json({ message: `Cleared ${count} stale challengers`, count });
     } catch (error) {
-      res.status(500).json({ message: "Failed to clear stale challengers" });
+      console.error('[clear-stale] Error:', error);
+      res.status(500).json({ message: "Failed to clear stale challengers", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -1304,7 +1306,8 @@ export async function registerRoutes(
       const count = await storage.clearAllActiveRingAttempts();
       res.json({ message: `Cleared ${count} active challengers`, count });
     } catch (error) {
-      res.status(500).json({ message: "Failed to clear all active challengers" });
+      console.error('[clear-all-active] Error:', error);
+      res.status(500).json({ message: "Failed to clear all active challengers", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
