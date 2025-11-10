@@ -730,7 +730,33 @@ export async function registerRoutes(
             await storage.attachSubmissionToTriviaAttempt(persistedTriviaAttemptId, submission.id);
 
             // Check eligibility: combined score >= bot bar
+            // CRITICAL: This is the ONLY criterion for raffle qualification
             isEligible = combinedScore >= botBar;
+
+            // Safety validation: ensure no legacy 24-point rule is interfering
+            if (isEligible && triviaScore !== null && triviaScore < 24) {
+              console.log('[express] ✅ User qualified with low trivia score:', {
+                triviaScore,
+                pitchScore,
+                combinedScore,
+                botBar,
+                note: 'Legacy 24-point rule NOT blocking qualification'
+              });
+            }
+
+            // Detailed logging for failures to help debug
+            if (!isEligible) {
+              console.warn('[express] ⚠️ User did NOT qualify for raffle:', {
+                triviaScore,
+                pitchScore,
+                combinedScore,
+                botBar,
+                difference: botBar - combinedScore,
+                category,
+                date: today,
+                attemptId: persistedTriviaAttemptId
+              });
+            }
 
             // Update attempt with bot bar and eligibility
             if (typeof (storage as any).updateTriviaAttemptBotBar === "function") {
