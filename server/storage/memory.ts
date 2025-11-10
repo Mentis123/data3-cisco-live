@@ -1135,31 +1135,57 @@ export function createMemoryStorage() {
       }, 0);
 
       const actualCount = completedAttempts.length;
-      const denominator = SEED_COUNT + actualCount;
+
+      // CRITICAL: Force conversion to numbers to prevent string concatenation bugs
+      const numActualSum = Number(actualSum);
+      const numActualCount = Number(actualCount);
+      const denominator = SEED_COUNT + numActualCount;
 
       if (denominator === 0) {
         console.log('[calculateBotBar] No submissions found, returning default SEED_SCORE:', SEED_SCORE);
         return SEED_SCORE;
       }
 
-      const mean = (SEED_SUM + actualSum) / denominator;
+      const mean = (SEED_SUM + numActualSum) / denominator;
       const result = Math.round(mean);
+
+      // Calculate average from actual submissions for comparison
+      const actualAverage = numActualCount > 0 ? Math.round(numActualSum / numActualCount) : 0;
 
       console.log('[calculateBotBar] Calculation:', {
         category,
         date: dateStr,
-        actualSum,
-        actualCount,
+        actualSum: numActualSum,
+        actualCount: numActualCount,
+        actualAverage,
         SEED_SUM,
         SEED_COUNT,
         denominator,
         mean,
         result,
+        note: 'Bot bar formula: (SEED_SUM + actualSum) / (SEED_COUNT + actualCount)'
       });
 
       // Validate result is in expected range
       if (result < 0 || result > 100) {
         console.error('[calculateBotBar] ⚠️ WARNING: Bot bar result outside expected range (0-100):', result);
+      }
+
+      // Warning if bot bar is significantly different from expected
+      if (result < 50) {
+        console.warn('[calculateBotBar] ⚠️ Bot bar is unusually low (<50):', {
+          result,
+          actualCount: numActualCount,
+          actualAverage,
+          note: 'This suggests many low-scoring submissions'
+        });
+      } else if (result > 75) {
+        console.warn('[calculateBotBar] ⚠️ Bot bar is unusually high (>75):', {
+          result,
+          actualCount: numActualCount,
+          actualAverage,
+          note: 'This suggests many high-scoring submissions'
+        });
       }
 
       return result;

@@ -1112,8 +1112,9 @@ export function createDatabaseStorage(db: NeonDatabase<typeof schema>) {
         .leftJoin(submissions, eq(attempts.submissionId, submissions.id))
         .where(and(...conditions));
 
-      const actualSum = aggregates?.actualSum ?? 0;
-      const actualCount = aggregates?.actualCount ?? 0;
+      // CRITICAL: Force conversion to numbers - DB sometimes returns strings
+      const actualSum = Number(aggregates?.actualSum ?? 0);
+      const actualCount = Number(aggregates?.actualCount ?? 0);
 
       const denominator = SEED_COUNT + actualCount;
       if (denominator === 0) {
