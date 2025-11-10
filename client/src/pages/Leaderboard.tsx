@@ -186,7 +186,7 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
                   className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
                   style={{
                     backgroundColor: `${categoryColor}E6`,
-                    color: '#FFFFFF',
+                    color: '#1E293B',
                     border: `2px solid ${categoryColor}`
                   }}
                 >
@@ -235,14 +235,14 @@ function renderChallengerCard(
     >
       <div className="flex items-center gap-3">
         <div
-          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0 whitespace-nowrap"
-          style={{ backgroundColor: `${categoryColor}E6` }}
+          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold flex-shrink-0 whitespace-nowrap"
+          style={{ backgroundColor: `${categoryColor}E6`, color: '#1E293B' }}
         >
           {challenger.initials}
         </div>
         <div
-          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold text-white flex-shrink-0"
-          style={{ backgroundColor: `${categoryColor}E6`, color: 'white' }}
+          className="h-10 rounded-full flex items-center justify-center px-4 text-sm font-bold flex-shrink-0"
+          style={{ backgroundColor: `${categoryColor}E6`, color: '#1E293B' }}
         >
           {categoryName}
         </div>
