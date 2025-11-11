@@ -1713,6 +1713,9 @@ export default function Leaderboard() {
                   const totalInRing = triviaChallengers.length + projectPitchChallengers.length;
                   const topListSize = Math.max(3, 10 - totalInRing);
 
+                  // Calculate total submissions from category stats
+                  const totalSubmissions = Object.values(displayData.categoryStats).reduce((a, b) => a + Number(b), 0);
+
                   return (
                     <>
                       <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
@@ -1722,8 +1725,8 @@ export default function Leaderboard() {
                         Top {topListSize}
                       </CardTitle>
                       <p className="mt-2 text-sm text-[#78DCFF]/80">
-                        {displayData.leaderboard.length > 0
-                          ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
+                        {totalSubmissions > 0
+                          ? `${totalSubmissions} Active ${totalSubmissions === 1 ? 'Solution' : 'Solutions'}`
                           : 'Waiting for first submission'}
                       </p>
                     </>
