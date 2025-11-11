@@ -68,7 +68,7 @@ function ensureAdminAccess(req: Request, res: Response): boolean {
   return true;
 }
 
-// Rate limiting map (IP -> last submission timestamp)
+// Rate limiting map (sessionToken -> last submission timestamp)
 const rateLimits = new Map<string, number>();
 
 const CATEGORIES = [
@@ -524,14 +524,7 @@ export async function registerRoutes(
 
   app.post("/api/submit", async (req, res) => {
     try {
-      const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
       const now = Date.now();
-
-      // Rate limiting: 60 second cooldown
-      const lastSubmission = rateLimits.get(clientIP);
-      if (lastSubmission && now - lastSubmission < 60000) {
-        return res.status(429).json({ message: "Please wait before submitting again" });
-      }
 
       // Pre-process structuredFields to fix array fields before validation
       if (req.body.structuredFields) {
@@ -585,6 +578,12 @@ export async function registerRoutes(
 
       if (!session) {
         return res.status(401).json({ message: "Invalid session" });
+      }
+
+      // Rate limiting: 60 second cooldown per session
+      const lastSubmission = rateLimits.get(sessionToken);
+      if (lastSubmission && now - lastSubmission < 60000) {
+        return res.status(429).json({ message: "Please wait before submitting again" });
       }
 
       // Get participant
@@ -858,7 +857,7 @@ export async function registerRoutes(
       });
 
       // Update rate limit
-      rateLimits.set(clientIP, now);
+      rateLimits.set(sessionToken, now);
 
       const responseData = {
         submissionId: submission.id, // Include the real submission ID for announcement
