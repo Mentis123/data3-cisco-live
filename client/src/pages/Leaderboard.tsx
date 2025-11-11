@@ -1716,21 +1716,28 @@ export default function Leaderboard() {
               <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#007BC3]/10 blur-[160px]"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center">
-                {activeView === "rankings" && (
-                  <>
-                    <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
-                      Live Rankings
-                    </p>
-                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      Top 10
-                    </CardTitle>
-                    <p className="mt-2 text-sm text-[#78DCFF]/80">
-                      {displayData.leaderboard.length > 0
-                        ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
-                        : 'Waiting for first submission'}
-                    </p>
-                  </>
-                )}
+                {activeView === "rankings" && (() => {
+                  // Calculate dynamic "Top X" based on ring size and total solutions
+                  const peopleInRing = triviaChallengers.length + projectPitchChallengers.length;
+                  const maxTopCount = 10 - peopleInRing;
+                  const actualTopCount = Math.min(maxTopCount, displayData.leaderboard.length);
+
+                  return (
+                    <>
+                      <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
+                        Live Rankings
+                      </p>
+                      <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                        Top {actualTopCount}
+                      </CardTitle>
+                      <p className="mt-2 text-sm text-[#78DCFF]/80">
+                        {displayData.leaderboard.length > 0
+                          ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
+                          : 'Waiting for first submission'}
+                      </p>
+                    </>
+                  );
+                })()}
                 {activeView === "wordcloud" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
