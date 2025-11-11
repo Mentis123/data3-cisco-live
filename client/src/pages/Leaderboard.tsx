@@ -104,9 +104,10 @@ function normalizeCategoryStats(
     : normalizedEntries;
 }
 
-function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
-  const leaderboardEntries = leaderboard.slice(0, 10);
-  const rows = Array.from({ length: 10 }, (_, index) => leaderboardEntries[index] || null);
+function renderLeaderboardView(leaderboard: LeaderboardEntry[], topListSize: number = 10): ReactNode {
+  const leaderboardEntries = leaderboard.slice(0, topListSize);
+  // Only show actual entries, no placeholder rows
+  const rows = leaderboardEntries;
 
   const getRowClasses = (index: number, hasEntry: boolean) => {
     if (!hasEntry) {
@@ -151,28 +152,25 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
   return (
     <div className="flex flex-col space-y-2 sm:space-y-3">
       {rows.map((entry, index) => {
-        const hasEntry = Boolean(entry);
-        const categoryColor = entry
-          ? CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || "#1cc8e4"
-          : undefined;
+        const categoryColor = CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || "#1cc8e4";
 
         return (
           <div
-            key={entry ? entry.id : `placeholder-${index}`}
-            data-entry-id={entry ? entry.id : undefined}
-            className={`flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-2 sm:py-3 sm:px-4 ${getRowClasses(index, hasEntry)} ${hasEntry ? "hover:-translate-y-1" : ""}`}
+            key={entry.id}
+            data-entry-id={entry.id}
+            className={`flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border backdrop-blur-xl transition-all duration-300 py-2 px-2 sm:py-3 sm:px-4 ${getRowClasses(index, true)} hover:-translate-y-1`}
           >
             {/* Rank Badge - Responsive */}
             <div
-              className={`flex items-center justify-center rounded-full font-black tracking-tight h-10 w-10 text-lg sm:h-14 sm:w-14 sm:text-2xl flex-shrink-0 ${getRankClasses(index, hasEntry)}`}
+              className={`flex items-center justify-center rounded-full font-black tracking-tight h-10 w-10 text-lg sm:h-14 sm:w-14 sm:text-2xl flex-shrink-0 ${getRankClasses(index, true)}`}
             >
               {String(index + 1).padStart(2, "0")}
             </div>
 
             {/* Initials - Responsive */}
             <div className="flex-shrink-0">
-              <p className={`text-lg sm:text-2xl font-black tracking-tight ${hasEntry ? "text-white" : "text-[#78DCFF]/60"}`}>
-                {entry ? formatNameToInitials(entry.name) : "Awaiting Challenger"}
+              <p className="text-lg sm:text-2xl font-black tracking-tight text-white">
+                {formatNameToInitials(entry.name)}
               </p>
             </div>
 
@@ -181,28 +179,22 @@ function renderLeaderboardView(leaderboard: LeaderboardEntry[]): ReactNode {
 
             {/* Category Badge - Responsive, wraps on mobile but inline on desktop */}
             <div className="flex-shrink-0 w-full sm:w-auto order-last sm:order-none">
-              {entry ? (
-                <span
-                  className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
-                  style={{
-                    backgroundColor: `${categoryColor}E6`,
-                    color: '#1E293B',
-                    border: `2px solid ${categoryColor}`
-                  }}
-                >
-                  {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
-                </span>
-              ) : (
-                <span className="uppercase tracking-wider text-xs sm:text-sm text-[#78DCFF]/60">Open Slot</span>
-              )}
+              <span
+                className="inline-flex items-center justify-center rounded-full px-2 py-1 sm:px-4 sm:py-2 font-bold uppercase tracking-wider text-xs sm:text-sm"
+                style={{
+                  backgroundColor: `${categoryColor}E6`,
+                  color: '#1E293B',
+                  border: `2px solid ${categoryColor}`
+                }}
+              >
+                {CATEGORY_NAMES[entry.category as keyof typeof CATEGORY_NAMES]}
+              </span>
             </div>
 
             {/* Score - Responsive, stays on same line with initials on mobile */}
             <div className="text-right flex-shrink-0 ml-auto sm:ml-0">
-              <p
-                className={`score-value font-black tabular-nums tracking-tight text-lg sm:text-2xl ${hasEntry ? "text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]" : "text-white/40"}`}
-              >
-                {entry ? entry.totalScore.toString().padStart(2, "0") : "--"}
+              <p className="score-value font-black tabular-nums tracking-tight text-lg sm:text-2xl text-white drop-shadow-[0_10px_25px_rgba(0,174,255,0.35)]">
+                {entry.totalScore.toString().padStart(2, "0")}
               </p>
               <p className="uppercase tracking-[0.25em] text-[#78DCFF]/60 mt-0.5 text-[0.5rem] sm:text-[0.6rem]">pts</p>
             </div>
@@ -1716,21 +1708,27 @@ export default function Leaderboard() {
               <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#007BC3]/10 blur-[160px]"></div>
 
               <CardHeader className="relative z-10 pt-8 pb-6 text-center">
-                {activeView === "rankings" && (
-                  <>
-                    <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
-                      Live Rankings
-                    </p>
-                    <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
-                      Top 10
-                    </CardTitle>
-                    <p className="mt-2 text-sm text-[#78DCFF]/80">
-                      {displayData.leaderboard.length > 0
-                        ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
-                        : 'Waiting for first submission'}
-                    </p>
-                  </>
-                )}
+                {activeView === "rankings" && (() => {
+                  // Calculate dynamic top list size based on people in the ring
+                  const totalInRing = triviaChallengers.length + projectPitchChallengers.length;
+                  const topListSize = Math.max(3, 10 - totalInRing);
+
+                  return (
+                    <>
+                      <p className="uppercase tracking-[0.5em] text-[#78DCFF]/60 text-[0.65rem]">
+                        Live Rankings
+                      </p>
+                      <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
+                        Top {topListSize}
+                      </CardTitle>
+                      <p className="mt-2 text-sm text-[#78DCFF]/80">
+                        {displayData.leaderboard.length > 0
+                          ? `${displayData.leaderboard.length} Active ${displayData.leaderboard.length === 1 ? 'Solution' : 'Solutions'}`
+                          : 'Waiting for first submission'}
+                      </p>
+                    </>
+                  );
+                })()}
                 {activeView === "wordcloud" && (
                   <>
                     <CardTitle className="text-3xl font-black tracking-tight text-white drop-shadow-[0_8px_30px_rgba(0,123,195,0.55)]">
@@ -1756,7 +1754,12 @@ export default function Leaderboard() {
               </CardHeader>
 
               <CardContent className="relative z-10 pb-8">
-                {activeView === "rankings" && renderLeaderboardView(displayData.leaderboard)}
+                {activeView === "rankings" && (() => {
+                  // Calculate dynamic top list size based on people in the ring
+                  const totalInRing = triviaChallengers.length + projectPitchChallengers.length;
+                  const topListSize = Math.max(3, 10 - totalInRing);
+                  return renderLeaderboardView(displayData.leaderboard, topListSize);
+                })()}
                 {activeView === "wordcloud" && renderWordCloudView(displayData.wordCloud)}
                 {activeView === "categories" && renderCategoryStatsView(displayData.categoryStats)}
               </CardContent>
