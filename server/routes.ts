@@ -5,7 +5,7 @@ import { storage, storageKind } from "./storage/index.js";
 import { createDatabaseFeedbackStorage, createJSONFeedbackStorage } from "./storage/feedback.js";
 import { db, hasDatabase, warmupDatabase, withRetry } from "./db.js";
 import { log } from "./logging.js";
-import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified, broadcastRaffleWinner } from "./ws.js";
+import { setupWebSocket, broadcastScoreUpdate, broadcastRingEntry, broadcastRingExit, broadcastRaffleQualified, broadcastRaffleWinner, getLatestRaffleWinnerBroadcast } from "./ws.js";
 import { chatWithAssistant, evaluateSolution, categorizeProposal } from "./openai.js";
 import {
   acceptTncSchema,
@@ -1367,18 +1367,69 @@ export async function registerRoutes(
 
   app.get("/api/leaderboard/latest-raffle-winner", async (_req, res) => {
     try {
-      const latestWinner = await storage.getLatestRaffleWinner();
+      // Check in-memory cache first (includes manual entries)
+      const cachedWinner = getLatestRaffleWinnerBroadcast();
 
-      if (!latestWinner) {
+      // Also check database for automatic entries
+      const dbWinner = await storage.getLatestRaffleWinner();
+
+      // Determine which winner is more recent
+      let winnerToReturn: any = null;
+
+      if (cachedWinner && dbWinner) {
+        // Compare announcedAt timestamps
+        const cachedTime = new Date(cachedWinner.announcedAt).getTime();
+        const dbAnnouncedAtValue = dbWinner.announcedAt as unknown;
+        let dbAnnouncedAt: string;
+        if (dbAnnouncedAtValue instanceof Date) {
+          dbAnnouncedAt = dbAnnouncedAtValue.toISOString();
+        } else if (typeof dbAnnouncedAtValue === "string") {
+          dbAnnouncedAt = dbAnnouncedAtValue;
+        } else {
+          dbAnnouncedAt = new Date(dbAnnouncedAtValue as string | number | Date).toISOString();
+        }
+        const dbTime = new Date(dbAnnouncedAt).getTime();
+
+        // Use the most recent one
+        if (cachedTime >= dbTime) {
+          winnerToReturn = cachedWinner;
+          log(`[latest-raffle-winner] Returning cached winner (more recent): ${cachedWinner.initials}`);
+        } else {
+          winnerToReturn = dbWinner;
+          log(`[latest-raffle-winner] Returning DB winner (more recent): ${dbWinner.firstName} ${dbWinner.lastName}`);
+        }
+      } else if (cachedWinner) {
+        winnerToReturn = cachedWinner;
+        log(`[latest-raffle-winner] Returning cached winner (only source): ${cachedWinner.initials}`);
+      } else if (dbWinner) {
+        winnerToReturn = dbWinner;
+        log(`[latest-raffle-winner] Returning DB winner (only source): ${dbWinner.firstName} ${dbWinner.lastName}`);
+      }
+
+      if (!winnerToReturn) {
         res.status(204).end();
         return;
       }
 
-      const firstName = latestWinner.firstName ?? "";
-      const lastInitial = latestWinner.lastName?.charAt(0)?.toUpperCase() ?? "";
+      // If it's from cache, it's already formatted
+      if (cachedWinner && winnerToReturn === cachedWinner) {
+        res.json({
+          drawId: cachedWinner.drawId,
+          raffleDate: cachedWinner.announcedAt.split('T')[0], // Extract date from timestamp
+          announcedAt: cachedWinner.announcedAt,
+          initials: cachedWinner.initials,
+          totalScore: cachedWinner.totalScore,
+          category: cachedWinner.category,
+        });
+        return;
+      }
+
+      // Format DB winner
+      const firstName = winnerToReturn.firstName ?? "";
+      const lastInitial = winnerToReturn.lastName?.charAt(0)?.toUpperCase() ?? "";
       const formattedInitials = firstName && lastInitial ? `${firstName} ${lastInitial}.` : firstName || "";
 
-      const raffleDateValue = latestWinner.raffleDate as unknown;
+      const raffleDateValue = winnerToReturn.raffleDate as unknown;
       let raffleDate: string;
       if (raffleDateValue instanceof Date) {
         raffleDate = raffleDateValue.toISOString().split("T")[0] ?? "";
@@ -1388,7 +1439,7 @@ export async function registerRoutes(
         raffleDate = new Date(raffleDateValue as string | number | Date).toISOString().split("T")[0] ?? "";
       }
 
-      const announcedAtValue = latestWinner.announcedAt as unknown;
+      const announcedAtValue = winnerToReturn.announcedAt as unknown;
       let announcedAt: string;
       if (announcedAtValue instanceof Date) {
         announcedAt = announcedAtValue.toISOString();
@@ -1399,12 +1450,12 @@ export async function registerRoutes(
       }
 
       res.json({
-        drawId: latestWinner.drawId,
+        drawId: winnerToReturn.drawId,
         raffleDate,
         announcedAt,
         initials: formattedInitials || "WINNER",
-        totalScore: Number(latestWinner.combinedScore ?? 0),
-        category: latestWinner.category,
+        totalScore: Number(winnerToReturn.combinedScore ?? 0),
+        category: winnerToReturn.category,
       });
     } catch (error: any) {
       log(`[latest-raffle-winner] Error fetching latest winner: ${error}`);
