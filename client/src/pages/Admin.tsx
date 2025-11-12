@@ -2970,6 +2970,7 @@ function DBAdminTab() {
   const [manualFirstName, setManualFirstName] = useState("");
   const [manualLastInitial, setManualLastInitial] = useState("");
   const [manualCategory, setManualCategory] = useState("");
+  const [manualScore, setManualScore] = useState("1000"); // Default score for display
 
   // Fetch DB stats
   const { data: dbStats, refetch: refetchStats } = useQuery({
@@ -3103,9 +3104,12 @@ function DBAdminTab() {
         throw new Error("Please fill in all required fields (First Name, Last Initial, and Tech Track)");
       }
 
+      const score = parseInt(manualScore) || 1000; // Default to 1000 if invalid
+
       const winnerData = {
         firstName: manualFirstName,
         lastName: manualLastInitial,
+        combinedScore: score,
         category: manualCategory,
         isManual: true, // Flag to skip DB requirements on backend
       };
@@ -3126,6 +3130,7 @@ function DBAdminTab() {
       }
       const result = await response.json();
       console.log('✅ [Admin] Manual winner broadcast successful:', result);
+      console.log('🔍 [Admin] Check leaderboard console for WebSocket reception logs');
       return result;
     },
     onSuccess: () => {
@@ -3138,6 +3143,7 @@ function DBAdminTab() {
       setManualFirstName("");
       setManualLastInitial("");
       setManualCategory("");
+      setManualScore("1000");
     },
     onError: (error: any) => {
       console.error('💥 [Admin] Manual winner announcement error:', error);
@@ -3290,7 +3296,7 @@ function DBAdminTab() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="manual-first-name">First Name *</Label>
                 <Input
@@ -3320,6 +3326,17 @@ function DBAdminTab() {
                   placeholder="e.g., Security, Networking"
                   value={manualCategory}
                   onChange={(e) => setManualCategory(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="manual-score">Score (Points)</Label>
+                <Input
+                  id="manual-score"
+                  type="number"
+                  placeholder="e.g., 1000"
+                  value={manualScore}
+                  onChange={(e) => setManualScore(e.target.value)}
+                  min="0"
                 />
               </div>
             </div>

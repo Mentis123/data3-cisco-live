@@ -1760,6 +1760,8 @@ export async function registerRoutes(
 
       const { firstName, lastName, combinedScore, category, drawId, raffleDate, isManual } = req.body;
 
+      log(`[broadcast-raffle-winner] Received request: ${JSON.stringify({ firstName, lastName, combinedScore, category, isManual })}`);
+
       if (!firstName || !lastName || !category) {
         res.status(400).json({ message: "firstName, lastName, and category are required" });
         return;
@@ -1767,7 +1769,9 @@ export async function registerRoutes(
 
       // Format name as firstName + last initial
       const initials = `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
-      const score = combinedScore ?? 0; // Default to 0 for manual entries
+      const score = combinedScore ?? 1000; // Default to 1000 for manual entries (better than 0 for display)
+
+      log(`[broadcast-raffle-winner] Formatted data: initials="${initials}", score=${score}, category="${category}"`);
 
       let winnerDrawId: string | null = typeof drawId === "string" && drawId.length > 0 ? drawId : null;
 
@@ -1810,6 +1814,8 @@ export async function registerRoutes(
       }
 
       // Broadcast to all connected WebSocket clients
+      log(`[broadcast-raffle-winner] About to broadcast: initials="${initials}", score=${score}, category="${category}", drawId="${winnerDrawId}", announcedAt="${announcedAtIso}"`);
+
       broadcastRaffleWinner({
         initials,
         totalScore: score,
@@ -1819,7 +1825,8 @@ export async function registerRoutes(
       });
 
       const entryType = isManual ? "manual" : "automatic";
-      log(`Broadcast ${entryType} raffle winner: ${initials} (${category}) - ${score} points [drawId: ${winnerDrawId}]`);
+      log(`✅ Broadcast ${entryType} raffle winner complete: ${initials} (${category}) - ${score} points [drawId: ${winnerDrawId}]`);
+      log(`🔍 Check connected clients' browser consoles for WebSocket reception logs`);
       res.json({
         success: true,
         initials,
