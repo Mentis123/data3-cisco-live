@@ -4,6 +4,16 @@ import { Server } from "http";
 let wss: WebSocketServer | null = null;
 const clients = new Set<WebSocket>();
 
+// In-memory cache for the latest raffle winner broadcast
+// This ensures manual entries (not in DB) are also available via polling
+let latestRaffleWinnerCache: {
+  initials: string;
+  totalScore: number;
+  category: string;
+  drawId: string;
+  announcedAt: string;
+} | null = null;
+
 export function setupWebSocket(server: Server): void {
   console.log('[WebSocket] Initializing WebSocket server...');
   try {
@@ -144,6 +154,18 @@ export function broadcastRaffleWinner(data: {
     return;
   }
 
+  // Store in cache for polling endpoint (important for manual entries)
+  if (data.drawId && data.announcedAt) {
+    latestRaffleWinnerCache = {
+      initials: data.initials,
+      totalScore: data.totalScore,
+      category: data.category,
+      drawId: data.drawId,
+      announcedAt: data.announcedAt,
+    };
+    console.log(`[WebSocket] Cached latest raffle winner: ${data.initials} [${data.drawId}]`);
+  }
+
   const message = JSON.stringify({
     type: "raffleWinner",
     data
@@ -160,6 +182,16 @@ export function broadcastRaffleWinner(data: {
   });
 
   console.log(`[WebSocket] Sent raffleWinner to ${sentCount}/${clients.size} connected clients`);
+}
+
+export function getLatestRaffleWinnerBroadcast(): {
+  initials: string;
+  totalScore: number;
+  category: string;
+  drawId: string;
+  announcedAt: string;
+} | null {
+  return latestRaffleWinnerCache;
 }
 
 export function getClientCount(): number {
