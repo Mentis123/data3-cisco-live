@@ -2969,7 +2969,6 @@ function DBAdminTab() {
   // Manual entry state
   const [manualFirstName, setManualFirstName] = useState("");
   const [manualLastInitial, setManualLastInitial] = useState("");
-  const [manualEmail, setManualEmail] = useState("");
   const [manualCategory, setManualCategory] = useState("");
 
   // Fetch DB stats
@@ -3107,9 +3106,8 @@ function DBAdminTab() {
       const winnerData = {
         firstName: manualFirstName,
         lastName: manualLastInitial,
-        combinedScore: 0, // No score for manual entry
         category: manualCategory,
-        email: manualEmail, // Optional
+        isManual: true, // Flag to skip DB requirements on backend
       };
 
       console.log('🎉 [Admin] Broadcasting manual raffle winner:', winnerData);
@@ -3139,7 +3137,6 @@ function DBAdminTab() {
       // Clear form after successful broadcast
       setManualFirstName("");
       setManualLastInitial("");
-      setManualEmail("");
       setManualCategory("");
     },
     onError: (error: any) => {
@@ -3293,7 +3290,7 @@ function DBAdminTab() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="manual-first-name">First Name *</Label>
                 <Input
@@ -3315,25 +3312,12 @@ function DBAdminTab() {
                   onChange={(e) => setManualLastInitial(e.target.value.toUpperCase())}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="manual-email">Email (Optional)</Label>
-                <Input
-                  id="manual-email"
-                  type="email"
-                  placeholder="e.g., john.doe@example.com"
-                  value={manualEmail}
-                  onChange={(e) => setManualEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="manual-category">Tech Track (Category) *</Label>
+                <Label htmlFor="manual-category">Tech Track *</Label>
                 <Input
                   id="manual-category"
                   type="text"
-                  placeholder="e.g., Security, Networking, Collaboration"
+                  placeholder="e.g., Security, Networking"
                   value={manualCategory}
                   onChange={(e) => setManualCategory(e.target.value)}
                 />
@@ -3354,7 +3338,7 @@ function DBAdminTab() {
                 {manualBroadcastMutation.isPending ? "Announcing..." : "🎉 Announce Manual Winner to Leaderboard!"}
               </Button>
               <p className="text-sm text-muted-foreground pt-2">
-                * Required fields. This will broadcast the winner details to the leaderboard with the same animated reveal.
+                Enter winner details to announce on the leaderboard. Only name and tech track are required for the announcement.
               </p>
             </div>
           </div>

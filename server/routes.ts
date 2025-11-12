@@ -1707,61 +1707,66 @@ export async function registerRoutes(
     try {
       if (!ensureAdminAccess(req, res)) return;
 
-      const { firstName, lastName, combinedScore, category, drawId, raffleDate } = req.body;
+      const { firstName, lastName, combinedScore, category, drawId, raffleDate, isManual } = req.body;
 
-      if (!firstName || !lastName || combinedScore === undefined || !category) {
-        res.status(400).json({ message: "firstName, lastName, combinedScore, and category are required" });
+      if (!firstName || !lastName || !category) {
+        res.status(400).json({ message: "firstName, lastName, and category are required" });
         return;
       }
 
       // Format name as firstName + last initial
       const initials = `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
+      const score = combinedScore ?? 0; // Default to 0 for manual entries
 
       let winnerDrawId: string | null = typeof drawId === "string" && drawId.length > 0 ? drawId : null;
 
-      if (!winnerDrawId && raffleDate) {
-        try {
-          const drawForDate = await storage.getRaffleDrawByDate(raffleDate);
-          if (drawForDate?.draw?.id) {
-            winnerDrawId = drawForDate.draw.id;
+      // Only try to resolve drawId if not a manual entry
+      if (!isManual) {
+        if (!winnerDrawId && raffleDate) {
+          try {
+            const drawForDate = await storage.getRaffleDrawByDate(raffleDate);
+            if (drawForDate?.draw?.id) {
+              winnerDrawId = drawForDate.draw.id;
+            }
+          } catch (error) {
+            log(`[broadcast-raffle-winner] Failed to resolve drawId for ${raffleDate}: ${error}`);
           }
-        } catch (error) {
-          log(`[broadcast-raffle-winner] Failed to resolve drawId for ${raffleDate}: ${error}`);
+        }
+
+        // Only require drawId for non-manual entries
+        if (!winnerDrawId) {
+          res.status(400).json({ message: "Unable to determine raffle draw id for announcement" });
+          return;
         }
       }
 
-      if (!winnerDrawId) {
-        res.status(400).json({ message: "Unable to determine raffle draw id for announcement" });
-        return;
-      }
+      let announcedAtIso: string = new Date().toISOString();
 
-      let announcedAtIso: string | undefined;
-
-      try {
-        const announcedAt = await storage.markRaffleWinnerAnnounced(winnerDrawId);
-        announcedAtIso = announcedAt instanceof Date ? announcedAt.toISOString() : new Date(announcedAt as string).toISOString();
-      } catch (error) {
-        log(`[broadcast-raffle-winner] Failed to mark draw ${winnerDrawId} as announced: ${error}`);
-      }
-
-      if (!announcedAtIso) {
-        announcedAtIso = new Date().toISOString();
+      // Only mark as announced in DB if we have a drawId (non-manual entries)
+      if (winnerDrawId) {
+        try {
+          const announcedAt = await storage.markRaffleWinnerAnnounced(winnerDrawId);
+          announcedAtIso = announcedAt instanceof Date ? announcedAt.toISOString() : new Date(announcedAt as string).toISOString();
+        } catch (error) {
+          log(`[broadcast-raffle-winner] Failed to mark draw ${winnerDrawId} as announced: ${error}`);
+        }
       }
 
       // Broadcast to all connected WebSocket clients
       broadcastRaffleWinner({
         initials,
-        totalScore: combinedScore,
+        totalScore: score,
         category,
         drawId: winnerDrawId ?? undefined,
         announcedAt: announcedAtIso,
       });
 
-      log(`Broadcast raffle winner: ${initials} (${category}) - ${combinedScore} points`);
+      const entryType = isManual ? "manual" : "automatic";
+      log(`Broadcast ${entryType} raffle winner: ${initials} (${category}) - ${score} points`);
       res.json({
         success: true,
         initials,
-        totalScore: combinedScore,
+        totalScore: score,
         category,
         drawId: winnerDrawId ?? undefined,
         announcedAt: announcedAtIso,
