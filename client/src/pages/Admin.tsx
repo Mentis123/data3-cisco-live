@@ -2966,6 +2966,12 @@ function DBAdminTab() {
   const [selectedWinner, setSelectedWinner] = useState<any>(null);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
 
+  // Manual entry state
+  const [manualFirstName, setManualFirstName] = useState("");
+  const [manualLastInitial, setManualLastInitial] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualCategory, setManualCategory] = useState("");
+
   // Fetch DB stats
   const { data: dbStats, refetch: refetchStats } = useQuery({
     queryKey: ["/api/beta-admin/db-stats"],
@@ -3085,6 +3091,61 @@ function DBAdminTab() {
       console.error('💥 [Admin] Winner announcement error:', error);
       toast({
         title: "Failed to broadcast winner",
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
+  // Manual broadcast winner mutation
+  const manualBroadcastMutation = useMutation({
+    mutationFn: async () => {
+      if (!manualFirstName || !manualLastInitial || !manualCategory) {
+        throw new Error("Please fill in all required fields (First Name, Last Initial, and Tech Track)");
+      }
+
+      const winnerData = {
+        firstName: manualFirstName,
+        lastName: manualLastInitial,
+        combinedScore: 0, // No score for manual entry
+        category: manualCategory,
+        email: manualEmail, // Optional
+      };
+
+      console.log('🎉 [Admin] Broadcasting manual raffle winner:', winnerData);
+      const response = await fetch("/api/beta-admin/broadcast-raffle-winner", {
+        method: "POST",
+        headers: {
+          "x-admin-key": adminKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(winnerData),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('❌ [Admin] Failed to broadcast manual winner:', error);
+        throw new Error(error.message || "Failed to broadcast winner");
+      }
+      const result = await response.json();
+      console.log('✅ [Admin] Manual winner broadcast successful:', result);
+      return result;
+    },
+    onSuccess: () => {
+      console.log('🎊 [Admin] Manual winner announcement completed');
+      toast({
+        title: "Manual Winner announced to Leaderboard!",
+        description: "The spectacular reveal is now playing.",
+      });
+      // Clear form after successful broadcast
+      setManualFirstName("");
+      setManualLastInitial("");
+      setManualEmail("");
+      setManualCategory("");
+    },
+    onError: (error: any) => {
+      console.error('💥 [Admin] Manual winner announcement error:', error);
+      toast({
+        title: "Failed to broadcast manual winner",
         description: error.message,
         variant: "destructive"
       });
@@ -3219,6 +3280,84 @@ function DBAdminTab() {
             </div>
           </div>
 
+        </CardContent>
+      </Card>
+
+      {/* Manual Raffle Winner Entry */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Manual Raffle Winner Entry</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Manually enter raffle winner details to announce on the leaderboard
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="manual-first-name">First Name *</Label>
+                <Input
+                  id="manual-first-name"
+                  type="text"
+                  placeholder="e.g., John"
+                  value={manualFirstName}
+                  onChange={(e) => setManualFirstName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="manual-last-initial">Last Initial *</Label>
+                <Input
+                  id="manual-last-initial"
+                  type="text"
+                  placeholder="e.g., D"
+                  maxLength={1}
+                  value={manualLastInitial}
+                  onChange={(e) => setManualLastInitial(e.target.value.toUpperCase())}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="manual-email">Email (Optional)</Label>
+                <Input
+                  id="manual-email"
+                  type="email"
+                  placeholder="e.g., john.doe@example.com"
+                  value={manualEmail}
+                  onChange={(e) => setManualEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="manual-category">Tech Track (Category) *</Label>
+                <Input
+                  id="manual-category"
+                  type="text"
+                  placeholder="e.g., Security, Networking, Collaboration"
+                  value={manualCategory}
+                  onChange={(e) => setManualCategory(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 pt-4">
+              <Button
+                onClick={() => manualBroadcastMutation.mutate()}
+                disabled={
+                  manualBroadcastMutation.isPending ||
+                  !manualFirstName ||
+                  !manualLastInitial ||
+                  !manualCategory
+                }
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold"
+              >
+                {manualBroadcastMutation.isPending ? "Announcing..." : "🎉 Announce Manual Winner to Leaderboard!"}
+              </Button>
+              <p className="text-sm text-muted-foreground pt-2">
+                * Required fields. This will broadcast the winner details to the leaderboard with the same animated reveal.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
