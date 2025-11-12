@@ -1738,12 +1738,18 @@ export async function registerRoutes(
           res.status(400).json({ message: "Unable to determine raffle draw id for announcement" });
           return;
         }
+      } else {
+        // Generate a unique ID for manual entries to ensure they're trackable
+        if (!winnerDrawId) {
+          winnerDrawId = `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          log(`[broadcast-raffle-winner] Generated manual entry ID: ${winnerDrawId}`);
+        }
       }
 
       let announcedAtIso: string = new Date().toISOString();
 
-      // Only mark as announced in DB if we have a drawId (non-manual entries)
-      if (winnerDrawId) {
+      // Only mark as announced in DB if we have a database drawId (non-manual entries)
+      if (winnerDrawId && !winnerDrawId.startsWith('manual-')) {
         try {
           const announcedAt = await storage.markRaffleWinnerAnnounced(winnerDrawId);
           announcedAtIso = announcedAt instanceof Date ? announcedAt.toISOString() : new Date(announcedAt as string).toISOString();
@@ -1757,18 +1763,18 @@ export async function registerRoutes(
         initials,
         totalScore: score,
         category,
-        drawId: winnerDrawId ?? undefined,
+        drawId: winnerDrawId, // Now always has a value (either from DB or generated)
         announcedAt: announcedAtIso,
       });
 
       const entryType = isManual ? "manual" : "automatic";
-      log(`Broadcast ${entryType} raffle winner: ${initials} (${category}) - ${score} points`);
+      log(`Broadcast ${entryType} raffle winner: ${initials} (${category}) - ${score} points [drawId: ${winnerDrawId}]`);
       res.json({
         success: true,
         initials,
         totalScore: score,
         category,
-        drawId: winnerDrawId ?? undefined,
+        drawId: winnerDrawId,
         announcedAt: announcedAtIso,
       });
     } catch (error: any) {
