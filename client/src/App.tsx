@@ -26,6 +26,7 @@ import LeaderboardIdeas from "@/pages/LeaderboardIdeas";
 import Videos from "@/pages/Videos";
 import PRStatusTracker from "@/pages/PRStatusTracker";
 import Migrate from "@/pages/Migrate";
+import ExportSubmissions from "@/pages/ExportSubmissions";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -74,6 +75,7 @@ function Router() {
 
         {/* Legacy Admin Routes */}
         <Route path="/admin-leaderboard" component={AdminLeaderboard} />
+        <Route path="/admin/export" component={ExportSubmissions} />
 
         {/* Utility Routes */}
         <Route path="/stand" component={StandMessaging} />
