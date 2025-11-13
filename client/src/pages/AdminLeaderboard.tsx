@@ -862,12 +862,20 @@ export default function AdminLeaderboard() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold">Admin Leaderboard Dashboard</h1>
-            <Link href="/">
-              <Button variant="outline">
-                <i className="fas fa-arrow-left mr-2"></i>
-                Back to Home
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/admin/export">
+                <Button variant="default">
+                  <i className="fas fa-download mr-2"></i>
+                  Export Submissions
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline">
+                  <i className="fas fa-arrow-left mr-2"></i>
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
           </div>
           <p className="text-muted-foreground">
             Click on any entry to view the complete solution and scoring breakdown
