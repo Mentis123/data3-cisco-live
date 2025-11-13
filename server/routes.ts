@@ -12,10 +12,17 @@ import {
   startSessionSchema,
   chatSchema,
   submitSolutionSchema,
+  submissions,
+  participants,
+  users,
+  chatSessions,
+  attempts,
 } from "../shared/schema.js";
 import { createHash } from "crypto";
 import path from "path";
 import { z } from "zod";
+import archiver from "archiver";
+import { eq, and, gte, lte, sql } from 'drizzle-orm';
 
 /**
  * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
@@ -2121,6 +2128,238 @@ export async function registerRoutes(
     } catch (error) {
       log(`Error updating feedback status: ${error}`);
       res.status(500).json({ error: "Failed to update feedback status" });
+    }
+  });
+
+  // Export submissions as ZIP file
+  app.get("/api/admin/export-submissions", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      if (!db) {
+        res.status(500).json({ error: "Database connection not available" });
+        return;
+      }
+
+      const { startDate, endDate } = req.query;
+
+      if (!startDate || !endDate) {
+        res.status(400).json({ error: "Both startDate and endDate are required (format: YYYY-MM-DD)" });
+        return;
+      }
+
+      log(`[export] Starting submissions export from ${startDate} to ${endDate}`);
+
+      // Query all submissions within the date range
+      const submissionsData = await db
+        .select({
+          submissionId: submissions.id,
+          submissionDate: submissions.createdAt,
+          participantId: submissions.participantId,
+          category: submissions.category,
+          solutionText: submissions.solutionText,
+          structuredJson: submissions.structuredJson,
+          totalScore: submissions.totalScore,
+          subScores: submissions.subScores,
+          firstName: participants.firstName,
+          lastName: participants.lastName,
+          emailHash: sql<string>`COALESCE(${users.emailHash}, ${attempts.emailHash})`,
+          email: users.email,
+        })
+        .from(submissions)
+        .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .leftJoin(attempts, eq(submissions.id, attempts.submissionId))
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .where(
+          and(
+            gte(submissions.createdAt, new Date(`${startDate}T00:00:00.000Z`)),
+            lte(submissions.createdAt, new Date(`${endDate}T23:59:59.999Z`))
+          )
+        )
+        .orderBy(submissions.createdAt);
+
+      log(`[export] Found ${submissionsData.length} submissions`);
+
+      if (submissionsData.length === 0) {
+        res.status(404).json({ error: "No submissions found in the specified date range" });
+        return;
+      }
+
+      // Set headers for ZIP download
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename=submissions_${startDate}_to_${endDate}.zip`);
+
+      // Create ZIP archive
+      const archive = archiver('zip', { zlib: { level: 9 } });
+
+      archive.on('error', (err) => {
+        log(`[export] Archive error: ${err.message}`);
+        throw err;
+      });
+
+      archive.pipe(res);
+
+      // Create CSV summary
+      const csvLines = [
+        'Submission ID,Date,First Name,Last Name,Email,Category,Total Score,Clarity Score,Impact Score,Technology Fit Score,Feasibility Score,Business Value Score',
+      ];
+
+      const exportData: Array<any> = [];
+
+      for (const submission of submissionsData) {
+        // Get chat session for this participant
+        let chatTranscript: Array<{ role: string; content: string }> = [];
+
+        try {
+          const chatSession = await db
+            .select()
+            .from(chatSessions)
+            .where(
+              and(
+                eq(chatSessions.participantId, submission.participantId),
+                eq(chatSessions.category, submission.category)
+              )
+            )
+            .limit(1);
+
+          if (chatSession.length > 0 && chatSession[0].messages) {
+            chatTranscript = chatSession[0].messages as Array<{ role: string; content: string }>;
+          }
+        } catch (error) {
+          log(`[export] Error fetching chat session for participant ${submission.participantId}: ${error}`);
+        }
+
+        const subScores = submission.subScores ? JSON.parse(submission.subScores) : {};
+        const structuredData = submission.structuredJson ? JSON.parse(submission.structuredJson) : {};
+
+        // Add to CSV
+        csvLines.push(
+          [
+            submission.submissionId,
+            submission.submissionDate.toISOString(),
+            submission.firstName,
+            submission.lastName,
+            submission.email || 'Not available',
+            submission.category,
+            submission.totalScore,
+            subScores.clarity || '',
+            subScores.impact || '',
+            subScores.technology_fit || '',
+            subScores.feasibility || '',
+            subScores.business_value || '',
+          ]
+            .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+            .join(',')
+        );
+
+        exportData.push({
+          submission,
+          subScores,
+          structuredData,
+          chatTranscript,
+        });
+
+        // Create individual text file for this submission
+        const fileName = `${submission.submissionDate.toISOString().split('T')[0]}_${submission.lastName}_${submission.firstName}_${submission.category}.txt`
+          .replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+
+        const chatTranscriptText = chatTranscript.length > 0
+          ? chatTranscript
+              .map((msg, index) => {
+                const role = msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH';
+                return `\n[${index + 1}] ${role}:\n${msg.content}\n${'='.repeat(80)}`;
+              })
+              .join('\n')
+          : 'No chat transcript available';
+
+        const fileContent = `
+================================================================================
+SUBMISSION DETAILS
+================================================================================
+
+Submission ID: ${submission.submissionId}
+Date of Submission: ${submission.submissionDate.toISOString()}
+First Name: ${submission.firstName}
+Last Name: ${submission.lastName}
+Email: ${submission.email || 'Not available'}
+Category: ${submission.category}
+Total Score: ${submission.totalScore}
+
+--------------------------------------------------------------------------------
+SUB-SCORES
+--------------------------------------------------------------------------------
+${Object.entries(subScores).length > 0
+  ? Object.entries(subScores)
+      .map(([key, value]) => `${key.replace(/_/g, ' ').toUpperCase()}: ${value}`)
+      .join('\n')
+  : 'Not available'}
+
+--------------------------------------------------------------------------------
+PROJECT SUBMISSION DETAILS
+--------------------------------------------------------------------------------
+
+PROBLEM SUMMARY:
+${structuredData.problem_summary || 'Not available'}
+
+IMPACT SUMMARY:
+${structuredData.impact_summary || 'Not available'}
+
+BASELINE METRICS:
+${structuredData.baseline_metrics
+  ? structuredData.baseline_metrics.map((m: any) => `- ${m.name}: ${m.value}`).join('\n')
+  : 'Not available'}
+
+TARGET METRICS:
+${structuredData.target_metrics
+  ? structuredData.target_metrics.map((m: any) => `- ${m.name}: ${m.target}`).join('\n')
+  : 'Not available'}
+
+ACTION PLAN:
+${structuredData.action_plan
+  ? structuredData.action_plan.map((step: string, i: number) => `${i + 1}. ${step}`).join('\n')
+  : 'Not available'}
+
+SUCCESS CHECKS:
+${structuredData.success_checks
+  ? structuredData.success_checks.map((check: string, i: number) => `${i + 1}. ${check}`).join('\n')
+  : 'Not available'}
+
+RISKS:
+${structuredData.risks
+  ? structuredData.risks.map((risk: string, i: number) => `${i + 1}. ${risk}`).join('\n')
+  : 'Not available'}
+
+FULL SOLUTION TEXT:
+${submission.solutionText}
+
+================================================================================
+SPRINT COACH CHAT TRANSCRIPT
+================================================================================
+${chatTranscriptText}
+
+================================================================================
+END OF SUBMISSION
+================================================================================
+`.trim();
+
+        archive.append(fileContent, { name: `individual_submissions/${fileName}` });
+      }
+
+      // Add CSV summary to archive
+      archive.append(csvLines.join('\n'), { name: 'submissions_summary.csv' });
+
+      // Add detailed JSON to archive
+      archive.append(JSON.stringify(exportData, null, 2), { name: 'submissions_detailed.json' });
+
+      // Finalize the archive
+      await archive.finalize();
+
+      log(`[export] Export completed successfully - ${submissionsData.length} submissions exported`);
+    } catch (error) {
+      log(`[export] Error during export: ${error}`);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to export submissions" });
+      }
     }
   });
 
