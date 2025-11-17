@@ -198,27 +198,9 @@ function App() {
           }
         }
 
-        // For buttons, intercept the click and delay it slightly to ensure sound plays
-        // This applies to ALL buttons, including navigation buttons
-        if (clickableElement.tagName === 'BUTTON') {
-          // Stop propagation to prevent immediate onClick execution
-          event.stopPropagation();
-          event.preventDefault();
-
-          // Wait 100ms for the beep to play, then re-trigger the click
-          setTimeout(() => {
-            // Create a new click event that will trigger the original onClick handlers
-            const newEvent = new MouseEvent('click', {
-              bubbles: true,
-              cancelable: true,
-              view: window
-            });
-            // Mark the new event as processed to avoid re-processing
-            processedEvents.add(newEvent);
-            // Dispatch the new event to the button
-            clickableElement.dispatchEvent(newEvent);
-          }, 100);
-        }
+        // For buttons, just play the sound and let the event propagate naturally
+        // React's event handlers will receive the event and execute normally
+        // (No need to intercept or delay - the click sound is short enough)
       }
     };
 
