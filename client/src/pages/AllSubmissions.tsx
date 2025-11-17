@@ -183,26 +183,53 @@ export default function AllSubmissions() {
     const fileName = `all_submissions_${new Date().toISOString().split('T')[0]}.csv`;
     const adminKey = localStorage.getItem("adminKey");
 
+    if (!adminKey) {
+      alert('Missing admin authentication key');
+      return;
+    }
+
     setIsDownloading(true);
 
     try {
-      if (!adminKey) {
-        throw new Error('Missing admin authentication key');
-      }
+      // Use direct download via anchor tag with admin key in URL
+      const url = `/api/admin/download-submissions-csv`;
+      const a = document.createElement("a");
+      a.style.display = "none";
 
-      const response = await fetch("/api/admin/download-submissions-csv", {
+      // Create a temporary form to POST the admin key securely
+      const form = document.createElement("form");
+      form.method = "GET";
+      form.action = url;
+      form.style.display = "none";
+
+      // Since we can't add headers to a form submission, we'll use fetch with proper blob handling
+      const response = await fetch(url, {
+        method: "GET",
         headers: {
           "x-admin-key": adminKey,
         },
       });
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(errorText || "Failed to download CSV from server");
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
       }
 
+      // Get the blob and create a download URL
       const blob = await response.blob();
-      triggerBlobDownload(blob, fileName);
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Create and trigger download
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup after a delay to ensure download starts
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
+
     } catch (error) {
       console.error("Error downloading CSV from API, falling back to local data:", error);
       try {
