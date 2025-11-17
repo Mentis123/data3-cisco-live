@@ -18,10 +18,13 @@ const isServerless = !!(
 
 if (isServerless) {
   // For serverless (Vercel, AWS Lambda), explicitly disable WebSocket and use HTTP fetch
-  // This prevents the "Cannot set property message" error
+  // This prevents the "Cannot set property message" error when WebSocket constructor isn't writable
   neonConfig.webSocketConstructor = undefined;
-  // Note: fetchConnectionCache is deprecated and now always true
-  console.log('[db] Running in serverless environment - WebSocket disabled, using HTTP fetch for database connections');
+  // Route Pool queries through the fetch-based HTTP driver instead of WebSocket
+  neonConfig.poolQueryViaFetch = true;
+  // Ensure fetch-based connections are cached between invocations to avoid cold starts
+  neonConfig.fetchConnectionCache = true;
+  console.log('[db] Running in serverless environment - WebSocket disabled, forcing HTTP fetch for database connections');
 } else {
   // For local development, we can use WebSocket or HTTP fetch (both work fine)
   console.log('[db] Running in local development mode');
