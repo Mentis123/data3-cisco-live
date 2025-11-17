@@ -2479,19 +2479,20 @@ END OF SUBMISSION
 
       log(`[csv-download] Found ${submissionsData.length} submissions`);
 
-      if (submissionsData.length === 0) {
-        res.status(404).json({ error: "No submissions found" });
-        return;
-      }
-
       // Set headers for CSV download
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename=all_submissions_${new Date().toISOString().split('T')[0]}.csv`);
 
-      // Create CSV header
+      // Create CSV header (always present even if there are no submissions)
       const csvLines = [
         'Submission ID,Submission Date,Participant ID,First Name,Last Name,Email,Category,Total Score,Clarity Score,Impact Score,Technology Fit Score,Feasibility Score,Business Value Score,Problem Summary,Impact Summary,Evaluation Notes,Solution Text,Chat Transcript',
       ];
+
+      if (submissionsData.length === 0) {
+        log('[csv-download] No submissions found - returning header-only CSV');
+        res.send(csvLines.join('\n'));
+        return;
+      }
 
       // Add each submission as a CSV row
       for (const submission of submissionsData) {
