@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORY_BADGE_CLASSES as BASE_CATEGORY_BADGE_CLASSES, getCategoryName, CATEGORY_KEYS, CATEGORY_NAMES } from "@/constants/categories";
-import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle } from "lucide-react";
+import { Trash2, Edit, Plus, Download, Eye, CheckCircle, XCircle, MessageSquare } from "lucide-react";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { CartesianGrid, Cell, Line, LineChart, Scatter, TooltipProps, XAxis, YAxis } from "recharts";
@@ -3500,6 +3500,12 @@ export default function Admin() {
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
                 View All Submissions
+              </Button>
+            </Link>
+            <Link href="/admin/feedback">
+              <Button variant="outline">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                View All Feedback
               </Button>
             </Link>
             <Link href="/">
