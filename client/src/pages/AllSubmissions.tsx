@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { Download, ArrowLeft, Loader2 } from "lucide-react";
 import { getCategoryName } from "@/constants/categories";
 
 interface SubmissionRecord {
@@ -48,7 +48,6 @@ export default function AllSubmissions() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,18 +254,6 @@ export default function AllSubmissions() {
     });
   };
 
-  const toggleRow = (submissionId: string) => {
-    setExpandedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(submissionId)) {
-        newSet.delete(submissionId);
-      } else {
-        newSet.add(submissionId);
-      }
-      return newSet;
-    });
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -379,13 +366,11 @@ export default function AllSubmissions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {submissions.map((submission, index) => {
-                      const isExpanded = expandedRows.has(submission.submissionId);
-                      return (
-                        <tr
-                          key={submission.submissionId}
-                          className="border-b hover:bg-muted/30 transition-colors"
-                        >
+                    {submissions.map((submission, index) => (
+                      <tr
+                        key={submission.submissionId}
+                        className="border-b hover:bg-muted/30 transition-colors"
+                      >
                           <td className="py-3 px-4 text-muted-foreground">
                             {index + 1}
                           </td>
@@ -435,49 +420,25 @@ export default function AllSubmissions() {
                             </div>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="space-y-2">
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                onClick={() => toggleRow(submission.submissionId)}
-                                className="w-full"
-                              >
-                                {isExpanded ? (
-                                  <>
-                                    <ChevronDown className="w-4 h-4 mr-1" />
-                                    Hide
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronRight className="w-4 h-4 mr-1" />
-                                    Show
-                                  </>
-                                )}
-                              </Button>
-                              {isExpanded && (
-                                <div className="mt-2 p-3 bg-muted/50 rounded-md text-sm max-w-md max-h-96 overflow-y-auto">
-                                  {submission.chatTranscript && submission.chatTranscript.length > 0 ? (
-                                    <div className="space-y-3">
-                                      {submission.chatTranscript.map((msg, idx) => (
-                                        <div key={idx} className="border-b pb-2 last:border-b-0">
-                                          <div className={`font-semibold mb-1 ${msg.role === 'user' ? 'text-blue-600' : 'text-green-600'}`}>
-                                            {msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH'}:
-                                          </div>
-                                          <div className="text-xs whitespace-pre-wrap">{msg.content}</div>
-                                        </div>
-                                      ))}
+                            <div className="p-3 bg-muted/50 rounded-md text-sm max-w-md max-h-96 overflow-y-auto">
+                              {submission.chatTranscript && submission.chatTranscript.length > 0 ? (
+                                <div className="space-y-3">
+                                  {submission.chatTranscript.map((msg, idx) => (
+                                    <div key={idx} className="border-b pb-2 last:border-b-0">
+                                      <div className={`font-semibold mb-1 ${msg.role === 'user' ? 'text-blue-600' : 'text-green-600'}`}>
+                                        {msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH'}:
+                                      </div>
+                                      <div className="text-xs whitespace-pre-wrap">{msg.content}</div>
                                     </div>
-                                  ) : (
-                                    <div className="text-muted-foreground">No chat transcript available</div>
-                                  )}
+                                  ))}
                                 </div>
+                              ) : (
+                                <div className="text-muted-foreground">No chat transcript available</div>
                               )}
                             </div>
                           </td>
                         </tr>
-                      );
-                    })}
+                    ))}
                   </tbody>
                 </table>
               </div>
