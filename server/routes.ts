@@ -1276,8 +1276,10 @@ export async function registerRoutes(
   // Admin endpoint to get full leaderboard with details
   app.get("/api/admin/leaderboard", async (req, res) => {
     try {
-      // Default to today's date in Melbourne timezone, or use the provided date
-      const filterDate = req.query.date as string | undefined || getMelbourneDate();
+      // If date=all is passed, don't filter by date
+      // Otherwise, default to today's date in Melbourne timezone, or use the provided date
+      const dateParam = req.query.date as string | undefined;
+      const filterDate = dateParam === 'all' ? undefined : (dateParam || getMelbourneDate());
       const leaderboard = await storage.getDetailedLeaderboard(100, filterDate);
       res.json(leaderboard);
     } catch (error) {

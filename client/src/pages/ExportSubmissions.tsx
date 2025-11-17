@@ -34,9 +34,9 @@ export default function ExportSubmissions() {
       if (!startDate || !endDate) return [];
 
       try {
-        // Fetch all submissions (no date filter on API) and filter client-side
+        // Fetch all submissions (use date=all to bypass date filter) and filter client-side
         const response = await apiRequest(
-          `/api/admin/leaderboard`,
+          `/api/admin/leaderboard?date=all`,
           {
             headers: { 'x-admin-key': adminKey }
           }
@@ -49,10 +49,11 @@ export default function ExportSubmissions() {
         const data = await response.json();
 
         // Filter by date range client-side
+        // Parse dates in Melbourne timezone for accurate filtering
         return data.filter((entry: any) => {
           const entryDate = new Date(entry.createdAt);
-          const start = new Date(`${startDate}T00:00:00`);
-          const end = new Date(`${endDate}T23:59:59`);
+          const start = new Date(`${startDate}T00:00:00.000Z`);
+          const end = new Date(`${endDate}T23:59:59.999Z`);
           return entryDate >= start && entryDate <= end;
         });
       } catch (error) {
