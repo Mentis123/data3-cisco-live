@@ -2385,6 +2385,7 @@ END OF SUBMISSION
           participantId: submissions.participantId,
           category: submissions.category,
           solutionText: submissions.solutionText,
+          structuredJson: submissions.structuredJson,
           totalScore: submissions.totalScore,
           subScores: submissions.subScores,
           evaluationNotes: submissions.evaluationNotes,
@@ -2402,10 +2403,39 @@ END OF SUBMISSION
 
       log(`[all-submissions] Found ${submissionsData.length} submissions`);
 
-      // Parse subScores JSON for each submission
-      const formattedData = submissionsData.map(submission => ({
-        ...submission,
-        subScores: submission.subScores ? JSON.parse(submission.subScores) : {},
+      // Fetch chat transcripts and format data for each submission
+      const formattedData = await Promise.all(submissionsData.map(async (submission) => {
+        // Get chat session for this participant
+        let chatTranscript: Array<{ role: string; content: string }> = [];
+
+        try {
+          const chatSession = await db
+            .select()
+            .from(chatSessions)
+            .where(
+              and(
+                eq(chatSessions.participantId, submission.participantId),
+                eq(chatSessions.category, submission.category)
+              )
+            )
+            .limit(1);
+
+          if (chatSession.length > 0 && chatSession[0].messages) {
+            chatTranscript = chatSession[0].messages as Array<{ role: string; content: string }>;
+          }
+        } catch (error) {
+          log(`[all-submissions] Error fetching chat session for participant ${submission.participantId}: ${error}`);
+        }
+
+        const subScores = submission.subScores ? JSON.parse(submission.subScores) : {};
+        const structuredData = submission.structuredJson ? JSON.parse(submission.structuredJson) : {};
+
+        return {
+          ...submission,
+          subScores,
+          structuredData,
+          chatTranscript,
+        };
       }));
 
       res.json(formattedData);
@@ -2464,12 +2494,40 @@ END OF SUBMISSION
 
       // Create CSV header
       const csvLines = [
-        'Submission ID,Submission Date,Participant ID,First Name,Last Name,Email,Category,Total Score,Clarity Score,Impact Score,Technology Fit Score,Feasibility Score,Business Value Score,Announced on Leaderboard,Evaluation Notes,Solution Text',
+        'Submission ID,Submission Date,Participant ID,First Name,Last Name,Email,Category,Total Score,Clarity Score,Impact Score,Technology Fit Score,Feasibility Score,Business Value Score,Problem Summary,Impact Summary,Evaluation Notes,Solution Text,Chat Transcript',
       ];
 
       // Add each submission as a CSV row
       for (const submission of submissionsData) {
         const subScores = submission.subScores ? JSON.parse(submission.subScores) : {};
+        const structuredData = submission.structuredJson ? JSON.parse(submission.structuredJson) : {};
+
+        // Get chat transcript for this participant
+        let chatTranscriptText = 'No chat transcript available';
+        try {
+          const chatSession = await db
+            .select()
+            .from(chatSessions)
+            .where(
+              and(
+                eq(chatSessions.participantId, submission.participantId),
+                eq(chatSessions.category, submission.category)
+              )
+            )
+            .limit(1);
+
+          if (chatSession.length > 0 && chatSession[0].messages) {
+            const messages = chatSession[0].messages as Array<{ role: string; content: string }>;
+            chatTranscriptText = messages
+              .map((msg, index) => {
+                const role = msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH';
+                return `[${index + 1}] ${role}: ${msg.content}`;
+              })
+              .join(' | ');
+          }
+        } catch (error) {
+          log(`[csv-download] Error fetching chat for participant ${submission.participantId}: ${error}`);
+        }
 
         csvLines.push(
           [
@@ -2486,9 +2544,11 @@ END OF SUBMISSION
             subScores.technology_fit || '',
             subScores.feasibility || '',
             subScores.business_value || '',
-            submission.announcedOnLeaderboard ? 'Yes' : 'No',
+            structuredData.problem_summary || '',
+            structuredData.impact_summary || '',
             submission.evaluationNotes || '',
             submission.solutionText || '',
+            chatTranscriptText,
           ]
             .map((field) => `"${String(field).replace(/"/g, '""')}"`)
             .join(',')
