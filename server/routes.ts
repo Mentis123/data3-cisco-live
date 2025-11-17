@@ -2365,5 +2365,97 @@ END OF SUBMISSION
     }
   });
 
+  // Download all submissions as CSV with participant data
+  app.get("/api/admin/download-submissions-csv", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      if (!db) {
+        res.status(500).json({ error: "Database connection not available" });
+        return;
+      }
+
+      log(`[csv-download] Starting CSV download for all submissions`);
+
+      // Query all submissions with participant data
+      const submissionsData = await db
+        .select({
+          submissionId: submissions.id,
+          submissionDate: submissions.createdAt,
+          participantId: submissions.participantId,
+          category: submissions.category,
+          solutionText: submissions.solutionText,
+          structuredJson: submissions.structuredJson,
+          totalScore: submissions.totalScore,
+          subScores: submissions.subScores,
+          evaluationNotes: submissions.evaluationNotes,
+          announcedOnLeaderboard: submissions.announcedOnLeaderboard,
+          firstName: participants.firstName,
+          lastName: participants.lastName,
+          emailHash: sql<string>`COALESCE(${users.emailHash}, ${attempts.emailHash})`,
+          email: users.email,
+        })
+        .from(submissions)
+        .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .leftJoin(attempts, eq(submissions.id, attempts.submissionId))
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .orderBy(submissions.createdAt);
+
+      log(`[csv-download] Found ${submissionsData.length} submissions`);
+
+      if (submissionsData.length === 0) {
+        res.status(404).json({ error: "No submissions found" });
+        return;
+      }
+
+      // Set headers for CSV download
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=all_submissions_${new Date().toISOString().split('T')[0]}.csv`);
+
+      // Create CSV header
+      const csvLines = [
+        'Submission ID,Submission Date,Participant ID,First Name,Last Name,Email,Category,Total Score,Clarity Score,Impact Score,Technology Fit Score,Feasibility Score,Business Value Score,Announced on Leaderboard,Evaluation Notes,Solution Text',
+      ];
+
+      // Add each submission as a CSV row
+      for (const submission of submissionsData) {
+        const subScores = submission.subScores ? JSON.parse(submission.subScores) : {};
+
+        csvLines.push(
+          [
+            submission.submissionId,
+            submission.submissionDate?.toISOString() || '',
+            submission.participantId,
+            submission.firstName,
+            submission.lastName,
+            submission.email || 'Not available',
+            submission.category,
+            submission.totalScore,
+            subScores.clarity || '',
+            subScores.impact || '',
+            subScores.technology_fit || '',
+            subScores.feasibility || '',
+            subScores.business_value || '',
+            submission.announcedOnLeaderboard ? 'Yes' : 'No',
+            submission.evaluationNotes || '',
+            submission.solutionText || '',
+          ]
+            .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+            .join(',')
+        );
+      }
+
+      // Send CSV
+      res.send(csvLines.join('\n'));
+
+      log(`[csv-download] CSV download completed successfully - ${submissionsData.length} submissions exported`);
+    } catch (error) {
+      log(`[csv-download] Error during CSV download: ${error}`);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to download submissions CSV" });
+      }
+    }
+  });
+
   return httpServer;
 }

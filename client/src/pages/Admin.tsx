@@ -3485,6 +3485,35 @@ export default function Admin() {
     );
   }
 
+  const handleDownloadCSV = async () => {
+    try {
+      const adminKey = localStorage.getItem("adminKey");
+      const response = await fetch("/api/admin/download-submissions-csv", {
+        headers: {
+          "x-admin-key": adminKey || "",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download CSV");
+      }
+
+      // Create a blob from the response
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `all_submissions_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+      alert("Failed to download CSV. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -3495,9 +3524,15 @@ export default function Admin() {
               Manage trivia experience and raffle entries
             </p>
           </div>
-          <Link href="/">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleDownloadCSV}>
+              <Download className="w-4 h-4 mr-2" />
+              Download CSV
+            </Button>
+            <Link href="/">
+              <Button variant="outline">Back to Home</Button>
+            </Link>
+          </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
