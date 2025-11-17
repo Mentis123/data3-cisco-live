@@ -99,23 +99,73 @@ export default function AllSubmissions() {
     }
   };
 
-  const handleDownloadCSV = async (e: React.MouseEvent) => {
+  const handleDownloadCSV = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     try {
-      const adminKey = localStorage.getItem("adminKey");
-      const response = await fetch("/api/admin/download-submissions-csv", {
-        headers: {
-          "x-admin-key": adminKey || "",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to download CSV");
+      if (!submissions || submissions.length === 0) {
+        alert("No submissions to export");
+        return;
       }
 
-      const blob = await response.blob();
+      // Create CSV headers
+      const headers = [
+        "Submission ID",
+        "Date",
+        "Participant ID",
+        "First Name",
+        "Last Name",
+        "Email",
+        "Category",
+        "Total Score",
+        "Clarity",
+        "Impact",
+        "Technology Fit",
+        "Feasibility",
+        "Business Value",
+        "Problem Summary",
+        "Impact Summary",
+        "Evaluation Notes",
+        "Solution Text",
+        "Chat Transcript"
+      ];
+
+      // Create CSV rows
+      const rows = submissions.map((sub) => {
+        const chatText = sub.chatTranscript
+          ?.map((msg, idx) => `[${idx + 1}] ${msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH'}: ${msg.content}`)
+          .join(' | ') || 'No chat transcript available';
+
+        return [
+          sub.submissionId,
+          sub.submissionDate,
+          sub.participantId,
+          sub.firstName,
+          sub.lastName,
+          sub.email || 'Not available',
+          getCategoryName(sub.category),
+          sub.totalScore?.toString() || '',
+          sub.subScores?.clarity?.toString() || '',
+          sub.subScores?.impact?.toString() || '',
+          sub.subScores?.technology_fit?.toString() || '',
+          sub.subScores?.feasibility?.toString() || '',
+          sub.subScores?.business_value?.toString() || '',
+          sub.structuredData?.problem_summary || '',
+          sub.structuredData?.impact_summary || '',
+          sub.evaluationNotes || '',
+          sub.solutionText || '',
+          chatText
+        ];
+      });
+
+      // Generate CSV content
+      const csv = [headers, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      // Download CSV
+      const blob = new Blob([csv], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
