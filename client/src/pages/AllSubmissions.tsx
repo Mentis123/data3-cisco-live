@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { Download, ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { getCategoryName } from "@/constants/categories";
 
 interface SubmissionRecord {
@@ -46,6 +46,7 @@ export default function AllSubmissions() {
   const [showPasswordError, setShowPasswordError] = useState(false);
   const [submissions, setSubmissions] = useState<SubmissionRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -99,84 +100,120 @@ export default function AllSubmissions() {
     }
   };
 
-  const handleDownloadCSV = (e: React.MouseEvent) => {
+  const buildCsvBlobFromSubmissions = (records: SubmissionRecord[]) => {
+    const headers = [
+      "Submission ID",
+      "Date",
+      "Participant ID",
+      "First Name",
+      "Last Name",
+      "Email",
+      "Category",
+      "Total Score",
+      "Clarity",
+      "Impact",
+      "Technology Fit",
+      "Feasibility",
+      "Business Value",
+      "Problem Summary",
+      "Impact Summary",
+      "Evaluation Notes",
+      "Solution Text",
+      "Chat Transcript"
+    ];
+
+    const rows = records.map((sub) => {
+      const chatText = sub.chatTranscript
+        ?.map((msg, idx) => `[${idx + 1}] ${msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH'}: ${msg.content}`)
+        .join(' | ') || 'No chat transcript available';
+
+      return [
+        sub.submissionId,
+        sub.submissionDate,
+        sub.participantId,
+        sub.firstName,
+        sub.lastName,
+        sub.email || 'Not available',
+        getCategoryName(sub.category),
+        sub.totalScore?.toString() || '',
+        sub.subScores?.clarity?.toString() || '',
+        sub.subScores?.impact?.toString() || '',
+        sub.subScores?.technology_fit?.toString() || '',
+        sub.subScores?.feasibility?.toString() || '',
+        sub.subScores?.business_value?.toString() || '',
+        sub.structuredData?.problem_summary || '',
+        sub.structuredData?.impact_summary || '',
+        sub.evaluationNotes || '',
+        sub.solutionText || '',
+        chatText
+      ];
+    });
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    return new Blob([csv], { type: "text/csv" });
+  };
+
+  const triggerBlobDownload = (blob: Blob, fileName: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  const handleDownloadCSV = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!submissions || submissions.length === 0) {
+      alert("No submissions to export");
+      return;
+    }
+
+    if (isDownloading) {
+      return;
+    }
+
+    const fileName = `all_submissions_${new Date().toISOString().split('T')[0]}.csv`;
+    const adminKey = localStorage.getItem("adminKey");
+
+    setIsDownloading(true);
+
     try {
-      if (!submissions || submissions.length === 0) {
-        alert("No submissions to export");
-        return;
+      if (!adminKey) {
+        throw new Error('Missing admin authentication key');
       }
 
-      // Create CSV headers
-      const headers = [
-        "Submission ID",
-        "Date",
-        "Participant ID",
-        "First Name",
-        "Last Name",
-        "Email",
-        "Category",
-        "Total Score",
-        "Clarity",
-        "Impact",
-        "Technology Fit",
-        "Feasibility",
-        "Business Value",
-        "Problem Summary",
-        "Impact Summary",
-        "Evaluation Notes",
-        "Solution Text",
-        "Chat Transcript"
-      ];
-
-      // Create CSV rows
-      const rows = submissions.map((sub) => {
-        const chatText = sub.chatTranscript
-          ?.map((msg, idx) => `[${idx + 1}] ${msg.role === 'user' ? 'PARTICIPANT' : 'SPRINT COACH'}: ${msg.content}`)
-          .join(' | ') || 'No chat transcript available';
-
-        return [
-          sub.submissionId,
-          sub.submissionDate,
-          sub.participantId,
-          sub.firstName,
-          sub.lastName,
-          sub.email || 'Not available',
-          getCategoryName(sub.category),
-          sub.totalScore?.toString() || '',
-          sub.subScores?.clarity?.toString() || '',
-          sub.subScores?.impact?.toString() || '',
-          sub.subScores?.technology_fit?.toString() || '',
-          sub.subScores?.feasibility?.toString() || '',
-          sub.subScores?.business_value?.toString() || '',
-          sub.structuredData?.problem_summary || '',
-          sub.structuredData?.impact_summary || '',
-          sub.evaluationNotes || '',
-          sub.solutionText || '',
-          chatText
-        ];
+      const response = await fetch("/api/admin/download-submissions-csv", {
+        headers: {
+          "x-admin-key": adminKey,
+        },
       });
 
-      // Generate CSV content
-      const csv = [headers, ...rows]
-        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-        .join("\n");
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(errorText || "Failed to download CSV from server");
+      }
 
-      // Download CSV
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `all_submissions_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const blob = await response.blob();
+      triggerBlobDownload(blob, fileName);
     } catch (error) {
-      console.error("Error downloading CSV:", error);
-      alert("Failed to download CSV. Please try again.");
+      console.error("Error downloading CSV from API, falling back to local data:", error);
+      try {
+        const fallbackBlob = buildCsvBlobFromSubmissions(submissions);
+        triggerBlobDownload(fallbackBlob, fileName);
+      } catch (fallbackError) {
+        console.error("Fallback CSV generation failed:", fallbackError);
+        alert("Failed to download CSV. Please try again.");
+      }
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -255,9 +292,23 @@ export default function AllSubmissions() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleDownloadCSV}>
-              <Download className="w-4 h-4 mr-2" />
-              Download CSV
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDownloadCSV}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Preparing CSV...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download CSV
+                </>
+              )}
             </Button>
             <Link href="/admin">
               <Button variant="outline">
