@@ -2412,12 +2412,8 @@ END OF SUBMISSION
           const chatSession = await db
             .select()
             .from(chatSessions)
-            .where(
-              and(
-                eq(chatSessions.participantId, submission.participantId),
-                eq(chatSessions.category, submission.category)
-              )
-            )
+            .where(eq(chatSessions.participantId, submission.participantId))
+            .orderBy(sql`${chatSessions.createdAt} DESC`)
             .limit(1);
 
           if (chatSession.length > 0 && chatSession[0].messages) {
@@ -2508,12 +2504,8 @@ END OF SUBMISSION
           const chatSession = await db
             .select()
             .from(chatSessions)
-            .where(
-              and(
-                eq(chatSessions.participantId, submission.participantId),
-                eq(chatSessions.category, submission.category)
-              )
-            )
+            .where(eq(chatSessions.participantId, submission.participantId))
+            .orderBy(sql`${chatSessions.createdAt} DESC`)
             .limit(1);
 
           if (chatSession.length > 0 && chatSession[0].messages) {
