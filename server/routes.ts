@@ -2365,6 +2365,56 @@ END OF SUBMISSION
     }
   });
 
+  // Get all submissions with participant data as JSON
+  app.get("/api/admin/all-submissions", async (req, res) => {
+    try {
+      if (!ensureAdminAccess(req, res)) return;
+
+      if (!db) {
+        res.status(500).json({ error: "Database connection not available" });
+        return;
+      }
+
+      log(`[all-submissions] Fetching all submissions`);
+
+      // Query all submissions with participant data
+      const submissionsData = await db
+        .select({
+          submissionId: submissions.id,
+          submissionDate: submissions.createdAt,
+          participantId: submissions.participantId,
+          category: submissions.category,
+          solutionText: submissions.solutionText,
+          totalScore: submissions.totalScore,
+          subScores: submissions.subScores,
+          evaluationNotes: submissions.evaluationNotes,
+          announcedOnLeaderboard: submissions.announcedOnLeaderboard,
+          firstName: participants.firstName,
+          lastName: participants.lastName,
+          emailHash: sql<string>`COALESCE(${users.emailHash}, ${attempts.emailHash})`,
+          email: users.email,
+        })
+        .from(submissions)
+        .innerJoin(participants, eq(submissions.participantId, participants.id))
+        .leftJoin(attempts, eq(submissions.id, attempts.submissionId))
+        .leftJoin(users, eq(attempts.emailHash, users.emailHash))
+        .orderBy(submissions.createdAt);
+
+      log(`[all-submissions] Found ${submissionsData.length} submissions`);
+
+      // Parse subScores JSON for each submission
+      const formattedData = submissionsData.map(submission => ({
+        ...submission,
+        subScores: submission.subScores ? JSON.parse(submission.subScores) : {},
+      }));
+
+      res.json(formattedData);
+    } catch (error) {
+      log(`[all-submissions] Error: ${error}`);
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
   // Download all submissions as CSV with participant data
   app.get("/api/admin/download-submissions-csv", async (req, res) => {
     try {
