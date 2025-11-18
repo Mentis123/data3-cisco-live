@@ -360,7 +360,6 @@ export default function AllSubmissions() {
                       <th className="py-3 px-4 font-semibold">Total Score</th>
                       <th className="py-3 px-4 font-semibold">Sub-Scores</th>
                       <th className="py-3 px-4 font-semibold">Problem Summary</th>
-                      <th className="py-3 px-4 font-semibold">Impact Summary</th>
                       <th className="py-3 px-4 font-semibold">Evaluation Notes</th>
                       <th className="py-3 px-4 font-semibold">Chat Transcript</th>
                     </tr>
@@ -405,17 +404,12 @@ export default function AllSubmissions() {
                             </div>
                           </td>
                           <td className="py-3 px-4 text-sm max-w-xs">
-                            <div className="line-clamp-2">
+                            <div>
                               {submission.structuredData?.problem_summary || 'N/A'}
                             </div>
                           </td>
                           <td className="py-3 px-4 text-sm max-w-xs">
-                            <div className="line-clamp-2">
-                              {submission.structuredData?.impact_summary || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm max-w-xs">
-                            <div className="line-clamp-2">
+                            <div>
                               {submission.evaluationNotes || 'N/A'}
                             </div>
                           </td>
