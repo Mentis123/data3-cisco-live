@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "branding": {
+    "appName": "Pixio",
+    "logoUrl": "/logo.svg",
+    "colors": {
+      "primary": "59 130 246",
+      "secondary": "139 92 246",
+      "accent": "245 158 11"
+    }
+  },
+  "features": {
+    "dashboard": {
+      "enabled": true,
+      "widgets": ["analytics", "activity"]
+    },
+    "notifications": {
+      "enabled": true
+    }
+  },
+  "layout": {
+    "sidebarPosition": "left",
+    "sidebarCollapsible": true
+  }
+}
