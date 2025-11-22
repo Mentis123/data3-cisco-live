@@ -29,6 +29,9 @@ import Migrate from "@/pages/Migrate";
 import ExportSubmissions from "@/pages/ExportSubmissions";
 import AllSubmissions from "@/pages/AllSubmissions";
 import AllFeedback from "@/pages/AllFeedback";
+import PixioHome from "@/pages/pixio/PixioHome";
+import PixioDashboard from "@/pages/pixio/PixioDashboard";
+import PixioLogin from "@/pages/pixio/PixioLogin";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -87,6 +90,11 @@ function Router() {
         <Route path="/videos" component={Videos} />
         <Route path="/pr-status" component={PRStatusTracker} />
         <Route path="/migrate" component={Migrate} />
+
+        {/* Pixio Routes */}
+        <Route path="/pixio" component={PixioHome} />
+        <Route path="/pixio/dashboard" component={PixioDashboard} />
+        <Route path="/pixio/login" component={PixioLogin} />
 
         {/* Backward compatibility - redirect /beta routes to root */}
         <Route path="/beta" component={Home} />

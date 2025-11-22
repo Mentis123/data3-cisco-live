@@ -67,6 +67,11 @@
   --shadow-2xl: 0px 24px 48px rgba(0, 174, 255, 0.4);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+
+  /* PIXIO THEME VARIABLES (can be overridden dynamically) */
+  --pixio-primary: 59 130 246;
+  --pixio-secondary: 139 92 246;
+  --pixio-accent: 245 158 11;
 }
 
 @layer base {
