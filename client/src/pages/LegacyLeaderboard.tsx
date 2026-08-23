@@ -1347,7 +1347,7 @@ export default function LegacyLeaderboard() {
         <div className="flex justify-center mb-6 gap-3">
           {/* Mobile Home Button */}
           <Button
-            onClick={() => window.location.href = homeHref}
+            onClick={() => setLocation(homeHref)}
             variant="outline"
             size="sm"
             className="sm:hidden bg-slate-900/60 border-cyan-500/20 text-cyan-100 hover:bg-cyan-500/20"
@@ -1444,7 +1444,7 @@ export default function LegacyLeaderboard() {
         {!isFullscreen && (
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button
-              onClick={() => window.location.href = homeHref}
+              onClick={() => setLocation(homeHref)}
               className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
             >
               <i className="fas fa-home mr-2"></i>

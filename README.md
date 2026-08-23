@@ -2,6 +2,12 @@
 
 This repository hosts the current Express + Vite implementation of the Cisco Solution Sprint experience. It powers the public marketing site, the guided sprint flow, leaderboard visualisations, and internal admin tooling.
 
+## Experience routes
+
+- `/` presents the Cisco Live 2026 holding page while the new experience is developed.
+- `/2025` preserves the complete 2025 Beat the Bot experience, including its game, leaderboard, admin, and supporting routes.
+- Previous direct links such as `/play` and `/leaderboard` redirect into their `/2025` equivalents for continuity.
+
 The codebase is in the process of being refactored for a Vercel deployment. This document summarises the current state, outlines local development steps, and captures the immediate migration work that has been executed so far.
 
 ## What changed in this iteration?

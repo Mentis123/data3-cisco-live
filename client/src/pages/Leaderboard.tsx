@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -536,6 +536,7 @@ function renderActiveChallengersView(
 }
 
 export default function Leaderboard() {
+  const [, setLocation] = useLocation();
   // State declarations
   const [displayData, setDisplayData] = useState<DashboardData | null>(null);
   const [activeView, setActiveView] = useState<"rankings" | "wordcloud" | "categories">("rankings");
@@ -1589,7 +1590,7 @@ export default function Leaderboard() {
             {/* Desktop-only navigation */}
             <div className="hidden lg:flex gap-3">
               <Button
-                onClick={() => window.location.href = '/'}
+                onClick={() => setLocation('/')}
                 className="bg-[#00AEFF] hover:bg-[#2CC8FF] text-data3-blue-black font-bold"
               >
                 <i className="fas fa-home mr-2"></i>
@@ -1605,7 +1606,7 @@ export default function Leaderboard() {
             {/* Mobile: Home + Auto-Rotate row */}
             <div className="flex gap-2 justify-center sm:hidden">
               <Button
-                onClick={() => (window.location.href = '/')}
+                onClick={() => setLocation('/')}
                 variant="outline"
                 size="sm"
                 className="flex-1 lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"
@@ -1654,7 +1655,7 @@ export default function Leaderboard() {
             {/* Tablet/Desktop: Controls */}
             <div className="hidden sm:flex flex-row gap-3 items-center justify-center">
               <Button
-                onClick={() => (window.location.href = '/')}
+                onClick={() => setLocation('/')}
                 variant="outline"
                 size="sm"
                 className="lg:hidden bg-[#000045]/60 border-[#00AEFF]/20 text-[#78DCFF] hover:bg-[#00AEFF]/20"

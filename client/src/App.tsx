@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Redirect, Router as WouterRouter, Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -32,6 +32,7 @@ import AllFeedback from "@/pages/AllFeedback";
 import PixioHome from "@/pages/pixio/PixioHome";
 import PixioDashboard from "@/pages/pixio/PixioDashboard";
 import PixioLogin from "@/pages/pixio/PixioLogin";
+import ComingSoon from "@/pages/ComingSoon";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -53,7 +54,7 @@ function LeaderboardRedirect() {
   return null;
 }
 
-function Router() {
+function LegacyRouter() {
   return (
     <>
       <ScrollToTop />
@@ -114,9 +115,19 @@ function Router() {
   );
 }
 
-function App() {
+function LegacyGameApp() {
   const [location, navigate] = useLocation();
   const homeSoundPlayedRef = useRef(false);
+
+  useEffect(() => {
+    document.title = "Cisco Live 2025 | Data#3";
+
+    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    description?.setAttribute(
+      "content",
+      "Revisit the Data#3 Beat the Bot activation from Cisco Live 2025.",
+    );
+  }, []);
 
   // Play background hum on first user interaction
   // This makes the sound persist across all pages
@@ -230,10 +241,66 @@ function App() {
         <ImmersiveToggle />
         {/* Flash overlay for animations */}
         <div id="flashOverlay" className="flash-overlay" />
-        <Router />
+        <LegacyRouter />
       </TooltipProvider>
     </QueryClientProvider>
   );
+}
+
+const LEGACY_ROOT_PREFIXES = [
+  "/play",
+  "/ring",
+  "/leaderboard",
+  "/admin",
+  "/dojo",
+  "/pitch",
+  "/tile",
+  "/how-to-play",
+  "/old",
+  "/admin-leaderboard",
+  "/stand",
+  "/announcement",
+  "/videos",
+  "/pr-status",
+  "/migrate",
+  "/pixio",
+  "/beta",
+];
+
+function isLegacyRootPath(location: string) {
+  return LEGACY_ROOT_PREFIXES.some(
+    (prefix) => location === prefix || location.startsWith(`${prefix}/`),
+  );
+}
+
+function NewExperienceRouter() {
+  const [location] = useLocation();
+
+  if (isLegacyRootPath(location)) {
+    return <Redirect to={`/2025${location}`} replace />;
+  }
+
+  return (
+    <Switch>
+      <Route path="/" component={ComingSoon} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function App() {
+  const [location] = useLocation();
+  const is2025Experience = location === "/2025" || location.startsWith("/2025/");
+
+  if (is2025Experience) {
+    return (
+      <WouterRouter base="/2025">
+        <LegacyGameApp />
+      </WouterRouter>
+    );
+  }
+
+  return <NewExperienceRouter />;
 }
 
 export default App;

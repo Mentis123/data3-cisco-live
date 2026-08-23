@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import headerImage from "@assets/pixio-chat-image-2025-09-12T14-04-15-596Z_1757685866445.jpg";
 
 export default function Old() {
+  const [, setLocation] = useLocation();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
 
@@ -174,7 +175,7 @@ export default function Old() {
                       setShowTermsError(true);
                       setTimeout(() => setShowTermsError(false), 3000);
                     } else {
-                      window.location.href = "/old/play";
+                      setLocation("/old/play");
                     }
                   }}
                   className="w-full min-h-[60px] sm:min-h-[64px] px-4 py-3 text-base sm:text-lg touch-manipulation"
