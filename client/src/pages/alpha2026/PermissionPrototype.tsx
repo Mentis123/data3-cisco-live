@@ -89,14 +89,10 @@ const postureCopy = [
 
 const permissionBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
   {
-    label: "01 · Problem",
-    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
     title: "Agent capability is outpacing operating permission.",
     body: "Many AI initiatives define what an agent should achieve before defining what it may access, change, spend, or approve. Governance becomes a late-stage control instead of part of the engineering design.",
   },
   {
-    label: "02 · Audience impact",
-    question: "What does that problem mean for enterprise and corporate engineers?",
     title: "Engineers must make autonomy safe in production.",
     body: "Infrastructure, security, platform, and application teams remain accountable for every action an agent takes through their systems.",
     points: [
@@ -106,14 +102,10 @@ const permissionBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
     ],
   },
   {
-    label: "03 · Why it matters now",
-    question: "Why does this require attention now rather than later?",
     title: "Enterprise AI pilots are becoming operational systems.",
     body: "Agents are connecting to more data, identities, application programming interfaces (APIs), infrastructure, and Cisco environments. Retry volume, token cost, and privileged access can scale together. The strategic window is open to establish the guardrails before temporary pilot settings become production defaults.",
   },
   {
-    label: "04 · Desired outcome",
-    question: "What should become true?",
     title: "Every action has deliberate permission and visible accountability.",
     body: "Agents can move at useful speed inside boundaries that engineers understand, observe, test, expire, and reverse.",
     learn: [

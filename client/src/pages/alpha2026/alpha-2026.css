@@ -414,21 +414,11 @@
 .challenge-prelude__topline {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 16px;
 }
 
 .challenge-prelude__topline .alpha-kicker {
   margin-bottom: 0;
-}
-
-.challenge-prelude__topline > span {
-  flex: 0 0 auto;
-  color: var(--alpha-pale-blue);
-  font-size: 0.66rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .challenge-prelude__progress {
@@ -454,15 +444,6 @@
   flex: 1;
   padding: clamp(32px, 7svh, 70px) 0 30px;
   animation: alpha-rise 260ms ease both;
-}
-
-.challenge-prelude__question {
-  max-width: 700px;
-  margin: 0 0 13px;
-  color: var(--alpha-pale-blue);
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.45;
 }
 
 .challenge-prelude h1 {
@@ -584,6 +565,7 @@
 }
 
 .challenge-prelude__preference {
+  position: relative;
   display: flex;
   min-height: 44px;
   align-items: center;
@@ -595,11 +577,51 @@
 }
 
 .challenge-prelude__preference input {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-  margin: 0;
-  accent-color: var(--alpha-light-blue);
+  position: absolute;
+  width: 1px;
+  min-width: 1px;
+  height: 1px;
+  min-height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.challenge-prelude__checkbox {
+  display: grid;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  place-items: center;
+  border: 2px solid var(--alpha-pale-blue);
+  border-radius: 5px;
+  background: #000025;
+  color: #000025;
+  box-shadow: 0 0 0 1px rgba(0, 174, 255, 0.08);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.challenge-prelude__checkbox svg {
+  width: 17px;
+  height: 17px;
+  opacity: 0;
+  stroke-width: 3;
+}
+
+.challenge-prelude__checkbox.is-checked {
+  border-color: var(--alpha-aqua);
+  background: var(--alpha-aqua);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.25);
+}
+
+.challenge-prelude__checkbox.is-checked svg {
+  opacity: 1;
+}
+
+.challenge-prelude__preference input:focus-visible + .challenge-prelude__checkbox {
+  outline: 3px solid var(--alpha-aqua);
+  outline-offset: 3px;
 }
 
 .challenge-prelude__actions {

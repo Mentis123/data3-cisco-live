@@ -117,14 +117,10 @@ const roleCopy: Record<SignalRole, { title: string; summary: string }> = {
 
 const signalRoomBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
   {
-    label: "01 · Problem",
-    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
     title: "Every dashboard can be right while the shared picture is wrong.",
     body: "Enterprise incidents increasingly cross network, security, application, edge, cloud, AI, compliance, and customer domains. Each team sees a valid signal, but no single view explains the outcome.",
   },
   {
-    label: "02 · Audience impact",
-    question: "What does that problem mean for enterprise and corporate engineers?",
     title: "Engineers lose time assembling the truth.",
     body: "Specialist teams are accountable for fast, defensible decisions, but their evidence often arrives through different tools, clocks, and ownership models.",
     points: [
@@ -134,14 +130,10 @@ const signalRoomBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
     ],
   },
   {
-    label: "03 · Why it matters now",
-    question: "Why does this require attention now rather than later?",
     title: "AI makes the environment faster and more connected.",
     body: "AI workflows can act across Cisco infrastructure and enterprise platforms at machine speed. Telemetry volume is rising, dependencies are multiplying, and reporting windows do not pause while teams reconcile their tools. Shared context is becoming an engineering control, not a meeting outcome.",
   },
   {
-    label: "04 · Desired outcome",
-    question: "What should become true?",
     title: "Weak signals become one timely, defensible picture.",
     body: "Teams can contribute their specialist evidence quickly, connect it across domains, and act on the customer outcome with a shared understanding of risk.",
     learn: [

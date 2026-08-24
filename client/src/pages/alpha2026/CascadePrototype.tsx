@@ -117,14 +117,10 @@ const initialSignals: Signals = { service: 55, trust: 52, evidence: 48, time: 58
 
 const cascadeBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
   {
-    label: "01 · Problem",
-    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
     title: "AI can act faster than the evidence can keep up.",
     body: "AI operations agents can now change production systems while teams are still establishing what happened. A green dashboard, missing telemetry, and automated retries can create three different versions of the same incident.",
   },
   {
-    label: "02 · Audience impact",
-    question: "What does that problem mean for enterprise and corporate engineers?",
     title: "Engineering teams inherit the blast radius.",
     body: "The people operating enterprise environments remain accountable for the customer outcome, even when an agent made the change.",
     points: [
@@ -134,14 +130,10 @@ const cascadeBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
     ],
   },
   {
-    label: "03 · Why it matters now",
-    question: "Why does this require attention now rather than later?",
     title: "AI is moving from assistance into action.",
     body: "Agent access is expanding across network, security, edge, cloud, and observability environments. As permissions and dependencies scale, retry costs and potential blast radius compound. The safe response pattern must exist before the next incident, not during it.",
   },
   {
-    label: "04 · Desired outcome",
-    question: "What should become true?",
     title: "Fast recovery becomes bounded, observable, and explainable.",
     body: "Engineers can act quickly while preserving evidence, containing scope, validating recovery, and retaining a clear rollback point.",
     learn: [

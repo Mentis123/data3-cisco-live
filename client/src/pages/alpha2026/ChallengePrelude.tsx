@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Gift, GraduationCap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Gift, GraduationCap } from "lucide-react";
 
 export interface BriefScreen {
-  label: string;
-  question: string;
   title: string;
   body: string;
   points?: string[];
@@ -62,18 +60,16 @@ export function ChallengePrelude({ concept, storageKey, screens, startLabel, onC
   return (
     <section className="prototype-stage challenge-prelude" aria-labelledby={`brief-${storageKey}-title`}>
       <div className="challenge-prelude__topline">
-        <p className="alpha-kicker">{concept} · Challenge brief · {screen.label}</p>
-        <span aria-live="polite">{step + 1} of {screens.length}</span>
+        <p className="alpha-kicker">{concept} · Challenge brief · {String(step + 1).padStart(2, "0")}</p>
       </div>
 
       <div className="challenge-prelude__progress" aria-hidden="true">
         {screens.map((item, index) => (
-          <span className={index <= step ? "is-active" : ""} key={item.label} />
+          <span className={index <= step ? "is-active" : ""} key={item.title} />
         ))}
       </div>
 
-      <div className="challenge-prelude__content" key={screen.label}>
-        <p className="challenge-prelude__question">{screen.question}</p>
+      <div className="challenge-prelude__content" key={screen.title}>
         <h1 id={`brief-${storageKey}-title`}>{screen.title}</h1>
         <p>{screen.body}</p>
 
@@ -107,6 +103,9 @@ export function ChallengePrelude({ concept, storageKey, screens, startLabel, onC
             checked={showNextTime}
             onChange={(event) => setShowNextTime(event.target.checked)}
           />
+          <span className={`challenge-prelude__checkbox ${showNextTime ? "is-checked" : ""}`} aria-hidden="true">
+            <Check />
+          </span>
           <span>Show this introduction next time</span>
         </label>
 
