@@ -114,13 +114,70 @@
   text-wrap: balance;
 }
 
-.alpha-intro > p:last-child,
+.alpha-intro__aside > p,
 .alpha-placeholder main > p:last-child {
   max-width: 720px;
   margin: 22px 0 0;
   color: rgba(238, 238, 238, 0.76);
   font-size: 1.05rem;
   line-height: 1.55;
+}
+
+.alpha-intro__aside {
+  display: grid;
+  gap: 18px;
+}
+
+.alpha-qr {
+  display: grid;
+  width: min(100%, 410px);
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(120, 220, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(0, 0, 37, 0.7);
+  padding: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.alpha-qr__code {
+  display: grid;
+  width: 104px;
+  height: 104px;
+  place-items: center;
+  overflow: hidden;
+  border: 7px solid #ffffff;
+  border-radius: 7px;
+  background: #ffffff;
+}
+
+.alpha-qr__code svg {
+  display: block;
+  width: 90px;
+  height: 90px;
+}
+
+.alpha-qr__copy {
+  display: grid;
+  gap: 5px;
+}
+
+.alpha-qr__copy strong {
+  color: var(--alpha-pale-blue);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.alpha-qr__copy small {
+  color: rgba(238, 238, 238, 0.55);
+  font-size: 0.72rem;
+  line-height: 1.4;
 }
 
 .alpha-intro sup,
@@ -901,6 +958,12 @@
     box-shadow: 0 28px 90px rgba(0, 123, 195, 0.18);
   }
 
+  .alpha-qr:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0, 255, 255, 0.58);
+    box-shadow: 0 18px 50px rgba(0, 174, 255, 0.14);
+  }
+
   .alpha-back:hover { color: var(--alpha-aqua); }
 
   .prototype-primary:not(:disabled):hover,
@@ -947,7 +1010,7 @@
   .alpha-launcher { padding-top: 30px; }
   .alpha-intro { display: grid; max-width: none; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr); align-items: end; gap: 48px; }
   .alpha-intro .alpha-kicker { grid-column: 1 / -1; margin-bottom: -26px; }
-  .alpha-intro > p:last-child { margin-bottom: 7px; }
+  .alpha-intro__aside > p { margin-top: 0; }
   .alpha-card h2 { font-size: clamp(1.85rem, 2.5vw, 2.7rem); }
 
   .cascade-layout { grid-template-columns: 230px minmax(0, 1fr); align-items: start; gap: 16px; }

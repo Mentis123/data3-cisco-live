@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { ArrowUpRight, GitBranch, Radar, ShieldCheck } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import "./alpha-2026.css";
+
+const mobilePrototypeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
 
 const concepts = [
   {
@@ -62,10 +65,34 @@ export function Alpha2026() {
         <section className="alpha-intro" aria-labelledby="alpha-title">
           <p className="alpha-kicker">Three concepts · one decision</p>
           <h1 id="alpha-title">Which experience earns the stop?</h1>
-          <p>
-            Open each prototype, try the core mechanic, and compare what creates the strongest
-            reason to engage with Data<sup>#</sup>3.
-          </p>
+          <div className="alpha-intro__aside">
+            <p>
+              Open each prototype, try the core mechanic, and compare what creates the strongest
+              reason to engage with Data<sup>#</sup>3.
+            </p>
+            <a
+              className="alpha-qr"
+              href={mobilePrototypeUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open the 2026 prototype lab on your mobile"
+            >
+              <span className="alpha-qr__code" aria-hidden="true">
+                <QRCodeSVG
+                  value={mobilePrototypeUrl}
+                  size={116}
+                  level="H"
+                  bgColor="#ffffff"
+                  fgColor="#000025"
+                  title="QR code for the Data#3 2026 prototype lab"
+                />
+              </span>
+              <span className="alpha-qr__copy">
+                <strong>Scan to test on mobile</strong>
+                <small>Opens the live prototype lab</small>
+              </span>
+            </a>
+          </div>
         </section>
 
         <section className="alpha-card-grid" aria-label="Activation prototypes">
