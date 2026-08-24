@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, Eye, Network, RotateCcw, Users } from "lucide-react";
+import { ArrowRight, Eye, Network, RotateCcw } from "lucide-react";
+import { BriefScreen, ChallengePrelude } from "./ChallengePrelude";
 import { ChallengePanel, PrototypeShell } from "./PrototypeShell";
 
 type SignalRole = "early" | "connect" | "context";
@@ -114,6 +115,43 @@ const roleCopy: Record<SignalRole, { title: string; summary: string }> = {
   },
 };
 
+const signalRoomBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
+  {
+    label: "01 · Problem",
+    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
+    title: "Every dashboard can be right while the shared picture is wrong.",
+    body: "Enterprise incidents increasingly cross network, security, application, edge, cloud, AI, compliance, and customer domains. Each team sees a valid signal, but no single view explains the outcome.",
+  },
+  {
+    label: "02 · Audience impact",
+    question: "What does that problem mean for enterprise and corporate engineers?",
+    title: "Engineers lose time assembling the truth.",
+    body: "Specialist teams are accountable for fast, defensible decisions, but their evidence often arrives through different tools, clocks, and ownership models.",
+    points: [
+      "They must decide which weak signal deserves attention before a formal alert exists.",
+      "They carry the friction of manual correlation while customer impact continues.",
+      "They risk treating a cross-domain failure as a local technology problem.",
+    ],
+  },
+  {
+    label: "03 · Why it matters now",
+    question: "Why does this require attention now rather than later?",
+    title: "AI makes the environment faster and more connected.",
+    body: "AI workflows can act across Cisco infrastructure and enterprise platforms at machine speed. Telemetry volume is rising, dependencies are multiplying, and reporting windows do not pause while teams reconcile their tools. Shared context is becoming an engineering control, not a meeting outcome.",
+  },
+  {
+    label: "04 · Desired outcome",
+    question: "What should become true?",
+    title: "Weak signals become one timely, defensible picture.",
+    body: "Teams can contribute their specialist evidence quickly, connect it across domains, and act on the customer outcome with a shared understanding of risk.",
+    learn: [
+      "Distinguish a useful weak signal from background noise.",
+      "See how specialist observations reveal a system-level incident.",
+      "Recognise whether you contribute early warning, connecting evidence, or operational context.",
+    ],
+  },
+];
+
 export default function SignalRoomPrototype() {
   const [phase, setPhase] = useState<"intro" | "choose" | "room" | "result">("intro");
   const [lensIndex, setLensIndex] = useState(0);
@@ -147,18 +185,16 @@ export default function SignalRoomPrototype() {
       title="One clue is noise. Seven clues are a system."
       description="Take one operational lens, elevate one signal, and discover the incident that only a connected room can see."
       progress={phase === "choose" ? "Choose one of three signals" : phase === "room" ? "Shared picture forming" : undefined}
+      briefing={phase === "intro"}
     >
       {phase === "intro" && (
-        <section className="prototype-stage prototype-intro-card signal-intro">
-          <div className="prototype-stage__number">03</div>
-          <p className="alpha-kicker">Collective observability · Fast facilitated play</p>
-          <h2>Your dashboard is telling the truth. Just not the whole truth.</h2>
-          <p>Receive one specialist lens, choose the signal worth sharing, and watch a cross-domain incident emerge from the room.</p>
-          <div className="prototype-callout">This solo alpha simulates the other participants. At the booth, every person would add a live signal to the shared display.</div>
-          <button className="prototype-primary" type="button" onClick={enterRoom}>
-            Enter the room <Users aria-hidden="true" />
-          </button>
-        </section>
+        <ChallengePrelude
+          concept="The Signal Room"
+          storageKey="signal-room"
+          screens={signalRoomBrief}
+          startLabel="Enter the room"
+          onComplete={enterRoom}
+        />
       )}
 
       {phase === "choose" && (
@@ -235,6 +271,7 @@ export default function SignalRoomPrototype() {
           </div>
           <div className="prototype-actions">
             <button className="prototype-primary" type="button" onClick={restart}><RotateCcw aria-hidden="true" /> Take another lens</button>
+            <a className="prototype-secondary" href="?brief=1">Review the challenge</a>
             <a className="prototype-secondary" href="/2026alpha">Compare all concepts</a>
           </div>
           <ChallengePanel context="Signal Room result" />

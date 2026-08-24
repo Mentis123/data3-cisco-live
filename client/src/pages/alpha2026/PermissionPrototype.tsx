@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, RotateCcw, ShieldAlert } from "lucide-react";
+import { BriefScreen, ChallengePrelude } from "./ChallengePrelude";
 import { ChallengePanel, PrototypeShell } from "./PrototypeShell";
 
 interface PermissionOption {
@@ -83,6 +84,43 @@ const postureCopy = [
     max: 10,
     title: "High-autonomy pioneer",
     summary: "You optimise for fast recovery and broad agency. Strong identity controls, observable actions, and a reliable stop condition become non-negotiable.",
+  },
+];
+
+const permissionBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
+  {
+    label: "01 · Problem",
+    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
+    title: "Agent capability is outpacing operating permission.",
+    body: "Many AI initiatives define what an agent should achieve before defining what it may access, change, spend, or approve. Governance becomes a late-stage control instead of part of the engineering design.",
+  },
+  {
+    label: "02 · Audience impact",
+    question: "What does that problem mean for enterprise and corporate engineers?",
+    title: "Engineers must make autonomy safe in production.",
+    body: "Infrastructure, security, platform, and application teams remain accountable for every action an agent takes through their systems.",
+    points: [
+      "They must decide how much access is enough without granting an avoidable blast radius.",
+      "They must balance recovery speed against approval, evidence, cost, and change controls.",
+      "They must explain the outcome when an agent crosses teams, tools, and ownership boundaries.",
+    ],
+  },
+  {
+    label: "03 · Why it matters now",
+    question: "Why does this require attention now rather than later?",
+    title: "Enterprise AI pilots are becoming operational systems.",
+    body: "Agents are connecting to more data, identities, application programming interfaces (APIs), infrastructure, and Cisco environments. Retry volume, token cost, and privileged access can scale together. The strategic window is open to establish the guardrails before temporary pilot settings become production defaults.",
+  },
+  {
+    label: "04 · Desired outcome",
+    question: "What should become true?",
+    title: "Every action has deliberate permission and visible accountability.",
+    body: "Agents can move at useful speed inside boundaries that engineers understand, observe, test, expire, and reverse.",
+    learn: [
+      "Translate governance principles into practical operating permissions.",
+      "See how those permissions behave against missing telemetry, a malicious instruction, and failed recovery.",
+      "Explore the balance between useful autonomy and defensible assurance.",
+    ],
   },
 ];
 
@@ -177,18 +215,16 @@ export default function PermissionPrototype() {
       title="Govern the agent before the incident."
       description="Set five practical permissions, then watch those decisions govern one compressed AI operations incident."
       progress={progress}
+      briefing={phase === "intro"}
     >
       {phase === "intro" && (
-        <section className="prototype-stage prototype-intro-card">
-          <div className="prototype-stage__number">02</div>
-          <p className="alpha-kicker">Agent governance · Design before deployment</p>
-          <h2>How much freedom is useful—and how much is safe?</h2>
-          <p>Configure an AI operations agent across access, tools, action, cost, and evidence. Then put your governance model under pressure.</p>
-          <div className="prototype-callout">The point is not maximum control or maximum autonomy. It is deliberate, observable permission.</div>
-          <button className="prototype-primary" type="button" onClick={() => setPhase("questions")}>
-            Set permissions <ArrowRight aria-hidden="true" />
-          </button>
-        </section>
+        <ChallengePrelude
+          concept="Permission to act"
+          storageKey="permission-to-act"
+          screens={permissionBrief}
+          startLabel="Set permissions"
+          onComplete={() => setPhase("questions")}
+        />
       )}
 
       {phase === "questions" && question && (
@@ -277,6 +313,7 @@ export default function PermissionPrototype() {
           </div>
           <div className="prototype-actions">
             <button className="prototype-primary" type="button" onClick={restart}><RotateCcw aria-hidden="true" /> Change the policy</button>
+            <a className="prototype-secondary" href="?brief=1">Review the challenge</a>
             <a className="prototype-secondary" href="/2026alpha">Compare all concepts</a>
           </div>
           <ChallengePanel context="Permission to act result" />

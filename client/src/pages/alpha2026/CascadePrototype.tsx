@@ -1,5 +1,6 @@
 import { CSSProperties, useMemo, useState } from "react";
 import { Activity, ArrowRight, FileSearch, RotateCcw, ShieldCheck, TimerReset } from "lucide-react";
+import { BriefScreen, ChallengePrelude } from "./ChallengePrelude";
 import { ChallengePanel, PrototypeShell } from "./PrototypeShell";
 
 type SignalKey = "service" | "trust" | "evidence" | "time";
@@ -114,6 +115,43 @@ const profileCopy = {
 
 const initialSignals: Signals = { service: 55, trust: 52, evidence: 48, time: 58 };
 
+const cascadeBrief: [BriefScreen, BriefScreen, BriefScreen, BriefScreen] = [
+  {
+    label: "01 · Problem",
+    question: "What is happening today that is broken, difficult, risky, slow, or limiting?",
+    title: "AI can act faster than the evidence can keep up.",
+    body: "AI operations agents can now change production systems while teams are still establishing what happened. A green dashboard, missing telemetry, and automated retries can create three different versions of the same incident.",
+  },
+  {
+    label: "02 · Audience impact",
+    question: "What does that problem mean for enterprise and corporate engineers?",
+    title: "Engineering teams inherit the blast radius.",
+    body: "The people operating enterprise environments remain accountable for the customer outcome, even when an agent made the change.",
+    points: [
+      "They must restore service without destroying the evidence needed to explain the incident.",
+      "They must decide whether to contain, reverse, or expand a change while technical signals disagree.",
+      "They carry the operational cost, audit exposure, and customer friction when a fast response is wrong.",
+    ],
+  },
+  {
+    label: "03 · Why it matters now",
+    question: "Why does this require attention now rather than later?",
+    title: "AI is moving from assistance into action.",
+    body: "Agent access is expanding across network, security, edge, cloud, and observability environments. As permissions and dependencies scale, retry costs and potential blast radius compound. The safe response pattern must exist before the next incident, not during it.",
+  },
+  {
+    label: "04 · Desired outcome",
+    question: "What should become true?",
+    title: "Fast recovery becomes bounded, observable, and explainable.",
+    body: "Engineers can act quickly while preserving evidence, containing scope, validating recovery, and retaining a clear rollback point.",
+    learn: [
+      "See how one technical choice affects service, trust, evidence, and time.",
+      "Practise containment, canary recovery, and rollback decisions under pressure.",
+      "Recognise the response instinct you bring to an AI-enabled incident.",
+    ],
+  },
+];
+
 export default function CascadePrototype() {
   const [phase, setPhase] = useState<"intro" | "play" | "result">("intro");
   const [step, setStep] = useState(0);
@@ -170,18 +208,16 @@ export default function CascadePrototype() {
       title="Every decision changes the incident."
       description="Take command of Incident Emerald. This compressed alpha tests three representative decisions from the proposed five-decision journey."
       progress={progress}
+      briefing={phase === "intro"}
     >
       {phase === "intro" && (
-        <section className="prototype-stage prototype-intro-card">
-          <div className="prototype-stage__number">01</div>
-          <p className="alpha-kicker">Incident Emerald · Critical infrastructure</p>
-          <h2>The dashboard is green. The evidence says otherwise.</h2>
-          <p>An AI operations agent is changing regional edge systems while trusted telemetry disappears. Protect the outcome across service, trust, evidence, and time.</p>
-          <div className="prototype-callout">No answer is perfect. Every choice protects something and puts something else under pressure.</div>
-          <button className="prototype-primary" type="button" onClick={() => setPhase("play")}>
-            Take command <ArrowRight aria-hidden="true" />
-          </button>
-        </section>
+        <ChallengePrelude
+          concept="Cascade"
+          storageKey="cascade"
+          screens={cascadeBrief}
+          startLabel="Take command"
+          onComplete={() => setPhase("play")}
+        />
       )}
 
       {phase === "play" && decision && (
@@ -239,6 +275,7 @@ export default function CascadePrototype() {
           </div>
           <div className="prototype-actions">
             <button className="prototype-primary" type="button" onClick={restart}><RotateCcw aria-hidden="true" /> Try another path</button>
+            <a className="prototype-secondary" href="?brief=1">Review the challenge</a>
             <a className="prototype-secondary" href="/2026alpha">Compare all concepts</a>
           </div>
           <ChallengePanel context="Cascade result" />

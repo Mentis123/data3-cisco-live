@@ -11,6 +11,7 @@ interface PrototypeShellProps {
   title: string;
   description: string;
   progress?: string;
+  briefing?: boolean;
   children: ReactNode;
 }
 
@@ -20,6 +21,7 @@ export function PrototypeShell({
   title,
   description,
   progress,
+  briefing = false,
   children,
 }: PrototypeShellProps) {
   useEffect(() => {
@@ -40,15 +42,17 @@ export function PrototypeShell({
         </a>
       </header>
 
-      <main className="prototype-shell">
-        <header className="prototype-heading">
-          <div>
-            <p className="alpha-kicker">{code} · Interactive alpha · {concept}</p>
-            <h1>{title}</h1>
-            <p>{description}</p>
-          </div>
-          {progress && <div className="prototype-progress" aria-live="polite">{progress}</div>}
-        </header>
+      <main className={`prototype-shell ${briefing ? "prototype-shell--briefing" : ""}`}>
+        {!briefing && (
+          <header className="prototype-heading">
+            <div>
+              <p className="alpha-kicker">{code} · Interactive alpha · {concept}</p>
+              <h1>{title}</h1>
+              <p>{description}</p>
+            </div>
+            {progress && <div className="prototype-progress" aria-live="polite">{progress}</div>}
+          </header>
+        )}
         {children}
       </main>
 
