@@ -5,6 +5,7 @@ This repository hosts the current Express + Vite implementation of the Cisco Sol
 ## Experience routes
 
 - `/` presents the Cisco Live 2026 holding page while the new experience is developed.
+- `/2026alpha` launches three mobile-first 2026 activation prototypes: Cascade, Permission to act, and The Signal Room.
 - `/2025` preserves the complete 2025 Beat the Bot experience, including its game, leaderboard, admin, and supporting routes.
 - Previous direct links such as `/play` and `/leaderboard` redirect into their `/2025` equivalents for continuity.
 

@@ -33,6 +33,10 @@ import PixioHome from "@/pages/pixio/PixioHome";
 import PixioDashboard from "@/pages/pixio/PixioDashboard";
 import PixioLogin from "@/pages/pixio/PixioLogin";
 import ComingSoon from "@/pages/ComingSoon";
+import { Alpha2026 } from "@/pages/alpha2026/Alpha2026";
+import CascadePrototype from "@/pages/alpha2026/CascadePrototype";
+import PermissionPrototype from "@/pages/alpha2026/PermissionPrototype";
+import SignalRoomPrototype from "@/pages/alpha2026/SignalRoomPrototype";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -283,6 +287,10 @@ function NewExperienceRouter() {
   return (
     <Switch>
       <Route path="/" component={ComingSoon} />
+      <Route path="/2026alpha" component={Alpha2026} />
+      <Route path="/2026alpha/cascade" component={CascadePrototype} />
+      <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
+      <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />
       <Route component={NotFound} />
     </Switch>
   );
