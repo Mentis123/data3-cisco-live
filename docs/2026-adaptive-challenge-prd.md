@@ -77,7 +77,7 @@ There is no mandatory explainer sequence or video.
 
 ### 2. Five-question adaptive incident
 
-Each screen presents one question with three plausible actions. The path starts at Easy. A correct answer raises the target difficulty; an incorrect answer lowers it. The engine selects the nearest unused question from the participant’s chosen focus.
+Each screen presents the incident scenario first, followed by one question and three plausible actions. The path starts at Easy. The first four decisions adapt between Easy and Expert. The fifth decision is always a purpose-written Impossible scenario, creating a clear finale without exhausting the difficulty too early.
 
 Difficulty labels are:
 
@@ -115,11 +115,12 @@ No sales call to action is required. The experience should make conversation wit
 Each focus has a curated seven-item bank ordered from difficulty zero to six.
 
 - Start target: one
-- Correct response: target increases by two
-- Other response: target decreases by one
-- Target is clamped between zero and six
+- For questions one to four, a correct response increases the target by two
+- For questions one to four, another response decreases the target by one
+- The adaptive target is clamped between zero and four until the final question
 - Next item: unused item with the smallest distance from the new target
 - Ties: lower item index first for deterministic testing
+- Final item: the unused level-six question for the selected focus
 - Completion: five answered items
 
 This is intentionally simpler than psychometric computerised adaptive testing. It is transparent, testable, resilient offline, and sufficient to evaluate whether adaptive difficulty improves the booth experience.
@@ -128,6 +129,9 @@ This is intentionally simpler than psychometric computerised adaptive testing. I
 
 - Every item has one strongest answer, not one cartoonishly obvious answer.
 - Distractors represent credible but incomplete engineering instincts.
+- Answer options are comparable in specificity and length; the strongest answer must not be revealed by its wording pattern.
+- The scenario always appears before the question.
+- Impossible appears only on question five, using a technically nuanced final scenario.
 - Feedback explains the principle and does not shame the participant.
 - Questions avoid brittle product-version trivia.
 - Cisco-aligned subject matter includes secure AI, AgenticOps, networking, observability, collaboration, identity, resilience, and human oversight.
@@ -212,6 +216,9 @@ Before release, the prototype must satisfy every statement below:
 - The interaction looks and behaves like a familiar quiz.
 - Networking, security, collaboration, and AI are meaningful content paths.
 - Difficulty visibly responds to performance.
+- The scenario appears before every question.
+- All three actions sound initially defensible.
+- Impossible is reserved for the fifth and final decision.
 - There are only five questions.
 - There is no second survey or confusing data-gathering phase.
 - The incentive is visible but does not overpower the learning value.

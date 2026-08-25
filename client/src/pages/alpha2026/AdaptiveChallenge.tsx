@@ -98,7 +98,12 @@ export default function AdaptiveChallenge() {
   const answerQuestion = (answerIndex: number) => {
     if (!question || selectedAnswer !== null) return;
     const correct = answerIndex === question.correctIndex;
-    const calibratedAbility = Math.max(0, Math.min(6, ability + (correct ? 2 : -1)));
+    const responseAbility = Math.max(0, Math.min(4, ability + (correct ? 2 : -1)));
+    const calibratedAbility = questionNumber === TOTAL_QUESTIONS - 1
+      ? 6
+      : questionNumber === TOTAL_QUESTIONS
+        ? ability
+        : responseAbility;
     setSelectedAnswer(answerIndex);
     setNextAbility(calibratedAbility);
     setAnswers((current) => [...current, { question, answerIndex, correct, ability }]);
@@ -217,8 +222,8 @@ export default function AdaptiveChallenge() {
 
           <section className="adaptive-question" aria-labelledby="question-title">
             <p className="adaptive-kicker">{question.stage}</p>
-            <h1 id="question-title" ref={screenHeadingRef} tabIndex={-1}>{question.prompt}</h1>
             <p className="adaptive-context">{question.context}</p>
+            <h1 id="question-title" ref={screenHeadingRef} tabIndex={-1}>{question.prompt}</h1>
 
             <div className="adaptive-options" aria-label="Choose one answer">
               {question.options.map((option, index) => {
