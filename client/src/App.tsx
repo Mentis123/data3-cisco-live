@@ -33,7 +33,8 @@ import PixioHome from "@/pages/pixio/PixioHome";
 import PixioDashboard from "@/pages/pixio/PixioDashboard";
 import PixioLogin from "@/pages/pixio/PixioLogin";
 import ComingSoon from "@/pages/ComingSoon";
-import { Alpha2026 } from "@/pages/alpha2026/Alpha2026";
+import { Alpha2026Archive } from "@/pages/alpha2026/Alpha2026";
+import AdaptiveChallenge from "@/pages/alpha2026/AdaptiveChallenge";
 import CascadePrototype from "@/pages/alpha2026/CascadePrototype";
 import PermissionPrototype from "@/pages/alpha2026/PermissionPrototype";
 import SignalRoomPrototype from "@/pages/alpha2026/SignalRoomPrototype";
@@ -287,7 +288,8 @@ function NewExperienceRouter() {
   return (
     <Switch>
       <Route path="/" component={ComingSoon} />
-      <Route path="/2026alpha" component={Alpha2026} />
+      <Route path="/2026alpha" component={AdaptiveChallenge} />
+      <Route path="/2026alpha/archive" component={Alpha2026Archive} />
       <Route path="/2026alpha/cascade" component={CascadePrototype} />
       <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />

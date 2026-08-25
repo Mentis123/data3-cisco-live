@@ -45,30 +45,30 @@ function useAlphaMeta(title: string, description: string) {
   }, [description, title]);
 }
 
-export function Alpha2026() {
+export function Alpha2026Archive() {
   useAlphaMeta(
-    "2026 activation prototypes",
-    "Explore three mobile-first Data#3 Cisco Live 2026 activation concepts.",
+    "Earlier 2026 activation concepts",
+    "Review three archived Data#3 Cisco Live 2026 activation concepts.",
   );
 
   return (
     <div className="alpha-page">
       <div className="alpha-grid" aria-hidden="true" />
       <header className="alpha-header">
-        <a href="/2026alpha" className="alpha-brand" aria-label="Data#3 Cisco Live 2026 prototype lab">
+        <a href="/2026alpha" className="alpha-brand" aria-label="Return to the current Data#3 Cisco Live 2026 prototype">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        <div className="alpha-status"><span />2026 prototype lab</div>
+        <div className="alpha-status"><span />Earlier concepts</div>
       </header>
 
       <main className="alpha-launcher">
         <section className="alpha-intro" aria-labelledby="alpha-title">
-          <p className="alpha-kicker">Three concepts · one decision</p>
-          <h1 id="alpha-title">Which experience earns the stop?</h1>
+          <p className="alpha-kicker">Prototype archive · superseded directions</p>
+          <h1 id="alpha-title">Earlier explorations.</h1>
           <div className="alpha-intro__aside">
             <p>
-              Open each prototype, try the core mechanic, and compare what creates the strongest
-              reason to engage with Data<sup>#</sup>3.
+              These three experiments informed the current adaptive challenge. They remain available
+              for reference and testing.
             </p>
             <a
               className="alpha-qr"
@@ -88,8 +88,8 @@ export function Alpha2026() {
                 />
               </span>
               <span className="alpha-qr__copy">
-                <strong>Scan to test on mobile</strong>
-                <small>Opens the live prototype lab</small>
+                <strong>Scan the current challenge</strong>
+                <small>Opens the latest prototype</small>
               </span>
             </a>
           </div>
@@ -126,7 +126,7 @@ export function Alpha2026() {
       </main>
 
       <footer className="alpha-footer">
-        <p>Prototype build · Not the final event experience</p>
+        <p>Archive · Superseded prototype directions</p>
         <p>Data<sup>#</sup>3 · Delivering the Digital Future</p>
       </footer>
     </div>

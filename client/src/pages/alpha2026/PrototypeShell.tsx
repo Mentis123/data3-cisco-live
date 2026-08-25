@@ -33,10 +33,10 @@ export function PrototypeShell({
     <div className={`alpha-page prototype-page prototype-page--${code}`}>
       <div className="alpha-grid" aria-hidden="true" />
       <header className="alpha-header prototype-header">
-        <a href="/2026alpha" className="alpha-brand" aria-label="Return to the prototype lab">
+        <a href="/2026alpha/archive" className="alpha-brand" aria-label="Return to the earlier concept archive">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        <a className="alpha-back" href="/2026alpha">
+        <a className="alpha-back" href="/2026alpha/archive">
           <ArrowLeft aria-hidden="true" />
           All concepts
         </a>

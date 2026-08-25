@@ -306,7 +306,7 @@ export default function PermissionPrototype() {
           <div className="prototype-actions">
             <button className="prototype-primary" type="button" onClick={restart}><RotateCcw aria-hidden="true" /> Change the policy</button>
             <a className="prototype-secondary" href="?brief=1">Review the challenge</a>
-            <a className="prototype-secondary" href="/2026alpha">Compare all concepts</a>
+            <a className="prototype-secondary" href="/2026alpha/archive">View concept archive</a>
           </div>
           <ChallengePanel context="Permission to act result" />
         </section>
