@@ -95,6 +95,7 @@ After each answer, the screen shows:
 - a concise explanation of the engineering principle
 - the next calibrated difficulty
 - one clear continue action
+- one persistent exit action that returns to the start screen and clears the active run
 
 ### 4. Result
 
@@ -220,6 +221,7 @@ Before release, the prototype must satisfy every statement below:
 - All three actions sound initially defensible.
 - Impossible is reserved for the fifth and final decision.
 - There are only five questions.
+- A participant can exit the active challenge from any gameplay or result screen.
 - There is no second survey or confusing data-gathering phase.
 - The incentive is visible but does not overpower the learning value.
 - The result creates a conversation about Data<sup>#</sup>3 engineering capability.

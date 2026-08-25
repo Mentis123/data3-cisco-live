@@ -12,6 +12,7 @@ import {
   Sparkles,
   Trophy,
   UsersRound,
+  X,
   XCircle,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -123,6 +124,7 @@ export default function AdaptiveChallenge() {
   };
 
   const resetChallenge = () => {
+    window.scrollTo({ top: 0, behavior: "auto" });
     setPhase("launch");
     setFocus(null);
     setAbility(1);
@@ -141,7 +143,13 @@ export default function AdaptiveChallenge() {
         <a href="/2026alpha" className="adaptive-brand" aria-label="Data#3 adaptive incident challenge">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        <div className="adaptive-status"><span />Interactive alpha <b aria-hidden="true">·</b> No data saved</div>
+        {phase === "launch" ? (
+          <div className="adaptive-status"><span />Interactive alpha <b aria-hidden="true">·</b> No data saved</div>
+        ) : (
+          <button className="adaptive-exit" type="button" onClick={resetChallenge}>
+            <X aria-hidden="true" /> Exit challenge
+          </button>
+        )}
       </header>
 
       {phase === "launch" && (

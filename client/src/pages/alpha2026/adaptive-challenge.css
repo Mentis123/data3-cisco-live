@@ -74,6 +74,26 @@
 
 .adaptive-status b { color: rgba(120, 220, 255, 0.42); font-weight: 400; }
 
+.adaptive-exit {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(120, 220, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 37, 0.78);
+  padding: 0 13px;
+  color: var(--adaptive-pale);
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.adaptive-exit svg { width: 17px; height: 17px; }
+
 .adaptive-launch {
   position: relative;
   z-index: 1;
@@ -531,9 +551,11 @@
 @media (hover: hover) and (pointer: fine) {
   .adaptive-focus,
   .adaptive-primary,
+  .adaptive-exit,
   .adaptive-option { transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
   .adaptive-focus:hover { transform: translateY(-2px); border-color: rgba(0, 255, 255, 0.54); }
   .adaptive-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(0, 174, 255, 0.2); }
+  .adaptive-exit:hover { border-color: var(--adaptive-aqua); color: #ffffff; }
   .adaptive-option:not(:disabled):hover { transform: translateY(-2px); border-color: rgba(0, 255, 255, 0.52); }
   .adaptive-footer a:hover { color: var(--adaptive-pale); }
 }
