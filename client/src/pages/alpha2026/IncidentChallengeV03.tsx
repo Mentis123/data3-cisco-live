@@ -192,7 +192,15 @@ export default function IncidentChallengeV03() {
 
             <a className="incident-mobile-qr" href={challengeUrl} aria-label="Open this challenge on your mobile">
               <span aria-hidden="true">
-                <QRCodeSVG value={challengeUrl} size={82} level="H" bgColor="#ffffff" fgColor="#000025" />
+                <QRCodeSVG
+                  value={challengeUrl}
+                  size={144}
+                  level="H"
+                  marginSize={4}
+                  bgColor="#ffffff"
+                  fgColor="#000025"
+                  title="QR code for the Cisco Live 2026 incident challenge"
+                />
               </span>
               <span><strong>Move to mobile</strong><small>Scan the live challenge</small></span>
             </a>
