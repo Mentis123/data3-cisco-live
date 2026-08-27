@@ -40,6 +40,7 @@ import PermissionPrototype from "@/pages/alpha2026/PermissionPrototype";
 import SignalRoomPrototype from "@/pages/alpha2026/SignalRoomPrototype";
 import IncidentChallengeV03 from "@/pages/alpha2026/IncidentChallengeV03";
 import VersionArchive from "@/pages/alpha2026/VersionArchive";
+import Alpha2026Leaderboard from "@/pages/alpha2026/Alpha2026Leaderboard";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -291,6 +292,7 @@ function NewExperienceRouter() {
     <Switch>
       <Route path="/" component={ComingSoon} />
       <Route path="/2026alpha" component={IncidentChallengeV03} />
+      <Route path="/2026alpha/leaderboard" component={Alpha2026Leaderboard} />
       <Route path="/2026alpha/archive" component={VersionArchive} />
       <Route path="/2026alpha/archive/v0.2" component={AdaptiveChallenge} />
       <Route path="/2026alpha/archive/v0.1" component={Alpha2026Archive} />

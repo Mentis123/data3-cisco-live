@@ -9,6 +9,7 @@ import {
   MessageSquareMore,
   RotateCcw,
   ScanLine,
+  Trophy,
   UserRound,
   X,
 } from "lucide-react";
@@ -21,6 +22,17 @@ import {
   incidents,
   responseProfiles,
 } from "./incident-v03-data";
+import {
+  clearPlayerProfile,
+  completeLeaderboardRun,
+  loadPlayerProfile,
+  savePlayerProfile,
+  startLeaderboardRun,
+  submitLeaderboardRun,
+  type LeaderboardEntry,
+  type PlayerProfile,
+} from "./alpha2026-leaderboard";
+import { LeaderboardRows } from "./Alpha2026Leaderboard";
 import "./incident-challenge-v03.css";
 
 type Phase = "launch" | "decision" | "consequence" | "result";
@@ -117,10 +129,16 @@ export default function IncidentChallengeV03() {
   const [choices, setChoices] = useState<ChoiceRecord[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [challengeOpen, setChallengeOpen] = useState(false);
-  const [challengeType, setChallengeType] = useState("Scenario logic");
-  const [challengeText, setChallengeText] = useState("");
-  const [challengeSubmitted, setChallengeSubmitted] = useState(false);
+  const [runToken, setRunToken] = useState("");
+  const [resultToken, setResultToken] = useState("");
+  const [isStarting, setIsStarting] = useState(false);
+  const [runWarning, setRunWarning] = useState("");
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>(() => loadPlayerProfile());
+  const [leaderboardName, setLeaderboardName] = useState(() => loadPlayerProfile().displayName);
+  const [leaderboardStatus, setLeaderboardStatus] = useState<"idle" | "verifying" | "submitting" | "joined" | "error">("idle");
+  const [leaderboardEntry, setLeaderboardEntry] = useState<LeaderboardEntry | null>(null);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardError, setLeaderboardError] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const incident = incidents.find((candidate) => candidate.id === selectedIncidentId) ?? incidents[0];
@@ -153,9 +171,13 @@ export default function IncidentChallengeV03() {
     setChoices([]);
     setStartedAt(null);
     setElapsedSeconds(0);
-    setChallengeOpen(false);
-    setChallengeText("");
-    setChallengeSubmitted(false);
+    setRunToken("");
+    setResultToken("");
+    setRunWarning("");
+    setLeaderboardStatus("idle");
+    setLeaderboardEntry(null);
+    setLeaderboardEntries([]);
+    setLeaderboardError("");
   };
 
   const selectIncident = (definition: IncidentDefinition) => {
@@ -163,11 +185,18 @@ export default function IncidentChallengeV03() {
     resetPlay(definition);
   };
 
-  const startIncident = (definition: IncidentDefinition = incident) => {
+  const startIncident = async (definition: IncidentDefinition = incident) => {
     setSelectedIncidentId(definition.id);
     resetPlay(definition);
+    setIsStarting(true);
+    try {
+      setRunToken(await startLeaderboardRun(definition.id));
+    } catch (caught) {
+      setRunWarning(caught instanceof Error ? caught.message : "The live leaderboard is unavailable for this run.");
+    }
     setStartedAt(Date.now());
     setPhase("decision");
+    setIsStarting(false);
   };
 
   const exit = () => {
@@ -201,12 +230,73 @@ export default function IncidentChallengeV03() {
     savePlayHistory(nextHistory);
   };
 
+  const addCurrentRunToLeaderboard = async (displayName: string, verifiedResultToken: string = resultToken) => {
+    const cleanName = displayName.trim();
+    if (!cleanName || !verifiedResultToken) {
+      setLeaderboardStatus("error");
+      setLeaderboardError(
+        verifiedResultToken
+          ? "Enter a leaderboard name."
+          : "This run was not connected to the live board. Replay the incident to join.",
+      );
+      return;
+    }
+
+    setLeaderboardStatus("submitting");
+    setLeaderboardError("");
+    try {
+      const result = await submitLeaderboardRun({
+        playerId: playerProfile.id,
+        displayName: cleanName,
+        resultToken: verifiedResultToken,
+      });
+      const nextProfile = { ...playerProfile, displayName: cleanName, entryId: result.entry.id };
+      setPlayerProfile(nextProfile);
+      setLeaderboardName(cleanName);
+      savePlayerProfile(nextProfile);
+      setLeaderboardEntry(result.entry);
+      setLeaderboardEntries(result.entries);
+      setLeaderboardStatus("joined");
+    } catch (caught) {
+      setLeaderboardStatus("error");
+      setLeaderboardError(caught instanceof Error ? caught.message : "The leaderboard could not update.");
+    }
+  };
+
+  const verifyCurrentRun = async () => {
+    if (!runToken) {
+      setLeaderboardStatus("error");
+      setLeaderboardError(runWarning || "The live leaderboard was unavailable for this run. Replay to join.");
+      return;
+    }
+
+    setLeaderboardStatus("verifying");
+    try {
+      const result = await completeLeaderboardRun({
+        incidentId: incident.id,
+        choiceIds: choices.map((choice) => choice.option.id),
+        runToken,
+      });
+      setResultToken(result.resultToken);
+      setElapsedSeconds(result.elapsedSeconds);
+      if (playerProfile.displayName) {
+        await addCurrentRunToLeaderboard(playerProfile.displayName, result.resultToken);
+      } else {
+        setLeaderboardStatus("idle");
+      }
+    } catch (caught) {
+      setLeaderboardStatus("error");
+      setLeaderboardError(caught instanceof Error ? caught.message : "This run could not be verified.");
+    }
+  };
+
   const continueIncident = () => {
     if (stageIndex === incident.stages.length - 1) {
       const seconds = Math.max(1, Math.round((Date.now() - (startedAt ?? Date.now())) / 1000));
       setElapsedSeconds(seconds);
       completeIncident(seconds);
       setPhase("result");
+      void verifyCurrentRun();
       return;
     }
     setSelectedOption(null);
@@ -216,7 +306,7 @@ export default function IncidentChallengeV03() {
 
   const startNextUnplayed = () => {
     const next = incidents.find((candidate) => !playHistory[candidate.id]);
-    if (next) startIncident(next);
+    if (next) void startIncident(next);
     else setPhase("launch");
   };
 
@@ -225,17 +315,19 @@ export default function IncidentChallengeV03() {
     try {
       window.localStorage.removeItem(playHistoryKey);
       window.localStorage.removeItem(legacyHistoryKey);
+      clearPlayerProfile();
     } catch {
       // Clearing the active React state is sufficient for this session.
     }
     setPlayHistory({});
+    const newProfile = loadPlayerProfile();
+    setPlayerProfile(newProfile);
+    setLeaderboardName("");
+    setLeaderboardEntry(null);
+    setLeaderboardEntries([]);
+    setLeaderboardStatus("idle");
     selectIncident(incidents[0]);
     setPhase("launch");
-  };
-
-  const submitChallenge = () => {
-    if (!challengeText.trim()) return;
-    setChallengeSubmitted(true);
   };
 
   const stageContext = typeof stage?.context === "function" ? stage.context(incidentState) : stage?.context;
@@ -248,7 +340,10 @@ export default function IncidentChallengeV03() {
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
         {phase === "launch" ? (
-          <span className="incident-status" aria-label={`Incident series, ${completedCount} of 4 complete`}><span />{completedCount}/4 complete</span>
+          <div className="incident-header-actions">
+            <a className="incident-header-link" href="/2026alpha/leaderboard"><Trophy aria-hidden="true" /> Leaderboard</a>
+            <span className="incident-status" aria-label={`Incident series, ${completedCount} of 4 complete`}><span />{completedCount}/4 complete</span>
+          </div>
         ) : (
           <button className="incident-exit" type="button" onClick={exit}>
             <X aria-hidden="true" /> Exit challenge
@@ -311,8 +406,8 @@ export default function IncidentChallengeV03() {
               <p>{incident.learning}</p>
             </aside>
             <p className="incident-no-perfect">No consequence-free answer. Choose the response you can defend.</p>
-            <button className="incident-primary" type="button" onClick={() => startIncident()}>
-              {playHistory[incident.id] ? "Replay incident" : "Start incident"} <ArrowRight aria-hidden="true" />
+            <button className="incident-primary" type="button" onClick={() => void startIncident()} disabled={isStarting}>
+              {isStarting ? "Preparing incident" : playHistory[incident.id] ? "Replay incident" : "Start incident"} <ArrowRight aria-hidden="true" />
             </button>
 
             <a className="incident-mobile-qr" href={challengeUrl} aria-label="Open this challenge on your mobile">
@@ -445,57 +540,82 @@ export default function IncidentChallengeV03() {
                   View completed series <CheckCircle2 aria-hidden="true" />
                 </button>
               )}
-              <button className="incident-secondary" type="button" onClick={() => setChallengeOpen((open) => !open)}>
-                <MessageSquareMore aria-hidden="true" /> Challenge this scenario
-              </button>
+              <a className="incident-secondary" href="/2026alpha/leaderboard">
+                <Trophy aria-hidden="true" /> View live leaderboard
+              </a>
               <div className="incident-result__quiet-actions">
-                <button type="button" onClick={() => startIncident()}><RotateCcw aria-hidden="true" /> Replay</button>
+                <button type="button" onClick={() => void startIncident()}><RotateCcw aria-hidden="true" /> Replay</button>
                 <button type="button" onClick={exit}><ScanLine aria-hidden="true" /> Incident series</button>
               </div>
             </div>
           </aside>
 
-          {challengeOpen && (
-            <section className="incident-challenge-panel" aria-labelledby="challenge-scenario-title">
-              <p className="incident-kicker">Prototype feedback</p>
-              <h2 id="challenge-scenario-title">What would you challenge?</h2>
-              <p>Flag unrealistic logic, technical accuracy, or wording. Do not include confidential information.</p>
-              {!challengeSubmitted ? (
-                <>
-                  <div className="incident-challenge-types" aria-label="Feedback type">
-                    {["Scenario logic", "Technical accuracy", "Wording or clarity", "Other"].map((type) => (
-                      <button
-                        className={challengeType === type ? "is-selected" : ""}
-                        type="button"
-                        key={type}
-                        onClick={() => setChallengeType(type)}
-                        aria-pressed={challengeType === type}
-                      >
-                        {type}
-                      </button>
-                    ))}
+          <section className="incident-leaderboard-panel" aria-labelledby="incident-leaderboard-title">
+            <p className="incident-kicker">Live leaderboard</p>
+            {leaderboardStatus === "joined" && leaderboardEntry ? (
+              <>
+                <div className="incident-leaderboard-panel__heading">
+                  <div>
+                    <h2 id="incident-leaderboard-title">You’re #{leaderboardEntry.rank}.</h2>
+                    <p>Your best run keeps one place on the board. A higher score—or a faster tied score—moves it up.</p>
                   </div>
-                  <label htmlFor="incident-challenge-text">Your challenge</label>
-                  <textarea
-                    id="incident-challenge-text"
-                    value={challengeText}
-                    onChange={(event) => setChallengeText(event.target.value)}
-                    rows={4}
-                    placeholder="What would a stronger scenario do differently?"
-                  />
-                  <button className="incident-primary" type="button" onClick={submitChallenge} disabled={!challengeText.trim()}>
-                    Keep with this result <ArrowRight aria-hidden="true" />
-                  </button>
-                  <small>This prototype does not send or save feedback.</small>
-                </>
-              ) : (
-                <div className="incident-challenge-confirmation" role="status">
-                  <Check aria-hidden="true" />
-                  <div><strong>Challenge held on this screen.</strong><p>It has not been sent or saved.</p></div>
+                  <span><strong>{leaderboardEntry.score}</strong>/100 · {leaderboardEntry.elapsedSeconds}s</span>
                 </div>
-              )}
-            </section>
-          )}
+                <LeaderboardRows entries={leaderboardEntries} currentEntryId={leaderboardEntry.id} compact />
+                <a className="incident-leaderboard-panel__link" href="/2026alpha/leaderboard">
+                  See all live standings <ArrowRight aria-hidden="true" />
+                </a>
+              </>
+            ) : leaderboardStatus === "verifying" || leaderboardStatus === "submitting" ? (
+              <div className="incident-leaderboard-progress" role="status">
+                <Trophy aria-hidden="true" />
+                <div>
+                  <h2 id="incident-leaderboard-title">
+                    {leaderboardStatus === "verifying" ? "Verifying your run…" : "Updating your place…"}
+                  </h2>
+                  <p>Score leads. Fastest verified time breaks a tie.</p>
+                </div>
+              </div>
+            ) : (
+              <form
+                className="incident-leaderboard-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void addCurrentRunToLeaderboard(leaderboardName);
+                }}
+              >
+                <h2 id="incident-leaderboard-title">Put your best run on the board.</h2>
+                <p>Score leads. Fastest verified time breaks a tie. Better runs update your one place automatically.</p>
+                <label htmlFor="incident-leaderboard-name">Leaderboard name</label>
+                <div>
+                  <input
+                    id="incident-leaderboard-name"
+                    value={leaderboardName}
+                    onChange={(event) => setLeaderboardName(event.target.value)}
+                    maxLength={18}
+                    autoComplete="off"
+                    placeholder="Nickname or initials"
+                    aria-describedby="incident-leaderboard-name-help"
+                  />
+                  <button className="incident-primary" type="submit" disabled={!leaderboardName.trim() || !resultToken}>
+                    Join leaderboard <Trophy aria-hidden="true" />
+                  </button>
+                </div>
+                <small id="incident-leaderboard-name-help">Use a nickname or initials. It will appear publicly.</small>
+                {leaderboardError && <p className="incident-leaderboard-error" role="status">{leaderboardError}</p>}
+              </form>
+            )}
+          </section>
+
+          <section className="incident-booth-feedback" aria-labelledby="incident-booth-feedback-title">
+            <MessageSquareMore aria-hidden="true" />
+            <div>
+              <p className="incident-kicker">Improve the challenge</p>
+              <h2 id="incident-booth-feedback-title">Show us what you’d change.</h2>
+              <p>Spotted a technical gap, questionable assumption, or stronger move?</p>
+              <strong>Tell a Data<sup>#</sup>3 engineer at the booth. We’re improving these scenarios live.</strong>
+            </div>
+          </section>
         </main>
       )}
     </div>

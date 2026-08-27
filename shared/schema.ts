@@ -10,6 +10,7 @@ import {
   jsonb,
   date,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -171,6 +172,28 @@ export const leaderboardCache = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.cacheDate, table.tab] }),
+  }),
+);
+
+export const alpha2026LeaderboardEntries = pgTable(
+  "alpha_2026_leaderboard_entries",
+  {
+    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    playerId: text("player_id").notNull(),
+    displayName: text("display_name").notNull(),
+    incidentId: text("incident_id").notNull(),
+    score: integer("score").notNull(),
+    elapsedSeconds: integer("elapsed_seconds").notNull(),
+    responseStyle: text("response_style").notNull(),
+    choiceIds: text("choice_ids").array().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
+  },
+  (table) => ({
+    playerIncident: uniqueIndex("alpha_2026_player_incident_idx").on(
+      table.playerId,
+      table.incidentId,
+    ),
   }),
 );
 

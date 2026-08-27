@@ -192,7 +192,7 @@ All four styles are reachable in every incident:
 
 ## Completion and replay logic
 
-The prototype uses device-local history only:
+The prototype keeps incident progress in device-local history:
 
 - The first unplayed incident is selected automatically.
 - Every incident card shows **Unplayed**, **Next**, or the participant's best score.
@@ -200,9 +200,29 @@ The prototype uses device-local history only:
 - The result offers the next unplayed incident.
 - Replay retains the completion record and updates the best score and time.
 - **New player on this device** clears local history after confirmation.
-- No identity, personal information, database, or network submission is required.
+- No sign-in, email address, company, or contact details are required.
 
-Device-local history is appropriate for prototype validation. Event release still needs an explicit shared-device and participant-session policy.
+Event release still needs an explicit shared-device and participant-session policy.
+
+## Live leaderboard
+
+Leaderboard participation is optional and uses a nickname or initials:
+
+- Each browser receives an anonymous player identifier.
+- Each player keeps one leaderboard position based on their best run across all four incidents.
+- A higher decision-quality score ranks first.
+- The fastest server-verified completion time breaks a tied score.
+- Each row shows response style, best incident, and incidents completed.
+- A better replay or a stronger result in another incident updates the player's existing position.
+- Scores and decision paths are recalculated by the server rather than trusted from the browser.
+- A signed start and completion flow locks the finish time before the player enters a leaderboard name.
+- The public board does not expose the anonymous player identifier or collect contact details.
+
+The included database migration creates a dedicated 2026 leaderboard table. The production API also initialises that table safely when first used, so deployment does not require a separate manual database step.
+
+## Live improvement invitation
+
+The result screen does not pretend to submit feedback. It asks participants who spot a technical gap, questionable assumption, or stronger move to speak with a Data<sup>#</sup>3 engineer at the booth. This supports the intended live improvement conversation without collecting free text or confidential information.
 
 ## Accessibility review
 
@@ -233,10 +253,13 @@ The four-incident build is accepted for stakeholder testing when:
 - All response styles are reachable in every incident.
 - At least two later contexts adapt to earlier state in every incident.
 - Completion, replay, next-unplayed, refresh, and new-player logic work locally.
+- Leaderboard ordering is score descending, then verified time ascending.
+- One public position is retained per anonymous player across all four incidents.
+- Result screens link to the live board and invite direct feedback with the booth team.
 - Participant-copy limits pass automatically.
 - The production client build succeeds.
 - Current and archive routes remain available.
-- No database or environment change is required.
+- No new environment value or manual database action is required.
 
 ## Event-release review still required
 

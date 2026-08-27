@@ -23,6 +23,7 @@ import path from "path";
 import { z } from "zod";
 import archiver from "archiver";
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
+import { registerAlpha2026LeaderboardRoutes } from "./alpha2026Leaderboard.js";
 
 /**
  * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
@@ -244,6 +245,8 @@ export async function registerRoutes(
 ): Promise<Server | null> {
   const { server = null, enableWebSocket = true } = options;
   const httpServer = server ?? (enableWebSocket ? createServer(app) : null);
+
+  registerAlpha2026LeaderboardRoutes(app);
 
   log(`[Routes] Registering routes - enableWebSocket: ${enableWebSocket}, httpServer: ${!!httpServer}`);
 
