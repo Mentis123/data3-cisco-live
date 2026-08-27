@@ -2,21 +2,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
+  CheckCircle2,
   Clock3,
   Flag,
+  Lightbulb,
   MessageSquareMore,
   RotateCcw,
   ScanLine,
+  UserRound,
   X,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  INITIAL_INCIDENT_STATE,
+  type IncidentDefinition,
   type IncidentOption,
   type IncidentState,
   type ResponseStyle,
+  incidents,
   responseProfiles,
-  runawayAgentIncident,
 } from "./incident-v03-data";
 import "./incident-challenge-v03.css";
 
@@ -24,11 +27,22 @@ type Phase = "launch" | "decision" | "consequence" | "result";
 
 type ChoiceRecord = {
   stageId: string;
-  stageTitle: string;
   option: IncidentOption;
 };
 
+type PlayRecord = {
+  plays: number;
+  bestScore: number;
+  lastScore: number;
+  bestTimeSeconds: number;
+};
+
+type PlayHistory = Record<string, PlayRecord>;
+
 const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
+const playHistoryKey = "data3-2026alpha-incident-history-v2";
+const legacyHistoryKey = "data3-2026alpha-completed-incidents-v1";
+
 const stateLabels: Record<keyof IncidentState, string> = {
   service: "Service",
   containment: "Containment",
@@ -45,25 +59,61 @@ function applyEffects(state: IncidentState, effects: IncidentState): IncidentSta
   ) as IncidentState;
 }
 
-function responseStyleFor(choices: ChoiceRecord[], score: number): ResponseStyle {
+function responseStyleFor(choices: ChoiceRecord[]): ResponseStyle {
   const counts = choices.reduce<Record<ResponseStyle, number>>(
     (result, choice) => ({ ...result, [choice.option.style]: result[choice.option.style] + 1 }),
     { adaptive: 0, rapid: 0, evidence: 0, controlled: 0 },
   );
   const highestCount = Math.max(...Object.values(counts));
 
-  if (score >= 86 || highestCount <= 2) return "adaptive";
+  if (highestCount <= 2) return "adaptive";
 
   const tied = (Object.keys(counts) as ResponseStyle[]).filter((style) => counts[style] === highestCount);
   const finalStyle = choices.at(-1)?.option.style;
   return finalStyle && tied.includes(finalStyle) ? finalStyle : tied[0];
 }
 
+function loadPlayHistory(): PlayHistory {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(playHistoryKey) ?? "null");
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) return saved;
+
+    const legacy = JSON.parse(window.localStorage.getItem(legacyHistoryKey) ?? "[]");
+    if (Array.isArray(legacy)) {
+      return Object.fromEntries(
+        legacy
+          .filter((id): id is string => typeof id === "string")
+          .map((id) => [id, { plays: 1, bestScore: 0, lastScore: 0, bestTimeSeconds: 0 }]),
+      );
+    }
+  } catch {
+    return {};
+  }
+
+  return {};
+}
+
+function savePlayHistory(history: PlayHistory) {
+  try {
+    window.localStorage.setItem(playHistoryKey, JSON.stringify(history));
+  } catch {
+    // The active session still works when storage is unavailable.
+  }
+}
+
+function firstUnplayed(history: PlayHistory) {
+  return incidents.find((incident) => !history[incident.id]) ?? incidents[0];
+}
+
 export default function IncidentChallengeV03() {
+  const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory());
+  const [selectedIncidentId, setSelectedIncidentId] = useState(() => firstUnplayed(loadPlayHistory()).id);
   const [phase, setPhase] = useState<Phase>("launch");
   const [stageIndex, setStageIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<IncidentOption | null>(null);
-  const [incidentState, setIncidentState] = useState<IncidentState>(INITIAL_INCIDENT_STATE);
+  const [incidentState, setIncidentState] = useState<IncidentState>(() => firstUnplayed(loadPlayHistory()).initialState);
   const [choices, setChoices] = useState<ChoiceRecord[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -73,17 +123,19 @@ export default function IncidentChallengeV03() {
   const [challengeSubmitted, setChallengeSubmitted] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  const stages = runawayAgentIncident.stages;
-  const stage = stages[stageIndex];
+  const incident = incidents.find((candidate) => candidate.id === selectedIncidentId) ?? incidents[0];
+  const stage = incident.stages[stageIndex];
+  const completedCount = incidents.filter((candidate) => playHistory[candidate.id]).length;
+  const nextUnplayedIncident = incidents.find((candidate) => !playHistory[candidate.id]);
   const score = useMemo(() => choices.reduce((total, choice) => total + choice.option.points, 0), [choices]);
-  const responseStyle = responseStyleFor(choices, score);
+  const responseStyle = responseStyleFor(choices);
   const profile = responseProfiles[responseStyle];
 
   useEffect(() => {
     document.title = "Incident challenge | Cisco Live 2026 | Data#3";
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute(
       "content",
-      "Make five connected decisions in a Data#3 Cisco Live 2026 incident challenge.",
+      "Take four fast, connected engineering incident challenges for Cisco Live 2026.",
     );
   }, []);
 
@@ -94,10 +146,10 @@ export default function IncidentChallengeV03() {
     }
   }, [phase, stageIndex]);
 
-  const reset = () => {
+  const resetPlay = (definition: IncidentDefinition = incident) => {
     setStageIndex(0);
     setSelectedOption(null);
-    setIncidentState(INITIAL_INCIDENT_STATE);
+    setIncidentState(definition.initialState);
     setChoices([]);
     setStartedAt(null);
     setElapsedSeconds(0);
@@ -106,14 +158,20 @@ export default function IncidentChallengeV03() {
     setChallengeSubmitted(false);
   };
 
-  const start = () => {
-    reset();
+  const selectIncident = (definition: IncidentDefinition) => {
+    setSelectedIncidentId(definition.id);
+    resetPlay(definition);
+  };
+
+  const startIncident = (definition: IncidentDefinition = incident) => {
+    setSelectedIncidentId(definition.id);
+    resetPlay(definition);
     setStartedAt(Date.now());
     setPhase("decision");
   };
 
   const exit = () => {
-    reset();
+    resetPlay();
     setPhase("launch");
   };
 
@@ -121,22 +179,58 @@ export default function IncidentChallengeV03() {
     if (selectedOption) return;
     setSelectedOption(option);
     setIncidentState((current) => applyEffects(current, option.effects));
-    setChoices((current) => [
-      ...current,
-      { stageId: stage.id, stageTitle: stage.title, option },
-    ]);
+    setChoices((current) => [...current, { stageId: stage.id, option }]);
     setPhase("consequence");
   };
 
+  const completeIncident = (seconds: number) => {
+    const previous = playHistory[incident.id];
+    const nextHistory: PlayHistory = {
+      ...playHistory,
+      [incident.id]: {
+        plays: (previous?.plays ?? 0) + 1,
+        bestScore: Math.max(previous?.bestScore ?? 0, score),
+        lastScore: score,
+        bestTimeSeconds:
+          previous?.bestTimeSeconds && previous.bestTimeSeconds > 0
+            ? Math.min(previous.bestTimeSeconds, seconds)
+            : seconds,
+      },
+    };
+    setPlayHistory(nextHistory);
+    savePlayHistory(nextHistory);
+  };
+
   const continueIncident = () => {
-    if (stageIndex === stages.length - 1) {
-      setElapsedSeconds(Math.max(1, Math.round((Date.now() - (startedAt ?? Date.now())) / 1000)));
+    if (stageIndex === incident.stages.length - 1) {
+      const seconds = Math.max(1, Math.round((Date.now() - (startedAt ?? Date.now())) / 1000));
+      setElapsedSeconds(seconds);
+      completeIncident(seconds);
       setPhase("result");
       return;
     }
     setSelectedOption(null);
     setStageIndex((current) => current + 1);
     setPhase("decision");
+  };
+
+  const startNextUnplayed = () => {
+    const next = incidents.find((candidate) => !playHistory[candidate.id]);
+    if (next) startIncident(next);
+    else setPhase("launch");
+  };
+
+  const resetForNewPlayer = () => {
+    if (completedCount > 0 && !window.confirm("Clear completed incidents for a new player on this device?")) return;
+    try {
+      window.localStorage.removeItem(playHistoryKey);
+      window.localStorage.removeItem(legacyHistoryKey);
+    } catch {
+      // Clearing the active React state is sufficient for this session.
+    }
+    setPlayHistory({});
+    selectIncident(incidents[0]);
+    setPhase("launch");
   };
 
   const submitChallenge = () => {
@@ -154,7 +248,7 @@ export default function IncidentChallengeV03() {
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
         {phase === "launch" ? (
-          <span className="incident-status"><span />Validation build · v0.3</span>
+          <span className="incident-status" aria-label={`Incident series, ${completedCount} of 4 complete`}><span />{completedCount}/4 complete</span>
         ) : (
           <button className="incident-exit" type="button" onClick={exit}>
             <X aria-hidden="true" /> Exit challenge
@@ -167,27 +261,58 @@ export default function IncidentChallengeV03() {
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
             <p className="incident-kicker">Cisco Live 2026 · Engineering challenge</p>
             <h1 id="incident-launch-title">Can you contain the incident?</h1>
-            <p className="incident-lead">Make the calls. Manage the trade-offs. See the consequences.</p>
+            <p className="incident-lead">Fast choices. Real trade-offs. Consequences that follow.</p>
 
             <div className="incident-facts" aria-label="Challenge details">
-              <span><strong>5</strong> connected decisions</span>
+              <span><strong>4</strong> incidents</span>
+              <span><strong>5</strong> decisions each</span>
               <span><Clock3 aria-hidden="true" /> Under two minutes</span>
-              <span><ScanLine aria-hidden="true" /> Scenario adapts</span>
             </div>
 
-            <aside className="incident-learning">
-              <strong>What you will practise</strong>
-              <p>{runawayAgentIncident.learning}</p>
-            </aside>
+            <section className="incident-series" aria-labelledby="incident-series-title">
+              <div className="incident-series__heading">
+                <h2 id="incident-series-title">Incident series</h2>
+                <span>{completedCount} of 4 complete</span>
+              </div>
+              <div className="incident-series__grid" aria-label="Choose an incident">
+                {incidents.map((candidate) => {
+                  const record = playHistory[candidate.id];
+                  const isSelected = candidate.id === incident.id;
+                  return (
+                    <button
+                      className={`incident-series-card ${record ? "is-complete" : ""} ${isSelected ? "is-selected" : ""}`}
+                      type="button"
+                      key={candidate.id}
+                      onClick={() => selectIncident(candidate)}
+                      aria-pressed={isSelected}
+                    >
+                      <span>{record ? <CheckCircle2 aria-hidden="true" /> : candidate.number}</span>
+                      <div><strong>{candidate.title}</strong><small>{candidate.theme}</small></div>
+                      <b>{record ? record.bestScore > 0 ? `Best ${record.bestScore}` : "Done" : isSelected ? "Next" : "Unplayed"}</b>
+                    </button>
+                  );
+                })}
+              </div>
+              {completedCount > 0 && (
+                <button className="incident-new-player" type="button" onClick={resetForNewPlayer}>
+                  <UserRound aria-hidden="true" /> New player on this device
+                </button>
+              )}
+            </section>
           </section>
 
           <aside className="incident-launch__action" aria-labelledby="incident-assignment-title">
-            <p className="incident-kicker">Your assignment</p>
-            <h2 id="incident-assignment-title">{runawayAgentIncident.title}</h2>
-            <p>{runawayAgentIncident.premise}</p>
-            <p className="incident-no-perfect">There is no consequence-free answer. Choose the response you can defend.</p>
-            <button className="incident-primary" type="button" onClick={start}>
-              Start challenge <ArrowRight aria-hidden="true" />
+            <p className="incident-kicker">Incident {incident.number} · {playHistory[incident.id] ? "Replay" : "Next up"}</p>
+            <h2 id="incident-assignment-title">{incident.title}</h2>
+            <p className="incident-theme">{incident.theme}</p>
+            <p>{incident.premise}</p>
+            <aside className="incident-learning">
+              <strong>What you will practise</strong>
+              <p>{incident.learning}</p>
+            </aside>
+            <p className="incident-no-perfect">No consequence-free answer. Choose the response you can defend.</p>
+            <button className="incident-primary" type="button" onClick={() => startIncident()}>
+              {playHistory[incident.id] ? "Replay incident" : "Start incident"} <ArrowRight aria-hidden="true" />
             </button>
 
             <a className="incident-mobile-qr" href={challengeUrl} aria-label="Open this challenge on your mobile">
@@ -213,11 +338,18 @@ export default function IncidentChallengeV03() {
       {(phase === "decision" || phase === "consequence") && stage && (
         <main className="incident-game">
           <div className="incident-progress-row">
-            <span>Decision {stageIndex + 1} of {stages.length}</span>
-            <span>{runawayAgentIncident.title}</span>
+            <span>Decision {stageIndex + 1} of {incident.stages.length}</span>
+            <span>{incident.number} · {incident.title}</span>
           </div>
-          <div className="incident-progress" aria-label={`Decision ${stageIndex + 1} of ${stages.length}`}>
-            <span style={{ width: `${((stageIndex + 1) / stages.length) * 100}%` }} />
+          <div
+            className="incident-progress"
+            role="progressbar"
+            aria-label="Incident progress"
+            aria-valuemin={1}
+            aria-valuemax={incident.stages.length}
+            aria-valuenow={stageIndex + 1}
+          >
+            <span style={{ width: `${((stageIndex + 1) / incident.stages.length) * 100}%` }} />
           </div>
 
           {phase === "decision" && (
@@ -240,15 +372,18 @@ export default function IncidentChallengeV03() {
 
           {phase === "consequence" && selectedOption && (
             <section className="incident-consequence" aria-labelledby="incident-consequence-title">
-              <p className="incident-kicker">Consequence · {selectedOption.id}</p>
-              <h1 id="incident-consequence-title" ref={headingRef} tabIndex={-1}>The system responds.</h1>
-              <p>{selectedOption.consequence}</p>
-              <div className="incident-signals" aria-label="What changed">
-                {selectedOption.signals.map((signal) => <span key={signal}>{signal}</span>)}
+              <div className="incident-consequence__update" role="status" aria-live="polite" aria-atomic="true">
+                <p className="incident-kicker">Consequence · {selectedOption.id}</p>
+                <h1 id="incident-consequence-title" ref={headingRef} tabIndex={-1}>The system responds.</h1>
+                <p>{selectedOption.consequence}</p>
+                <div className="incident-signals" aria-label="What changed">
+                  {selectedOption.signals.map((signal) => <span key={signal}>{signal}</span>)}
+                </div>
+                <div className="incident-takeaway"><Lightbulb aria-hidden="true" /><p><strong>Engineering principle</strong>{stage.takeaway}</p></div>
               </div>
               <div className="incident-consequence__actions">
                 <button className="incident-primary" type="button" onClick={continueIncident}>
-                  {stageIndex === stages.length - 1 ? "See your incident result" : "Continue incident"}
+                  {stageIndex === incident.stages.length - 1 ? "See your result" : "Continue incident"}
                   <ArrowRight aria-hidden="true" />
                 </button>
                 <button className="incident-secondary" type="button" onClick={exit}>Exit challenge</button>
@@ -261,7 +396,7 @@ export default function IncidentChallengeV03() {
       {phase === "result" && (
         <main className="incident-result">
           <section className="incident-result__summary" aria-labelledby="incident-result-title">
-            <p className="incident-kicker">Incident contained · Your result</p>
+            <p className="incident-kicker">Incident {incident.number} contained · {completedCount}/4 complete</p>
             <h1 id="incident-result-title" ref={headingRef} tabIndex={-1}>{profile.title}</h1>
             <p className="incident-result__qualifier">Your response style in this incident.</p>
 
@@ -285,7 +420,7 @@ export default function IncidentChallengeV03() {
               {(Object.keys(incidentState) as Array<keyof IncidentState>).map((key) => (
                 <div key={key}>
                   <span><strong>{stateLabels[key]}</strong><b>{incidentState[key]}</b></span>
-                  <div><i style={{ width: `${incidentState[key]}%` }} /></div>
+                  <div aria-hidden="true"><i style={{ width: `${incidentState[key]}%` }} /></div>
                 </div>
               ))}
             </div>
@@ -296,17 +431,27 @@ export default function IncidentChallengeV03() {
             </div>
 
             <div className="incident-related">
-              <span>Related engineering theme</span>
-              <strong>Agents, commands and guardrails</strong>
+              <span>{incident.theme}</span>
+              <strong>{incident.debrief}</strong>
             </div>
 
             <div className="incident-result__actions">
-              <button className="incident-primary" type="button" onClick={start}>
-                <RotateCcw aria-hidden="true" /> Replay this incident
-              </button>
+              {nextUnplayedIncident ? (
+                <button className="incident-primary" type="button" onClick={startNextUnplayed}>
+                  Next unplayed incident <ArrowRight aria-hidden="true" />
+                </button>
+              ) : (
+                <button className="incident-primary" type="button" onClick={exit}>
+                  View completed series <CheckCircle2 aria-hidden="true" />
+                </button>
+              )}
               <button className="incident-secondary" type="button" onClick={() => setChallengeOpen((open) => !open)}>
-                <MessageSquareMore aria-hidden="true" /> Challenge the scenario
+                <MessageSquareMore aria-hidden="true" /> Challenge this scenario
               </button>
+              <div className="incident-result__quiet-actions">
+                <button type="button" onClick={() => startIncident()}><RotateCcw aria-hidden="true" /> Replay</button>
+                <button type="button" onClick={exit}><ScanLine aria-hidden="true" /> Incident series</button>
+              </div>
             </div>
           </aside>
 
@@ -314,7 +459,7 @@ export default function IncidentChallengeV03() {
             <section className="incident-challenge-panel" aria-labelledby="challenge-scenario-title">
               <p className="incident-kicker">Prototype feedback</p>
               <h2 id="challenge-scenario-title">What would you challenge?</h2>
-              <p>Tell us where the scenario, consequence or technical logic needs to be stronger. Do not include confidential information.</p>
+              <p>Flag unrealistic logic, technical accuracy, or wording. Do not include confidential information.</p>
               {!challengeSubmitted ? (
                 <>
                   <div className="incident-challenge-types" aria-label="Feedback type">
@@ -336,17 +481,17 @@ export default function IncidentChallengeV03() {
                     value={challengeText}
                     onChange={(event) => setChallengeText(event.target.value)}
                     rows={4}
-                    placeholder="What would a stronger or more realistic scenario do differently?"
+                    placeholder="What would a stronger scenario do differently?"
                   />
                   <button className="incident-primary" type="button" onClick={submitChallenge} disabled={!challengeText.trim()}>
                     Keep with this result <ArrowRight aria-hidden="true" />
                   </button>
-                  <small>This validation build does not send or save feedback.</small>
+                  <small>This prototype does not send or save feedback.</small>
                 </>
               ) : (
                 <div className="incident-challenge-confirmation" role="status">
                   <Check aria-hidden="true" />
-                  <div><strong>Challenge held on this screen.</strong><p>It has not been sent or saved in this validation build.</p></div>
+                  <div><strong>Challenge held on this screen.</strong><p>It has not been sent or saved.</p></div>
                 </div>
               )}
             </section>
