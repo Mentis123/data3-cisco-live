@@ -38,6 +38,8 @@ import AdaptiveChallenge from "@/pages/alpha2026/AdaptiveChallenge";
 import CascadePrototype from "@/pages/alpha2026/CascadePrototype";
 import PermissionPrototype from "@/pages/alpha2026/PermissionPrototype";
 import SignalRoomPrototype from "@/pages/alpha2026/SignalRoomPrototype";
+import IncidentChallengeV03 from "@/pages/alpha2026/IncidentChallengeV03";
+import VersionArchive from "@/pages/alpha2026/VersionArchive";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -288,8 +290,13 @@ function NewExperienceRouter() {
   return (
     <Switch>
       <Route path="/" component={ComingSoon} />
-      <Route path="/2026alpha" component={AdaptiveChallenge} />
-      <Route path="/2026alpha/archive" component={Alpha2026Archive} />
+      <Route path="/2026alpha" component={IncidentChallengeV03} />
+      <Route path="/2026alpha/archive" component={VersionArchive} />
+      <Route path="/2026alpha/archive/v0.2" component={AdaptiveChallenge} />
+      <Route path="/2026alpha/archive/v0.1" component={Alpha2026Archive} />
+      <Route path="/2026alpha/archive/v0.1/cascade" component={CascadePrototype} />
+      <Route path="/2026alpha/archive/v0.1/permission-to-act" component={PermissionPrototype} />
+      <Route path="/2026alpha/archive/v0.1/signal-room" component={SignalRoomPrototype} />
       <Route path="/2026alpha/cascade" component={CascadePrototype} />
       <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />

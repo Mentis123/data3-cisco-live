@@ -12,7 +12,7 @@ const concepts = [
     description: "Make critical decisions during a live technology incident and watch the consequences spread.",
     action: "Take command",
     duration: "3–4 minutes",
-    href: "/2026alpha/cascade",
+    href: "/2026alpha/archive/v0.1/cascade",
     icon: GitBranch,
     className: "alpha-card--cascade",
   },
@@ -22,7 +22,7 @@ const concepts = [
     description: "Set an AI agent’s boundaries, then discover what happens when it meets the unexpected.",
     action: "Govern the agent",
     duration: "60–90 seconds",
-    href: "/2026alpha/permission-to-act",
+    href: "/2026alpha/archive/v0.1/permission-to-act",
     icon: ShieldCheck,
     className: "alpha-card--permission",
   },
@@ -32,7 +32,7 @@ const concepts = [
     description: "Choose the one signal worth escalating and help the room reveal the real incident.",
     action: "Enter the room",
     duration: "45–90 seconds",
-    href: "/2026alpha/signal-room",
+    href: "/2026alpha/archive/v0.1/signal-room",
     icon: Radar,
     className: "alpha-card--signal",
   },
@@ -58,12 +58,12 @@ export function Alpha2026Archive() {
         <a href="/2026alpha" className="alpha-brand" aria-label="Return to the current Data#3 Cisco Live 2026 prototype">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        <div className="alpha-status"><span />Earlier concepts</div>
+        <div className="alpha-status"><span />Archive · v0.1</div>
       </header>
 
       <main className="alpha-launcher">
         <section className="alpha-intro" aria-labelledby="alpha-title">
-          <p className="alpha-kicker">Prototype archive · superseded directions</p>
+          <p className="alpha-kicker">Prototype archive · v0.1</p>
           <h1 id="alpha-title">Earlier explorations.</h1>
           <div className="alpha-intro__aside">
             <p>
@@ -126,7 +126,7 @@ export function Alpha2026Archive() {
       </main>
 
       <footer className="alpha-footer">
-        <p>Archive · Superseded prototype directions</p>
+        <p>Archive · v0.1 · Superseded prototype directions</p>
         <p>Data<sup>#</sup>3 · Delivering the Digital Future</p>
       </footer>
     </div>

@@ -36,7 +36,7 @@ type AnswerRecord = {
 };
 
 const TOTAL_QUESTIONS = 5;
-const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
+const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha/archive/v0.2";
 
 const focusIcons: Record<FocusKey, typeof Network> = {
   networking: Network,
@@ -140,11 +140,11 @@ export default function AdaptiveChallenge() {
     <div className="adaptive-page">
       <div className="adaptive-grid" aria-hidden="true" />
       <header className="adaptive-header">
-        <a href="/2026alpha" className="adaptive-brand" aria-label="Data#3 adaptive incident challenge">
+        <a href="/2026alpha/archive" className="adaptive-brand" aria-label="Return to the prototype archive">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
         {phase === "launch" ? (
-          <div className="adaptive-status"><span />Interactive alpha <b aria-hidden="true">·</b> No data saved</div>
+          <div className="adaptive-status"><span />Archive · v0.2 <b aria-hidden="true">·</b> No data saved</div>
         ) : (
           <button className="adaptive-exit" type="button" onClick={resetChallenge}>
             <X aria-hidden="true" /> Exit challenge
@@ -320,7 +320,7 @@ export default function AdaptiveChallenge() {
 
       <footer className="adaptive-footer">
         <p>Data<sup>#</sup>3 <span aria-hidden="true">·</span> Delivering the Digital Future</p>
-        <a href="/2026alpha/archive">Earlier concept archive</a>
+        <a href="/2026alpha/archive">Prototype version archive</a>
       </footer>
     </div>
   );

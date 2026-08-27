@@ -194,6 +194,16 @@
   gap: 16px;
 }
 
+.alpha-card-grid--versions {
+  max-width: 980px;
+}
+
+@media (min-width: 820px) {
+  .alpha-card-grid--versions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .alpha-card {
   position: relative;
   display: flex;
