@@ -19,9 +19,11 @@ import {
   type IncidentOption,
   type IncidentState,
   type ResponseStyle,
-  incidents,
-  responseProfiles,
 } from "./incident-v03-data";
+import {
+  incidents as liveIncidents,
+  responseProfiles as liveResponseProfiles,
+} from "./incident-v04-data";
 import {
   clearPlayerProfile,
   completeLeaderboardRun,
@@ -52,8 +54,15 @@ type PlayRecord = {
 type PlayHistory = Record<string, PlayRecord>;
 
 const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
-const playHistoryKey = "data3-2026alpha-incident-history-v2";
+const livePlayHistoryKey = "data3-2026alpha-incident-history-v4";
 const legacyHistoryKey = "data3-2026alpha-completed-incidents-v1";
+
+type IncidentChallengeProps = {
+  incidentSet?: IncidentDefinition[];
+  profiles?: Record<ResponseStyle, { title: string; strength: string; tradeoff: string }>;
+  archiveMode?: boolean;
+  versionLabel?: string;
+};
 
 const stateLabels: Record<keyof IncidentState, string> = {
   service: "Service",
@@ -85,12 +94,14 @@ function responseStyleFor(choices: ChoiceRecord[]): ResponseStyle {
   return finalStyle && tied.includes(finalStyle) ? finalStyle : tied[0];
 }
 
-function loadPlayHistory(): PlayHistory {
+function loadPlayHistory(playHistoryKey: string, migrateLegacy = false): PlayHistory {
   if (typeof window === "undefined") return {};
 
   try {
     const saved = JSON.parse(window.localStorage.getItem(playHistoryKey) ?? "null");
     if (saved && typeof saved === "object" && !Array.isArray(saved)) return saved;
+
+    if (!migrateLegacy) return {};
 
     const legacy = JSON.parse(window.localStorage.getItem(legacyHistoryKey) ?? "[]");
     if (Array.isArray(legacy)) {
@@ -107,7 +118,7 @@ function loadPlayHistory(): PlayHistory {
   return {};
 }
 
-function savePlayHistory(history: PlayHistory) {
+function savePlayHistory(history: PlayHistory, playHistoryKey: string) {
   try {
     window.localStorage.setItem(playHistoryKey, JSON.stringify(history));
   } catch {
@@ -115,17 +126,29 @@ function savePlayHistory(history: PlayHistory) {
   }
 }
 
-function firstUnplayed(history: PlayHistory) {
-  return incidents.find((incident) => !history[incident.id]) ?? incidents[0];
+function firstUnplayed(history: PlayHistory, incidentSet: IncidentDefinition[]) {
+  return incidentSet.find((incident) => !history[incident.id]) ?? incidentSet[0];
 }
 
-export default function IncidentChallengeV03() {
-  const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory());
-  const [selectedIncidentId, setSelectedIncidentId] = useState(() => firstUnplayed(loadPlayHistory()).id);
+export default function IncidentChallengeV03({
+  incidentSet = liveIncidents,
+  profiles = liveResponseProfiles,
+  archiveMode = false,
+  versionLabel = "v0.4",
+}: IncidentChallengeProps = {}) {
+  const playHistoryKey = archiveMode
+    ? `data3-2026alpha-incident-history-${versionLabel}`
+    : livePlayHistoryKey;
+  const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory(playHistoryKey, !archiveMode));
+  const [selectedIncidentId, setSelectedIncidentId] = useState(() =>
+    firstUnplayed(loadPlayHistory(playHistoryKey, !archiveMode), incidentSet).id,
+  );
   const [phase, setPhase] = useState<Phase>("launch");
   const [stageIndex, setStageIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<IncidentOption | null>(null);
-  const [incidentState, setIncidentState] = useState<IncidentState>(() => firstUnplayed(loadPlayHistory()).initialState);
+  const [incidentState, setIncidentState] = useState<IncidentState>(() =>
+    firstUnplayed(loadPlayHistory(playHistoryKey, !archiveMode), incidentSet).initialState,
+  );
   const [choices, setChoices] = useState<ChoiceRecord[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -141,21 +164,25 @@ export default function IncidentChallengeV03() {
   const [leaderboardError, setLeaderboardError] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  const incident = incidents.find((candidate) => candidate.id === selectedIncidentId) ?? incidents[0];
+  const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
   const stage = incident.stages[stageIndex];
-  const completedCount = incidents.filter((candidate) => playHistory[candidate.id]).length;
-  const nextUnplayedIncident = incidents.find((candidate) => !playHistory[candidate.id]);
+  const completedCount = incidentSet.filter((candidate) => playHistory[candidate.id]).length;
+  const nextUnplayedIncident = incidentSet.find((candidate) => !playHistory[candidate.id]);
   const score = useMemo(() => choices.reduce((total, choice) => total + choice.option.points, 0), [choices]);
   const responseStyle = responseStyleFor(choices);
-  const profile = responseProfiles[responseStyle];
+  const profile = profiles[responseStyle];
 
   useEffect(() => {
-    document.title = "Incident challenge | Cisco Live 2026 | Data#3";
+    document.title = archiveMode
+      ? `${versionLabel} archive | Cisco Live 2026 | Data#3`
+      : "Incident tabletop challenge | Cisco Live 2026 | Data#3";
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute(
       "content",
-      "Take four fast, connected engineering incident challenges for Cisco Live 2026.",
+      archiveMode
+        ? `Play the archived ${versionLabel} Cisco Live 2026 incident challenge.`
+        : "Take four fast, connected tabletop incident challenges for Cisco Live 2026.",
     );
-  }, []);
+  }, [archiveMode, versionLabel]);
 
   useEffect(() => {
     if (phase !== "launch") {
@@ -189,6 +216,12 @@ export default function IncidentChallengeV03() {
     setSelectedIncidentId(definition.id);
     resetPlay(definition);
     setIsStarting(true);
+    if (archiveMode) {
+      setStartedAt(Date.now());
+      setPhase("decision");
+      setIsStarting(false);
+      return;
+    }
     try {
       setRunToken(await startLeaderboardRun(definition.id));
     } catch (caught) {
@@ -227,7 +260,7 @@ export default function IncidentChallengeV03() {
       },
     };
     setPlayHistory(nextHistory);
-    savePlayHistory(nextHistory);
+    savePlayHistory(nextHistory, playHistoryKey);
   };
 
   const addCurrentRunToLeaderboard = async (displayName: string, verifiedResultToken: string = resultToken) => {
@@ -264,6 +297,7 @@ export default function IncidentChallengeV03() {
   };
 
   const verifyCurrentRun = async () => {
+    if (archiveMode) return;
     if (!runToken) {
       setLeaderboardStatus("error");
       setLeaderboardError(runWarning || "The live leaderboard was unavailable for this run. Replay to join.");
@@ -305,7 +339,7 @@ export default function IncidentChallengeV03() {
   };
 
   const startNextUnplayed = () => {
-    const next = incidents.find((candidate) => !playHistory[candidate.id]);
+    const next = incidentSet.find((candidate) => !playHistory[candidate.id]);
     if (next) void startIncident(next);
     else setPhase("launch");
   };
@@ -314,19 +348,19 @@ export default function IncidentChallengeV03() {
     if (completedCount > 0 && !window.confirm("Clear completed incidents for a new player on this device?")) return;
     try {
       window.localStorage.removeItem(playHistoryKey);
-      window.localStorage.removeItem(legacyHistoryKey);
-      clearPlayerProfile();
+      if (!archiveMode) window.localStorage.removeItem(legacyHistoryKey);
+      if (!archiveMode) clearPlayerProfile();
     } catch {
       // Clearing the active React state is sufficient for this session.
     }
     setPlayHistory({});
-    const newProfile = loadPlayerProfile();
+    const newProfile = archiveMode ? playerProfile : loadPlayerProfile();
     setPlayerProfile(newProfile);
-    setLeaderboardName("");
+    if (!archiveMode) setLeaderboardName("");
     setLeaderboardEntry(null);
     setLeaderboardEntries([]);
     setLeaderboardStatus("idle");
-    selectIncident(incidents[0]);
+    selectIncident(incidentSet[0]);
     setPhase("launch");
   };
 
@@ -341,8 +375,12 @@ export default function IncidentChallengeV03() {
         </a>
         {phase === "launch" ? (
           <div className="incident-header-actions">
-            <a className="incident-header-link" href="/2026alpha/leaderboard"><Trophy aria-hidden="true" /> Leaderboard</a>
-            <span className="incident-status" aria-label={`Incident series, ${completedCount} of 4 complete`}><span />{completedCount}/4 complete</span>
+            {archiveMode ? (
+              <a className="incident-header-link" href="/2026alpha">Current · v0.4</a>
+            ) : (
+              <a className="incident-header-link" href="/2026alpha/leaderboard"><Trophy aria-hidden="true" /> Leaderboard</a>
+            )}
+            <span className="incident-status" aria-label={`Incident series, ${completedCount} of ${incidentSet.length} complete`}><span />{completedCount}/{incidentSet.length} complete</span>
           </div>
         ) : (
           <button className="incident-exit" type="button" onClick={exit}>
@@ -354,12 +392,12 @@ export default function IncidentChallengeV03() {
       {phase === "launch" && (
         <main className="incident-launch">
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
-            <p className="incident-kicker">Cisco Live 2026 · Engineering challenge</p>
-            <h1 id="incident-launch-title">Can you contain the incident?</h1>
-            <p className="incident-lead">Fast choices. Real trade-offs. Consequences that follow.</p>
+            <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "Tabletop challenge"}</p>
+            <h1 id="incident-launch-title">{archiveMode ? "Can you contain the incident?" : "The incident is live. What do you do next?"}</h1>
+            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : "Five decisions. Three defensible options. Every choice has a trade-off."}</p>
 
             <div className="incident-facts" aria-label="Challenge details">
-              <span><strong>4</strong> incidents</span>
+              <span><strong>{incidentSet.length}</strong> incidents</span>
               <span><strong>5</strong> decisions each</span>
               <span><Clock3 aria-hidden="true" /> Under two minutes</span>
             </div>
@@ -367,10 +405,10 @@ export default function IncidentChallengeV03() {
             <section className="incident-series" aria-labelledby="incident-series-title">
               <div className="incident-series__heading">
                 <h2 id="incident-series-title">Incident series</h2>
-                <span>{completedCount} of 4 complete</span>
+                <span>{completedCount} of {incidentSet.length} complete</span>
               </div>
               <div className="incident-series__grid" aria-label="Choose an incident">
-                {incidents.map((candidate) => {
+                {incidentSet.map((candidate) => {
                   const record = playHistory[candidate.id];
                   const isSelected = candidate.id === incident.id;
                   return (
@@ -426,7 +464,9 @@ export default function IncidentChallengeV03() {
             </a>
           </aside>
 
-          <a className="incident-archive-link" href="/2026alpha/archive">View earlier prototype versions</a>
+          <a className="incident-archive-link" href={archiveMode ? "/2026alpha/archive" : "/2026alpha/archive"}>
+            {archiveMode ? "Return to the prototype archive" : "View earlier prototype versions"}
+          </a>
         </main>
       )}
 
@@ -452,6 +492,12 @@ export default function IncidentChallengeV03() {
               <p className="incident-kicker">{stage.label}</p>
               <h1 id="incident-decision-title" ref={headingRef} tabIndex={-1}>{stage.title}</h1>
               <p className="incident-context">{stageContext}</p>
+              {stage.inject && (
+                <aside className="incident-inject" role="note">
+                  <strong>Incident update</strong>
+                  <span>{stage.inject}</span>
+                </aside>
+              )}
               <h2>{stage.question}</h2>
               <div className="incident-options" aria-label="Choose one response">
                 {stage.options.map((option, index) => (
@@ -469,7 +515,9 @@ export default function IncidentChallengeV03() {
             <section className="incident-consequence" aria-labelledby="incident-consequence-title">
               <div className="incident-consequence__update" role="status" aria-live="polite" aria-atomic="true">
                 <p className="incident-kicker">Consequence · {selectedOption.id}</p>
-                <h1 id="incident-consequence-title" ref={headingRef} tabIndex={-1}>The system responds.</h1>
+                <h1 id="incident-consequence-title" ref={headingRef} tabIndex={-1}>
+                  {archiveMode ? "The system responds." : "Good call. Here’s the trade-off."}
+                </h1>
                 <p>{selectedOption.consequence}</p>
                 <div className="incident-signals" aria-label="What changed">
                   {selectedOption.signals.map((signal) => <span key={signal}>{signal}</span>)}
@@ -491,7 +539,7 @@ export default function IncidentChallengeV03() {
       {phase === "result" && (
         <main className="incident-result">
           <section className="incident-result__summary" aria-labelledby="incident-result-title">
-            <p className="incident-kicker">Incident {incident.number} contained · {completedCount}/4 complete</p>
+            <p className="incident-kicker">Incident {incident.number} contained · {completedCount}/{incidentSet.length} complete</p>
             <h1 id="incident-result-title" ref={headingRef} tabIndex={-1}>{profile.title}</h1>
             <p className="incident-result__qualifier">Your response style in this incident.</p>
 
@@ -528,6 +576,7 @@ export default function IncidentChallengeV03() {
             <div className="incident-related">
               <span>{incident.theme}</span>
               <strong>{incident.debrief}</strong>
+              {incident.conversationPrompt && <p>{incident.conversationPrompt}</p>}
             </div>
 
             <div className="incident-result__actions">
@@ -540,9 +589,15 @@ export default function IncidentChallengeV03() {
                   View completed series <CheckCircle2 aria-hidden="true" />
                 </button>
               )}
-              <a className="incident-secondary" href="/2026alpha/leaderboard">
-                <Trophy aria-hidden="true" /> View live leaderboard
-              </a>
+              {archiveMode ? (
+                <a className="incident-secondary" href="/2026alpha">
+                  Open current v0.4 <ArrowRight aria-hidden="true" />
+                </a>
+              ) : (
+                <a className="incident-secondary" href="/2026alpha/leaderboard">
+                  <Trophy aria-hidden="true" /> View live leaderboard
+                </a>
+              )}
               <div className="incident-result__quiet-actions">
                 <button type="button" onClick={() => void startIncident()}><RotateCcw aria-hidden="true" /> Replay</button>
                 <button type="button" onClick={exit}><ScanLine aria-hidden="true" /> Incident series</button>
@@ -550,6 +605,18 @@ export default function IncidentChallengeV03() {
             </div>
           </aside>
 
+          {archiveMode ? (
+            <section className="incident-leaderboard-panel" aria-labelledby="incident-leaderboard-title">
+              <p className="incident-kicker">Archived prototype · {versionLabel}</p>
+              <div className="incident-leaderboard-progress">
+                <Flag aria-hidden="true" />
+                <div>
+                  <h2 id="incident-leaderboard-title">This run stays in the archive.</h2>
+                  <p>Archived scores do not update the live v0.4 leaderboard.</p>
+                </div>
+              </div>
+            </section>
+          ) : (
           <section className="incident-leaderboard-panel" aria-labelledby="incident-leaderboard-title">
             <p className="incident-kicker">Live leaderboard</p>
             {leaderboardStatus === "joined" && leaderboardEntry ? (
@@ -606,6 +673,7 @@ export default function IncidentChallengeV03() {
               </form>
             )}
           </section>
+          )}
 
           <section className="incident-booth-feedback" aria-labelledby="incident-booth-feedback-title">
             <MessageSquareMore aria-hidden="true" />

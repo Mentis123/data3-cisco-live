@@ -7,8 +7,8 @@ import { alpha2026LeaderboardEntries } from "../shared/schema.js";
 import {
   incidents,
   responseProfiles,
-  type ResponseStyle,
-} from "../client/src/pages/alpha2026/incident-v03-data.js";
+} from "../client/src/pages/alpha2026/incident-v04-data.js";
+import type { ResponseStyle } from "../client/src/pages/alpha2026/incident-v03-data.js";
 
 type StoredRun = typeof alpha2026LeaderboardEntries.$inferSelect;
 
@@ -29,7 +29,8 @@ type RankedEntry = Alpha2026LeaderboardEntry & { playerId: string };
 
 type RunTokenPayload = {
   kind: "run";
-  version: 1;
+  version: 2;
+  gameVersion: "v0.4";
   incidentId: string;
   startedAt: number;
   nonce: string;
@@ -37,7 +38,8 @@ type RunTokenPayload = {
 
 type ResultTokenPayload = {
   kind: "result";
-  version: 1;
+  version: 2;
+  gameVersion: "v0.4";
   incidentId: string;
   score: number;
   elapsedSeconds: number;
@@ -48,6 +50,7 @@ type ResultTokenPayload = {
 };
 
 const MAX_RUN_AGE_MS = 30 * 60 * 1000;
+const CURRENT_GAME_VERSION = "v0.4" as const;
 const memoryRuns = new Map<string, StoredRun>();
 let tableReady: Promise<void> | null = null;
 
@@ -115,7 +118,8 @@ function verifyRunToken(token: string, incidentId: string): RunTokenPayload | nu
   const age = Date.now() - payload.startedAt;
   if (
     payload.kind !== "run" ||
-    payload.version !== 1 ||
+    payload.version !== 2 ||
+    payload.gameVersion !== CURRENT_GAME_VERSION ||
     payload.incidentId !== incidentId ||
     !Number.isFinite(payload.startedAt) ||
     age < -5_000 ||
@@ -163,7 +167,8 @@ function verifyResultToken(token: string): ResultTokenPayload | null {
   const age = Date.now() - payload.completedAt;
   if (
     payload.kind !== "result" ||
-    payload.version !== 1 ||
+    payload.version !== 2 ||
+    payload.gameVersion !== CURRENT_GAME_VERSION ||
     !incidents.some((incident) => incident.id === payload.incidentId) ||
     !Number.isInteger(payload.score) ||
     payload.score < 0 ||
@@ -194,6 +199,7 @@ async function ensureTable() {
       await db.execute(sql.raw(`
         CREATE TABLE IF NOT EXISTS "alpha_2026_leaderboard_entries" (
           "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
+          "game_version" text NOT NULL DEFAULT 'v0.4',
           "player_id" text NOT NULL,
           "display_name" text NOT NULL,
           "incident_id" text NOT NULL,
@@ -206,8 +212,17 @@ async function ensureTable() {
         )
       `));
       await db.execute(sql.raw(`
-        CREATE UNIQUE INDEX IF NOT EXISTS "alpha_2026_player_incident_idx"
-          ON "alpha_2026_leaderboard_entries" ("player_id", "incident_id")
+        ALTER TABLE "alpha_2026_leaderboard_entries"
+          ADD COLUMN IF NOT EXISTS "game_version" text NOT NULL DEFAULT 'v0.3'
+      `));
+      await db.execute(sql.raw(`
+        ALTER TABLE "alpha_2026_leaderboard_entries"
+          ALTER COLUMN "game_version" SET DEFAULT 'v0.4'
+      `));
+      await db.execute(sql.raw(`DROP INDEX IF EXISTS "alpha_2026_player_incident_idx"`));
+      await db.execute(sql.raw(`
+        CREATE UNIQUE INDEX IF NOT EXISTS "alpha_2026_version_player_incident_idx"
+          ON "alpha_2026_leaderboard_entries" ("game_version", "player_id", "incident_id")
       `));
     })().catch((error) => {
       tableReady = null;
@@ -231,13 +246,14 @@ async function saveRun(input: {
   choiceIds: string[];
 }) {
   const now = new Date();
-  const memoryKey = `${input.playerId}:${input.incidentId}`;
+  const memoryKey = `${CURRENT_GAME_VERSION}:${input.playerId}:${input.incidentId}`;
 
   if (!db) {
     const current = memoryRuns.get(memoryKey);
     const best = !current || isBetterRun(input.score, input.elapsedSeconds, current);
     memoryRuns.set(memoryKey, {
       id: current?.id ?? randomUUID(),
+      gameVersion: CURRENT_GAME_VERSION,
       playerId: input.playerId,
       displayName: input.displayName,
       incidentId: input.incidentId,
@@ -257,6 +273,7 @@ async function saveRun(input: {
     .from(alpha2026LeaderboardEntries)
     .where(
       and(
+        eq(alpha2026LeaderboardEntries.gameVersion, CURRENT_GAME_VERSION),
         eq(alpha2026LeaderboardEntries.playerId, input.playerId),
         eq(alpha2026LeaderboardEntries.incidentId, input.incidentId),
       ),
@@ -264,7 +281,11 @@ async function saveRun(input: {
     .limit(1);
 
   if (!current) {
-    await db.insert(alpha2026LeaderboardEntries).values({ ...input, updatedAt: now });
+    await db.insert(alpha2026LeaderboardEntries).values({
+      ...input,
+      gameVersion: CURRENT_GAME_VERSION,
+      updatedAt: now,
+    });
     return;
   }
 
@@ -285,7 +306,11 @@ async function saveRun(input: {
 async function getRuns(): Promise<StoredRun[]> {
   if (!db) return Array.from(memoryRuns.values());
   await ensureTable();
-  return db.select().from(alpha2026LeaderboardEntries).limit(5_000);
+  return db
+    .select()
+    .from(alpha2026LeaderboardEntries)
+    .where(eq(alpha2026LeaderboardEntries.gameVersion, CURRENT_GAME_VERSION))
+    .limit(5_000);
 }
 
 function rankRuns(runs: StoredRun[]): RankedEntry[] {
@@ -347,7 +372,8 @@ export function registerAlpha2026LeaderboardRoutes(app: Express) {
 
     const payload: RunTokenPayload = {
       kind: "run",
-      version: 1,
+      version: 2,
+      gameVersion: CURRENT_GAME_VERSION,
       incidentId: parsed.data.incidentId,
       startedAt: Date.now(),
       nonce: randomBytes(12).toString("base64url"),
@@ -373,7 +399,8 @@ export function registerAlpha2026LeaderboardRoutes(app: Express) {
     const elapsedSeconds = Math.max(1, Math.round((Date.now() - run.startedAt) / 1_000));
     const result: ResultTokenPayload = {
       kind: "result",
-      version: 1,
+      version: 2,
+      gameVersion: CURRENT_GAME_VERSION,
       incidentId,
       score: evaluated.score,
       elapsedSeconds,
@@ -400,6 +427,7 @@ export function registerAlpha2026LeaderboardRoutes(app: Express) {
         entries: ranked.slice(0, limit).map(publicEntry),
         totalPlayers: ranked.length,
         persistent: Boolean(db),
+        version: CURRENT_GAME_VERSION,
       });
     } catch (error) {
       console.error("[2026alpha] Failed to load leaderboard", error);
@@ -441,6 +469,7 @@ export function registerAlpha2026LeaderboardRoutes(app: Express) {
         entries: ranked.slice(0, 10).map(publicEntry),
         totalPlayers: ranked.length,
         persistent: Boolean(db),
+        version: CURRENT_GAME_VERSION,
       });
     } catch (error) {
       console.error("[2026alpha] Failed to save leaderboard result", error);

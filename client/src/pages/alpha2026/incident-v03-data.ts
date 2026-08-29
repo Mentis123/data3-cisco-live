@@ -22,6 +22,7 @@ export type IncidentStage = {
   label: string;
   title: string;
   context: string | ((state: IncidentState) => string);
+  inject?: string;
   question: string;
   takeaway: string;
   options: IncidentOption[];
@@ -37,6 +38,7 @@ export type IncidentDefinition = {
   premise: string;
   learning: string;
   debrief: string;
+  conversationPrompt?: string;
   initialState: IncidentState;
   stages: IncidentStage[];
 };

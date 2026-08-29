@@ -5,9 +5,9 @@
 | Field | Value |
 |---|---|
 | Product | Data<sup>#</sup>3 Cisco Live 2026 booth activation |
-| Build | Four-incident prototype series |
+| Build | Tabletop incident series |
 | Content review | v0.4 |
-| Prepared | 28 August 2026 |
+| Prepared | 29 August 2026 |
 | Audience | Enterprise and corporate technology professionals |
 | Status | Ready for participant validation and subject-matter review |
 
@@ -46,10 +46,10 @@ The prototype enforces booth-speed content limits:
 
 | Element | Limit | Current maximum |
 |---|---:|---:|
-| Incident premise | 30 words | 24 words |
+| Incident premise | 30 words | 18 words |
 | New stage context | 22 words | 20 words |
-| Action | 16 words | 14 words |
-| Consequence | 24 words | 14 words |
+| Action | 16 words | 9 words |
+| Consequence | 24 words | 15 words |
 | Engineering principle | 12 words | 10 words |
 
 No participant must read a paragraph before acting. Labels, metadata, and debrief content remain secondary to the current decision.
@@ -72,13 +72,13 @@ Each incident contains five connected stages:
 
 | Stage | Purpose | Participant question |
 |---|---|---|
-| Detect | Establish the first useful signal | What matters first? |
-| Contain | Stop the incident compounding | What do you limit? |
-| Recover | Restore useful service safely | What do you bring back? |
-| Complicate | Introduce a cross-domain dependency | What changes now? |
-| Govern | Define safe reactivation or recurrence control | What must remain true? |
+| Contain | Stop the incident compounding | What do you stop first? |
+| Preserve | Keep the evidence needed to explain it | What do you capture now? |
+| Restore | Return useful service safely | How do you restore service? |
+| Guardrail | Prevent the same mechanism recurring | Where does the guardrail go? |
+| Reactivate | Graduate trust back into automation | When is it safe to reactivate? |
 
-At least two stages in every incident change their context according to hidden state from earlier decisions.
+Every incident adds one concise pressure inject at the recovery decision. At least two stages also change their context according to hidden state from earlier decisions.
 
 ## Incident one: Runaway agent
 
@@ -88,11 +88,11 @@ Contain automation without discarding the service value it provides.
 
 ### Logic progression
 
-1. Limit retry pressure
-2. Test a fallback without transferring the incident
-3. Reduce the identity and tool blast radius
-4. Restore automation according to consequence
-5. Reactivate through observable controls
+1. Bound or redirect the retry storm
+2. Preserve prompts, tool calls, traces, or impact evidence
+3. Restore service while the service owner is unavailable
+4. Place a durable retry or dependency guardrail
+5. Return autonomy through shadow, risk-scoped, or signed-off operation
 
 ### Intended learning
 
@@ -109,11 +109,11 @@ Restore distributed inference without moving compute pressure into the network o
 
 ### Logic progression
 
-1. Correlate model, camera, compute, network, and business signals
-2. Create capacity while preserving evidence
-3. Protect site operations from cloud-spillover traffic
-4. Isolate an input-pipeline shift
-5. Release by cohort with business and technical abort thresholds
+1. Isolate sites, fail locally, or intervene across the fleet
+2. Collect representative evidence without saturating thin links
+3. Restore in waves, from an image, or in local-only mode without the edge specialist
+4. Prevent one bad push from cascading
+5. Reactivate by site health, canary cohort, or full-fleet monitoring
 
 ### Intended learning
 
@@ -130,11 +130,11 @@ Stop unsafe action while preserving the evidence needed to find every copy and c
 
 ### Logic progression
 
-1. Block actions while retaining useful read-only service
-2. Trace source and index lineage
-3. Replace shared authority with action-scoped identity
-4. Remove persistent copies from caches and memory
-5. Test retrieval, prompts, resources, tools, and approvals as one chain
+1. Cut off the suspect source, constrain operation, or roll back context
+2. Preserve the source-to-decision trust trail
+3. Rebuild trusted context while a regulator asks for an impact account
+4. Control provenance, identity, or unsafe output
+5. Restore recommendations through advisory, risk-scoped, or full autonomy
 
 ### Intended learning
 
@@ -151,11 +151,11 @@ Restore fast service without making customers repeat work or asking people to tr
 
 ### Logic progression
 
-1. Route high-impact cases to accountable people with source context
-2. Trace transcription, summary, and routing as one hand-off
-3. Minimise and scope identity data
-4. Restore summaries with source verification
-5. Measure customer, human, quality, and operational outcomes together
+1. Stop misrouting while preserving customer continuity
+2. Trace routing decisions and transferred context together
+3. Recover the backlog while priority customers escalate
+4. Validate destination, context integrity, and routing confidence
+5. Restore routing through suggest, confidence-scoped, or full automation
 
 ### Intended learning
 
@@ -169,7 +169,7 @@ Restore fast service without making customers repeat work or asking people to tr
 ### Incident score
 
 - Each incident has a best possible score of 100.
-- Lowest possible scores range from 78 to 80.
+- Lowest possible scores range from 76 to 78.
 - Scores compare the balance achieved in this scenario; they do not diagnose professional competence.
 - Time is displayed separately and does not change the prototype score.
 
@@ -178,17 +178,17 @@ Restore fast service without making customers repeat work or asking people to tr
 Response style now depends on the pattern of decisions, not the score:
 
 - A style selected three or more times becomes the result style.
-- A mixed path becomes **Adaptive responder**.
+- A mixed path becomes **The balancer**.
 - A tie resolves to the style of the final decision.
 
 This separation is intentional. The score describes decision balance. The style describes the participant's response pattern.
 
 All four styles are reachable in every incident:
 
-- Adaptive responder
-- Rapid restorer
-- Evidence-first investigator
-- Controlled stabiliser
+- The balancer
+- The restorer
+- The investigator
+- The first responder
 
 ## Completion and replay logic
 
@@ -209,7 +209,7 @@ Event release still needs an explicit shared-device and participant-session poli
 Leaderboard participation is optional and uses a nickname or initials:
 
 - Each browser receives an anonymous player identifier.
-- Each player keeps one leaderboard position based on their best run across all four incidents.
+- Each player keeps one leaderboard position based on their best v0.4 run across all four incidents.
 - A higher decision-quality score ranks first.
 - The fastest server-verified completion time breaks a tied score.
 - Each row shows response style, best incident, and incidents completed.
@@ -218,7 +218,7 @@ Leaderboard participation is optional and uses a nickname or initials:
 - A signed start and completion flow locks the finish time before the player enters a leaderboard name.
 - The public board does not expose the anonymous player identifier or collect contact details.
 
-The included database migration creates a dedicated 2026 leaderboard table. The production API also initialises that table safely when first used, so deployment does not require a separate manual database step.
+The production API initialises and migrates the dedicated 2026 leaderboard table on first use. Existing v0.3 results are labelled as archived data and excluded from v0.4 rankings, so deployment does not require a separate manual database step.
 
 ## Live improvement invitation
 

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ArrowRight, Boxes, GitBranch } from "lucide-react";
+import { ArrowRight, Boxes, GitBranch, ShieldAlert } from "lucide-react";
 import "./alpha-2026.css";
 
 export default function VersionArchive() {
@@ -18,7 +18,7 @@ export default function VersionArchive() {
         <a href="/2026alpha" className="alpha-brand" aria-label="Return to the current prototype">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        <a className="alpha-back" href="/2026alpha">Current · v0.3</a>
+        <a className="alpha-back" href="/2026alpha">Current · v0.4</a>
       </header>
       <main className="alpha-launcher">
         <section className="alpha-intro">
@@ -29,6 +29,15 @@ export default function VersionArchive() {
           </div>
         </section>
         <section className="alpha-card-grid alpha-card-grid--versions" aria-label="Archived versions">
+          <a className="alpha-card alpha-card--signal" href="/2026alpha/archive/v0.3">
+            <div className="alpha-card__topline"><span>03</span><span>Superseded</span></div>
+            <div className="alpha-card__visual" aria-hidden="true"><ShieldAlert strokeWidth={1.35} /></div>
+            <div className="alpha-card__copy">
+              <h2>v0.3 · Incident series</h2>
+              <p>The first four-incident engineering challenge, preserved with its original questions and response styles.</p>
+            </div>
+            <div className="alpha-card__action">Open v0.3 <ArrowRight aria-hidden="true" /></div>
+          </a>
           <a className="alpha-card alpha-card--cascade" href="/2026alpha/archive/v0.2">
             <div className="alpha-card__topline"><span>02</span><span>Superseded</span></div>
             <div className="alpha-card__visual" aria-hidden="true"><GitBranch strokeWidth={1.35} /></div>
@@ -56,4 +65,3 @@ export default function VersionArchive() {
     </div>
   );
 }
-

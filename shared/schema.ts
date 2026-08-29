@@ -179,6 +179,7 @@ export const alpha2026LeaderboardEntries = pgTable(
   "alpha_2026_leaderboard_entries",
   {
     id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    gameVersion: text("game_version").notNull().default("v0.4"),
     playerId: text("player_id").notNull(),
     displayName: text("display_name").notNull(),
     incidentId: text("incident_id").notNull(),
@@ -190,7 +191,8 @@ export const alpha2026LeaderboardEntries = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
   },
   (table) => ({
-    playerIncident: uniqueIndex("alpha_2026_player_incident_idx").on(
+    versionPlayerIncident: uniqueIndex("alpha_2026_version_player_incident_idx").on(
+      table.gameVersion,
       table.playerId,
       table.incidentId,
     ),
