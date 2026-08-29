@@ -104,6 +104,13 @@
 .incident-series-card.is-complete { border-color: rgba(0, 255, 255, 0.32); background: rgba(0, 174, 255, 0.09); }
 .incident-series-card.is-complete > b { color: var(--incident-aqua); }
 .incident-series-card.is-selected { border-color: var(--incident-aqua); box-shadow: inset 0 0 0 1px rgba(0, 255, 255, 0.22), 0 0 24px rgba(0, 174, 255, 0.08); }
+.incident-series--blind { max-width: 430px; }
+.incident-prototype-picker { display: grid; grid-template-columns: repeat(4, 48px); gap: 9px; }
+.incident-prototype-picker button { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid rgba(120, 220, 255, 0.24); border-radius: 50%; background: rgba(0, 0, 37, 0.54); color: var(--incident-pale); font: inherit; font-size: 0.68rem; font-weight: 900; cursor: pointer; }
+.incident-prototype-picker button svg { width: 17px; height: 17px; }
+.incident-prototype-picker button.is-selected { border-color: var(--incident-aqua); background: rgba(0, 174, 255, 0.16); color: #fff; box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.08); }
+.incident-prototype-picker button.is-complete { border-color: rgba(157, 159, 162, 0.13); background: rgba(157, 159, 162, 0.08); color: rgba(238, 238, 238, 0.26); cursor: not-allowed; }
+.incident-prototype-note { max-width: 390px; margin: 9px 0 0; color: rgba(238, 238, 238, 0.46); font-size: 0.7rem; line-height: 1.4; }
 .incident-new-player { display: inline-flex; min-height: 48px; align-items: center; gap: 7px; margin-top: 10px; border: 0; background: transparent; padding: 0 4px; color: rgba(120, 220, 255, 0.7); font: inherit; font-size: 0.76rem; font-weight: 800; cursor: pointer; }
 .incident-new-player svg { width: 17px; }
 
@@ -293,6 +300,7 @@
 .alpha-leaderboard-play svg { width: 18px; }
 
 @media (max-width: 350px) {
+  .incident-version-label { display: none; }
   .incident-header-link { width: 48px; justify-content: center; padding: 0; font-size: 0; letter-spacing: 0; }
   .incident-header-link svg { width: 18px; }
 }
@@ -343,6 +351,7 @@
   .incident-secondary:hover, .incident-options button:hover { border-color: var(--incident-aqua); background: rgba(0, 174, 255, 0.13); }
   .incident-challenge-types button:hover { border-color: var(--incident-aqua); color: #fff; }
   .incident-series-card:hover { border-color: rgba(0, 255, 255, 0.62); background: rgba(0, 174, 255, 0.1); }
+  .incident-prototype-picker button:not(:disabled):hover { border-color: var(--incident-aqua); background: rgba(0, 174, 255, 0.16); color: #fff; }
   .incident-exit:hover, .incident-header-link:hover, .incident-archive-link:hover, .incident-new-player:hover, .incident-result__quiet-actions button:hover, .incident-leaderboard-panel__link:hover { color: #fff; }
   .alpha-leaderboard-play:hover { border-color: var(--incident-aqua); background: var(--incident-aqua); }
   .alpha-leaderboard-board__heading button:hover { color: #fff; }

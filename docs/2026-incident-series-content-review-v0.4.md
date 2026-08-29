@@ -192,33 +192,35 @@ All four styles are reachable in every incident:
 
 ## Completion and replay logic
 
-The prototype keeps incident progress in device-local history:
+The prototype keeps incident progress in device-local history without revealing the assigned scenario before play:
 
-- The first unplayed incident is selected automatically.
-- Every incident card shows **Unplayed**, **Next**, or the participant's best score.
+- The first unplayed incident is selected automatically behind a generic **Start incident** button.
+- A temporary numbered prototype selector allows internal testers to target an incident without exposing its title or premise.
+- Completed selector buttons grey out to show that all four incidents are tracked.
 - Completion survives refresh on the same device.
-- The result offers the next unplayed incident.
+- The result offers **Try another incident** while unplayed incidents remain.
+- After all four are complete, the result offers **Return to home**.
 - Replay retains the completion record and updates the best score and time.
 - **New player on this device** clears local history after confirmation.
 - No sign-in, email address, company, or contact details are required.
 
 Event release still needs an explicit shared-device and participant-session policy.
 
-## Live leaderboard
+## Production identity and leaderboard
 
-Leaderboard participation is optional and uses a nickname or initials:
+The v0.4 prototype does not ask the participant to create a separate leaderboard identity or submit a result. Its result screen notes the intended production integration:
 
-- Each browser receives an anonymous player identifier.
-- Each player keeps one leaderboard position based on their best v0.4 run across all four incidents.
+- Reuse the Cisco Live 2025 sign-in and participant pattern rather than adding a second identity step.
+- Carry the participant's response style, score, and completion time into the production leaderboard automatically.
+- Keep one leaderboard position based on the participant's best run across all four incidents.
 - A higher decision-quality score ranks first.
 - The fastest server-verified completion time breaks a tied score.
 - Each row shows response style, best incident, and incidents completed.
 - A better replay or a stronger result in another incident updates the player's existing position.
-- Scores and decision paths are recalculated by the server rather than trusted from the browser.
-- A signed start and completion flow locks the finish time before the player enters a leaderboard name.
-- The public board does not expose the anonymous player identifier or collect contact details.
+- Scores and decision paths should be recalculated by the server rather than trusted from the browser.
+- The public board must not expose the participant's account identifier or collect another display name.
 
-The production API initialises and migrates the dedicated 2026 leaderboard table on first use. Existing v0.3 results are labelled as archived data and excluded from v0.4 rankings, so deployment does not require a separate manual database step.
+The existing v0.4 leaderboard service remains available as implementation groundwork, but the current participant flow does not call it. Identity and persistence will be integrated with the proven 2025 production pattern before event release.
 
 ## Live improvement invitation
 
