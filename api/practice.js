@@ -51,7 +51,10 @@ function skipRewrite(filePath) {
 // body they emit still flows through the prefix rewrite underneath.
 const baseSend = express.response.send;
 express.response.send = function send(body) {
-  if (typeof body === 'string' && isTextResponse(this)) {
+  // A string body with no Content-Type yet (express only sets text/html
+  // inside send itself — after this patch runs) is markup from a route
+  // handler, e.g. the password-gate page; rewrite those too.
+  if (typeof body === 'string' && (isTextResponse(this) || !this.get('Content-Type'))) {
     return baseSend.call(this, rewriteBody(body));
   }
   return baseSend.call(this, body);
