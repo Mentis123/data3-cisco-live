@@ -1,0 +1,91 @@
+/* Keep the first screen calm: recommendations exist only after the seller asks for a view. */
+body:not(.resultsReady) .results,
+body:not(.resultsReady) .footerNote{display:none!important}
+
+/* The calm state should be quiet, not empty. Keep the decision surface near the controls. */
+body:not(.resultsReady) .hero{
+  min-height:auto;
+  padding-top:clamp(42px,5vw,74px);
+  padding-bottom:clamp(38px,4.5vw,64px);
+  display:block;
+}
+body:not(.resultsReady) .hero h1{margin-bottom:0}
+body:not(.resultsReady) .startChooser{
+  max-width:none;
+  margin-top:26px;
+  padding:20px;
+}
+body.resultsReady .results{animation:resultsIn .24s ease both}
+@keyframes resultsIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.scenarioHeading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}
+.scenarioHeading .startLabel{margin:0;font-size:17px}
+.scenarioHeading p{max-width:720px;margin:5px 0 0;color:#9fb4c5;font-size:12px;line-height:1.45}
+.scenarioCount{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(120,220,255,.3);border-radius:999px;color:#bfeeff;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+
+.samples.scenarioGrid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.scenarioChip{
+  --scenario-accent:#00AEFF;
+  --scenario-rgb:0,174,255;
+  position:relative;
+  min-width:0;
+  min-height:92px;
+  padding:14px 15px 13px 17px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:auto 1fr;
+  gap:7px 10px;
+  overflow:hidden;
+  text-align:left;
+  white-space:normal;
+  border:1px solid rgba(var(--scenario-rgb),.34);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(var(--scenario-rgb),.11),rgba(255,255,255,.035));
+  color:#fff;
+  text-decoration:none;
+  transition:transform .16s,border-color .16s,background .16s,box-shadow .16s;
+}
+.scenarioChip::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--scenario-accent)}
+.scenarioChip:hover,.scenarioChip:focus-visible{
+  transform:translateY(-2px);
+  border-color:var(--scenario-accent);
+  background:linear-gradient(145deg,rgba(var(--scenario-rgb),.18),rgba(255,255,255,.055));
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+  outline:0;
+}
+.scenarioTitle{min-width:0;font-size:13.5px;font-weight:900;line-height:1.2;letter-spacing:-.015em}
+.scenarioArrow{align-self:start;color:var(--scenario-accent);font-size:18px;font-weight:950;line-height:1}
+.scenarioDetail{grid-column:1/-1;color:#b8cbd9;font-size:10.7px;line-height:1.38}
+.accountEntry{color:#fff}
+
+.resultProgress{margin-top:14px;display:flex;align-items:center;justify-content:center}
+.showMoreResults{min-height:42px;padding:9px 15px;border:1px solid rgba(120,220,255,.38);border-radius:11px;background:rgba(120,220,255,.07);color:#e7f9ff;font-size:11px;font-weight:900}
+.showMoreResults:hover,.showMoreResults:focus-visible{border-color:var(--cyan);outline:0;background:rgba(0,255,255,.1)}
+
+@media(max-width:1120px){
+  .samples.scenarioGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:820px){
+  .samples.scenarioGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  body:not(.resultsReady) .hero{min-height:auto;padding-top:26px;padding-bottom:42px}
+  body:not(.resultsReady) .startChooser{margin-top:18px;padding:14px}
+  .scenarioHeading{align-items:flex-start;flex-direction:column;gap:8px}
+  .scenarioHeading .startLabel{font-size:16px}
+  .scenarioHeading p{font-size:11px}
+  .samples.scenarioGrid{grid-template-columns:1fr;gap:8px;margin-left:0;margin-right:0;padding-left:0;padding-right:0;overflow:visible}
+  .scenarioChip{min-height:82px;padding:12px 13px 11px 15px}
+  .scenarioTitle{font-size:13px}
+  .scenarioDetail{font-size:10.3px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.resultsReady .results{animation:none}
+  .scenarioChip{transition:none}
+}

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000025">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Data#3 Navigator - Account Conversation Brief</title>
+  <link rel="stylesheet" href="/nav/account/styles.css?v=20260828-1">
+  <link rel="stylesheet" href="/nav/nav-links.css?v=20260812-4">
+  <script src="/nav/data.js?v=20260811-3" defer></script>
+  <script src="/nav/account/data.js?v=20260828-1" defer></script>
+  <script src="/nav/account/app.js?v=20260828-1" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brandStack"><a class="brand" href="/nav" aria-label="Back to Navigator">Data<sup>#</sup>3 Navigator <small>account intelligence</small></a><span class="brandEgg"><a href="/nav/world">World</a><a href="/nav/ar">AR</a></span></div>
+    <nav class="conceptNav" aria-label="Navigator concepts">
+      <a href="/nav">Builder</a>
+      <a href="/nav/wef">Pond</a>
+      <a href="/nav/bubbles">Bubbles</a>
+      <a href="/nav/box">Box</a>
+      <a class="active" href="/nav/account" aria-current="page">Account Brief</a>
+      <a href="/nav/archive">Old</a>
+    </nav>
+    <div class="topActions">
+      <span class="synthetic">Synthetic demo</span>
+      <button class="ghostButton" id="demoScenario" type="button">Run Data &amp; AI scenario</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="setup" id="setup">
+      <div class="setupLede">
+        <div>
+          <div class="eyebrow">Prepare the conversation, not another search</div>
+          <h1>Walk into the meeting knowing the account.</h1>
+        </div>
+        <p class="lead">Navigator assembles what is already happening, who knows the account, what changed in the last 12 months and the conversations worth having next.</p>
+      </div>
+
+      <div class="setupPanel">
+        <div class="setupIntro">
+          <strong>Build an account conversation brief</strong>
+          <span>No recommendations appear until you ask Navigator to build the brief.</span>
+        </div>
+        <div class="setupFields">
+          <label>
+            <span>Customer account</span>
+            <select id="accountSelect"></select>
+          </label>
+          <label>
+            <span>Conversation focus</span>
+            <select id="topicSelect"></select>
+          </label>
+          <button class="primaryButton" id="buildBrief" type="button">Build my account brief <b aria-hidden="true">-&gt;</b></button>
+        </div>
+        <div class="sourcePreview" aria-label="Prototype source coverage">
+          <span>Would combine</span>
+          <i>Salesforce</i><i>SharePoint</i><i>SolCat</i><i>Sid</i>
+          <em>Permission-aware, source-linked and synthetic in this prototype.</em>
+        </div>
+      </div>
+    </section>
+
+    <section class="brief" id="brief" hidden aria-live="polite">
+      <div class="briefHeader">
+        <div>
+          <div class="eyebrow" id="briefEyebrow"></div>
+          <h2 id="briefTitle"></h2>
+          <p id="briefSummary"></p>
+        </div>
+        <div class="briefHeaderActions">
+          <button class="secondaryButton" id="changeBrief" type="button">Change brief</button>
+          <button class="primaryButton compact" id="createPrepPack" type="button">Create prep pack</button>
+        </div>
+      </div>
+
+      <div class="sourceLine">
+        <span class="freshness" id="freshness"></span>
+        <div id="sourceBadges"></div>
+      </div>
+
+      <article class="collisionAlert" id="collisionAlert">
+        <div class="alertIcon" aria-hidden="true">!</div>
+        <div>
+          <div class="alertKicker">Account-team signal</div>
+          <h3 id="alertTitle"></h3>
+          <p id="alertCopy"></p>
+          <button class="textButton" id="alertAction" type="button">See work already in flight -&gt;</button>
+        </div>
+      </article>
+
+      <div class="metricStrip" id="metricStrip"></div>
+
+      <div class="briefLayout">
+        <div class="briefMain">
+          <section class="contentSection conversationSection" id="conversationSection">
+            <div class="sectionHead">
+              <div>
+                <div class="eyebrow">Your meeting brief</div>
+                <h3>Five conversation moves</h3>
+                <p>Not five products. Five evidence-backed things worth discussing with this customer.</p>
+              </div>
+              <span class="countPill">5 moves</span>
+            </div>
+            <div class="conversationList" id="conversationList"></div>
+          </section>
+
+          <section class="contentSection" id="activeWorkSection">
+            <div class="sectionHead">
+              <div>
+                <div class="eyebrow">Coordinate before you pitch</div>
+                <h3>What is already in flight</h3>
+                <p>Product, advisory and delivery work found across the account record and recognised content locations.</p>
+              </div>
+            </div>
+            <div class="activeWork" id="activeWork"></div>
+          </section>
+
+          <section class="contentSection">
+            <div class="sectionHead">
+              <div>
+                <div class="eyebrow">Last 12 months</div>
+                <h3>Account activity timeline</h3>
+                <p>A concise account memory, with the original record named on every item.</p>
+              </div>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+        </div>
+
+        <aside class="briefSide">
+          <section class="sideCard teamCard">
+            <div class="sideHead"><span>Internal team</span><b id="internalCount"></b></div>
+            <h3>People to involve before the meeting</h3>
+            <div id="internalPeople"></div>
+            <button class="sideAction" data-demo-action="Draft an internal preparation message" type="button">Draft internal prep note</button>
+          </section>
+
+          <section class="sideCard">
+            <div class="sideHead"><span>Customer map</span><b id="customerCount"></b></div>
+            <h3>Known stakeholders</h3>
+            <div id="customerPeople"></div>
+          </section>
+
+          <section class="sideCard">
+            <div class="sideHead"><span>SolCat mapping</span><b>4</b></div>
+            <h3>Relevant offers, after the conversation</h3>
+            <div id="mappedOffers"></div>
+          </section>
+
+          <section class="sideCard sourceCard">
+            <div class="sideHead"><span>Evidence</span><b>Linked</b></div>
+            <h3>Where this brief came from</h3>
+            <div id="sourceCoverage"></div>
+            <p>Production would respect source permissions and show gaps instead of inventing account facts.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="detailBackdrop" id="detailBackdrop" hidden>
+    <aside class="detailPanel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailTitle" tabindex="-1">
+      <div class="detailHeader">
+        <div>
+          <div class="detailStep" id="detailStep"></div>
+          <h2 id="detailTitle"></h2>
+        </div>
+        <button class="closeButton" id="detailClose" type="button" aria-label="Close conversation detail">x</button>
+      </div>
+      <section class="talkTrack">
+        <span>Customer-ready opener</span>
+        <blockquote id="detailTalkTrack"></blockquote>
+      </section>
+      <div class="detailGrid">
+        <section><h3>Why now</h3><p id="detailWhy"></p></section>
+        <section><h3>Account evidence</h3><p id="detailEvidence"></p></section>
+        <section><h3>Before the meeting</h3><p id="detailBefore"></p></section>
+        <section><h3>Confidence</h3><p id="detailConfidence"></p></section>
+      </div>
+      <section class="mappingBlock"><h3>Mapped solutions and motions</h3><div id="detailMappings"></div></section>
+      <section class="mappingBlock"><h3>Source records</h3><div id="detailSources"></div></section>
+      <div class="detailActions">
+        <button class="secondaryButton" data-demo-action="Add this move to the meeting pack" type="button">Add to prep pack</button>
+        <button class="primaryButton compact" data-demo-action="Draft customer discovery questions" type="button">Draft follow-up questions</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="prepBackdrop" id="prepBackdrop" hidden>
+    <section class="prepStudio" id="prepStudio" role="dialog" aria-modal="true" aria-labelledby="prepTitle" tabindex="-1">
+      <header class="prepHeader">
+        <div>
+          <div class="prepKicker">Navigator agent output · synthetic example</div>
+          <h2 id="prepTitle">Your customer conversation pack</h2>
+          <p id="prepSubtitle"></p>
+        </div>
+        <button class="closeButton" id="prepClose" type="button" aria-label="Close prep pack">×</button>
+      </header>
+
+      <div class="prepGenerating" id="prepGenerating">
+        <div class="agentOrb" aria-hidden="true"><span></span><i></i></div>
+        <div class="generateCopy">
+          <strong>Compiling the pack</strong>
+          <span id="generationStatus">Reading the permitted account memory…</span>
+          <div class="generationRail"><i id="generationProgress"></i></div>
+        </div>
+        <div class="generationSteps" aria-hidden="true">
+          <span>47 records</span><b>→</b><span>5 moves</span><b>→</b><span>2 assets</span>
+        </div>
+      </div>
+
+      <div class="prepResult" id="prepResult" hidden>
+        <div class="artifactSwitcher" role="tablist" aria-label="Prep pack artifacts">
+          <button class="artifactTab active" id="phoneTab" role="tab" aria-selected="true" aria-controls="phoneArtifact" type="button"><span>01</span> Phone one-pager <b>PNG · 9:16</b></button>
+          <button class="artifactTab" id="deckTab" role="tab" aria-selected="false" aria-controls="deckArtifact" type="button"><span>02</span> Conversation deck <b>PPTX · 5 slides</b></button>
+        </div>
+
+        <section class="artifactPanel active" id="phoneArtifact" role="tabpanel" aria-labelledby="phoneTab">
+          <div class="artifactInfo">
+            <div class="artifactLabel">Pocket brief</div>
+            <h3>Everything you need before you walk in.</h3>
+            <p>A customer-safe 9:16 image that keeps the conversation thesis, account evidence, questions, coordination, and ask in one place.</p>
+            <div class="artifactChecks"><span>✓ Source-aware</span><span>✓ Coordination-first</span><span>✓ CMF structured</span><span id="annuityBadge">✓ Committed Capacity</span></div>
+            <div class="artifactActions">
+              <button class="primaryButton" id="downloadPhone" type="button">Download phone brief (.png)</button>
+              <button class="secondaryButton" id="copyBrief" type="button">Copy meeting opener</button>
+            </div>
+          </div>
+          <div class="phoneStage"><div class="phoneShell"><img id="prepPhoneImage" alt="9:16 Queensland Shared Services Authority Data and AI meeting brief"></div><span>1080 × 1920 · ready for phone images</span></div>
+        </section>
+
+        <section class="artifactPanel" id="deckArtifact" role="tabpanel" aria-labelledby="deckTab" hidden>
+          <div class="deckStage">
+            <div class="deckViewport" id="deckViewport" aria-live="polite"></div>
+            <div class="deckRail" id="deckRail" aria-label="Slide thumbnails"></div>
+          </div>
+          <aside class="deckInfo">
+            <div class="artifactLabel">CMF conversation deck</div>
+            <h3>Five slides. One decision path.</h3>
+            <ol class="cmfMap">
+              <li><b>01</b><span>Meeting intent</span></li>
+              <li><b>02</b><span>Problem, impact, why now</span></li>
+              <li><b>03</b><span>Desired outcome</span></li>
+              <li><b>04</b><span>Approach and proof</span></li>
+              <li><b>05</b><span>Annuity recommendation and ask</span></li>
+            </ol>
+            <div class="artifactActions deckActions">
+              <a class="primaryButton downloadLink" id="downloadDeck" href="/nav/account/assets/qssa-data-ai-conversation-pack.pptx" download>Download editable deck (.pptx)</a>
+              <button class="secondaryButton" id="presentDeck" type="button">Next slide</button>
+            </div>
+          </aside>
+        </section>
+
+        <footer class="prepFooter"><span>Built from Salesforce, SharePoint, SolCat, and Sid</span><span>Evidence and unknowns stay visible · synthetic prototype</span></footer>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

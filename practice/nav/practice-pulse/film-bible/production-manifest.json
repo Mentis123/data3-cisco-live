@@ -1,0 +1,239 @@
+{
+  "project": {
+    "title": "From transactions to retained momentum",
+    "subtitle": "AI practice film production bible",
+    "runtimeSeconds": 60,
+    "sourceClipSeconds": 8,
+    "maximumUsedSecondsPerClip": 6,
+    "aspectRatio": "16:9",
+    "resolution": "720p",
+    "frameRate": 24,
+    "status": "Complete 60-second master ready; 11 of 11 motion sources approved and assembled",
+    "updated": "28 August 2026"
+  },
+  "model": {
+    "platform": "Pixio",
+    "name": "Seedance 2.5 Direct",
+    "modelId": "pixio/seedance-2.5-direct",
+    "providerId": "pixio",
+    "inputMode": "omni",
+    "generateAudio": true,
+    "audioMode": "native synchronised diegetic SFX only",
+    "audioList": [],
+    "audioEnabledEstimateVerified": true,
+    "watermark": false,
+    "duration": 8,
+    "resolution": "720p",
+    "ratio": "16:9",
+    "creditsPerSecond": 78,
+    "creditsPerClip": 624,
+    "firstPassClips": 11,
+    "firstPassCredits": 6864,
+    "paidRenders": 13,
+    "actualCreditsUsed": 8112,
+    "balanceAfterProduction": 5115,
+    "fullAlternatePassCredits": 6864,
+    "twoPassCredits": 13728,
+    "balanceAtPlanning": 13851,
+    "balanceAfterTwoPasses": 123,
+    "pricingChecked": "27 August 2026",
+    "limits": {
+      "durationSeconds": "4–30",
+      "resolutions": ["480p", "720p"],
+      "referenceImages": 30,
+      "referenceVideos": 10,
+      "referenceAudio": 10
+    }
+  },
+  "portfolioMix": [
+    {"year": "FY27", "transactional": 80, "drawdown": 8, "capacity": 8, "standing": 4},
+    {"year": "FY28", "transactional": 50, "drawdown": 12, "capacity": 20, "standing": 18},
+    {"year": "FY29", "transactional": 25, "drawdown": 12, "capacity": 30, "standing": 33}
+  ],
+  "titleTreatment": {
+    "decision": "No standalone title slide; overlay the title on the moving Shot 01 world so the story begins immediately.",
+    "timeline": "00:00.4–00:03.5",
+    "eyebrow": "AI PRACTICE MANAGER · INTERVIEW",
+    "headline": "Build a renewing AI business",
+    "subhead": "From transactions to retained momentum",
+    "placement": "Upper-left safe area over Shot 01 negative sky, aligned to the existing presentation system; keep the protagonist and incline unobscured.",
+    "animation": "Fade in over 10 frames, hold through 00:03.1, then fade out before the transactional label. No separate title-card duration and no logo sting.",
+    "typography": "Helvetica Neue 75 Bold or Arial Bold fallback; white headline, brand Light Blue (#00AEFF) eyebrow, Pale Blue subhead; exact title rendered in post, never by an image or video model."
+  },
+  "openingAssembly": {
+    "status": "first cut ready for review",
+    "video": "generated/shot-01-opening-mixed.mp4",
+    "poster": "generated/shot-01-opening-poster.png",
+    "captions": "generated/shot-01-opening-mixed.srt",
+    "durationSeconds": 8.041667,
+    "resolution": "1280x720",
+    "frameRate": 24,
+    "sourceMotion": "Seedance 2.5 Direct · Omni · seed 42501 · 624 credits",
+    "titleTimeline": "00:00.42–00:02.63; subhead clears by 00:01.58; Transactional enters at 00:02.92",
+    "voice": "First sentence from the supplied ElevenLabs v3 performance reference; source 00:00.00–00:06.55, placed at 00:00.29",
+    "score": "Graphite Ascend · source 00:00.00–00:08.04 · restrained under narration",
+    "sfx": "Seedance-native synchronised effects retained as the physical layer",
+    "mix": "−17.6 LUFS integrated · −2.8 dB true peak · 48 kHz AAC",
+    "review": "Full decode passed; all 193 source frames scanned; first, title, handoff, transactional, and final decoded frames inspected."
+  },
+  "masterAssembly": {
+    "status": "picture and mix locked",
+    "video": "generated/build-a-renewing-ai-business-master.mp4",
+    "poster": "generated/build-a-renewing-ai-business-poster.png",
+    "captions": "generated/build-a-renewing-ai-business-master.srt",
+    "durationSeconds": 60,
+    "resolution": "1280x720",
+    "frameRate": 24,
+    "motionSources": 11,
+    "voice": "Supplied ElevenLabs v3 performance tightened through silence reduction and tempo control to 58.35 seconds",
+    "score": "Graphite Ascend, first 60 seconds, shaped beneath narration",
+    "sfx": "Seedance-native synchronised effects retained at a restrained mix level",
+    "editNotes": "Shot 03 uses the corrected downhill take. The middle annuity sequence is editorially tightened to align each vehicle with its spoken line; the portfolio proof and final bridge then resolve on deliberate locked holds.",
+    "finalPolish": "180 ms picture fade-in, 280 ms picture fade-out, score fade from 59.55 seconds through the final frame, 200 ms whole-mix resolve, and every deterministic text beat held at full opacity for approximately 292 ms longer before its original handoff.",
+    "review": "Blender picture assembly rendered to 1,440 numbered frames, scanned for outliers, contact-sheet inspected, recut at native 24 fps without optical flow, levelled for presentation playback, and full-decode validated."
+  },
+  "continuity": {
+    "masterLook": "Create a 16:9 cinematic keyframe for a restrained executive strategy film. The recurring protagonist is exactly one adult male professional of medium build, shown from the rear or three-quarter rear so he is not an identifiable real person. Preserve the same short dark hair, navy technical work jacket, slate trousers, and black boots. The world is a monumental engineered blue-black incline leading to a clean geometric summit, with cool cyan-white guide lights, realistic graphite, glass, and anodised-metal materials, generous negative space, and quiet premium enterprise-documentary lighting. Transactional work is always a matte graphite-grey cuboid with no connector or internal light. Entitled Drawdown is violet, Committed Capacity is cyan-blue, and Standing Services is aqua. Keep scale, geometry, palette, wardrobe, and lighting consistent. No readable text, logos, captions, extra people, duplicate protagonist, unsafe lifting, fantasy architecture, toy-like styling, warm sunset light, or unexplained objects.",
+    "seedanceGuardrails": "Generate one continuous 8-second 16:9 720p shot in Omni mode with native audio enabled. Put the most important reference first. Explicitly bind each required subject, material, composition, or motion to its @image or @video reference. Execute one clear physical action and one controlled camera move. Complete the meaningful action by 6.0 seconds, then settle into a stable hold through 8.0 seconds for edit handles. Preserve the protagonist, wardrobe, block geometry, real weight, contact shadows, safe handling, colour palette, and spatial continuity. No cuts, montage, speed ramps, camera shake, dialogue, lip movement, readable text, subtitles, logos, duplicated subjects, extra blocks, geometry warping, floating objects, sudden lighting changes, or style drift. AUDIO CONTRACT: generate a clean, synchronised diegetic sound-effects stem only. Use realistic footsteps, clothing movement, block contact, mechanical locks, and restrained environmental ambience only when physically visible or specified for this shot. No music, melody, harmony, rhythm bed, percussion, bass, tonal drone, cinematic riser, narration, speech, dialogue, singing, humming, grunts, breaths, crowd, radio, or logo sting. Keep the effects natural, restrained, and easy to mix beneath externally produced ElevenLabs narration and Suno score. Labels, exact counts, captions, and approved brand artwork are added in post.",
+    "referenceSyntax": "Pixio maps images_list in array order to @image1, @image2, and onward; videos_list maps to @video1, @video2, and onward; audio_list maps to @audio1, @audio2, and onward. The prompt must say what property to take from each reference rather than simply listing assets.",
+    "rerollRule": "For a controlled alternate, change only the seed first. Change prompt wording only after recording the specific failure. Never change prompt, reference order, and seed simultaneously."
+  },
+  "assets": [
+    {"id": "opening", "file": "assets/01-opening-frame.png", "title": "Opening-world lock", "purpose": "World, lighting, incline, protagonist silhouette, wardrobe, first transactional carry", "status": "approved"},
+    {"id": "character", "file": "assets/02-character-wardrobe.png", "title": "Character and wardrobe lock", "purpose": "Identity, proportions, clothing, boots, carrying posture", "status": "approved"},
+    {"id": "character-front", "file": "assets/02a-character-front.png", "title": "Single-view character · front", "purpose": "Production crop for subject identity; avoids exposing Seedance to a multi-view character sheet", "status": "derivative"},
+    {"id": "character-side", "file": "assets/02b-character-carry-side.png", "title": "Single-view character · carrying side", "purpose": "Primary Seedance subject reference for safe block carrying and side-profile shots", "status": "derivative"},
+    {"id": "character-rear", "file": "assets/02c-character-rear.png", "title": "Single-view character · rear", "purpose": "Primary Seedance subject reference for rear-view walking and final summit shots", "status": "derivative"},
+    {"id": "blocks", "file": "assets/03-commercial-block-kit.png", "title": "Commercial block kit", "purpose": "Transactional, Drawdown, Capacity, and Standing geometries and materials", "status": "approved"},
+    {"id": "bundle", "file": "assets/04-fy27-bundle-carry.png", "title": "Bundled commitment lock", "purpose": "Two Drawdown, two Capacity, and one Standing module travelling as one commitment", "status": "approved"},
+    {"id": "transactional", "file": "assets/05-transactional-summit.png", "title": "Transactional summit grammar", "purpose": "Disconnected grey activity: orderly, valuable, but not load-bearing", "status": "approved"},
+    {"id": "portfolio", "file": "assets/06-three-year-portfolio-structure.png", "title": "Three-year portfolio structure", "purpose": "Grey shrinks while recurring modules become load-bearing; exact numbers remain post-production overlays", "status": "approved"},
+    {"id": "vehicles", "file": "assets/reference-three-vehicles.png", "title": "Source reference: three commitment vehicles", "purpose": "Entitled Drawdown as on-ramp, Committed Capacity as engine, Standing Services as snowball", "status": "source"},
+    {"id": "mix", "file": "assets/reference-portfolio-mix.png", "title": "Source reference: illustrative portfolio mix", "purpose": "Authoritative FY27, FY28, and FY29 percentages used only as deterministic overlays", "status": "source"}
+  ],
+  "audio": {
+    "seedanceSfxPolicy": "Generate native synchronised sound effects only. The Seedance audio must be a clean diegetic foley stem: physically justified footsteps, fabric movement, block handling, surface contact, mechanical engagement, and restrained environmental ambience. Generate no music, melody, harmony, percussion, bass, tonal drone, cinematic riser, narration, voiceover, speech, dialogue, singing, humming, grunts, breaths, crowd, radio, or logo sting. Do not use an audio reference unless a deliberately approved foley reference is required; keep audio_list empty for the planned first pass. Leave the mix spacious so externally produced ElevenLabs narration and Suno instrumental can sit above it.",
+    "stemWorkflow": "THREE-STEM MASTER\n1. SEEDANCE SFX — Generate with generate_audio true and audio_list empty. Immediately demux the chosen clip audio to a 48 kHz WAV and preserve its generation ID and seed. Trim the picture and its synchronised foley together; use short equal-power fades at every edit.\n2. ELEVENLABS VO — Keep as the intelligibility anchor in the centre. Never bake it into Seedance.\n3. SUNO SCORE — Keep instrumental and continuous across the film. Never ask Seedance to imitate or continue it.\nMIX STARTING POINT — Dialogue leads. Duck the score gently beneath narration; keep foley audible enough to make weight, contact, and locking actions credible without competing with consonants. Remove any Seedance clip whose audio contains music, speech, vocalisation, unexplained rhythm, or tonal contamination; do not try to hide it under the final mix. Deliver the final master plus separate VO, score, and SFX stems.",
+    "referenceTake": {
+      "file": "audio/voiceover-v3-reference-80s.mp3",
+      "sourceName": "ElevenLabs_2026-08-27T04_44_20__s0_v3.mp3",
+      "durationSeconds": 80,
+      "bitRateKbps": 192,
+      "scriptWords": 140,
+      "paceWordsPerMinute": 105,
+      "status": "Mastered performance edit",
+      "reason": "The supplied take is preserved as the performance source. Long silences were reduced and the result was tempo-controlled to 58.35 seconds for the locked one-minute master."
+    },
+    "voiceoverReferenceTranscript": "Today, every AI engagement is carried uphill one transaction at a time.\n\nWe win the customer, deliver the work, and place another block at the top.\n\nThen the contract ends, and we walk back down to win the next one.\n\nNew proposal. New mobilisation. The same climb, every time.\n\nThe work accumulates. The relationship does not. Faster delivery only repeats the cycle.\n\nSo we keep the catalogue and change the commitment around it.\n\nEntitled Drawdown bundles the first next step into the sale.\n\nCommitted Capacity turns an isolated job into a pre-committed rhythm of work.\n\nStanding Services keeps the customer estate operating after the build.\n\nAcross three years, transaction shrinks while drawdown, capacity, and standing become the load-bearing portfolio.\n\nEnable. Capture. Establish. Build. Operate. Every offer names the next contract, and every customer commitment becomes the ground for the next.",
+    "voiceover": "Today, every AI engagement is carried uphill one transaction at a time.\n\nWe win, deliver, place the block—\n\nand then walk back down to start again.\n\nNew proposal. New mobilisation. The same climb.\n\nThe work accumulates; the relationship does not.\n\nSo we keep the catalogue and change the commitment around it.\n\nEntitled Drawdown builds the next step into the sale.\n\nCommitted Capacity turns isolated work into a pre-committed rhythm.\n\nStanding Services keeps the customer estate operating after the build.\n\nAcross three years, transactions shrink as recurring commitments become load-bearing.\n\nEnable. Capture. Establish. Build. Operate. Every commitment becomes the ground for the next.",
+    "voiceoverTarget": "140-word supplied performance · mastered duration 58.35 seconds · begins with picture · leaves a clean final hold",
+    "elevenLabsPrompt": "Match the grounded, human, observant performance character of the supplied v3 reference take, but use the revised 102-word script. Australian executive voice, calm boardroom proximity rather than trailer narration. Keep pauses purposeful and compact. Give ‘The work accumulates; the relationship does not.’ one small sober pause without melodrama. Introduce Entitled Drawdown, Committed Capacity, and Standing Services with equal practical certainty. Let the delivery warm as the blocks begin to bind, then finish with spacious conviction rather than a call to action. Never breathless, heroic, ominous, theatrical, or salesy. Do not stretch the script to fill time; target a natural 58.0–59.0-second read.",
+    "elevenLabsSettings": "Existing personal voice; Eleven Multilingual v2; stability 0.55; similarity 0.82; style 0.10–0.15; speaker boost on; speed 1.00–1.02. Generate opening, middle, and close as separate takes if one-pass timing drifts.",
+    "sunoMode": "v5.5 · Simple/Basic · Instrumental toggle ON",
+    "sunoPrompt": "A restrained cinematic electronic instrumental for an executive strategy film: approximately 96 BPM, tactile graphite-and-metal pulse, cool spacious synths, and a subtle three-note climbing motif that repeatedly resets before interlocking into violet glass pulses, precise cyan modular rhythm, and a broad aqua foundation. Premium, intelligent, human, quietly optimistic; gradual build, no dramatic drop, ending in a calm sustained major-add-nine resolution.",
+    "sunoExclude": "Not entered in Basic/Simple mode. It has no separate Exclude Styles field. Use the Instrumental toggle and the positive description above; reject or reroll takes with vocals, trailer braams, epic drums, EDM drops, busy lead melody, or sentimental piano rather than pasting an Advanced-only exclusion list.",
+    "sunoSelection": "Graphite Ascend selected. Its opening 60 seconds provide the cleanest low-density start, controlled midpoint lift, and calm horizon-facing finish. The master uses short head and tail fades and keeps the score beneath narration."
+  },
+  "shots": [
+    {
+      "number": "01", "title": "One transaction at a time", "stage": "Problem", "timeline": "00:00–00:05.5", "sourceUse": "00:00.4–00:05.9", "seed": 42501, "status": "approved", "anchorAsset": "assets/01-opening-frame.png", "videoAsset": "generated/shot-01-seedance.mp4",
+      "voiceover": "Today, every AI engagement is carried uphill one transaction at a time.", "overlay": "00:00.4–00:02.6 title treatment; ‘Transactional’ enters only after the title clears.", "edit": "Open from black on boot contact. Fade and lift the deterministic title over the moving sky; keep the first carry dignified, not Sisyphean.",
+      "sfxPrompt": "Close, weighty boot contact on the engineered ramp; restrained jacket and trouser movement; two subtle hand-grip adjustments against the graphite block; faint open-air summit ambience. No tonal pulse or rhythmic loop.",
+      "references": ["@image1 — assets/01-opening-frame.png — starting composition and world", "@image2 — assets/02b-character-carry-side.png — identity, wardrobe, and safe carry", "@image3 — assets/03-commercial-block-kit.png — exact grey transactional cuboid"],
+      "imagePrompt": "Use the opening-world, character, and block-kit references. Compose a low 35 mm three-quarter rear view at the lower third of the engineered incline. The same professional carries exactly one substantial matte graphite-grey transactional cuboid uphill in both arms with safe, believable posture. His full figure and the entire block are visible. The ramp leads to a distant clean geometric summit. Preserve cool cyan-white guide lights, blue-black atmosphere, and generous dark sky. No coloured recurring modules, extra people, readable text, logos, fantasy architecture, or unsafe lifting.",
+      "seedancePrompt": "Use @image1 as the opening composition and world reference. Keep the protagonist’s identity and navy wardrobe consistent with @image2. Keep the carried transactional cuboid exactly consistent with @image3. Single continuous low three-quarter rear tracking shot. 0–2s: the professional braces the cuboid securely and begins climbing. 2–6s: track parallel as he takes three deliberate steps; the block remains firmly in both arms with realistic weight and contact shadow. 6–8s: reduce camera motion and hold on continued controlled ascent. The summit remains distant. No coloured modules appear."
+    },
+    {
+      "number": "02", "title": "Deliver and stack", "stage": "Problem", "timeline": "00:05.5–00:10.5", "sourceUse": "00:00.5–00:05.5", "seed": 42502, "status": "approved", "anchorAsset": "assets/05-transactional-summit.png", "videoAsset": "generated/shot-02-seedance.mp4",
+      "voiceover": "We win, deliver, place the block—", "overlay": "Win · Deliver · Close", "edit": "Three restrained confirmation ticks. The value is real; the limitation is the disconnected structure.",
+      "sfxPrompt": "One final bootstep, a short boot scuff, graphite-on-graphite contact, a restrained low weighty settle as the cuboid seats, and quiet fabric movement as both hands release. Any confirmation ticks must be dry mechanical relay clicks, not musical notes.",
+      "references": ["@image1 — assets/05-transactional-summit.png — opening composition", "@image2 — assets/02b-character-carry-side.png — identity and wardrobe", "@image3 — assets/03-commercial-block-kit.png — grey block geometry", "@image4 — assets/01-opening-frame.png — environment and lighting"],
+      "imagePrompt": "Use the transactional-summit reference as the composition anchor. Show the same professional safely placing one matte-grey cuboid onto several orderly but disconnected grey columns at the clean summit. Preserve the character from the wardrobe reference, the block geometry from the block kit, and the engineered blue-black world. Every grey column has visible gaps from the next; there is no shared frame, connector, or internal light. No coloured modules, instability, celebration, text, or additional people.",
+      "seedancePrompt": "Open from @image1. Preserve the protagonist from @image2, the grey cuboid geometry from @image3, and the world from @image4. Single continuous 40 mm side-rear shot. 0–2s: he takes the final safe step to the nearest disconnected grey column. 2–5.7s: he places the cuboid squarely on top; it settles with real weight and one restrained cool confirmation pulse on the plinth only. 5.7–8s: he releases both hands and the camera holds on several valuable but disconnected grey stacks. No coloured modules or shared frame appear."
+    },
+    {
+      "number": "03", "title": "Walk back down", "stage": "Audience impact", "timeline": "00:10.5–00:16.0", "sourceUse": "00:00.4–00:05.9", "seed": 42503, "status": "approved", "anchorAsset": "generated/shot-03-keyframe-v2.png", "videoAsset": "generated/shot-03-seedance.mp4",
+      "voiceover": "and then walk back down to start again.", "overlay": "Start again", "edit": "Cut on the release of the block. Let the Suno score return to its opening note; Seedance contributes footsteps only.",
+      "sfxPrompt": "Four measured downhill bootsteps with distinct heel and sole contact, restrained clothing movement, and faint open-air ambience. No block sounds, music, tones, voice, sigh, or breathing.",
+      "references": ["@image1 — generated/shot-03-keyframe-v2.png — corrected downhill starting composition", "@image2 — assets/02c-character-rear.png — identity, wardrobe, and empty-handed return", "@image3 — assets/05-transactional-summit.png — stationary delivered-block state", "@image4 — assets/01-opening-frame.png — environment and lighting"],
+      "imagePrompt": "Using the approved character, opening-world, and transactional-summit references, show the same professional walking down the engineered incline empty-handed. Frame him from the front-side at respectful distance with no identifiable facial close-up. Behind and high above, the newly placed grey block remains on a disconnected summit column. Ahead, the long route returns to the lower starting area. His posture is composed but clearly returning to restart. No rolling or falling blocks, danger, coloured modules, paperwork, text, or additional people.",
+      "seedancePrompt": "Open exactly from @image1. Keep the same professional and navy wardrobe from @image2, the stationary delivered-block summit from @image3, and the world from @image4. He is already descending empty-handed toward the camera and lower-left foreground. He never turns around and never moves uphill. Both empty hands remain visible and relaxed. Track backwards downhill in front-side three-quarter view: one measured downhill step in 0–2s, three more controlled downhill steps in 2–6s while the summit recedes into the upper-right background, then settle through 8s. Every summit block remains stationary."
+    },
+    {
+      "number": "04", "title": "Repeat the climb", "stage": "Audience impact", "timeline": "00:16.0–00:21.0", "sourceUse": "00:00.6–00:05.6", "seed": 42504, "status": "approved", "anchorAsset": "generated/shot-04-keyframe.png", "videoAsset": "generated/shot-04-seedance.mp4",
+      "voiceover": "New proposal. New mobilisation. The same climb.", "overlay": "Repeat the climb", "edit": "Three clean beats: prepare, lift, climb. Do not use paper or office clichés.",
+      "sfxPrompt": "Two dry route-light relay clicks, a short graphite block scrape during the safe lift, jacket tension, and two uphill bootsteps. The actions may create three natural edit accents, but no percussion or designed rhythm bed.",
+      "references": ["@image1 — generated/shot-04-keyframe.png — approved starting composition", "@image2 — assets/02b-character-carry-side.png — identity, wardrobe, and safe carry", "@image3 — assets/03-commercial-block-kit.png — grey block geometry", "@image4 — assets/01-opening-frame.png — environment and lighting"],
+      "imagePrompt": "Return to the base of the same engineered incline. The same professional is securely lifting a second identical matte-grey transactional cuboid from a minimal graphite cradle. Faint worn cyan guide lines on the ramp indicate earlier climbs without duplicating the person or blocks in motion. The disconnected grey summit columns are visible far above. Two restrained planning light bars lock into the first metre of route, suggesting proposal and mobilisation without documents or text. Wide 32 mm view.",
+      "seedancePrompt": "Start with @image1. Keep the professional and wardrobe exact to @image2, the grey block exact to @image3, and the world exact to @image4. One continuous wide-to-medium push. 0–2s: two minimal route lights engage at the base. 2–5.8s: he lifts the second cuboid safely and takes the first two uphill steps. 5.8–8s: hold on the repeated climb with the distant disconnected summit visible. Do not duplicate the protagonist or imply a time-lapse."
+    },
+    {
+      "number": "05", "title": "Activity without retained momentum", "stage": "Why now", "timeline": "00:21.0–00:26.5", "sourceUse": "00:00.4–00:05.9", "seed": 42505, "status": "approved", "anchorAsset": "generated/shot-05-keyframe.png", "videoAsset": "generated/shot-05-seedance.mp4",
+      "voiceover": "The work accumulates; the relationship does not.", "overlay": "Activity without retained momentum", "edit": "Rise to the operating-system view. Grey activity is orderly and substantial, never mocked.",
+      "sfxPrompt": "Wide restrained wind and room-scale industrial ambience, plus three distant non-tonal electrical relay clicks as the separate route lights stop. Preserve the audible emptiness between columns. No drone, riser, heartbeat, or music.",
+      "references": ["@image1 — generated/shot-05-keyframe.png — approved starting composition", "@image2 — assets/05-transactional-summit.png — disconnected grey grammar", "@image3 — assets/06-three-year-portfolio-structure.png — spatial scale", "@image4 — assets/01-opening-frame.png — environment and lighting"],
+      "imagePrompt": "Create a high 55-degree oblique view of the engineered summit and incline using the transactional-summit and opening-world references. Many valuable matte-grey blocks form neat but disconnected columns. Visible gaps prevent them from sharing load. One small professional figure is on the route; do not duplicate him. Subtle guide-light aftertrails show repeated delivery cycles while the physical blocks remain stationary. Leave a clean central gap where a shared commitment structure could exist. No coloured modules yet, chaos, collapsing stacks, dashboards, or text.",
+      "seedancePrompt": "Begin from @image1. Keep the disconnected grey material grammar from @image2, the engineered scale from @image3, and the world from @image4. Single continuous vertical crane. 0–2s: reveal three separate grey columns and the gaps between them. 2–6s: rise farther to expose the full field; restrained cyan route-light pulses travel up separate paths and stop at each column. 6–8s: hold on the empty structural gap. No new blocks appear, no stacks collapse, and the protagonist is never duplicated."
+    },
+    {
+      "number": "06", "title": "Bundle the commitment", "stage": "Desired outcome", "timeline": "00:26.5–00:29.5", "sourceUse": "00:00.4–00:03.4 in master", "seed": 42506, "status": "approved", "anchorAsset": "assets/04-fy27-bundle-carry.png", "videoAsset": "generated/shot-06-seedance.mp4",
+      "voiceover": "So we keep the catalogue and change the commitment around it.", "overlay": "Bundle the commitment", "edit": "The Suno score provides the first harmonic hold. Seedance provides only the physical weight of the coherent pack.",
+      "sfxPrompt": "Three deliberate bootsteps, restrained clothing movement, subtle frame tension, and one quiet captive module rattle inside the secured graphite carrier. The modules never chime; generate no harmonic sound, music, or tonal swell.",
+      "references": ["@image1 — assets/04-fy27-bundle-carry.png — exact opening composition and bundle", "@image2 — assets/02b-character-carry-side.png — identity, wardrobe, and safe carry", "@image3 — assets/03-commercial-block-kit.png — module geometry and colours", "@image4 — assets/01-opening-frame.png — environment and lighting"],
+      "imagePrompt": "Use the bundled-commitment reference as the composition anchor. Show the same professional carrying one coherent pack uphill. The pack contains exactly two violet Drawdown tiles, two cyan-blue Capacity modules, and one aqua Standing foundation locked into one thin graphite frame with transparent corner restraints. Preserve each module’s geometry and colour from the block kit. The pack is heavy but safely carried and reads as one customer commitment, not five loose objects. Same blue-black incline and cool guide lights.",
+      "seedancePrompt": "Open with @image1. Preserve the protagonist from @image2, every module geometry and colour from @image3, and the world from @image4. One continuous low tracking shot. 0–2s: the coherent 2/2/1 pack is already secured in both arms. 2–6s: he takes three controlled uphill steps while all modules remain locked inside the graphite frame with realistic weight and no independent floating. 6–8s: camera eases back and holds as the pack approaches the shared structural gap."
+    },
+    {
+      "number": "07", "title": "Entitled Drawdown · the on-ramp", "stage": "Approach", "timeline": "00:29.5–00:33.5", "sourceUse": "00:00.5–00:04.5 in master", "seed": 42507, "status": "approved", "anchorAsset": "generated/shot-07-keyframe.png", "videoAsset": "generated/shot-07-seedance.mp4",
+      "voiceover": "Entitled Drawdown builds the next step into the sale.", "overlay": "Entitled Drawdown · The on-ramp", "edit": "Violet lock at 34.5 seconds. The structure must visibly retain the first next step.",
+      "sfxPrompt": "A smooth short guide-rail slide, four precise dry latch clicks matching the four entitlement cells, then one firm seated mechanical lock with a brief natural metal-and-glass decay. No synth pulse, note sequence, arpeggio, or voice.",
+      "references": ["@image1 — Pixio Face Unblock derivative of generated/shot-07-keyframe.png — approved composition and coherent pack", "@image2 — assets/03-commercial-block-kit.png — Drawdown geometry", "@image3 — assets/05-transactional-summit.png — grey background grammar"],
+      "imagePrompt": "At the shared gap between disconnected grey summit columns, show the coherent bundle arriving beside a slim violet entitlement rail. Use the block kit for exact violet Drawdown geometry and the bundle reference for the locked pack. The violet rail contains four restrained entitlement cells and aligns with a receiving socket in the new graphite frame. Grey columns remain valuable but separate in the background. The professional supports the bundle safely while the violet on-ramp is ready to engage. Three-quarter architectural view, no labels.",
+      "seedancePrompt": "Use @image1 for the exact approved composition and preserve the coherent pack already visible there. Take the exact Drawdown geometry from @image2 and the grey background grammar from @image3. One continuous three-quarter push. 0–2s: the violet rail aligns with the frame. 2–5.7s: four entitlement cells illuminate in sequence and the rail locks into the receiving socket with one precise violet-cyan pulse; the first edge of the bundle is retained. 5.7–8s: the professional eases pressure and the camera holds on the stable on-ramp. No module separates or floats."
+    },
+    {
+      "number": "08", "title": "Committed Capacity · the engine", "stage": "Approach", "timeline": "00:33.5–00:37.5", "sourceUse": "00:00.4–00:04.4 in master", "seed": 42508, "status": "approved", "anchorAsset": "generated/shot-08-keyframe.png", "videoAsset": "generated/shot-08-seedance.mp4",
+      "voiceover": "Committed Capacity turns isolated work into a pre-committed rhythm.", "overlay": "Committed Capacity · The engine", "edit": "Three cyan cadence beats. Keep them precise and operational, not mechanical spectacle.",
+      "sfxPrompt": "A restrained alignment servo, three solid interlock clacks with short linear-actuator travel between them, then a quiet non-tonal operating fan as the tracks hold. The cadence comes only from visible machinery; no percussion, bass, ticking loop, or music.",
+      "references": ["@image1 — Pixio Face Unblock derivative of generated/shot-08-keyframe.png — approved composition, bundle, and locked Drawdown state", "@image2 — assets/03-commercial-block-kit.png — Capacity geometry"],
+      "imagePrompt": "Continue the same summit structure after Drawdown has engaged. Two long cyan-blue Capacity beams with three restrained interlock teeth align between the violet on-ramp and the centre of the graphite frame. The same bundled commitment is partially seated; the professional guides it rather than carrying loose modules. Use the exact Capacity geometry from the block kit and preserve the previous violet connection. Side-oblique 35 mm view with a clear left-to-right operating rhythm.",
+      "seedancePrompt": "Start from @image1 as the exact approved composition and preserve all bundled commitment and locked Drawdown details already visible there. Keep Capacity geometry exact to @image2. Single continuous lateral tracking shot. 0–2s: the first cyan beam aligns. 2–5.8s: three interlock teeth engage in a measured cadence—hold, advance, hold—drawing the coherent commitment deeper into the shared frame. 5.8–8s: all cyan tracks remain illuminated at a steady level while the camera settles. Preserve the violet rail and do not add extra modules."
+    },
+    {
+      "number": "09", "title": "Standing Services · the snowball", "stage": "Approach", "timeline": "00:37.5–00:41.5", "sourceUse": "00:00.4–00:04.4 in master", "seed": 42509, "status": "approved", "anchorAsset": "generated/shot-09-keyframe.png", "videoAsset": "generated/shot-09-seedance.mp4",
+      "voiceover": "Standing Services keeps the customer estate operating after the build.", "overlay": "Standing Services · The snowball", "edit": "Aqua foundation remains alive after the person releases the structure.",
+      "sfxPrompt": "A controlled foundation lift, one deep restrained mechanical seat and lock, subtle enclosed fluid circulation, a hand release against the frame, one half-step back, and quiet fabric movement. No tonal hum, chord, whoosh, or music.",
+      "references": ["@image1 — Pixio Face Unblock derivative of generated/shot-09-keyframe.png — approved composition and assembled system", "@image2 — assets/03-commercial-block-kit.png — Standing geometry"],
+      "imagePrompt": "Show the same shared structure as a broad aqua Standing foundation slides beneath the violet and cyan system. Use the block kit for the low aqua geometry and continuously illuminated perimeter channel. The coherent customer commitment is now seated inside the frame. The professional stands beside it with one hand ready to release. Preserve the Drawdown rail and Capacity beams from the preceding shot. The aqua foundation is structural and always-on, not a glowing decorative pedestal. Calm 32 mm hero-mechanism view.",
+      "seedancePrompt": "Open from @image1 as the exact approved composition and preserve the commercial module geometry from @image2. One continuous low crane. 0–2s: the aqua foundation aligns under the already assembled violet Drawdown rail and cyan Capacity tracks. 2–5.5s: it locks in place and its perimeter channel begins one calm continuous circulation; the professional removes his hand and steps half a pace back. 5.5–8s: the complete structure remains active without human pressure. Preserve every visible violet and cyan component from @image1. No pulsing spectacle, extra modules, or moving grey stacks."
+    },
+    {
+      "number": "10", "title": "The portfolio becomes load-bearing", "stage": "Proof", "timeline": "00:41.5–00:50.5", "sourceUse": "00:00.3–00:06.3 + 3.0s locked proof hold", "seed": 42510, "status": "approved", "anchorAsset": "assets/06-three-year-portfolio-structure.png", "videoAsset": "generated/shot-10-seedance.mp4",
+      "voiceover": "Across three years, transactions shrink as recurring commitments become load-bearing.", "overlay": "FY27 → FY28 → FY29", "edit": "Add all year labels and percentages in post. Never ask the video model to render exact numbers.",
+      "sfxPrompt": "Quiet spatial ambience as the camera passes three structures, with occasional distant mechanical relays and subtle enclosed circulation audible only near the recurring modules. No year-change stingers, counting sounds, tonal transitions, voice, or music.",
+      "references": ["@image1 — assets/06-three-year-portfolio-structure.png — opening composition and bundle grammar", "@image2 — assets/03-commercial-block-kit.png — module geometry and colours", "@image3 — assets/05-transactional-summit.png — disconnected grey grammar"],
+      "postData": ["FY27 · Transactional 80 · Drawdown 8 · Capacity 8 · Standing 4", "FY28 · Transactional 50 · Drawdown 12 · Capacity 20 · Standing 18", "FY29 · Transactional 25 · Drawdown 12 · Capacity 30 · Standing 33"],
+      "imagePrompt": "Use the approved three-year portfolio-structure reference as the composition anchor. Present three separated structures on one long summit plinth. Left: grey transactional blocks dominate beside one small 2/2/1 coloured bundle. Centre: fewer grey blocks beside a larger connected recurring structure. Right: only a small grey group remains while a dominant framed structure uses a thin violet on-ramp, substantial cyan framework, and broad aqua foundation. Leave generous clean space for deterministic FY27, FY28, FY29, and percentage overlays in post. Do not generate numbers or labels.",
+      "seedancePrompt": "Open with @image1. Keep every module geometry and colour exact to @image2 and the disconnected grey grammar from @image3. Preserve the bundled commitment grammar already visible in @image1. One continuous left-to-right 35 mm dolly across three separated portfolio structures. 0–2s: reveal the grey-dominant first structure. 2–4s: pass the balanced middle structure. 4–6s: arrive at the recurring, load-bearing third structure; aqua circulation continues and cyan tracks stay steady. 6–8s: hold on all three in perspective. Do not change module counts during the shot and generate no text or numbers."
+    },
+    {
+      "number": "11", "title": "The bridge to higher ground", "stage": "Resolution", "timeline": "00:50.5–01:00", "sourceUse": "00:00.5–00:06.0 + 4.0s locked final hold", "seed": 42511, "status": "approved", "anchorAsset": "generated/shot-11-keyframe.png", "videoAsset": "generated/shot-11-seedance.mp4",
+      "voiceover": "Enable. Capture. Establish. Build. Operate. Every commitment becomes the ground for the next.", "overlay": "Every commitment becomes higher ground", "edit": "Reveal the recurring system as a scalable bridge into the horizon. Finish on a stable state, not an ask card, and hold the final frame for at least 1.5 seconds.",
+      "sfxPrompt": "Soft summit air, subtle enclosed aqua circulation, and three faint physical relay state changes as violet, cyan, and aqua pass through the structure. End in calm environmental room tone. No rising tone, resolved chord, logo sting, voice, or music.",
+      "references": ["@image1 — generated/shot-11-keyframe.png — exact bridge-world composition", "@image2 — assets/03-commercial-block-kit.png — module geometry and colours", "@image3 — assets/06-three-year-portfolio-structure.png — recurring-system grammar"],
+      "postData": ["Enable", "Capture", "Establish", "Build", "Operate"],
+      "imagePrompt": "Create a monumental final ultra-wide view from slightly behind the same professional. The integrated violet Drawdown, cyan Capacity, and broad aqua Standing system has become a structurally plausible elevated bridge and connected operating network extending from the near summit to the horizon. Repeated coherent modules sit at stable bridge nodes. The professional stands naturally beside—not on—the near structure, small against the scale. A few disconnected grey transactional stacks remain at one side as the past; one or two tiny distant professionals carry cohesive bundles onto the next span. Quiet achievement, real infrastructure, no fantasy city, victory pose, logos, labels, numbers, or text.",
+      "seedancePrompt": "Begin from @image1 as the exact bridge-world composition. Preserve all commercial module geometry from @image2 and the recurring-system grammar from @image3. One continuous, almost imperceptible 32 mm crane-and-dolly towards the horizon. 0–2s: reveal the near professional beside the active bridge node. 2–5.5s: one restrained light signal moves through violet, cyan, and aqua, then travels along the connected bridge path toward two distant bundled commitments; distant people make only slow, physically credible steps. 5.5–8s: settle into a nearly still monumental wide hold with subtle aqua circulation and atmosphere. No new geometry appears, no flying modules, no logo sting, and no generated text."
+    }
+  ],
+  "sources": [
+    {"title": "ByteDance Seed · Seedance 2.5 launch", "url": "https://seed.bytedance.com/en/blog/one-take-creation-flexible-referencing-introducing-seedance-2-5", "note": "30-second generation, timestamp control, and up to 30 image, 10 video, and 10 audio references."},
+    {"title": "BytePlus · Enhanced/basic video generation", "url": "https://docs.byteplus.com/en/docs/byteplus_las/video_gen_enhanced", "note": "Supported media, duration, resolution, reference limits, and public-URL requirements."},
+    {"title": "BytePlus · Seedance prompt guide", "url": "https://docs.byteplus.com/api/docs/ModelArk/2222480", "note": "Reference-role syntax, engineering-style prompts, subject binding, timelines, and failure controls."},
+    {"title": "ByteDance Seed · Seedance 2.5 model page", "url": "https://seed.bytedance.com/en/seedance2_5", "note": "Official capability overview and production examples."},
+    {"title": "Pixio · Seedance catalogue", "url": "https://beta.pixio.myapps.ai/maker", "note": "Seedance 2.5 Direct modes, duration, resolution, reference limits, and native audio availability."},
+    {"title": "Pixio · authenticated API docs", "url": "https://beta.pixio.myapps.ai/home/integrations/api-docs", "note": "Pixio model ID, request contract, upload flow, generation lifecycle, and account credit estimates."},
+    {"title": "Suno Help · Simple Mode", "url": "https://help.suno.com/en/articles/2462273", "note": "Official Simple/Basic workflow: enter one description of the music to generate."},
+    {"title": "Suno Help · v5.5", "url": "https://help.suno.com/en/articles/11362305", "note": "Official v5.5 model overview and current feature context."}
+  ]
+}

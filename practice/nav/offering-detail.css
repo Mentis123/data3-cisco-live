@@ -1,0 +1,50 @@
+.offeringRecordHost{margin-top:14px;min-width:0}
+.offeringRecord{position:relative;display:grid;gap:14px;color:#fff;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.offeringRecordHero{padding:16px;border:1px solid rgba(213,27,211,.42);border-radius:16px;background:linear-gradient(145deg,rgba(213,27,211,.16),rgba(127,92,228,.08));box-shadow:inset 4px 0 0 #D51BD3}
+.offeringRecordKicker{color:#ff9dff;font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}
+.offeringRecord h2{margin:5px 0 8px;font-size:clamp(21px,2vw,30px);line-height:1.05;letter-spacing:-.04em}
+.offeringRecordHero>p{margin:0;color:#d7e5ef;font-size:12px;line-height:1.55}
+.offeringRecordFacts{margin-top:13px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.offeringRecordFacts span{min-width:0;padding:9px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(0,0,37,.34);color:#eef7fb;font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.offeringRecordFacts b{display:block;margin-bottom:3px;color:#9faabd;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase}
+.offeringRecordFacts em{display:inline-block;margin-left:4px;color:#DAFF00;font-size:7px;font-style:normal;font-weight:900;text-transform:uppercase}
+.offeringRecordDisclosure{margin-top:10px;padding:10px 11px;display:grid;gap:3px;border:1px solid rgba(218,255,0,.34);border-radius:10px;background:rgba(218,255,0,.055);color:#dce8ef;font-size:9.5px;line-height:1.45}
+.offeringRecordDisclosure b{color:#DAFF00;font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+.offeringRecordGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.offeringRecordGrid>section,.offeringRecordGrid>details{min-width:0;padding:13px;border:1px solid rgba(255,255,255,.12);border-radius:13px;background:rgba(255,255,255,.035)}
+.offeringRecordGrid h3,.offeringRecordGrid summary{margin:0;color:#78DCFF;font-size:10px;font-weight:950;letter-spacing:.09em;text-transform:uppercase}
+.offeringRecordGrid summary{cursor:pointer;list-style:none}
+.offeringRecordGrid summary::-webkit-details-marker{display:none}
+.offeringRecordGrid summary::after{content:"+";float:right;color:#fff;font-size:14px}
+.offeringRecordGrid details[open] summary::after{content:"−"}
+.offeringRecordGrid p{margin:7px 0 0!important;color:#d5e1ea!important;font-size:11px!important;line-height:1.55!important}
+.offeringRecordGrid ul{margin:8px 0 0;padding-left:17px;color:#d5e1ea;font-size:10.5px;line-height:1.5}
+.offeringRecordGrid li+li{margin-top:5px}
+.offeringRecordNext{border-color:rgba(0,174,255,.36)!important;background:rgba(0,174,255,.075)!important}
+.offeringRecordTrust{grid-column:1/-1;border-color:rgba(218,255,0,.26)!important;background:rgba(218,255,0,.04)!important}
+.offeringRecordTrust small{display:block;margin-top:8px;color:#9faabd;font-size:8.5px;line-height:1.4}
+.offeringRecordActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.offeringRecordActions a{min-height:40px;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(255,255,255,.04);color:#fff;text-decoration:none;font-size:10px;font-weight:900}
+.offeringRecordActions a:hover,.offeringRecordActions a:focus-visible{border-color:#00AEFF;background:rgba(0,174,255,.1);outline:0}
+.offeringRecordActions span{color:#00AEFF}
+.offeringRecordClose{position:absolute;z-index:2;top:10px;right:10px;width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.16);border-radius:50%;background:rgba(0,0,37,.55);color:#fff;font:inherit;font-size:20px;cursor:pointer}
+.offeringRecordClose:hover,.offeringRecordClose:focus-visible{border-color:#00AEFF;outline:0}
+.detailCard.sharedOfferingRecord{width:min(520px,calc(100vw - 32px));padding:12px;max-height:calc(100% - 24px)}
+.detailCard.sharedOfferingRecord .offeringRecordHero{padding:14px}
+.detailCard.sharedOfferingRecord .offeringRecord h2{margin-right:42px;font-size:24px}
+.detailCard.sharedOfferingRecord .offeringRecordFacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+.detailCard.sharedOfferingRecord .offeringRecordGrid{grid-template-columns:1fr}
+.detailCard.sharedOfferingRecord .offeringRecordTrust{grid-column:auto}
+.detailCard.sharedOfferingRecord .offeringRecordActions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.focusPanel .offeringRecordFacts,.insightPanel .offeringRecordFacts{grid-template-columns:1fr}
+.focusPanel .offeringRecordGrid,.insightPanel .offeringRecordGrid{grid-template-columns:1fr}
+.focusPanel .offeringRecordTrust,.insightPanel .offeringRecordTrust{grid-column:auto}
+.focusPanel .offeringRecordActions,.insightPanel .offeringRecordActions{grid-template-columns:1fr}
+@media(max-width:720px){
+  .offeringRecordFacts,.offeringRecordGrid,.offeringRecordActions{grid-template-columns:1fr}
+  .offeringRecordTrust{grid-column:auto}
+  .offeringRecord h2{font-size:23px}
+  .offeringRecordGrid p{font-size:12px!important}
+  .offeringRecordGrid ul{font-size:11.5px}
+  .detailCard.sharedOfferingRecord{right:10px;left:10px;top:10px;width:auto;max-height:58dvh}
+}

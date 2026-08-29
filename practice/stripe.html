@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data#3 | From Copilot to Production Pilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1224;
+      --panel: rgba(255, 255, 255, 0.04);
+      --accent: #0ea5e9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(14,165,233,0.06), transparent 25%),
+                  radial-gradient(circle at 80% 10%, rgba(94,234,212,0.08), transparent 25%),
+                  var(--bg);
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    a { color: inherit; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 28px;
+      padding: 32px 24px 64px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .hero-title {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+      margin: 0 0 12px;
+    }
+    .hero-title .brand { color: var(--accent); }
+    .subtitle { color: var(--muted); margin-bottom: 20px; }
+    .cta-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #0b1224;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(14,165,233,0.35);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .cta.ghost {
+      background: rgba(255,255,255,0.08);
+      color: #e2e8f0;
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .cta.subtle {
+      background: rgba(14,165,233,0.14);
+      color: #e2e8f0;
+      box-shadow: none;
+      border: 1px solid rgba(14,165,233,0.22);
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(99,102,241,0.35); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #0ea5e9;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      margin-bottom: 14px;
+    }
+    .stacked { display: grid; gap: 16px; }
+    .copy-block h3 { margin: 0 0 8px; font-size: 18px; }
+    .copy-block p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .copy-block {
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(14,165,233,0.05));
+    }
+    .scene-shell {
+      position: relative;
+      min-height: 70vh;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: radial-gradient(circle at 50% 30%, rgba(14,165,233,0.12), transparent 40%),
+                  radial-gradient(circle at 80% 70%, rgba(99,102,241,0.12), transparent 40%),
+                  #0f172a;
+    }
+    canvas { outline: none; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+    .pill span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+    .floating-label {
+      position: absolute;
+      inset: 12px auto auto 12px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.32);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      font-size: 14px;
+      color: #cbd5e1;
+      backdrop-filter: blur(8px);
+    }
+    @media (max-width: 1000px) {
+      .layout { grid-template-columns: 1fr; padding: 24px 16px 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <section class="panel stacked">
+      <div class="badge">From Copilot to Production Pilot</div>
+      <h1 class="hero-title">Data#3 Platform | <span class="brand">Agent Services &amp; Governance</span></h1>
+      <p class="subtitle">A 3-layered view that moves executive teams from Copilot experimentation to production-grade Agentic delivery with Data#3 and Microsoft.</p>
+      <div class="cta-group">
+        <a class="cta" href="./index.html#simulations">Launch Simulations →</a>
+        <a class="cta ghost" href="./kb">Open Knowledge Base</a>
+        <a class="cta subtle" href="./index.html">Homepage</a>
+        <a class="cta subtle" href="./services_map.html">Services Map</a>
+        <a class="cta subtle" href="./gtm_strategy.html">GTM Strategy</a>
+        <a class="cta subtle" href="./ai_practice.html">AI Practice Plan</a>
+      </div>
+      <div class="legend">
+        <div class="pill"><span style="background:#0ea5e9"></span>Platform</div>
+        <div class="pill"><span style="background:#22c55e"></span>Data Fabric</div>
+        <div class="pill"><span style="background:#f59e0b"></span>Agents</div>
+      </div>
+      <div class="stacked">
+        <div class="copy-block">
+          <h3>Delivering AI Securely</h3>
+          <p>We converge Azure OpenAI, Entra ID, and Purview controls into a governed landing zone—ready for regulated workloads, protected data paths, and confidential compute when required.</p>
+        </div>
+        <div class="copy-block">
+          <h3>Microsoft Agent Services &amp; Governance Framework</h3>
+          <p>Bring your Copilot outcomes into production with lineage-enforced data products, policy-driven orchestration, and observability that maps every Agent decision back to risk, cost, and value.</p>
+        </div>
+        <div class="copy-block">
+          <h3>Visual Narrative</h3>
+          <p>Three layers show the flow: Platform foundations, governed Data fabric, and adaptive Agents. Camera moves reveal each layer and highlight governance guardrails, data contracts, and experience outcomes.</p>
+        </div>
+      </div>
+    </section>
+    <section class="scene-shell">
+      <div id="stripe-root"></div>
+      <div class="floating-label">platform.glb loads automatically; override via <code>window.__STRIPE_SCENE_CONFIG</code></div>
+    </section>
+  </div>
+
+    <script type="module">
+      import React, { Suspense, useEffect, useMemo, useRef } from 'https://esm.sh/react@18.2.0';
+      import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+      import * as THREE from 'https://esm.sh/three@0.159.0';
+      import { Canvas, useFrame, useThree } from 'https://esm.sh/@react-three/fiber@8.15.12?deps=react@18.2.0,three@0.159.0';
+      import { OrbitControls, useGLTF, Text, Environment, Html, Line } from 'https://esm.sh/@react-three/drei@9.88.0?deps=react@18.2.0,three@0.159.0,@react-three/fiber@8.15.12';
+      import gsap from 'https://esm.sh/gsap@3.12.5';
+      import htm from 'https://esm.sh/htm@3.1.1';
+
+      const html = htm.bind(React.createElement);
+
+    const defaultConfig = {
+      theme: {
+        platform: '#0ea5e9',
+        data: '#22c55e',
+        agent: '#f59e0b'
+      },
+      assets: {
+        platform: { url: './platform.glb', scale: 1.55, rotation: [0, 0.7, 0] },
+        data: { url: './data.glb', scale: 1, rotation: [0, -0.3, 0] },
+        agent: { url: null, scale: 1, rotation: [0, 0.2, 0] }
+      }
+    };
+
+    function useSceneConfig(overrides = {}) {
+      return useMemo(() => {
+        const external = window.__STRIPE_SCENE_CONFIG || {};
+        return {
+          ...defaultConfig,
+          ...external,
+          ...overrides,
+          assets: { ...defaultConfig.assets, ...(external.assets || {}), ...(overrides.assets || {}) }
+        };
+      }, [overrides]);
+    }
+
+      function PulseRing({ color, radius = 1, y = 0, delay = 0 }) {
+        const ref = useRef();
+        useFrame((state) => {
+          const t = state.clock.elapsedTime + delay;
+          const scale = 1 + Math.sin(t * 1.6) * 0.08;
+          const opacity = 0.24 + Math.sin(t * 1.6) * 0.12;
+          if (ref.current) {
+            ref.current.scale.set(scale, scale, scale);
+            ref.current.material.opacity = opacity;
+          }
+        });
+        return html`
+          <mesh ref=${ref} rotation=${[-Math.PI / 2, 0, 0]} position=${[0, y, 0]}>
+            <ringGeometry args=${[radius * 0.35, radius * 0.95, 84]} />
+            <meshStandardMaterial
+              color=${color}
+              transparent=${true}
+              opacity=${0.32}
+              emissive=${color}
+              emissiveIntensity=${0.8}
+              roughness=${0.2}
+              metalness=${0.5}
+            />
+          </mesh>
+        `;
+      }
+
+    function HaloGrid({ color = '#0ea5e9', radius = 1.2, y = 0 }) {
+        const lines = useMemo(() => {
+          const rings = [];
+          for (let i = 0; i < 6; i++) {
+            const r = radius * (0.35 + (i / 6) * 0.6);
+            const geo = new THREE.RingGeometry(r - 0.003, r + 0.003, 120);
+            const mat = new THREE.MeshBasicMaterial({ color, opacity: 0.16 + i * 0.03, transparent: true });
+            rings.push(html`<mesh key=${`r-${i}`} geometry=${geo} material=${mat} rotation=${[-Math.PI / 2, 0, 0]} />`);
+          }
+          return rings;
+        }, [color, radius]);
+        return html`<group position=${[0, y, 0]}>${lines}</group>`;
+      }
+
+      function LayerPlaceholder({ color, radius = 1, height = 0.28, glow = 0.5 }) {
+        return html`
+          <group>
+            <mesh position=${[0, 0, 0]} receiveShadow=${true} castShadow=${true}>
+              <cylinderGeometry args=${[radius, radius, height, 64, 1, true]} />
+              <meshStandardMaterial
+                color=${color}
+                transparent=${true}
+                opacity=${0.16}
+                roughness=${0.4}
+                metalness=${0.55}
+                emissive=${color}
+                emissiveIntensity=${0.12}
+              />
+            </mesh>
+            <${PulseRing} color=${color} radius=${radius} y=${-height / 2} />
+            <${PulseRing} color=${color} radius=${radius * 0.9} y=${-height / 3} delay=${0.6} />
+            <${HaloGrid} color=${color} radius=${radius} y=${height / 2.2} />
+          </group>
+        `;
+      }
+
+    function useVerifiedAsset(url) {
+      const [verifiedUrl, setVerifiedUrl] = React.useState(null);
+      useEffect(() => {
+        if (!url) {
+          setVerifiedUrl(null);
+          return;
+        }
+        const resolved = new URL(url, window.location.href);
+        const sameOrigin = resolved.origin === window.location.origin;
+        if (!sameOrigin) {
+          setVerifiedUrl(url);
+          return;
+        }
+        let cancelled = false;
+        fetch(resolved.toString(), { method: 'HEAD' })
+          .then((resp) => setVerifiedUrl(!cancelled && resp.ok ? resolved.toString() : null))
+          .catch(() => !cancelled && setVerifiedUrl(null));
+        return () => { cancelled = true; };
+      }, [url]);
+      return verifiedUrl;
+    }
+
+      function ModelLayer({ config, fallbackColor, position, label }) {
+        const { url, scale = 1, rotation = [0,0,0] } = config || {};
+        const verifiedUrl = useVerifiedAsset(url);
+
+        useEffect(() => {
+          if (verifiedUrl) useGLTF.preload(verifiedUrl);
+        }, [verifiedUrl]);
+
+        if (!verifiedUrl) {
+          return html`
+            <group position=${position} rotation=${rotation}>
+              <${LayerPlaceholder} color=${fallbackColor} radius=${1.4 * scale} height=${0.32 * scale} />
+              <${Text}
+                position=${[0, 0.28 * scale, 0]}
+                color="#e2e8f0"
+                fontSize=${0.18 * scale}
+                anchorX="center"
+                anchorY="middle"
+              >
+                ${label}
+              </${Text}>
+            </group>
+          `;
+        }
+
+        function Glb() {
+          const gltf = useGLTF(verifiedUrl);
+          return html`
+            <primitive
+              object=${gltf.scene}
+              scale=${scale}
+              rotation=${rotation}
+              position=${position}
+              dispose=${null}
+            />
+          `;
+        }
+
+        return html`
+          <${Suspense} fallback=${html`<${LayerPlaceholder} color=${fallbackColor} radius=${1.1 * scale} height=${0.25 * scale} />`}>
+            <${Glb} />
+            <${Text}
+              position=${[position[0], position[1] + 0.4 * scale, position[2]]}
+              color="#e2e8f0"
+              fontSize=${0.16 * scale}
+              anchorX="center"
+              anchorY="middle"
+            >
+              ${label}
+            </${Text}>
+          </${Suspense}>
+        `;
+      }
+
+    function FloatingParticles({ color = '#0ea5e9' }) {
+      const ref = useRef();
+      useFrame((state) => {
+        if (!ref.current) return;
+        ref.current.rotation.y += 0.0015;
+        ref.current.children.forEach((instance, idx) => {
+          instance.position.y = Math.sin(state.clock.elapsedTime * 0.6 + idx) * 0.12 + 0.4;
+        });
+      });
+        const nodes = new Array(18).fill(null).map((_, i) => (
+          html`<mesh key=${i} position=${[Math.sin(i) * 1.6, 0.4, Math.cos(i) * 1.6]}>
+            <sphereGeometry args=${[0.02, 16, 16]} />
+            <meshStandardMaterial color=${color} emissive=${color} emissiveIntensity=${0.8} toneMapped=${false} />
+          </mesh>`
+        ));
+        return html`<group ref=${ref}>${nodes}</group>`;
+      }
+
+      function AgentOrbit({ color = '#f59e0b', radius = 1.2, count = 8, y = 0 }) {
+        const group = useRef();
+        useFrame((state) => {
+        if (!group.current) return;
+        group.current.rotation.y = state.clock.elapsedTime * 0.35;
+      });
+        return html`
+          <group ref=${group} position=${[0, y, 0]}>
+            ${new Array(count).fill(null).map((_, i) => {
+              const angle = (i / count) * Math.PI * 2;
+              return html`<mesh key=${i} position=${[Math.cos(angle) * radius, 0, Math.sin(angle) * radius]}>
+                <icosahedronGeometry args=${[0.08, 0]} />
+                <meshStandardMaterial
+                  color=${color}
+                  emissive=${color}
+                  emissiveIntensity=${1.25}
+                  metalness=${0.4}
+                  roughness=${0.2}
+                />
+              </mesh>`;
+            })}
+          </group>
+        `;
+      }
+
+    function DataStreams({ color = '#22c55e', spread = 1.4, height = 1 }) {
+      const curves = useMemo(() => {
+        return new Array(10).fill(null).map(() => {
+          const start = new THREE.Vector3((Math.random() - 0.5) * spread, 0, (Math.random() - 0.5) * spread);
+          const mid = new THREE.Vector3(start.x * 0.4, height * (0.4 + Math.random() * 0.35), start.z * 0.4);
+          const end = new THREE.Vector3(start.x * 0.2, height, start.z * 0.2);
+          const curve = new THREE.CatmullRomCurve3([start, mid, end]);
+          const points = curve.getPoints(40);
+          return points.map(p => [p.x, p.y, p.z]);
+        });
+      }, [spread, height]);
+
+        return html`
+          <group position=${[0, 0, 0]}>
+            ${curves.map((points, idx) => html`<${Line} key=${idx} points=${points} color=${color} transparent=${true} opacity=${0.38} lineWidth=${1} />`)}
+          </group>
+        `;
+      }
+
+    function VerticalBeams({ color = '#0ea5e9', count = 6, maxHeight = 2.4 }) {
+      const beams = new Array(count).fill(null).map((_, i) => {
+        const angle = (i / count) * Math.PI * 2;
+        const radius = 0.9 + (i % 2 === 0 ? 0.2 : -0.1);
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        return { x, z, delay: i * 0.2 };
+      });
+
+        return html`
+          <group>
+            ${beams.map((beam, idx) => html`<${Beam} key=${idx} ...${beam} color=${color} maxHeight=${maxHeight} />`)}
+          </group>
+        `;
+      }
+
+    function Beam({ x, z, color, maxHeight, delay = 0 }) {
+      const ref = useRef();
+      useFrame((state) => {
+        const t = state.clock.elapsedTime + delay;
+        const yScale = 0.4 + (Math.sin(t * 1.8) + 1) * 0.4;
+        if (ref.current) {
+          ref.current.scale.y = yScale;
+          ref.current.position.y = (yScale * maxHeight) / 2;
+          ref.current.material.opacity = 0.25 + Math.sin(t * 2.3) * 0.1;
+        }
+      });
+        return html`
+          <mesh ref=${ref} position=${[x, 0, z]}>
+            <cylinderGeometry args=${[0.015, 0.04, maxHeight, 12]} />
+            <meshStandardMaterial
+              color=${color}
+              transparent=${true}
+              opacity=${0.32}
+              emissive=${color}
+              emissiveIntensity=${1}
+              roughness=${0.3}
+              metalness=${0.4}
+            />
+          </mesh>
+        `;
+      }
+
+    function ParallaxGlow() {
+      const ref = useRef();
+      const { mouse } = useThree();
+      useFrame(() => {
+        if (!ref.current) return;
+        ref.current.position.x = mouse.x * 0.6;
+        ref.current.position.y = mouse.y * 0.3 + 1.4;
+      });
+        return html`
+          <mesh ref=${ref} position=${[0, 1.4, -1.2]}>
+            <sphereGeometry args=${[0.6, 24, 24]} />
+            <meshBasicMaterial color="#0ea5e9" opacity=${0.08} transparent=${true} />
+          </mesh>
+        `;
+      }
+
+    function CameraChoreo({ controls }) {
+      const { camera } = useThree();
+      const timeline = useRef();
+
+      useEffect(() => {
+        if (timeline.current || !controls.current) return;
+        const ctrl = controls.current;
+        timeline.current = gsap.timeline({ defaults: { duration: 1.6, ease: 'power2.inOut' } });
+        timeline.current
+          .fromTo(camera.position, { x: 4, y: 4, z: 6 }, { x: 2.4, y: 2.5, z: 3.6 })
+          .to(camera.position, { x: 0.4, y: 1.8, z: 3.2 })
+          .to(camera.position, { x: -1.6, y: 1.4, z: 2.8 })
+          .to(camera.position, { x: 1.6, y: 2.2, z: 2.4 });
+
+        const updateTarget = (x, y, z) => {
+          gsap.to(ctrl.target, { x, y, z, duration: 1.4, ease: 'power2.inOut', onUpdate: () => ctrl.update && ctrl.update() });
+        };
+        updateTarget(0, 0.2, 0);
+        setTimeout(() => updateTarget(0, 1.1, 0), 1800);
+        setTimeout(() => updateTarget(0, 1.9, 0), 3200);
+        setTimeout(() => updateTarget(0, 1.4, 0), 5200);
+      }, [camera, controls]);
+      return null;
+    }
+
+    function Scene() {
+      const config = useSceneConfig();
+      const controls = useRef();
+
+        return html`
+          <${Canvas} camera=${{ position: [3.8, 2.8, 5.4], fov: 45 }} shadows>
+            <color attach="background" args=${[0x0b1224]} />
+            <fog attach="fog" args=${[0x0b1224, 6, 16]} />
+            <ambientLight intensity=${0.4} />
+            <spotLight position=${[4, 6, 4]} angle=${0.7} intensity=${1.2} penumbra=${0.5} castShadow=${true} />
+            <directionalLight position=${[-5, 5, -5]} intensity=${0.5} color=${config.theme.platform} />
+
+            <${Suspense} fallback=${html`<${Html} center=${true}>Loading layers…</${Html}>`}>
+              <${ParallaxGlow} />
+              <${VerticalBeams} color=${config.theme.platform} maxHeight=${1.6} />
+              <${VerticalBeams} color=${config.theme.data} maxHeight=${2.2} />
+              <${VerticalBeams} color=${config.theme.agent} maxHeight=${2.8} />
+
+              <${ModelLayer}
+                config=${config.assets.platform}
+                fallbackColor=${config.theme.platform}
+                position=${[0, 0, 0]}
+                label="Platform Guardrails"
+              />
+              <${DataStreams} color=${config.theme.data} spread=${1.8} height=${1} />
+              <${ModelLayer}
+                config=${config.assets.data}
+                fallbackColor=${config.theme.data}
+                position=${[0, 1, 0]}
+                label="Data Products"
+              />
+              <${AgentOrbit} color=${config.theme.agent} radius=${1.25} y=${2.1} />
+              <${ModelLayer}
+                config=${config.assets.agent}
+                fallbackColor=${config.theme.agent}
+                position=${[0, 2, 0]}
+                label="Agentic Services"
+              />
+              <${FloatingParticles} color=${config.theme.platform} />
+              <${FloatingParticles} color=${config.theme.data} />
+              <${FloatingParticles} color=${config.theme.agent} />
+            </${Suspense}>
+
+            <${Environment} preset="city" />
+            <${OrbitControls} ref=${controls} enablePan=${false} minDistance=${2} maxDistance=${8} />
+            <${CameraChoreo} controls=${controls} />
+          </${Canvas}>
+        `;
+      }
+
+      const root = createRoot(document.getElementById('stripe-root'));
+      root.render(
+        html`<${Suspense} fallback=${html`<div style="padding:16px;color:#94a3b8">Preparing Data#3 experience…</div>`}>
+          <${Scene} />
+        </${Suspense}>`
+      );
+
+    // Example config hook-up: uncomment to swap in 3D assets when available.
+    // window.__STRIPE_SCENE_CONFIG = {
+    //   assets: {
+    //     platform: { url: './platform.glb', scale: 1.55 },
+    //     data: { url: '/assets/data.glb', scale: 1.1 },
+    //     agent: { url: '/assets/agent.glb', scale: 1.2 }
+    //   }
+    // };
+  </script>
+</body>
+</html>

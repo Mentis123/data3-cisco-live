@@ -1,0 +1,70 @@
+.hero .eyebrow{display:block}
+.hero h1{max-width:none;white-space:nowrap}
+.hero>p,.startChooser .startDivider,.startChooser .journeyPicker{display:none!important}
+.startChooser{max-width:980px;margin-top:18px;padding:16px 18px}
+.startChooser .startLabel{margin-bottom:10px}
+
+.contextControl{--context-accent:#00AEFF;--context-rgb:0,174,255;position:relative;flex:0 0 auto;min-width:150px;min-height:46px;border:1px solid rgba(var(--context-rgb),.62);border-radius:12px;background:linear-gradient(145deg,rgba(var(--context-rgb),.16),rgba(255,255,255,.045));overflow:hidden}
+.contextControl::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--context-accent)}
+.contextControl label{position:absolute;z-index:1;left:11px;top:6px;color:var(--context-accent);font-size:8.8px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;pointer-events:none}
+.contextControl select{position:relative;z-index:2;width:100%;min-height:46px;padding:18px 28px 5px 11px;border:0;background:transparent;color:#fff;font-size:11.5px;font-weight:800;appearance:none;outline:0;cursor:pointer;text-overflow:ellipsis}
+.contextControl::after{content:"⌄";position:absolute;z-index:1;right:9px;top:16px;color:var(--context-accent);font-size:13px;font-weight:900;pointer-events:none}
+.contextControl:focus-within{box-shadow:0 0 0 2px rgba(var(--context-rgb),.22);border-color:var(--context-accent)}
+.contextControl select option{background:#070739;color:#fff}
+
+.viewLens{--lens-accent:#78DCFF;--lens-rgb:120,220,255;position:relative;border-color:rgba(var(--lens-rgb),.5);background:linear-gradient(145deg,rgba(var(--lens-rgb),.13),rgba(255,255,255,.04));overflow:hidden}
+.viewLens::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--lens-accent)}
+.viewLens::after{content:"⌄";position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--lens-accent);font-weight:900}
+.viewLens .viewLensName{color:var(--lens-accent)}
+.viewLens .viewLensValue{padding-right:13px}
+.viewLens.hasSelection{border-color:rgba(var(--lens-rgb),.72);background:linear-gradient(145deg,rgba(var(--lens-rgb),.2),rgba(255,255,255,.05))}
+
+.buildViewCta{flex:0 0 auto;min-height:46px;padding:8px 13px;border:1px solid rgba(0,255,255,.65);border-radius:12px;background:linear-gradient(135deg,rgba(0,174,255,.2),rgba(0,255,255,.1));color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.buildViewCta b{color:var(--cyan);font-size:15px}.buildViewCta:hover,.buildViewCta:focus-visible{border-color:var(--cyan);background:rgba(0,255,255,.13)}
+
+.mobileViewToggle{display:none}
+
+/* Dropdown picker: keep multi-select, remove the Netflix reel entirely. */
+.pickerRailShell{margin:13px 0 0!important;display:block!important}
+.pickerRailShell>.railArrow{display:none!important}
+.pickerRail{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;max-height:min(430px,55vh);min-height:0!important;padding:3px 2px 12px!important;overflow-x:hidden!important;overflow-y:auto!important;scroll-snap-type:none!important;scroll-behavior:auto!important}
+.pickerRail .choice[data-cycle="0"],.pickerRail .choice[data-cycle="2"]{display:none!important}
+.pickerRail .choice[data-cycle="1"]{display:grid!important;grid-template-columns:4px 1fr 26px;grid-template-rows:auto auto;column-gap:10px;align-items:center;width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:72px!important;padding:10px 11px!important;transform:none!important;scroll-snap-align:none!important;text-align:left;border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.045)}
+.pickerRail .choice[data-cycle="1"]::before{content:"";grid-row:1/3;width:4px;height:100%;min-height:48px;border-radius:999px;background:var(--accent)}
+.pickerRail .choice[data-cycle="1"] b{grid-column:2;max-width:none!important;font-size:12.5px!important;line-height:1.18}
+.pickerRail .choice[data-cycle="1"] .choiceNote{grid-column:2;display:block!important;margin-top:4px;font-size:9.5px!important;line-height:1.25;color:#a9c0d0;-webkit-line-clamp:2}
+.pickerRail .choice[data-cycle="1"] .choiceCheck{grid-column:3;grid-row:1/3;position:static!important;justify-self:end;width:23px;height:23px;border:1px solid var(--accent);border-radius:50%;display:grid;place-items:center;color:#001023;background:transparent;font-size:12px;font-weight:950;opacity:.45}
+.pickerRail .choice[data-cycle="1"].selected,.pickerRail .choice[data-cycle="1"][aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,#09093a)}
+.pickerRail .choice[data-cycle="1"].selected .choiceCheck,.pickerRail .choice[data-cycle="1"][aria-pressed="true"] .choiceCheck{background:var(--accent);opacity:1}
+
+.resultTools{display:flex;align-items:flex-end;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.sortControl{display:grid;gap:4px;min-width:190px}
+.sortControl>span{color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.sortControl select{min-height:38px;padding:7px 31px 7px 10px;border:1px solid rgba(120,220,255,.38);border-radius:10px;background:#070739;color:#fff;font-size:11.5px;font-weight:800;outline:none}
+.sortControl select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,255,255,.12)}
+
+@media(max-width:900px){.hero h1{white-space:normal}.contextControl{min-width:138px}.resultsHead{align-items:flex-start}.resultTools{justify-content:flex-start}}
+@media(max-width:620px){
+  .hero{padding-top:22px}.hero h1{max-width:none;font-size:40px;white-space:normal}.startChooser{margin-top:14px;padding:13px}
+  .viewBar{height:auto!important;min-height:0!important;overflow:visible!important}
+  .viewBarInner{position:relative;display:grid!important;grid-template-columns:1fr auto;align-items:center;gap:8px!important;padding:8px 12px 9px!important;min-height:0!important}
+  .viewBarInner::after{content:"";position:absolute;right:12px;top:48px;width:38px;height:42px;z-index:3;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,37,0),#000025 82%);transition:opacity .16s}
+  .viewBar.mobileExpanded .viewBarInner::after{opacity:0}
+  .viewLabel{display:block!important;grid-column:1;color:#78dcff;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+  .mobileViewToggle{grid-column:2;display:flex;align-items:center;gap:6px;min-height:32px;padding:5px 9px;border:1px solid rgba(120,220,255,.38);border-radius:999px;background:rgba(120,220,255,.08);color:#eaf8ff;font-size:10px;font-weight:850;white-space:nowrap}
+  .mobileViewToggle::after{content:"⌄";color:#78dcff;font-size:13px;line-height:1;transition:transform .16s}
+  .mobileViewToggle[aria-expanded="true"]::after{transform:rotate(180deg)}
+  .viewChips{grid-column:1/-1;display:flex!important;width:calc(100vw - 24px);max-width:100%;gap:7px!important;overflow-x:auto!important;overflow-y:hidden;padding:0 30px 2px 0;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .viewChips::-webkit-scrollbar{display:none}
+  .viewChips>*{scroll-snap-align:start}
+  .contextControl{min-width:42vw;max-width:180px;min-height:42px;border-radius:11px}.contextControl label{left:9px;top:5px;font-size:7.8px}.contextControl select{min-height:42px;padding:16px 25px 4px 9px;font-size:10.5px}.contextControl::after{top:14px;right:8px}
+  .viewLens{min-width:35vw!important;max-width:150px!important;min-height:42px!important}
+  .buildViewCta{min-width:42vw;min-height:42px;border-radius:11px;justify-content:center}
+  .viewReset{display:none!important}
+  .viewBar.mobileExpanded .viewChips{display:grid!important;grid-template-columns:1fr 1fr;width:100%;overflow:visible!important;padding-right:0;gap:8px!important}
+  .viewBar.mobileExpanded .viewChips>*{width:100%!important;max-width:none!important;min-width:0!important}
+  .viewBar.mobileExpanded .buildViewCta{grid-column:1/-1}
+  .viewBar.mobileExpanded .viewReset{display:block!important;grid-column:1/-1;justify-self:start;margin-top:2px}
+  .pickerRail{grid-template-columns:1fr 1fr;gap:7px!important;max-height:48vh;padding:3px 0 10px!important}.pickerRail .choice[data-cycle="1"]{min-height:68px!important;padding:9px!important;grid-template-columns:3px 1fr 22px;column-gap:8px}.pickerRail .choice[data-cycle="1"] b{font-size:11.5px!important}.pickerRail .choice[data-cycle="1"] .choiceNote{font-size:8.8px!important}
+  .resultTools{width:100%;display:grid;grid-template-columns:auto minmax(170px,1fr);align-items:end}.sortControl{min-width:0}.sortControl select{width:100%}
+}

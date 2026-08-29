@@ -1,0 +1,406 @@
+:root {
+  --view-h: 64px;
+  --sticky-offset: calc(var(--top-h) + var(--view-h) + 16px);
+}
+
+body.pickerOpen { overflow: hidden; }
+
+.viewBar {
+  height: auto;
+  min-height: var(--view-h);
+  overflow: visible;
+}
+
+.viewBarInner {
+  min-height: var(--view-h);
+  height: auto;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.viewChips {
+  align-items: center;
+  gap: 7px;
+}
+
+.viewLens {
+  flex: 0 0 auto;
+  min-width: 136px;
+  min-height: 46px;
+  padding: 7px 11px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.052);
+  transition: border-color 0.16s, background 0.16s, transform 0.16s;
+}
+
+.viewLens:hover,
+.viewLens[aria-expanded="true"] {
+  border-color: var(--cyan);
+  background: rgba(0, 255, 255, 0.09);
+  transform: translateY(-1px);
+}
+
+.viewLens.hasSelection {
+  border-color: rgba(0, 174, 255, 0.62);
+  background: linear-gradient(145deg, rgba(0, 174, 255, 0.13), rgba(0, 255, 255, 0.055));
+}
+
+.viewLensName {
+  color: var(--pale);
+  font-size: 8.8px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.viewLensValue {
+  max-width: 180px;
+  overflow: hidden;
+  color: #f3fbff;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewReset {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 183, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 183, 255, 0.08);
+  color: var(--pink);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.viewReset:hover { border-color: var(--pink); }
+
+.hero {
+  max-width: 1100px;
+  padding-top: 38px;
+  padding-bottom: 18px;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin-bottom: 12px;
+  font-size: clamp(38px, 5vw, 62px);
+}
+
+.hero > p {
+  max-width: 620px;
+  font-size: clamp(16px, 1.7vw, 19px);
+}
+
+.startChooser {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(0, 174, 255, 0.07), rgba(255, 255, 255, 0.035));
+  scroll-margin-top: var(--sticky-offset);
+}
+
+.startLabel {
+  color: #eaf8ff;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.startChooser .samples {
+  margin-top: 10px;
+}
+
+.startDivider {
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.startDivider::before,
+.startDivider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line-soft);
+}
+
+.startDivider span { flex: 0 0 auto; }
+
+.startChooser .journeyPicker {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.discovery { display: none !important; }
+.results { margin-top: 28px; }
+
+.lensPickerBackdrop {
+  position: fixed;
+  inset: calc(var(--top-h) + var(--view-h)) 0 0;
+  z-index: 190;
+  padding: 10px 20px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(0, 0, 20, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.lensPickerBackdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lensPickerPanel {
+  width: min(780px, calc(100vw - 40px));
+  max-height: min(420px, calc(100dvh - var(--top-h) - var(--view-h) - 28px));
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 174, 255, 0.55);
+  border-radius: 18px;
+  background: rgba(5, 5, 51, 0.985);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  transform: translateY(-8px) scale(0.985);
+  transition: transform 0.18s ease;
+}
+
+.lensPickerBackdrop.open .lensPickerPanel {
+  transform: translateY(0) scale(1);
+}
+
+.lensPickerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lensPickerEyebrow {
+  color: var(--pale);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.lensPickerHeader h2 {
+  margin: 4px 0 0;
+  font-size: 23px;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.lensPickerHeader p {
+  max-width: 610px;
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.pickerRailShell {
+  position: relative;
+  margin: 13px -4px 0;
+}
+
+.pickerRail {
+  min-height: 122px;
+  padding: 4px 42px 10px;
+}
+
+.pickerRail .choice {
+  flex-basis: 108px;
+  width: 108px;
+  height: 108px;
+  padding: 10px;
+}
+
+.pickerRail .choice b {
+  max-width: 80px;
+  font-size: 12.5px;
+}
+
+.pickerRail .choice .choiceNote {
+  font-size: 9.4px;
+  -webkit-line-clamp: 2;
+}
+
+.lensPickerFooter {
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.lensPickerFooter > span {
+  min-width: 0;
+  overflow: hidden;
+  color: #bdd4e4;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lensPickerFooter > div {
+  display: flex;
+  gap: 8px;
+}
+
+.pickerSecondary,
+.pickerDone {
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.pickerSecondary {
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.pickerDone {
+  border: 1px solid var(--blue);
+  background: var(--d3);
+}
+
+.pickerSecondary:hover,
+.pickerDone:hover { border-color: var(--cyan); }
+
+@media (max-width: 900px) {
+  .viewLens { min-width: 126px; }
+}
+
+@media (max-width: 620px) {
+  :root {
+    --view-h: 58px;
+    --sticky-offset: calc(var(--top-h) + var(--view-h) + 12px);
+  }
+
+  .viewBarInner {
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 6px;
+  }
+
+  .viewChips { gap: 6px; }
+
+  .viewLens {
+    min-width: 104px;
+    min-height: 40px;
+    padding: 6px 9px;
+    border-radius: 11px;
+  }
+
+  .viewLensName { font-size: 7.8px; }
+  .viewLensValue { max-width: 118px; font-size: 10.5px; }
+  .viewReset { min-height: 36px; padding: 6px 9px; }
+
+  .hero {
+    padding-top: 25px;
+    padding-bottom: 10px;
+  }
+
+  .hero h1 {
+    max-width: 340px;
+    font-size: 42px;
+  }
+
+  .startChooser {
+    margin-top: 18px;
+    padding: 14px;
+  }
+
+  .startChooser .samples {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .startDivider {
+    margin: 14px 0;
+    font-size: 9.5px;
+  }
+
+  .lensPickerBackdrop {
+    inset: 0;
+    padding: 0;
+    align-items: flex-end;
+    background: rgba(0, 0, 20, 0.64);
+  }
+
+  .lensPickerPanel {
+    width: 100%;
+    max-height: 78dvh;
+    padding: 16px 14px max(14px, env(safe-area-inset-bottom));
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 22px 22px 0 0;
+    transform: translateY(100%);
+  }
+
+  .lensPickerBackdrop.open .lensPickerPanel {
+    transform: translateY(0);
+  }
+
+  .lensPickerHeader h2 { font-size: 22px; }
+  .lensPickerHeader p { font-size: 11.5px; }
+
+  .pickerRailShell {
+    margin-left: -14px;
+    margin-right: -14px;
+  }
+
+  .pickerRail {
+    min-height: 114px;
+    padding-left: 38px;
+    padding-right: 38px;
+  }
+
+  .pickerRail .choice {
+    flex-basis: 102px;
+    width: 102px;
+    height: 102px;
+  }
+
+  .lensPickerFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lensPickerFooter > span {
+    width: 100%;
+  }
+
+  .lensPickerFooter > div {
+    width: 100%;
+  }
+
+  .pickerSecondary,
+  .pickerDone { flex: 1; }
+}

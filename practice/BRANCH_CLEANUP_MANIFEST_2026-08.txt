@@ -1,0 +1,6 @@
+f9b7030bf72f08591561affd474f66cffdbe175a  claude/ai-gtm-whiteboard-page-01EC7hgct1D1LpenVorNXto7  2025-12-03 Add AI GTM Strategy virtual whiteboard page
+8b8b84e945262ba5d7d0ed4312e8b533a1dd13c8  claude/chatbot-entraid-auth-016BtFsYWYyk3iBC6ZYETXuc  2025-12-01 Add Entra ID authentication for chatbot
+f0a30669615c370e8aed6655a6171f92f34778d5  claude/fix-image-toggle-016k5RUPeYe56yg2iL8ejqWq  2025-12-01 Fix 5p_logo_off.png rendering as white square
+638a89e4587eff15c5ef7a5583396ff9162ff695  claude/restore-fde-bar-layout-014y5sDv5CZA397LDfZ8jWMo  2025-12-01 Restore FDE bar in expanded view under services l
+dc9e91ae0e4cf534fe31cdf913a6dff6886b6fa3  claude/review-feedback-guide-01JjtRuGNNGCu9cK1HgGGVru  2025-12-01 Update package-lock.json with @neondatabase/serve
+3f089aefded11b840af0c453d1b90fc617c2a566  claude/security-scenarios-updates-011A6davKv3NWDydXDYndiYk  2025-11-30 Use pillar icons for layer color coding in securi

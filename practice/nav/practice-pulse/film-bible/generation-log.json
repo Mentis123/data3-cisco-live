@@ -1,0 +1,87 @@
+{
+  "project": "From transactions to retained momentum",
+  "updated": "28 August 2026",
+  "instructions": "One entry per Pixio attempt. Never store API keys or token-bearing URLs.",
+  "productionSummary": {
+    "provider": "Pixio / Seedance 2.5",
+    "mode": "Omni",
+    "paidRenders": 13,
+    "creditsPerPaidRender": 624,
+    "actualCreditsUsed": 8112,
+    "openingBalance": 13227,
+    "closingBalance": 5115,
+    "approvedMotionSources": 11,
+    "master": "generated/build-a-renewing-ai-business-master.mp4"
+  },
+  "entries": [
+    {
+      "shot": "01", "attempt": 1, "status": "failed", "actualCredits": 0,
+      "reviewNotes": "BytePlus privacy screening rejected the unmodified character crop before rendering; balance unchanged."
+    },
+    {
+      "shot": "01", "attempt": 2, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "f751333f-1c19-462d-85b2-05086b7a017f", "outputFile": "generated/shot-01-seedance.mp4",
+      "reviewNotes": "Opening carry source approved; native physical SFX retained."
+    },
+    {
+      "shot": "02", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "20f46c02-1157-492c-8c89-8d12c52f1104", "outputFile": "generated/shot-02-seedance.mp4",
+      "reviewNotes": "Grey transactional block placed at the summit."
+    },
+    {
+      "shot": "03", "attempt": 1, "status": "rejected", "actualCredits": 624,
+      "downloadAssetId": "38c2d798-87f2-416a-9092-95307b9fb365", "outputFile": null,
+      "reviewNotes": "Creative rejection: movement and slope logic did not clearly read as the empty-handed return downhill."
+    },
+    {
+      "shot": "03", "attempt": 2, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "e1385b69-b3d3-475d-9d10-aad69b45f007", "outputFile": "generated/shot-03-seedance.mp4",
+      "reviewNotes": "Corrected downhill composition: empty-handed subject descends toward camera while the completed stack remains behind at the summit."
+    },
+    {
+      "shot": "03", "attempt": 3, "status": "succeeded", "actualCredits": 624,
+      "downloadAssetId": "260aafa7-f95d-464c-9949-be14d3fa74b4", "outputFile": null,
+      "reviewNotes": "Duplicate corrected render, archived as an unused production alternative."
+    },
+    {
+      "shot": "04", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "ae38ab29-2700-43ee-8cca-e1fdde1005a1", "outputFile": "generated/shot-04-seedance.mp4",
+      "reviewNotes": "Repeat climb and reset loop approved."
+    },
+    {
+      "shot": "05", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "6e248d29-e85b-487f-908c-c60dfff711a3", "outputFile": "generated/shot-05-seedance.mp4",
+      "reviewNotes": "Disconnected activity field approved."
+    },
+    {
+      "shot": "06", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "85f1bf14-296c-456e-9464-ae4efd14dec0", "outputFile": "generated/shot-06-seedance.mp4",
+      "reviewNotes": "FY27 bundle carry approved; edit excludes the later model transition."
+    },
+    {
+      "shot": "07", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "93c7ba8a-f65c-46b1-a958-139a2ebea017", "outputFile": "generated/shot-07-seedance.mp4",
+      "reviewNotes": "Drawdown placement approved through 4.8 seconds, followed by a deterministic clean-state hold."
+    },
+    {
+      "shot": "08", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "d7a46b25-eea9-4f1c-bf4e-fcfaa736c09e", "outputFile": "generated/shot-08-seedance.mp4",
+      "reviewNotes": "Capacity placement approved through 4.8 seconds, followed by a deterministic clean-state hold."
+    },
+    {
+      "shot": "09", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "0e95fb63-7e30-4b16-9739-f24709dcf10a", "outputFile": "generated/shot-09-seedance.mp4",
+      "reviewNotes": "Standing-services structure remains active after release."
+    },
+    {
+      "shot": "10", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "097c6b06-7b32-4b9f-939e-beb38acfbd13", "outputFile": "generated/shot-10-seedance.mp4",
+      "reviewNotes": "Portfolio structures and multi-year scale-up approved."
+    },
+    {
+      "shot": "11", "attempt": 1, "status": "approved", "actualCredits": 624,
+      "downloadAssetId": "f267a5a0-b790-416d-b776-73c40c45fd83", "outputFile": "generated/shot-11-seedance.mp4",
+      "reviewNotes": "Monumental bridge-to-higher-ground resolution approved."
+    }
+  ]
+}

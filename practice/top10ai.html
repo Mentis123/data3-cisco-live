@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top 10 Enterprise AI Applications - Data Security Assessment | Data#3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --d3-navy: #003366;
+    --d3-navy-deep: #001f3f;
+    --d3-navy-mid: #004080;
+    --d3-red: #E4002B;
+    --d3-red-dark: #c00024;
+    --d3-red-light: #ff1a3d;
+    --surface: #f7f8fa;
+    --surface-raised: #ffffff;
+    --surface-inset: #eef1f5;
+    --border: #dce1e8;
+    --border-light: #e8ecf1;
+    --text-primary: #1a2332;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --status-green: #0d9f4f;
+    --status-green-bg: #e6f7ed;
+    --status-green-border: #b0e0c5;
+    --status-amber: #c77d00;
+    --status-amber-bg: #fff5e0;
+    --status-amber-border: #f0d890;
+    --status-red: #cc1833;
+    --status-red-bg: #fde8ec;
+    --status-red-border: #f0b0be;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+    --radius: 6px;
+    --radius-lg: 10px;
+    --shadow-sm: 0 1px 2px rgba(0,20,50,0.06);
+    --shadow-md: 0 2px 8px rgba(0,20,50,0.08);
+    --shadow-lg: 0 4px 16px rgba(0,20,50,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--surface);
+    color: var(--text-primary);
+    line-height: 1.65;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+
+  header {
+    background: var(--d3-navy-deep);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 0%, rgba(0,51,102,0.4) 50%, rgba(228,0,43,0.08) 100%);
+    pointer-events: none;
+  }
+
+  /* Geometric pattern + grain overlay */
+  header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(30deg, rgba(255,255,255,0.015) 25%, transparent 25%),
+      linear-gradient(150deg, rgba(255,255,255,0.015) 25%, transparent 25%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 40px 70px, 40px 70px, 200px 200px;
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 2.5rem 2.5rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .logo-data { color: #ffffff; }
+  .logo-hash { color: var(--d3-red); font-weight: 800; }
+  .logo-three { color: #ffffff; }
+
+  .header-classification {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .classification-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--d3-red);
+  }
+
+  .header-title-block {
+    margin-bottom: 1.75rem;
+  }
+
+  .header-title-block h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+    max-width: 700px;
+  }
+
+  .header-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 650px;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .meta-item {
+    font-size: 0.78rem;
+  }
+
+  .meta-label {
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    font-size: 0.65rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .meta-value {
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  /* Red accent bar under header */
+  .header-accent {
+    height: 3px;
+    background: var(--d3-red);
+  }
+
+  /* ── CONTAINER ─────────────────────────────────────────── */
+
+  .container {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem 3rem;
+  }
+
+  /* ── EXECUTIVE SUMMARY ─────────────────────────────────── */
+
+  .exec-summary {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2rem;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .exec-summary::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--d3-red);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  }
+
+  .exec-summary h2 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--d3-navy);
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+  }
+
+  .exec-summary > p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.75rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  /* ── BADGES ────────────────────────────────────────────── */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .badge-green {
+    background: var(--status-green-bg);
+    color: var(--status-green);
+    border-color: var(--status-green-border);
+  }
+
+  .badge-amber {
+    background: var(--status-amber-bg);
+    color: var(--status-amber);
+    border-color: var(--status-amber-border);
+  }
+
+  .badge-red {
+    background: var(--status-red-bg);
+    color: var(--status-red);
+    border-color: var(--status-red-border);
+  }
+
+  /* ── OVERVIEW TABLE ────────────────────────────────────── */
+
+  .matrix-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .matrix-header {
+    padding: 1rem 1.5rem;
+    background: var(--d3-navy);
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .matrix-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: white;
+    font-weight: 400;
+  }
+
+  .matrix-header-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--d3-red);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: white;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .overview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .overview-table thead th {
+    background: var(--surface-inset);
+    color: var(--d3-navy);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .overview-table thead th:first-child { padding-left: 1.5rem; }
+
+  .overview-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  .overview-table td:first-child {
+    padding-left: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .overview-table td:nth-child(2) {
+    font-weight: 600;
+    color: var(--d3-navy);
+  }
+
+  .overview-table tbody tr {
+    transition: background 0.2s ease;
+  }
+
+  .overview-table tbody tr td {
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .overview-table tbody tr td:first-child {
+    border-left: 3px solid transparent;
+  }
+
+  .overview-table tbody tr:hover td {
+    background: rgba(0,51,102,0.03);
+  }
+
+  .overview-table tbody tr:hover td:first-child {
+    border-left-color: var(--d3-red);
+  }
+
+  .overview-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ── APP CARDS ──────────────────────────────────────────── */
+
+  .app-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.35s ease,
+                transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .app-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: #b8c4d2;
+    transform: translateY(-1px);
+  }
+
+  .app-card.open {
+    box-shadow: var(--shadow-lg);
+    border-color: #b8c4d2;
+  }
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .app-header:hover {
+    background: rgba(0,51,102,0.015);
+  }
+
+  .app-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .app-number {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius);
+    background: var(--d3-navy);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .app-number::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 2px;
+    background: var(--d3-red);
+    border-radius: 1px;
+  }
+
+  .app-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .app-vendor {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 0.1rem;
+  }
+
+  .app-badges {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    margin: 0 1rem;
+  }
+
+  .chevron {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    background: var(--surface-inset);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1), background 0.2s ease;
+  }
+
+  .app-card.open .chevron {
+    transform: rotate(180deg);
+    background: var(--d3-navy);
+    color: white;
+  }
+
+  .app-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.33, 1, 0.68, 1),
+                border-color 0.3s ease;
+    border-top: 1px solid transparent;
+  }
+
+  .app-card.open .app-body {
+    grid-template-rows: 1fr;
+    border-top-color: var(--border-light);
+  }
+
+  .app-body-inner {
+    overflow: hidden;
+  }
+
+  /* ── DATA SECTIONS ─────────────────────────────────────── */
+
+  .data-section {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .data-section:last-child {
+    border-bottom: none;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .icon-manage {
+    background: linear-gradient(135deg, #e8f0fe, #d0e1f9);
+    color: var(--d3-navy-mid);
+  }
+
+  .icon-store {
+    background: linear-gradient(135deg, #e6f7ed, #c8ebd5);
+    color: #0d7a3e;
+  }
+
+  .icon-offshore {
+    background: linear-gradient(135deg, #fff5e0, #fde8b0);
+    color: #9a6700;
+  }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--d3-navy);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .data-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .data-section li {
+    padding: 0.35rem 0 0.35rem 1.4rem;
+    position: relative;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .data-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--d3-navy);
+    opacity: 0.3;
+  }
+
+  .data-section li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .data-section code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--surface-inset);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    color: var(--d3-navy);
+    border: 1px solid var(--border-light);
+  }
+
+  /* Callout boxes */
+  .callout {
+    padding: 0.85rem 1.1rem;
+    margin: 0.6rem 0;
+    border-radius: var(--radius);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    border-left: 3px solid;
+  }
+
+  .callout strong {
+    display: inline;
+  }
+
+  .alert {
+    background: var(--status-red-bg);
+    border-color: var(--d3-red);
+    color: #6b1025;
+  }
+
+  .highlight {
+    background: var(--status-amber-bg);
+    border-color: var(--status-amber);
+    color: #6b4500;
+  }
+
+  .positive {
+    background: var(--status-green-bg);
+    border-color: var(--status-green);
+    color: #0a5c30;
+  }
+
+  /* ── SCROLL REVEAL ────────────────────────────────────── */
+
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger delays for sequential reveals */
+  .scroll-reveal[data-delay="1"] { transition-delay: 0.06s; }
+  .scroll-reveal[data-delay="2"] { transition-delay: 0.12s; }
+  .scroll-reveal[data-delay="3"] { transition-delay: 0.18s; }
+  .scroll-reveal[data-delay="4"] { transition-delay: 0.24s; }
+  .scroll-reveal[data-delay="5"] { transition-delay: 0.30s; }
+  .scroll-reveal[data-delay="6"] { transition-delay: 0.36s; }
+  .scroll-reveal[data-delay="7"] { transition-delay: 0.42s; }
+  .scroll-reveal[data-delay="8"] { transition-delay: 0.48s; }
+  .scroll-reveal[data-delay="9"] { transition-delay: 0.54s; }
+
+  /* ── MICRO-INTERACTIONS ─────────────────────────────────── */
+
+  .callout {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .callout:hover {
+    transform: translateX(2px);
+    box-shadow: -2px 0 8px rgba(0,20,50,0.04);
+  }
+
+  .badge {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .badge:hover {
+    transform: scale(1.04);
+  }
+
+  .exec-summary {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .exec-summary:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .matrix-card {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .matrix-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .app-header:active .chevron {
+    transform: scale(0.92);
+  }
+
+  .app-card.open .app-header:active .chevron {
+    transform: rotate(180deg) scale(0.92);
+  }
+
+  /* Header entrance animation */
+  @keyframes headerFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-title-block {
+    animation: headerFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+  }
+
+  .header-meta {
+    animation: headerFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+  }
+
+  .header-accent {
+    background: var(--d3-red);
+    transform-origin: left;
+    animation: accentSlide 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+  }
+
+  @keyframes accentSlide {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  /* ── FOOTER ────────────────────────────────────────────── */
+
+  footer {
+    background: var(--d3-navy-deep);
+    color: rgba(255,255,255,0.5);
+    padding: 1.5rem 2.5rem;
+    font-size: 0.75rem;
+    position: relative;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--d3-red);
+  }
+
+  .footer-inner {
+    max-width: 1220px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-brand {
+    font-weight: 700;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.85rem;
+  }
+
+  .footer-brand .fh { color: var(--d3-red); }
+
+  /* ── RESPONSIVE ────────────────────────────────────────── */
+
+  @media (max-width: 900px) {
+    .header-inner { padding: 1.5rem; }
+    .header-top { flex-direction: column; gap: 1rem; }
+    .header-meta { flex-wrap: wrap; gap: 1.25rem; }
+    .container { padding: 1.5rem; }
+    .app-header { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+    .app-badges { margin: 0; }
+    .overview-table { font-size: 0.75rem; }
+    .overview-table th, .overview-table td { padding: 0.5rem 0.6rem; }
+    .overview-table td:first-child { padding-left: 0.6rem; }
+    .overview-table thead th:first-child { padding-left: 0.6rem; }
+    .footer-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+
+  @media (max-width: 640px) {
+    .header-title-block h1 { font-size: 1.5rem; }
+    .logo { font-size: 1.75rem; }
+    .data-section { padding: 1.25rem; }
+  }
+
+  /* ── PRINT ─────────────────────────────────────────────── */
+
+  @media print {
+    body { font-size: 11pt; }
+    header { break-after: avoid; }
+    .app-card { break-inside: avoid; transform: none !important; }
+    .app-card .app-body { grid-template-rows: 1fr !important; }
+    .app-body-inner { overflow: visible !important; }
+    .chevron { display: none; }
+    .app-card, .matrix-card, .exec-summary { box-shadow: none; border: 1px solid #ccc; }
+    .scroll-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .header-title-block, .header-meta { animation: none !important; opacity: 1 !important; }
+    .header-accent { animation: none !important; transform: none !important; }
+  }
+
+  /* Reduced motion accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .scroll-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">
+        <span class="logo-data">Data</span><span class="logo-hash">#</span><span class="logo-three">3</span>
+      </div>
+      <div class="header-classification">
+        <span class="classification-dot"></span>
+        Internal Use Only
+      </div>
+    </div>
+
+    <div class="header-title-block">
+      <h1>Top 10 Enterprise AI Applications &mdash; Data Security Assessment</h1>
+      <p class="header-subtitle">ISMT Request: Data management, storage locations, and offshore data transfer analysis for AI applications likely to be used within the organisation.</p>
+    </div>
+
+    <div class="header-meta">
+      <div class="meta-item">
+        <div class="meta-label">Prepared For</div>
+        <div class="meta-value">Richard Dornhart, Head of Security</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Date</div>
+        <div class="meta-value">16 February 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Reference</div>
+        <div class="meta-value">ISMT-AI-2026-001</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Jurisdiction</div>
+        <div class="meta-value">Privacy Act 1988 (Cth) &mdash; APP 8</div>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="header-accent"></div>
+
+<div class="container">
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <h2>Executive Summary</h2>
+    <p>This report assesses the top 10 AI applications most likely to be adopted within an Australian enterprise context, focusing on three key questions for each: how the app manages data, where data is stored, and whether data is sent offshore. Findings are contextualised against the Australian Privacy Act 1988 (APP 8 &mdash; Cross-border disclosure), IRAP PROTECTED requirements, and practical data sovereignty considerations.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="badge badge-green">AU Resident</span> Data stays in Australia</div>
+      <div class="legend-item"><span class="badge badge-amber">Conditional</span> Depends on configuration</div>
+      <div class="legend-item"><span class="badge badge-red">Offshore</span> Data leaves Australia</div>
+    </div>
+  </div>
+
+  <!-- Quick Reference Matrix -->
+  <div class="matrix-card">
+    <div class="matrix-header">
+      <div class="matrix-header-icon">#</div>
+      <h3>Quick Reference Matrix</h3>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="overview-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Application</th>
+            <th>Trains on Data?</th>
+            <th>Data at Rest in AU?</th>
+            <th>Processing in AU?</th>
+            <th>Sent Offshore?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Microsoft 365 Copilot</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-green">Yes</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>ChatGPT Enterprise</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-green">Yes</span></td>
+            <td><span class="badge badge-red">No (US only)</span></td>
+            <td><span class="badge badge-red">Yes</span></td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>GitHub Copilot</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-green">Yes (GHEC)</span></td>
+            <td><span class="badge badge-red">No</span></td>
+            <td><span class="badge badge-red">Yes</span></td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>ServiceNow Now Assist</td>
+            <td><span class="badge badge-amber">Opt-out</span></td>
+            <td><span class="badge badge-green">Yes</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td>Google Gemini</td>
+            <td><span class="badge badge-amber">Enterprise: No</span></td>
+            <td><span class="badge badge-red">No (US/EU)</span></td>
+            <td><span class="badge badge-red">No</span></td>
+            <td><span class="badge badge-red">Yes</span></td>
+          </tr>
+          <tr>
+            <td>06</td>
+            <td>Anthropic Claude</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-red">US (direct)</span></td>
+            <td><span class="badge badge-amber">Via Bedrock AU</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+          </tr>
+          <tr>
+            <td>07</td>
+            <td>Salesforce Einstein AI</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-green">Yes</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+            <td><span class="badge badge-amber">Conditional</span></td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Zoom AI Companion</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-green">Yes (meetings)</span></td>
+            <td><span class="badge badge-red">No (default)</span></td>
+            <td><span class="badge badge-red">Yes (default)</span></td>
+          </tr>
+          <tr>
+            <td>09</td>
+            <td>Adobe Firefly</td>
+            <td><span class="badge badge-green">No</span></td>
+            <td><span class="badge badge-red">US only</span></td>
+            <td><span class="badge badge-red">No</span></td>
+            <td><span class="badge badge-red">Yes</span></td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Perplexity AI</td>
+            <td><span class="badge badge-green">No (Ent.)</span></td>
+            <td><span class="badge badge-red">US only</span></td>
+            <td><span class="badge badge-red">No</span></td>
+            <td><span class="badge badge-red">Yes</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- App 1: Microsoft 365 Copilot -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">01</div>
+        <div>
+          <div class="app-name">Microsoft 365 Copilot</div>
+          <div class="app-vendor">Microsoft Corporation</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-green">AU Storage</span>
+        <span class="badge badge-amber">Offshore: Conditional</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>No model training</strong> on enterprise data. Microsoft explicitly states: &ldquo;Prompts, responses, and data accessed through Microsoft Graph are not used to train foundation LLMs.&rdquo;</li>
+          <li>Copilot interaction data (prompts &amp; responses) stored in a hidden <code>TeamsMessagesData</code> folder within each user&rsquo;s Exchange Online mailbox.</li>
+          <li>Encryption: AES-256 at rest, TLS 1.2+ in transit, with BitLocker and per-file encryption.</li>
+          <li>Microsoft retains prompt/response data for up to <strong>30 days</strong> for service operations; configurable via <strong>Microsoft Purview</strong> retention policies.</li>
+          <li>Opted out of Azure OpenAI abuse monitoring &mdash; no human review of prompts/responses.</li>
+          <li>Users can delete their own Copilot activity history. Admins can use Content Search, eDiscovery, and Teams Export APIs.</li>
+        </ul>
+        <div class="callout alert">
+          <strong>Anthropic Subprocessor Alert:</strong> As of <strong>7 January 2026</strong>, Anthropic (Claude) models are enabled by default for most commercial tenants, including Australia. Anthropic models are <strong>excluded</strong> from in-country processing commitments. ASD recommends disabling Anthropic until a formal risk assessment is completed. Admins can toggle this in the M365 admin centre.
+        </div>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Azure <strong>Australia East</strong> (Sydney) and <strong>Australia Southeast</strong> (Melbourne) regions.</li>
+          <li>Data at rest committed to Australia since <strong>March 2024</strong> for tenants provisioned in Australia.</li>
+          <li>In-country LLM processing available since <strong>end-2025</strong> under the in-country data processing commitment (covers prompt ingestion, model inference, response generation, telemetry).</li>
+          <li><strong>Advanced Data Residency (ADR)</strong> add-on available for contractual data-at-rest commitments.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <ul>
+          <li>Under &ldquo;normal operations,&rdquo; processing stays in Australia &mdash; but exceptions exist:</li>
+          <li><strong>Capacity constraints/failover:</strong> Prompts may route offshore during service disruptions.</li>
+          <li><strong>Anthropic models:</strong> Excluded from in-country commitments (data may go offshore if enabled).</li>
+          <li><strong>Web search (Bing):</strong> Queries sent to Bing service, may process outside AU.</li>
+          <li><strong>Third-party agents/plugins:</strong> Data flows to external services under their own terms.</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Recommendation:</strong> Disable Anthropic subprocessor, evaluate web search settings, enable ADR, and audit third-party agents for strictest data sovereignty posture.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 2: ChatGPT Enterprise -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">02</div>
+        <div>
+          <div class="app-name">ChatGPT / OpenAI Enterprise</div>
+          <div class="app-vendor">OpenAI</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-green">AU Storage (at rest)</span>
+        <span class="badge badge-red">Offshore: Yes</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>No model training</strong> on Enterprise data &mdash; contractual commitment (not just a setting).</li>
+          <li>Organisation owns its data. OpenAI states: &ldquo;Your data always remains confidential, secure, and entirely owned by you.&rdquo;</li>
+          <li>Configurable retention: minimum <strong>90 days</strong>, set by workspace admins. Deleted conversations removed within 30 days.</li>
+          <li>AES-256 at rest, TLS 1.2+ in transit. <strong>Enterprise Key Management (EKM)</strong> available for customer-controlled encryption keys.</li>
+          <li>SOC 2 Type 2, ISO 27001, ISO 27017, ISO 27018, ISO 27701 certified.</li>
+          <li>Data Processing Addendum (DPA) available for Enterprise customers.</li>
+          <li>API platform offers <strong>Zero Data Retention (ZDR)</strong> option.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Runs on <strong>Microsoft Azure</strong> infrastructure.</li>
+          <li><strong>Australia is a supported data residency region</strong> for data at rest &mdash; customer content (conversations, files, custom GPTs, image generations) can be stored at rest in AU.</li>
+          <li>Data residency setting only applies to <strong>new workspaces</strong> &mdash; existing workspaces cannot be migrated retroactively.</li>
+          <li>No OpenAI-owned data centres in Australia (Stargate facilities are US, Norway, UAE only).</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>Critical:</strong> All model inference (prompt processing) occurs on <strong>US-based infrastructure</strong>. Every prompt is transmitted to US servers for processing, regardless of data residency settings. Inference residency is currently US-only with no announced timeline for Australian availability.
+        </div>
+        <ul>
+          <li>Data at rest can be pinned to Australia, but <strong>every interaction sends data to the US</strong> for processing.</li>
+          <li>Under APP 8, each prompt containing personal information likely constitutes a cross-border disclosure.</li>
+          <li>The Australian entity remains accountable for how OpenAI handles data overseas (s16C Privacy Act).</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Alternative:</strong> Consider <strong>Azure OpenAI Service</strong> (a separate Microsoft product) deployed within Australian Azure regions for full data residency, if required.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 3: GitHub Copilot -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">03</div>
+        <div>
+          <div class="app-name">GitHub Copilot</div>
+          <div class="app-vendor">GitHub (Microsoft)</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-green">Code in AU (GHEC)</span>
+        <span class="badge badge-red">Offshore: Yes</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>No training</strong> on Business/Enterprise code &mdash; default, no opt-out needed.</li>
+          <li>Code editor prompts/suggestions: <strong>not retained</strong>. Chat/CLI/Mobile: retained <strong>28 days</strong> for conversation continuity.</li>
+          <li>Content exclusions available at org and enterprise level to prevent sensitive repos from being processed.</li>
+          <li>Pre-inference screening via GitHub proxy (toxicity, relevance, jailbreak detection). Post-inference checks for code quality, credentials, PII.</li>
+          <li>Third-party model agreements: <strong>Anthropic &mdash; zero data retention</strong>; Google &mdash; no training, no prompt logging.</li>
+          <li>User engagement data retained for 2 years.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li><strong>GHEC with data residency in Australia</strong> available since <strong>February 2025</strong> (first APAC market). Hosted on Azure Australian regions.</li>
+          <li>Source code repos, PRs, issues, comments stored in-region on dedicated <code>ghe.com</code> subdomain.</li>
+          <li>AI models hosted in GitHub-owned Azure tenants (primarily US), plus AWS (Anthropic) and GCP (Google).</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>Critical:</strong> GitHub states: &ldquo;Traffic is routed to regions based on capacity; GitHub cannot guarantee any traffic will stay within a single region.&rdquo; AI inference is <strong>not covered</strong> by data residency &mdash; code context is sent offshore for processing.
+        </div>
+        <ul>
+          <li>Code at rest stays in Australia (with GHEC data residency). All Copilot AI processing goes offshore (likely US).</li>
+          <li>Telemetry data may also be processed outside Australia.</li>
+          <li>This is a <strong>split architecture</strong>: storage is in-region, inference is not.</li>
+          <li>No public timeline for in-region AI inference (unlike M365 Copilot which received this commitment separately).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 4: ServiceNow Now Assist -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">04</div>
+        <div>
+          <div class="app-name">ServiceNow Now Assist</div>
+          <div class="app-vendor">ServiceNow</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-amber">Opt-out Training</span>
+        <span class="badge badge-green">AU Storage</span>
+        <span class="badge badge-amber">Offshore: Conditional</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>Stateless in-memory processing</strong> &mdash; prompts/responses processed in memory and immediately discarded. No persistent retention of AI processing data.</li>
+          <li>Data sharing for model improvement: opt-out available via Now Assist Admin Console. Only anonymised/masked data used if opted in. <strong>Opting out does not degrade functionality.</strong></li>
+          <li>Only minimum necessary data leaves the instance (input prompt + related fields).</li>
+          <li><strong>Data Privacy for Now Assist</strong> plugin available for PII masking (two-way: masks before LLM, restores after). <strong>Not enabled by default</strong> &mdash; must be configured.</li>
+          <li>Logically isolated per-tenant environment prevents cross-customer data exposure.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Two data centres in Australia: <strong>Sydney</strong> and <strong>Melbourne</strong> (paired configuration).</li>
+          <li><strong>ServiceNow Protected Platform Australia (SPP AU):</strong> hosted exclusively on Azure AU, IRAP PROTECTED assessed (Feb 2025). All data in-country, all support staff AU-based.</li>
+          <li>Now LLM (ServiceNow&rsquo;s own models) processed in &ldquo;same region&rdquo; data centres or Azure within region.</li>
+          <li>AI Agents defaults to GPT-4.1 on ServiceNow-managed Azure servers &mdash; specific region unclear.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <ul>
+          <li><strong>Now LLM:</strong> Processing stated as &ldquo;same region&rdquo; &mdash; verify whether this means Australia specifically or broader APAC.</li>
+          <li><strong>SPP AU:</strong> All data in-country (strongest guarantee). Confirm AI features availability on this tier.</li>
+          <li><strong>Third-party/BYOM:</strong> Data leaves Australia. ServiceNow cannot guarantee visibility into third-party LLM data handling.</li>
+          <li><strong>AI Agents (GPT-4.1):</strong> Azure region unconfirmed &mdash; clarify with ServiceNow.</li>
+          <li>Historical concern: ServiceNow previously had &ldquo;incidental transfers&rdquo; via offshore support staff (addressed by SPP AU).</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Recommendation:</strong> Use SPP AU for strict sovereignty. Opt out of data sharing. Enable PII masking plugin. Avoid BYOM for regulated workloads. Clarify &ldquo;same region&rdquo; definition with ServiceNow directly.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 5: Google Gemini -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">05</div>
+        <div>
+          <div class="app-name">Google Gemini</div>
+          <div class="app-vendor">Google / Alphabet</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-amber">Consumer: Yes / Ent: No</span>
+        <span class="badge badge-red">No AU Processing</span>
+        <span class="badge badge-red">Offshore: Yes</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>Consumer Gemini:</strong> Data used for training by default. Human reviewers assess a subset of chats (retained up to 3 years). Opt-out available via &ldquo;Gemini Apps Activity&rdquo; settings.</li>
+          <li><strong>Workspace Enterprise:</strong> NOT used for training, not reviewed by humans, not saved beyond session.</li>
+          <li><strong>Vertex AI (Cloud):</strong> Not used for training. 24hr in-memory cache by default. Zero Data Retention (ZDR) available.</li>
+          <li>Compliance: ISO 42001, HITRUST, PCI-DSS v4.0. Vertex AI ZDR requires disabling caching and abuse monitoring per-project.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Google Cloud has <strong>australia-southeast1 (Sydney)</strong> and <strong>australia-southeast2 (Melbourne)</strong> regions.</li>
+          <li><strong>BUT:</strong> Gemini model serving and formal data residency guarantees do <strong>NOT</strong> include Australia.</li>
+          <li>Workspace Gemini: data regions limited to <strong>US and EU only</strong>. No Australian option.</li>
+          <li>Vertex AI: AU endpoint exists but <strong>no formal ML processing guarantee</strong> for Australia. DRZ only supported in US/EU.</li>
+          <li>Assured Workloads Australia Data Boundary available but ML inference guarantee unclear.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>Critical:</strong> For Workspace Gemini, processing is confined to US or EU with <strong>no Australian option</strong>. For Vertex AI, Google provides no formal guarantee ML processing stays in Australia even when using the AU endpoint.
+        </div>
+        <ul>
+          <li>Consumer Gemini: processed in US/UK/EEA/Singapore.</li>
+          <li>Workspace Gemini: US/EU only processing &mdash; all AU enterprise prompts go offshore.</li>
+          <li>Vertex AI: AU endpoint exists but &ldquo;no guarantee ML processing occurs at a specific location&rdquo; for unlisted regions.</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Mitigation:</strong> Use Vertex AI with Assured Workloads AU boundary + ZDR. Implement client-side encryption for Workspace. Enforce prompt hygiene policies to prevent PII in Gemini prompts.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 6: Anthropic Claude -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">06</div>
+        <div>
+          <div class="app-name">Anthropic Claude</div>
+          <div class="app-vendor">Anthropic</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-red">US Storage (direct)</span>
+        <span class="badge badge-amber">Offshore: Conditional</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>No training</strong> on commercial data (Team/Enterprise/API plans) &mdash; contractual commitment.</li>
+          <li>API retention: <strong>7 days</strong> (reduced from 30). Zero Data Retention (ZDR) available for enterprise API.</li>
+          <li>AES-256 at rest, TLS 1.2+ in transit.</li>
+          <li>SOC 2 Type I/II, ISO 27001, <strong>ISO 42001</strong> (AI Management System) certified.</li>
+          <li>Free/consumer tier: conversations may be used for safety research/training (opt-out available).</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li><strong>Direct API / claude.ai:</strong> All data stored in <strong>US</strong>. No Australian data residency option for direct API.</li>
+          <li><strong>AWS Bedrock ap-southeast-2 (Sydney):</strong> Claude models available for inference in Australia. Claude 3.5 Sonnet and Claude 3 Haiku available in Sydney region. <strong>IRAP PROTECTED</strong> certified.</li>
+          <li>Multi-region processing introduced Aug 2025 but storage remains US for direct API.</li>
+        </ul>
+        <div class="callout positive">
+          <strong>Key Finding:</strong> AWS Bedrock in Sydney (<code>ap-southeast-2</code>) is the recommended path for Australian data residency with Claude. Inference <strong>can</strong> stay in Australia via Bedrock, with IRAP PROTECTED certification.
+        </div>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <ul>
+          <li><strong>Direct API / claude.ai:</strong> Yes &mdash; all data goes to US.</li>
+          <li><strong>AWS Bedrock (Sydney):</strong> Inference can stay in Australia. This is the only path to keep Claude data onshore.</li>
+          <li>Data#3 as a Microsoft-centric partner should evaluate AWS Bedrock integration requirements.</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Recommendation:</strong> Use AWS Bedrock in ap-southeast-2 (Sydney), NOT direct API, for Australian data sovereignty. Avoid claude.ai for enterprise workloads requiring AU residency.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 7: Salesforce Einstein AI -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">07</div>
+        <div>
+          <div class="app-name">Salesforce Einstein AI / Agentforce</div>
+          <div class="app-vendor">Salesforce</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-green">AU Storage</span>
+        <span class="badge badge-amber">Offshore: Conditional</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>Einstein Trust Layer:</strong> PII masking before LLM processing, toxicity detection, zero data retention with third-party LLMs.</li>
+          <li>Data stays within Salesforce VPC. Default model: OpenAI GPT-4o.</li>
+          <li>Trust Layer performs dynamic grounding, prompt defence, and audit trail generation.</li>
+          <li>No enterprise customer data used for model training.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Salesforce <strong>Hyperforce on AWS Sydney</strong> available for Australian customers.</li>
+          <li>Geo-aware routing based on Data Cloud region. Global data residency options include Australia.</li>
+          <li><strong>Sovereign AI</strong> approach available for Australian requirements.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <ul>
+          <li>Geo-aware routing attempts to keep data in-region.</li>
+          <li><strong>Fallback risk:</strong> &ldquo;If a model isn&rsquo;t available in your Data Cloud region, or if there isn&rsquo;t enough capacity, requests are routed to the US.&rdquo;</li>
+          <li><strong>InCountry AgentCloak</strong> available for strict sovereignty needs (additional product).</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Recommendation:</strong> Deploy on Hyperforce AU. Monitor geo-aware routing behaviour. Evaluate InCountry AgentCloak for strictest requirements. Confirm model availability in AU Data Cloud region.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 8: Zoom AI Companion -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">08</div>
+        <div>
+          <div class="app-name">Zoom AI Companion</div>
+          <div class="app-vendor">Zoom Video Communications</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-green">AU Meetings</span>
+        <span class="badge badge-red">Offshore: Yes (default)</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>No customer content used for AI training</strong> (ToS Section 10). Explicit commitment.</li>
+          <li>Federated AI architecture using Zoom SLMs + third-party LLMs (OpenAI, Anthropic, Perplexity).</li>
+          <li>Three deployment models: <strong>Federated</strong> (default, full features), <strong>ZM+</strong> (Zoom + Anthropic on Bedrock), <strong>ZMO</strong> (Zoom-only models, reduced features).</li>
+          <li>AES-256 at rest, TLS 1.2 in transit. Zero data retention option available.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>Zoom data centres in <strong>Sydney</strong> and <strong>Melbourne</strong> for meeting data.</li>
+          <li>AI processing location depends on deployment model chosen.</li>
+          <li>Third-party providers (OpenAI, Anthropic) may retain data in US for up to 30 days.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>Default (Federated) mode sends data to US third-party providers.</strong> Custom AI Companion is explicitly unavailable for Australia-hosted accounts.
+        </div>
+        <ul>
+          <li><strong>Federated (default):</strong> Yes &mdash; data sent to US third-party providers (OpenAI, Anthropic, Perplexity).</li>
+          <li><strong>ZMO (Zoom-only):</strong> Could keep processing in-region but Australia NOT explicitly listed as confirmed ZMO region (US, Europe, Canada, India confirmed).</li>
+          <li>Third-party providers retain data in US up to 30 days.</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Recommendation:</strong> Evaluate ZMO deployment for reduced offshore exposure. Confirm ZMO regional availability for Australia with Zoom directly. Accept reduced feature set if ZMO is selected.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 9: Adobe Firefly -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">09</div>
+        <div>
+          <div class="app-name">Adobe Firefly</div>
+          <div class="app-vendor">Adobe Inc.</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training</span>
+        <span class="badge badge-red">US Only Storage</span>
+        <span class="badge badge-red">Offshore: Yes</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>Never trains on enterprise customer data.</strong></li>
+          <li>IP indemnification available for qualifying enterprise plans.</li>
+          <li><strong>Content Credentials (C2PA)</strong> system for provenance tracking on generated content.</li>
+          <li>Partner models (OpenAI, Google) can be disabled by admins.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>AI inference: <strong>ONLY AWS US-East and US-West</strong> regardless of user location.</li>
+          <li>Generation History: US-East, EMEA-West, or APAC-East (<strong>Japan, not Australia</strong>).</li>
+          <li>Content Credentials stored in US-East only.</li>
+          <li><strong>No Australian data centres for Firefly.</strong> Edge servers in AU for CDN only, not processing.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>ALL processing occurs in the US.</strong> No Australian option whatsoever. This is the strongest &ldquo;offshore&rdquo; finding across all 10 applications assessed.
+        </div>
+        <ul>
+          <li>Every prompt, image generation request, and output is processed in US data centres.</li>
+          <li>No data residency options for Australia. No public roadmap for AU expansion.</li>
+          <li>Content Credentials metadata stored exclusively in US-East.</li>
+        </ul>
+        <div class="callout highlight">
+          <strong>Risk Assessment:</strong> Suitable for non-sensitive creative work. Avoid for workloads involving confidential data, personal information, or content subject to Australian data sovereignty requirements.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App 10: Perplexity AI -->
+  <div class="app-card">
+    <div class="app-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="app-title-group">
+        <div class="app-number">10</div>
+        <div>
+          <div class="app-name">Perplexity AI</div>
+          <div class="app-vendor">Perplexity AI Inc.</div>
+        </div>
+      </div>
+      <div class="app-badges">
+        <span class="badge badge-green">No Training (Ent.)</span>
+        <span class="badge badge-red">US Only Storage</span>
+        <span class="badge badge-red">Offshore: Yes</span>
+      </div>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="app-body">
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-manage">&#128274;</div>
+          <div class="section-title">How Data is Managed</div>
+        </div>
+        <ul>
+          <li><strong>Enterprise Pro:</strong> No training on data &mdash; contractual. Zero data retention with all third-party model providers.</li>
+          <li>Files auto-deleted after <strong>7 days</strong>. Custom retention for organisations with 50+ seats.</li>
+          <li>SOC 2 Type II, HIPAA (with BAA) certified.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-store">&#127968;</div>
+          <div class="section-title">Where Data is Stored</div>
+        </div>
+        <ul>
+          <li>All infrastructure on <strong>AWS (US)</strong>. New $750M Azure deal announced January 2026.</li>
+          <li>Servers in <strong>US and EU only</strong>. No APAC hosting.</li>
+          <li>No Australian data residency. No public commitments for future AU residency.</li>
+        </ul>
+      </div>
+      <div class="data-section">
+        <div class="section-header">
+          <div class="section-icon icon-offshore">&#9992;</div>
+          <div class="section-title">Offshore Data Transfer</div>
+        </div>
+        <div class="callout alert">
+          <strong>ALL data processed in the US.</strong> No Australian data residency, hosting, or processing options. DPA lacks Australia-specific provisions.
+        </div>
+        <ul>
+          <li>Every query and response is processed on US infrastructure.</li>
+          <li>No regional hosting options for Australia.</li>
+          <li>Suitable for general research queries not involving sensitive/personal data.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Data<span class="fh">#</span>3 Limited</div>
+    <div>ISMT Security Assessment &mdash; 16 February 2026 &mdash; Information sourced from vendor documentation, official announcements, and public filings.</div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Wrap app-body children for grid animation ──────────
+  document.querySelectorAll('.app-body').forEach(function(body) {
+    var inner = document.createElement('div');
+    inner.className = 'app-body-inner';
+    while (body.firstChild) {
+      inner.appendChild(body.firstChild);
+    }
+    body.appendChild(inner);
+  });
+
+  // ── Remove inline onclick, use event delegation ────────
+  document.querySelectorAll('.app-header').forEach(function(header) {
+    header.removeAttribute('onclick');
+  });
+
+  document.addEventListener('click', function(e) {
+    var header = e.target.closest('.app-header');
+    if (!header) return;
+    var card = header.closest('.app-card');
+    if (!card) return;
+    card.classList.toggle('open');
+  });
+
+  // ── IntersectionObserver for scroll reveals ────────────
+  var revealElements = [
+    { selector: '.exec-summary', delay: 0 },
+    { selector: '.matrix-card', delay: 0 }
+  ];
+
+  // Add scroll-reveal class to key elements
+  var execSummary = document.querySelector('.exec-summary');
+  var matrixCard = document.querySelector('.matrix-card');
+
+  if (execSummary) {
+    execSummary.classList.add('scroll-reveal');
+  }
+  if (matrixCard) {
+    matrixCard.classList.add('scroll-reveal');
+  }
+
+  // Add scroll-reveal to all app cards with stagger delays
+  document.querySelectorAll('.app-card').forEach(function(card, index) {
+    card.classList.add('scroll-reveal');
+    card.setAttribute('data-delay', String(index));
+  });
+
+  // Create observer
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.scroll-reveal').forEach(function(el) {
+      observer.observe(el);
+    });
+  } else {
+    // Fallback: just show everything
+    document.querySelectorAll('.scroll-reveal').forEach(function(el) {
+      el.classList.add('revealed');
+    });
+  }
+})();
+</script>
+</body>
+</html>

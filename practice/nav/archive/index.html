@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000025">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Data#3 Navigator — Guided Enablement</title>
+  <link rel="stylesheet" href="/nav/styles.css?v=20260809-1">
+  <link rel="stylesheet" href="/nav/lens-nav.css?v=20260809-1">
+  <link rel="stylesheet" href="/nav/result-colours.css?v=20260809-2">
+  <link rel="stylesheet" href="/nav/context-nav.css?v=20260809-5">
+  <link rel="stylesheet" href="/nav/reveal-results.css?v=20260810-2">
+  <script src="/nav/taxonomy.js?v=20260809-1" defer></script>
+  <script src="/nav/catalogue-1.js?v=20260809-1" defer></script>
+  <script src="/nav/catalogue-2.js?v=20260809-1" defer></script>
+  <script src="/nav/catalogue-3.js?v=20260809-1" defer></script>
+  <script src="/nav/catalogue-4.js?v=20260809-1" defer></script>
+  <script src="/nav/catalogue-5.js?v=20260809-1" defer></script>
+  <script src="/nav/data.js?v=20260809-1" defer></script>
+  <script src="/nav/app.js?v=20260809-1" defer></script>
+  <script src="/nav/lens-nav.js?v=20260809-1" defer></script>
+  <script src="/nav/result-colours.js?v=20260809-2" defer></script>
+  <script src="/nav/context-nav.js?v=20260809-5" defer></script>
+  <script src="/nav/reveal-results.js?v=20260810-1" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="topin">
+      <div class="brand">Data<sup>#</sup>3 Navigator <small>guided enablement</small></div>
+      <div class="spacer"></div>
+      <button class="tourButton" id="tourStart" type="button">Guided demo</button>
+    </div>
+  </header>
+
+  <nav class="viewBar" id="currentView" aria-label="Current view and discovery lenses">
+    <div class="viewBarInner">
+      <span class="viewLabel">Current view</span>
+      <div class="viewChips" id="viewChips" aria-live="polite"></div>
+      <button class="viewReset" id="viewReset" type="button" hidden>Clear</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero" id="hero" data-copy-status="provisional">
+      <div class="eyebrow">Know what to do next</div>
+      <h1>Find your best starting point.</h1>
+      <p>Choose a ready-made view or build your own.</p>
+
+      <div class="startChooser" id="journeyPicker">
+        <div class="startBlock">
+          <div class="scenarioHeading">
+            <div>
+              <div class="startLabel">Choose a ready-made view</div>
+              <p>Pick the situation closest to yours. Navigator will preload the view, then show only the strongest starting points.</p>
+            </div>
+            <span class="scenarioCount">8 scenarios</span>
+          </div>
+
+          <div class="samples scenarioGrid" aria-label="Ready-made starting views">
+            <button class="sample scenarioChip" style="--scenario-accent:#00AEFF;--scenario-rgb:0,174,255" type="button" data-persona="Account Executive" data-mission="Prepare for a customer meeting">
+              <span class="scenarioTitle">I have a customer meeting tomorrow</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Account Executive · Build a focused conversation view and the next questions to ask.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#9B9BFF;--scenario-rgb:155,155,255" type="button" data-persona="New Seller" data-mission="Learn or refresh a core offer">
+              <span class="scenarioTitle">I’m new to Data &amp; AI</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">New seller · Show me the core offers, useful language and a practical learning path.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#DAFF00;--scenario-rgb:218,255,0" type="button" data-persona="Generalist Seller" data-mission="Decide what to position">
+              <span class="scenarioTitle">I need to decide what to position</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Generalist seller · Narrow a broad customer need to a credible first conversation.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#00FFFF;--scenario-rgb:0,255,255" type="button" data-persona="Technical Presales Engineer" data-mission="Compare two solutions">
+              <span class="scenarioTitle">I need to compare two solutions</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Presales engineer · See fit, trade-offs, technical questions and likely next steps.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#FF00FF;--scenario-rgb:255,0,255" type="button" data-persona="Practice Specialist" data-mission="Handle an objection">
+              <span class="scenarioTitle">I need to handle a Security objection</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Practice specialist · Prepare a concise response, supporting proof and a recovery path.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#00FF88;--scenario-rgb:0,255,136" type="button" data-persona="Account Executive" data-mission="Find customer proof">
+              <span class="scenarioTitle">I need customer proof for a follow-up</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Account Executive · Surface relevant evidence, stories and assets without trawling folders.</span>
+            </button>
+
+            <button class="sample scenarioChip" style="--scenario-accent:#78DCFF;--scenario-rgb:120,220,255" type="button" data-persona="Generalist Seller" data-mission="Explore an industry">
+              <span class="scenarioTitle">I’m exploring an unfamiliar industry</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Seller · Understand common priorities, useful plays and where to start learning.</span>
+            </button>
+
+            <a class="accountEntry scenarioChip" style="--scenario-accent:#FFBF4A;--scenario-rgb:255,191,74" href="/nav/account">
+              <span class="scenarioTitle">I need to research an account before a meeting</span>
+              <span class="scenarioArrow" aria-hidden="true">→</span>
+              <span class="scenarioDetail">Account Executive · See work in flight, people to involve and five evidence-backed conversations.</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="startDivider"><span>or build your own starting view</span></div>
+
+        <div class="journeyPicker">
+          <div class="field">
+            <label for="persona">I am a…</label>
+            <select id="persona">
+              <option>Account Executive</option>
+              <option>New Seller</option>
+              <option>Generalist Seller</option>
+              <option>Technical Presales Engineer</option>
+              <option>Practice Specialist</option>
+              <option>Sales Manager</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="mission">I need to…</label>
+            <select id="mission">
+              <option>Prepare for a customer meeting</option>
+              <option>Learn or refresh a core offer</option>
+              <option>Decide what to position</option>
+              <option>Compare two solutions</option>
+              <option>Handle an objection</option>
+              <option>Find customer proof</option>
+              <option>Explore an industry</option>
+            </select>
+          </div>
+          <button class="primary" id="showJourney" type="button">Build my starting view →</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="legacyMount" hidden aria-hidden="true">
+      <button id="resetAll" type="button">Reset</button>
+      <div id="rails"></div>
+    </div>
+
+    <section class="results" id="results">
+      <div class="resultsHead">
+        <div>
+          <div class="eyebrow">Recommended starting points</div>
+          <h2>Fast scan now. Full context on demand.</h2>
+          <p>Each card shows only timing and the TL;DR. Open one for fit, ownership, lifecycle, assets and next actions.</p>
+        </div>
+        <div class="resultCount" id="resultCount"></div>
+      </div>
+      <div class="resultGrid" id="resultGrid"></div>
+      <div class="emptyState" id="emptyState" hidden>
+        <h3>No exact matches</h3>
+        <p>Open a lens in Current view and choose All, or clear one selection, to broaden the result set.</p>
+      </div>
+    </section>
+
+    <div class="footerNote">Prototype only · all catalogue, industry, persona and journey data is synthetic and embedded · shaped by SolCat catalogue structures and Sid trust and navigation patterns.</div>
+  </main>
+
+  <div class="lensPickerBackdrop" id="lensPickerBackdrop" hidden>
+    <section class="lensPickerPanel" id="lensPickerPanel" role="dialog" aria-modal="true" aria-labelledby="lensPickerTitle" tabindex="-1">
+      <div class="lensPickerHeader">
+        <div>
+          <div class="lensPickerEyebrow">Discovery lens</div>
+          <h2 id="lensPickerTitle"></h2>
+          <p id="lensPickerHint"></p>
+        </div>
+        <button class="iconButton" id="lensPickerClose" type="button" aria-label="Close lens picker">×</button>
+      </div>
+
+      <div class="pickerRailShell">
+        <button class="railArrow left" id="lensPickerLeft" type="button" aria-label="Scroll options left">‹</button>
+        <div class="railViewport pickerRail" id="lensPickerRail"></div>
+        <button class="railArrow right" id="lensPickerRight" type="button" aria-label="Scroll options right">›</button>
+      </div>
+
+      <div class="lensPickerFooter">
+        <span id="lensPickerSelection">All selected</span>
+        <div>
+          <button class="pickerSecondary" id="lensPickerAll" type="button">Select All</button>
+          <button class="pickerDone" id="lensPickerDone" type="button">Done</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="drawerBackdrop" id="drawerBackdrop" hidden>
+    <aside class="drawerPanel" id="drawerPanel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" tabindex="-1">
+      <div class="drawerHeader">
+        <div>
+          <div class="drawerKicker" id="drawerKicker"></div>
+          <h2 id="drawerTitle"></h2>
+        </div>
+        <button class="iconButton" id="drawerClose" type="button" aria-label="Close details">×</button>
+      </div>
+      <div class="drawerTiming" id="drawerTiming"></div>
+      <p class="drawerTldr" id="drawerTldr"></p>
+      <div class="drawerTags" id="drawerTags"></div>
+      <section class="drawerSection"><h3>Why it surfaced</h3><p id="drawerWhy"></p></section>
+      <section class="drawerSection"><h3>What this is</h3><p id="drawerSummary"></p></section>
+      <div class="drawerColumns">
+        <section class="drawerSection"><h3>Typical triggers</h3><ul id="drawerTriggers"></ul></section>
+        <section class="drawerSection"><h3>Useful outputs</h3><ul id="drawerOutputs"></ul></section>
+      </div>
+      <section class="drawerSection trustBlock"><h3>Trust and ownership</h3><div class="trustGrid" id="drawerTrust"></div></section>
+      <div class="drawerActions" id="drawerActions"></div>
+    </aside>
+  </div>
+
+  <div class="tourShade" id="tourShade" hidden></div>
+  <div class="tour" id="tour" hidden role="dialog" aria-label="Guided demo">
+    <div class="tourEyebrow">Guided demo</div>
+    <h3 id="tourTitle"></h3>
+    <p id="tourBody"></p>
+    <div class="tourDots" id="tourDots"></div>
+    <div class="tourFoot">
+      <button id="tourExit" type="button">Exit</button>
+      <span id="tourStep"></span>
+      <div>
+        <button id="tourBack" type="button">Back</button>
+        <button class="tourNext" id="tourNext" type="button">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

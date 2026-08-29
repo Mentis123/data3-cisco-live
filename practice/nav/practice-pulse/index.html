@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000025">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>AI practice pulse</title>
+  <link rel="stylesheet" href="/nav/practice-pulse/styles.css?v=20260829-1">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/nav/vendor/three/build/three.module.min.js",
+      "three/addons/": "/nav/vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+  <script src="/nav/practice-pulse/national-security-attach-plans.js?v=20260829-1" defer></script>
+  <script src="/nav/practice-pulse/security-attach-plans.js?v=20260829-1" defer></script>
+  <script src="/nav/practice-pulse/app.js?v=20260829-1" defer></script>
+  <script type="module" src="/nav/practice-pulse/spatial.js?v=20260827-2"></script>
+  <script type="module" src="/nav/practice-pulse/intel-ui.js?v=20260827-1"></script>
+  <script type="module" src="/nav/practice-pulse/commercial-ui.js?v=20260828-1"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandLockup" aria-label="Data number three">
+      <strong>Data<sup>#</sup>3</strong>
+      <span>AI practice pulse</span>
+    </div>
+    <div class="topbarActions">
+      <nav class="experienceSwitch" aria-label="Practice pulse experience">
+        <button class="active" type="button" data-experience="board" aria-pressed="true">
+          <span>Board</span><small>Operating view</small>
+        </button>
+        <button type="button" data-experience="spatial" aria-pressed="false">
+          <span>Spatial</span><small>Command centre</small>
+        </button>
+        <a class="filmBibleLink" id="filmBibleLink" href="#film-bible">
+          <span>Film bible</span><small>Production source</small>
+        </a>
+      </nav>
+      <div class="topMeta">
+        <span class="privatePill">Private practice view</span>
+        <span id="snapshotMeta">Loading SFDC extract…</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="boardExperience" class="boardExperience">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Personal operating view · Data &amp; AI</p>
+        <h1 id="page-title">See the AI practice as one pipeline.</h1>
+      </div>
+      <p class="heroIntro">Start with the whole practice, compare the three annuity vehicles, then drill into a capability, offering, account, or opportunity without losing the commercial context.</p>
+    </section>
+
+    <section class="filterBar" aria-label="Pipeline filters">
+      <div class="filterGroup statusGroup">
+        <span class="filterLabel">Lifecycle</span>
+        <div class="segmented" id="statusFilters" aria-label="Filter lifecycle statuses">
+          <button class="filterButton active" type="button" data-status="all" aria-pressed="true">All</button>
+          <button class="filterButton" type="button" data-status="Open" aria-pressed="false"><i class="dot open"></i>Open</button>
+          <button class="filterButton" type="button" data-status="Closed Won" aria-pressed="false"><i class="dot won"></i>Won</button>
+          <button class="filterButton" type="button" data-status="Closed Lost" aria-pressed="false"><i class="dot lost"></i>Lost</button>
+        </div>
+      </div>
+
+      <div class="filterGroup">
+        <label class="filterLabel" for="capabilityFilter">Capability</label>
+        <select id="capabilityFilter"><option value="all">All capabilities</option></select>
+      </div>
+
+      <div class="filterGroup">
+        <label class="filterLabel" for="offeringFilter">Offering</label>
+        <select id="offeringFilter"><option value="all">All offerings</option></select>
+      </div>
+
+      <div class="filterGroup">
+        <label class="filterLabel" for="stateFilter">State</label>
+        <select id="stateFilter"><option value="all">All states</option></select>
+      </div>
+
+      <div class="filterGroup timeGroup">
+        <span class="filterLabel">Close date</span>
+        <div class="segmented compact" id="timeFilters">
+          <button class="filterButton active" type="button" data-time="all" aria-pressed="true">All time</button>
+          <button class="filterButton" type="button" data-time="30" aria-pressed="false">30d</button>
+          <button class="filterButton" type="button" data-time="90" aria-pressed="false">90d</button>
+          <button class="filterButton" type="button" data-time="fy" aria-pressed="false">FY</button>
+        </div>
+      </div>
+
+      <div class="filterGroup searchGroup">
+        <label class="filterLabel" for="searchInput">Find anything</label>
+        <div class="searchBox">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.4-4.4m2.4-5.1A7.5 7.5 0 1 1 4 11.5a7.5 7.5 0 0 1 15 0Z"/></svg>
+          <input id="searchInput" type="search" placeholder="Account, opportunity, offering or ID">
+        </div>
+      </div>
+
+      <button class="resetButton" id="resetFilters" type="button">Reset</button>
+    </section>
+
+    <div class="activeFilterLine" id="activeFilterLine" aria-live="polite">All 90 opportunities in view</div>
+
+    <section class="metricGrid" id="metricGrid" aria-label="Practice pipeline summary"></section>
+
+    <section class="panel commercialPanel" id="commercialRecommendation" aria-labelledby="commercial-title">
+      <div class="commercialHero">
+        <div class="commercialDecision">
+          <div class="commercialTitleLine">
+            <p class="eyebrow">Recommended commercial move · Open pipeline</p>
+            <span id="commercialScopeLabel">National view</span>
+          </div>
+          <h2 id="commercial-title"><span id="commercialLead">Lead with Committed Capacity.</span></h2>
+          <p id="commercialExplanation">Loading the reconciled opportunity matrix…</p>
+          <div class="commercialJourney" aria-label="Annuity journey">
+            <div><b>01</b><span>On-ramp</span><strong>Entitled Drawdown</strong><small>Readiness and envisioning</small></div>
+            <i aria-hidden="true">→</i>
+            <div class="active"><b>02</b><span>The engine</span><strong>Committed Capacity</strong><small>Rollout, adoption and agents</small></div>
+            <i aria-hidden="true">→</i>
+            <div><b>03</b><span>The snowball</span><strong>Standing Services</strong><small>Operate, govern and optimise</small></div>
+          </div>
+        </div>
+        <aside class="commercialProof" id="commercialProof" aria-label="Commercial recommendation proof"></aside>
+      </div>
+
+      <div class="commercialStateBand">
+        <div>
+          <p class="eyebrow">State lens</p>
+          <h3>Take the recommendation into each state conversation.</h3>
+        </div>
+        <div class="commercialStateRail" id="commercialStateRail" aria-label="Select a commercial state view"></div>
+      </div>
+
+      <div class="commercialMatrixHead">
+        <div>
+          <p class="eyebrow">Opportunity value by state and offer family</p>
+          <h3>Where the open pipeline is concentrated.</h3>
+        </div>
+        <span>Darker cells = more open pipeline Amount</span>
+      </div>
+      <div class="commercialHeatWrap">
+        <div class="commercialHeatmap" id="commercialHeatmap" aria-label="Open pipeline amount by state and offer family"></div>
+      </div>
+
+      <footer class="commercialSource" id="commercialSource"></footer>
+    </section>
+
+    <section class="primaryGrid">
+      <article class="panel vehiclePanel">
+        <div class="panelHead">
+          <div>
+            <p class="eyebrow">Commercial architecture</p>
+            <h2>The three annuity vehicles</h2>
+            <p>Compare the on-ramp, the delivery engine, and the standing-services snowball. Select a vehicle to focus the whole page.</p>
+          </div>
+          <div class="measureSwitch" aria-label="Measure selection">
+            <button class="active" type="button" data-measure="count" aria-pressed="true">Opportunity count</button>
+            <button type="button" data-measure="value" aria-pressed="false">Pipeline value</button>
+          </div>
+        </div>
+        <div class="vehicleGrid" id="vehicleGrid"></div>
+      </article>
+
+      <aside class="panel attentionPanel">
+        <div class="panelHead compactHead">
+          <div>
+            <p class="eyebrow">What matters now</p>
+            <h2>Operating signals</h2>
+          </div>
+        </div>
+        <div class="signalList" id="signalList"></div>
+      </aside>
+    </section>
+
+    <section class="secondaryGrid">
+      <article class="panel lifecyclePanel">
+        <div class="panelHead compactHead">
+          <div>
+            <p class="eyebrow">Lifecycle</p>
+            <h2>Open, won, and lost</h2>
+          </div>
+        </div>
+        <div class="lifecycleBody">
+          <div class="donut" id="lifecycleDonut" role="img" aria-label="Opportunity lifecycle mix">
+            <div><strong id="donutTotal">0</strong><span>opportunities</span></div>
+          </div>
+          <div class="lifecycleLegend" id="lifecycleLegend"></div>
+        </div>
+      </article>
+
+      <article class="panel coveragePanel">
+        <div class="panelHead compactHead">
+          <div>
+            <p class="eyebrow">Data readiness</p>
+            <h2>How far can this answer the financial question?</h2>
+          </div>
+        </div>
+        <p class="coverageIntro" id="coverageIntro"></p>
+        <div class="coverageList" id="coverageList"></div>
+      </article>
+
+      <article class="panel concentrationPanel">
+        <div class="panelHead compactHead">
+          <div>
+            <p class="eyebrow">Open pipeline</p>
+            <h2>Account concentration</h2>
+          </div>
+        </div>
+        <div class="accountList" id="accountList"></div>
+      </article>
+    </section>
+
+    <section class="panel matrixPanel">
+      <div class="panelHead">
+        <div>
+          <p class="eyebrow">Practice lens</p>
+          <h2>Where capabilities meet annuity</h2>
+          <p>The matrix shows opportunity concentration. Multi-capability records appear in each relevant row. Click a cell to focus the capability and vehicle together.</p>
+        </div>
+        <span class="legendNote">Darker cells = more opportunities</span>
+      </div>
+      <div class="matrixWrap" id="matrixWrap"></div>
+    </section>
+
+    <section class="panel capabilityPanel">
+      <div class="panelHead">
+        <div>
+          <p class="eyebrow">Collapse and drill</p>
+          <h2>Practice → capability → offering</h2>
+          <p>Capability totals are deduplicated at practice level. Multi-capability records remain visible in every relevant drill-down.</p>
+        </div>
+        <button class="ghostButton" id="collapseCapabilities" type="button">Collapse all</button>
+      </div>
+      <div class="capabilityList" id="capabilityList"></div>
+    </section>
+
+    <section class="panel opportunityPanel" id="opportunityExplorer">
+      <div class="panelHead">
+        <div>
+          <p class="eyebrow">Customer and opportunity view</p>
+          <h2>Opportunity explorer</h2>
+          <p>Open Salesforce records in a new window where an opportunity ID is available.</p>
+        </div>
+        <div class="tableActions">
+          <label>
+            <span class="srOnly">Sort opportunities</span>
+            <select id="sortSelect">
+              <option value="priority">Open first</option>
+              <option value="confidence">Mapping confidence</option>
+              <option value="account">Account A–Z</option>
+              <option value="vehicle">Annuity vehicle</option>
+            </select>
+          </label>
+          <button class="ghostButton" id="exportView" type="button">Export current view</button>
+        </div>
+      </div>
+      <div class="tableMeta" id="tableMeta"></div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Opportunity</th>
+              <th>Offering</th>
+              <th>Capability</th>
+              <th>Vehicle</th>
+              <th>State</th>
+              <th>Attach plan</th>
+              <th>Status</th>
+              <th>Mapping confidence</th>
+              <th><span class="srOnly">Open in Salesforce</span></th>
+            </tr>
+          </thead>
+          <tbody id="opportunityRows"></tbody>
+        </table>
+      </div>
+      <div class="emptyState" id="emptyState" hidden>No opportunities match these filters.</div>
+    </section>
+  </main>
+
+  <section class="spatialExperience" id="spatialExperience" aria-label="AI practice spatial command centre" hidden>
+    <canvas id="spatialCanvas" aria-hidden="true"></canvas>
+    <div class="spatialScanlines" aria-hidden="true"></div>
+
+    <header class="spatialHudTop" data-spatial-ui>
+      <div>
+        <p class="eyebrow">Data &amp; AI · live practice lens</p>
+        <div class="spatialBreadcrumb" id="spatialBreadcrumb" aria-live="polite">
+          <button type="button" data-spatial-level="practice">Practice</button>
+          <span>Data &amp; AI</span>
+        </div>
+      </div>
+      <div class="spatialStatusFilters" id="spatialStatusFilters" aria-label="Spatial lifecycle filter">
+        <button class="active" type="button" data-spatial-status="all" aria-pressed="true">All</button>
+        <button type="button" data-spatial-status="Open" aria-pressed="false"><i class="dot open"></i>Open</button>
+        <button type="button" data-spatial-status="Closed Won" aria-pressed="false"><i class="dot won"></i>Won</button>
+        <button type="button" data-spatial-status="Closed Lost" aria-pressed="false"><i class="dot lost"></i>Lost</button>
+      </div>
+    </header>
+
+    <article class="spatialBoard" id="spatialBoard" data-spatial-ui aria-labelledby="spatialBoardTitle">
+      <div class="spatialBoardGlow" aria-hidden="true"></div>
+      <header class="spatialBoardHead">
+        <div>
+          <p class="eyebrow" id="spatialBoardKicker">Practice command board</p>
+          <h1 id="spatialBoardTitle">Data &amp; AI</h1>
+          <p id="spatialBoardContext">All capabilities · all offerings · all annuity vehicles</p>
+        </div>
+        <div class="spatialBoardPulse"><i></i><span id="spatialBoardMeta">Synchronising pipeline…</span></div>
+      </header>
+
+      <div class="spatialKpis" id="spatialKpis" aria-label="Spatial pipeline summary"></div>
+
+      <div class="spatialBoardGrid">
+        <section class="spatialModule lifecycleModule">
+          <div class="spatialModuleHead"><span>Lifecycle</span><b id="spatialLifecycleTotal">0</b></div>
+          <div class="spatialLifecycleChart" id="spatialLifecycleChart"></div>
+        </section>
+        <section class="spatialModule vehicleModule">
+          <div class="spatialModuleHead"><span>Annuity mix</span><b>3 vehicles</b></div>
+          <div class="spatialVehicleChart" id="spatialVehicleChart"></div>
+        </section>
+        <section class="spatialModule accountModule">
+          <div class="spatialModuleHead"><span>Open accounts</span><b id="spatialAccountMeta">0 accounts</b></div>
+          <div class="spatialAccounts" id="spatialAccounts"></div>
+        </section>
+        <section class="spatialModule opportunityModule">
+          <div class="spatialModuleHead"><span>Priority records</span><b>SFDC</b></div>
+          <div class="spatialOpportunities" id="spatialOpportunities"></div>
+        </section>
+      </div>
+
+      <footer class="spatialBoardFoot">
+        <span id="spatialCoverageSignal">Coverage scan running…</span>
+        <button type="button" id="spatialOpenDetail">Open this scope in the board</button>
+      </footer>
+    </article>
+
+    <div class="spatialLabels" id="spatialLabels" data-spatial-ui aria-label="Three-dimensional practice navigation"></div>
+
+    <!-- Mobile-only control strip. Hidden until spatial-mobile.js confirms a
+         mobile viewport; every control reuses the desktop data-spatial-*
+         contract so the drill state machine stays in one place. -->
+    <nav class="mobileDeck" id="mobileDeck" data-spatial-ui aria-label="Practice scope navigation" hidden>
+      <div class="mobileDeckRow">
+        <button class="mobileScopeChip" id="mobileScopeChip" type="button" disabled>
+          <i aria-hidden="true">•</i><span><small>Practice</small><strong>Data &amp; AI</strong></span>
+        </button>
+        <div class="mobileStatusStrip" id="mobileStatusStrip" aria-label="Lifecycle filter">
+          <button class="active" type="button" data-spatial-status="all" aria-pressed="true">All</button>
+          <button type="button" data-spatial-status="Open" aria-pressed="false">Open</button>
+          <button type="button" data-spatial-status="Closed Won" aria-pressed="false">Won</button>
+          <button type="button" data-spatial-status="Closed Lost" aria-pressed="false">Lost</button>
+        </div>
+        <button class="mobileResetChip" id="mobileResetCamera" type="button" aria-label="Reset the camera view">⟲</button>
+      </div>
+      <div class="mobileChipRail" id="mobileChipRail"></div>
+    </nav>
+
+    <div class="mobileSheet" id="mobileSheet" data-spatial-ui hidden>
+      <button class="mobileSheetHandle" id="mobileSheetHandle" type="button" aria-expanded="false" aria-controls="spatialBoard" aria-label="Expand the command board">
+        <i aria-hidden="true"></i>
+        <span class="mobileSheetSummary" id="mobileSheetSummary"></span>
+        <b aria-hidden="true">^</b>
+      </button>
+    </div>
+
+    <nav class="scopeDeck" id="scopeDeck" data-spatial-ui aria-label="Practice hierarchy navigation">
+      <div class="cockpitChrome" aria-hidden="true">
+        <span>Practice flight deck</span>
+        <i></i>
+        <small>Scope · capability · offering</small>
+      </div>
+      <button class="practiceDeckButton active" type="button" data-spatial-capability="all" aria-pressed="true">
+        <span>Practice</span><strong>Data &amp; AI</strong><small id="practiceDeckMeta">90 opportunities</small>
+      </button>
+      <div class="capabilityDeck" id="capabilityDeck"></div>
+      <div class="offeringDeck" id="offeringDeck" hidden>
+        <div class="offeringDeckHead"><span id="offeringDeckTitle">Offerings</span><button type="button" id="closeOfferingDeck" aria-label="Return to practice level">×</button></div>
+        <div class="offeringDeckRail" id="offeringDeckRail"></div>
+      </div>
+    </nav>
+
+    <aside class="spatialHint" id="spatialHint" data-spatial-ui>
+      <span>Drag for parallax · wheel to adjust depth · use the flight deck to drill</span>
+      <button type="button" id="spatialResetCamera">Reset view</button>
+    </aside>
+
+    <div class="spatialVeil" id="spatialVeil" data-spatial-ui>
+      <div class="veilGlyph"><i></i><i></i><i></i></div>
+      <strong>Assembling the practice field</strong>
+      <span>Five capabilities · three annuity vehicles · one pipeline</span>
+    </div>
+  </section>
+
+  <footer id="boardFooter">
+    <span>Internal working view · Built from the SFDC extract and reconciled commercial matrix</span>
+    <span id="footerCoverage">Commercial coverage loading…</span>
+  </footer>
+
+  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true">
+    <aside class="detailDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawerHead">
+        <div>
+          <p class="eyebrow" id="drawerEyebrow">Drill-down</p>
+          <h2 id="drawerTitle">Detail</h2>
+        </div>
+        <button class="closeButton" id="closeDrawer" type="button" aria-label="Close detail panel">×</button>
+      </div>
+      <div id="drawerContent"></div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

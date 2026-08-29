@@ -1,0 +1,67 @@
+SOLCAT MATRIX — CHARACTER AND LOGO IMAGE PROMPTS
+Companion to staffnet-prism-image-prompts.txt. Data#3 brand palette only:
+Blue Black #000025 · Data#3 Blue #007BC3 · Light Blue #00AEFF · Pale Blue #78DCFF
+Aqua #00FFFF · Cool Lilac #9B9BFF · Magenta #FF00FF · Light Grey #9D9FA2
+
+The character is called SOL. Sid the bilby fronts the StaffNet Intelligent
+Directory; Sol the cat fronts the SolCat Matrix. They must read as siblings:
+same illustration language, same line weight, same flat cel shading.
+
+
+1) sol-cat.png — the character, primary avatar
+Create a friendly cartoon character portrait of a sleek grey Australian
+domestic cat, shown head and upper shoulders, facing the viewer, on a fully
+transparent background. Flat cel-shaded vector illustration with clean bold
+dark navy outlines, soft rounded shapes and warm approachable expression —
+the same illustration language as a bespectacled cartoon bilby mascot, so the
+two read as a matched pair. The cat wears small round wire-framed dark
+sunglasses and a dark navy collared jacket with a subtle upright collar, with
+a small circular aqua badge on the chest. Confident half smile, one ear
+slightly tilted, alert knowing eyes visible behind the lenses. Colour palette
+strictly deep navy #000025, light blue #00AEFF, aqua #00FFFF, pale blue
+#78DCFF and neutral greys. Corporate-friendly and charming, not edgy, not
+photorealistic, no weapons, no trench coat, no readable text, no logos, no
+background elements, no drop shadow.
+
+2) sol-cat-matrix.png — the character in context, for a hero or splash
+Same grey cartoon cat character with small round dark glasses and dark navy
+jacket, seated calmly at three-quarter view in front of a large softly glowing
+grid of translucent cards arranged in rows and columns, suggesting a catalogue
+being read at a glance. Thin vertical streams of faint aqua and light blue
+particles fall gently behind the grid, abstract and elegant rather than
+cinematic. Deep navy #000025 environment, light blue and aqua accents, one
+restrained lilac highlight. Flat vector illustration with subtle depth, calm
+and premium, corporate-friendly. No readable text, no code glyphs, no logos,
+no weapons, no rain-soaked city, no dystopian mood, no empty space.
+
+3) solcat-matrix-mark.png — abstract mark, no character
+Create a simple square app-style mark for a solution catalogue. Show a clean
+four-by-four geometric grid where one column is illuminated and the others
+recede, expressing a catalogue read through a single lens. Each illuminated
+cell carries a different subtle pattern — fine dots, diagonal hatch, layered
+bars, concentric rings — echoing a practice identity system. Deep navy
+#000025 ground, light blue #00AEFF and aqua #00FFFF illumination, restrained
+lilac #9B9BFF accent on one cell. Flat, geometric, precise, no gradients
+beyond a soft inner glow, no readable text, no letterforms, no logos, no
+perspective, no empty space.
+
+4) solcat-matrix-hero.png — optional 16:9 banner
+Create a premium 16:9 abstract banner for an internal solution catalogue.
+Show a wide matrix of translucent cards in ordered rows and columns, some
+cells lit and some deliberately dark and empty, expressing a portfolio where
+the gaps matter as much as the coverage. Four vertical bands of light cross
+the grid in light blue, aqua, cool lilac and magenta, representing four
+commercial motions. Deep navy corporate foundation, elegant restrained depth,
+no readable text, no logos, no people, no rainbow treatment, no excessive
+glow, no empty space.
+
+NOTES
+- Prompt 1 is the one that matters. Generate it first, save beside the HTML as
+  sol-cat.png, and embed it as a data URI so the file stays self-contained.
+- Keep Sol's glasses small and round. Large mirrored shades read as a costume
+  rather than a character, and stop it matching Sid.
+- Avoid anything that literally quotes a film: no long black coat, no falling
+  green characters, no bullet-time poses. The joke should land through
+  posture and the glasses alone, and it keeps the asset safely ours.
+- Green is not in the Data#3 palette. The falling-particle motif must be aqua
+  and light blue, which is also why prompt 2 says particles rather than code.

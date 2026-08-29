@@ -1,0 +1,22 @@
+{
+  "name": "d3-agent-governance",
+  "version": "1.0.0",
+  "description": "Enterprise Agent Governance Framework",
+  "main": "server.js",
+  "scripts": {
+    "validate": "node --check taxonomy-preload.js && node --check solcat-record-preload.js && node --check nav/data.js && node --check nav/taxonomy.js && node --check nav/account/data.js && node --check nav/account/app.js && node --check nav/bubbles/pack.js && node --check nav/pond/pond.js && node --check nav/box/box.js && node --check nav/world3d/taxonomy.js && node --check nav/world3d/layout.js && node --check nav/world3d/materials.js && node --check nav/world3d/totems.js && node --check nav/world3d/nodes.js && node --check nav/world3d/hotspots.js && node --check nav/world3d/scene.js && node --check nav/world3d/tiers.js && node --check nav/world3d/detail-card.js && node --check nav/world3d/gyro.js && node --check nav/world3d/camera-feed.js && node --check nav/world3d/mobile-readability.js && node --check nav/world/world.js && node --check nav/ar/ar.js && node --check nav/practice-pulse/national-security-attach-plans.js && node --check nav/practice-pulse/security-attach-plans.js && node --check nav/practice-pulse/app.js && node --check nav/practice-pulse/commercial-ui.js && node --check nav/practice-pulse/spatial.js && node --check nav/practice-pulse/spatial-mobile.js && node --check nav/practice-pulse/intel-ui.js && node --check nav/practice-pulse/film-bible/app.js && node -e \"const fs=require('fs');JSON.parse(fs.readFileSync('nav/practice-pulse/film-bible/production-manifest.json','utf8'));JSON.parse(fs.readFileSync('nav/practice-pulse/film-bible/generation-log.json','utf8'))\" && node nav/practice-pulse/security-attach-contract.test.mjs && node nav/practice-pulse/commercial-matrix-contract.test.mjs && node nav/practice-pulse/film-bible-contract.test.mjs && node nav/practice-pulse/spatial-contract.test.mjs && node nav/practice-pulse/intel-contract.test.mjs && node --check server.js",
+    "postinstall": "npm run validate",
+    "start": "node -r ./taxonomy-preload.js -r ./solcat-record-preload.js server.js"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.5.0",
+    "compression": "^1.8.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

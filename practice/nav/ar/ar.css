@@ -1,0 +1,60 @@
+:root{color-scheme:dark;--bg:#000025;--ink:#fff;--muted:#9faabd;--pale:#78DCFF;--blue:#00AEFF;--line:rgba(255,255,255,.17);--line-soft:rgba(255,255,255,.09)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+/* 100dvh, not 100vh: Chrome on iOS puts its address bar at the bottom and vh
+   measures the wrong box on both iOS browsers. */
+body{margin:0;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+#cameraFeed{position:fixed;inset:0;width:100%;height:100dvh;object-fit:cover;z-index:0;background:var(--bg)}
+#arCanvas{position:fixed;inset:0;width:100%;height:100dvh;z-index:1;display:block}
+
+/* Chrome is pointer-transparent so look-around drags reach the canvas; the
+   controls themselves opt back in. */
+.arChrome{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;padding:calc(env(safe-area-inset-top,0px) + 10px) calc(env(safe-area-inset-right,0px) + 12px) calc(env(safe-area-inset-bottom,0px) + 12px) calc(env(safe-area-inset-left,0px) + 12px)}
+.arTop{display:flex;align-items:center;gap:10px}
+.arBrand{pointer-events:auto;padding:7px 11px;border-radius:999px;background:rgba(0,0,37,.6);backdrop-filter:blur(10px);font-size:14px;font-weight:950;letter-spacing:-.03em;white-space:nowrap}
+.arBrand small{margin-left:5px;color:var(--pale);font-size:7.5px;letter-spacing:.12em;text-transform:uppercase}
+.arStatus{flex:1;min-width:0;padding:6px 11px;border-radius:12px;background:rgba(0,0,37,.6);backdrop-filter:blur(10px)}
+.arStatus span{display:block;color:var(--pale);font-size:7.5px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}
+.arStatus b{display:block;font-size:13px;line-height:1.2;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arExit{pointer-events:auto;flex:0 0 auto;width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line-soft);border-radius:50%;background:rgba(0,0,37,.6);backdrop-filter:blur(10px);font-size:15px}
+
+.arBottom{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.arActions{display:flex;gap:7px;pointer-events:auto}
+.arActions button{min-height:42px;padding:10px 15px;border:1px solid var(--line);border-radius:999px;background:rgba(0,0,37,.68);backdrop-filter:blur(12px);font-size:12px;font-weight:850}
+.arActions button:active{background:rgba(0,174,255,.2)}
+.arMode{padding:6px 10px;border:1px solid var(--line-soft);border-radius:999px;background:rgba(0,0,37,.55);backdrop-filter:blur(8px);color:#bcd0e0;font-size:9px;font-weight:800;letter-spacing:.04em}
+.arMode.warn{border-color:rgba(255,183,255,.4);color:#FFB7FF}
+
+.detailCard{position:fixed;z-index:8;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 68px);max-height:52dvh;overflow:auto;padding:15px 16px;border:1px solid var(--line);border-radius:16px;background:rgba(4,4,44,.92);backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(0,0,0,.55);pointer-events:auto}
+.cardClose{position:absolute;top:9px;right:10px;width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line-soft);border-radius:50%;background:transparent;font-size:16px;line-height:1}
+.cardKicker{font-size:8px;font-weight:950;letter-spacing:.16em;text-transform:uppercase}
+.cardTitle{margin:5px 38px 0 0;font-size:17px;line-height:1.15;letter-spacing:-.03em}
+.cardMeta{margin:6px 0 0;color:var(--pale);font-size:10px;font-weight:800}
+.cardBody{margin:8px 0 0;color:#c2d4e2;font-size:11px;line-height:1.5}
+.cardTrail{margin-top:10px;display:flex;gap:5px;flex-wrap:wrap}
+.cardTrail span{padding:4px 8px;border:1px solid var(--line-soft);border-radius:999px;color:#cde1ee;font-size:8px;font-weight:800}
+.cardTrail span:not(:last-child)::after{content:" →";color:var(--blue)}
+.cardActions{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cardActions a{min-height:38px;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:9px;font-size:10px;font-weight:850}
+.cardActions a::after{content:"→";color:var(--blue)}
+
+.arGate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:radial-gradient(760px 460px at 50% 34%,rgba(0,174,255,.14),transparent 64%),#000025;transition:opacity .45s ease}
+.arGate.gone{opacity:0;pointer-events:none}
+.gateInner{max-width:420px;text-align:center}
+.gateKicker{color:var(--pale);font-size:9px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}
+.gateInner h1{margin:9px 0 0;font-size:clamp(24px,7vw,32px);line-height:1.08;letter-spacing:-.04em}
+.gateInner p{margin:12px 0 0;color:#c2d4e2;font-size:13.5px;line-height:1.55}
+#startButton{margin-top:22px;width:100%;min-height:52px;padding:15px;border:0;border-radius:14px;background:#007BC3;color:#fff;font-size:15px;font-weight:900;letter-spacing:-.01em}
+#startButton:active{background:#00AEFF;color:#000025}
+#startButton[disabled]{opacity:.55}
+.gateInner small{display:block;margin-top:11px;color:var(--muted);font-size:10.5px;line-height:1.45}
+.gateFallback{display:inline-block;margin-top:18px;color:var(--pale);font-size:11.5px;font-weight:800;border-bottom:1px solid rgba(120,220,255,.35);padding-bottom:2px}
+.gateInner.failed h1{color:#FFB7FF}
+
+@media(min-width:900px){
+  .detailCard{left:auto;right:16px;top:70px;bottom:auto;width:340px;max-height:calc(100dvh - 150px)}
+}
+@media(prefers-reduced-motion:reduce){.arGate{transition:none}}

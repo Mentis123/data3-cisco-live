@@ -1,0 +1,33 @@
+:root{
+  --taxonomy-portfolio:#11b8f5;
+  --taxonomy-practice:#7f5ce4;
+  --taxonomy-capability:#a20f9f;
+  --taxonomy-offering:#d51bd3;
+}
+.taxonomyKey .portfolioLevel i{border-color:var(--taxonomy-portfolio);color:var(--taxonomy-portfolio);background:rgba(17,184,245,.12)}
+.taxonomyKey .practiceLevel i{border-color:var(--taxonomy-practice);color:#d5c8ff;background:rgba(127,92,228,.15)}
+.taxonomyKey .capabilityLevel i{border-color:var(--taxonomy-capability);color:#ffb7fb;background:rgba(162,15,159,.15)}
+.taxonomyKey .offeringLevel i{border-color:var(--taxonomy-offering);color:#ffd2ff;background:rgba(213,27,211,.16)}
+.deckRule{flex:0 0 auto;margin:0;padding:8px 11px;border:1px solid rgba(127,92,228,.38);border-radius:999px;background:rgba(127,92,228,.08);color:#d9cdff;font-size:10px;font-weight:900;white-space:nowrap}
+.stoneChip{cursor:grab}
+.stoneChip:active,.stoneChip.dragging{cursor:grabbing;opacity:.68}
+.pond.dragOver::after{content:"";position:absolute;inset:14px;border:1px dashed rgba(127,92,228,.62);border-radius:24px;box-shadow:inset 0 0 70px rgba(127,92,228,.13);pointer-events:none;z-index:4}
+.stoneDropGhost{position:fixed;z-index:10000;width:54px;height:54px;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(127,92,228,.72);background:radial-gradient(circle at 32% 28%,#fff 0 5%,color-mix(in srgb,var(--stone) 75%,#fff) 8%,var(--stone) 58%,color-mix(in srgb,var(--stone) 45%,#000) 100%);box-shadow:0 24px 70px rgba(0,0,0,.45);color:#fff;font-size:12px;font-weight:950;letter-spacing:.03em;pointer-events:none;transform:translate(-50%,-50%) scale(.88);transition:left .5s cubic-bezier(.2,.8,.2,1),top .5s cubic-bezier(.2,.8,.2,1),transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.stoneDropGhost.falling{transform:translate(-50%,-50%) scale(1.08);opacity:.88}
+.mapNode[data-kind="capability"]{--node:var(--taxonomy-capability)!important;border-color:rgba(162,15,159,.72);background:linear-gradient(145deg,rgba(162,15,159,.23),rgba(5,5,48,.95));box-shadow:0 10px 28px rgba(0,0,0,.32),inset 4px 0 0 var(--taxonomy-capability)}
+.mapNode[data-kind="offering"]{--node:var(--taxonomy-offering)!important;border-color:rgba(213,27,211,.76);background:linear-gradient(145deg,rgba(213,27,211,.2),rgba(5,5,48,.96));box-shadow:0 10px 28px rgba(0,0,0,.34),inset 4px 0 0 var(--taxonomy-offering)}
+.mapLink{stroke:rgba(208,75,205,.3)}
+.practiceSwatch{background:conic-gradient(#00AEFF,#9B9BFF,#FF6B7D,#DAFF00,#00FF88,#FFB74A,#FF00FF,#00AEFF)}
+.capabilitySwatch{background:var(--taxonomy-capability)}
+.offerSwatch{background:var(--taxonomy-offering)}
+.conceptNote{border-color:rgba(17,184,245,.34);background:linear-gradient(145deg,rgba(17,184,245,.06),rgba(127,92,228,.04),rgba(213,27,211,.035))}
+.offerDetail{margin-top:14px;padding:14px;border:1px solid rgba(213,27,211,.42)!important;border-top:1px solid rgba(213,27,211,.42)!important;border-radius:14px;background:linear-gradient(145deg,rgba(213,27,211,.12),rgba(255,255,255,.02));box-shadow:inset 3px 0 0 var(--taxonomy-offering)}
+.offerDetail .offerMeta{color:#ff9dff}
+.offerDetail .offerTags span{border-color:rgba(213,27,211,.4);background:rgba(213,27,211,.09);color:#ffd9fe}
+.offerDetail .detailPair>div{border-color:rgba(213,27,211,.24);background:rgba(213,27,211,.05)}
+.offerDetail .detailPair b{color:#ff9dff}
+.offerDetail .detailPair span{color:#e9d3ea}
+.connectedList button{--offer:var(--taxonomy-offering)!important}
+.mapNode[data-kind="capability"] small{color:#eeb0ea}
+.mapNode[data-kind="offering"] small{color:#ffb6fd}
+@media(max-width:1200px){.deckRule{display:none}}

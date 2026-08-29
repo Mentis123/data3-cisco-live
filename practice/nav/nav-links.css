@@ -1,0 +1,54 @@
+/* Shared concept navigation: Builder · Pond · Bubbles · Box · Account Brief · Old */
+.headerActions{min-width:0}
+.conceptNav{min-width:0;display:flex;align-items:center;gap:5px}
+.conceptNav a,.headerLink.conceptLink{flex:0 0 auto;min-height:34px;padding:8px 10px;display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.025);color:#cde2ef;font-size:10px;font-weight:850;white-space:nowrap;text-decoration:none}
+.conceptNav a:hover,.conceptNav a:focus-visible,.headerLink.conceptLink:hover,.headerLink.conceptLink:focus-visible{border-color:rgba(0,255,255,.45);background:rgba(0,255,255,.07);color:#fff;outline:0}
+.conceptNav a.active{border-color:rgba(0,255,255,.55);background:rgba(0,255,255,.11);color:#fff;box-shadow:0 0 0 1px rgba(0,174,255,.12)}
+.conceptNav a.external{color:#daff00;border-color:rgba(218,255,0,.24)}
+.conceptNav a.external::after{content:' ↗'}
+.appHeader .headerActions{margin-left:auto;display:flex;align-items:center;gap:7px}.appHeader .conceptNav{margin-left:0}
+.pondHeader .conceptNav,.bubbleHeader .conceptNav,.boxHeader .conceptNav,.top>.conceptNav,.topin>.conceptNav{margin-left:auto}
+.top>.topActions{margin-left:0}
+
+.canonicalTaxonomyBand{margin:14px 0;padding:12px 13px;display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid rgba(162,15,159,.42);border-radius:14px;background:linear-gradient(145deg,rgba(127,92,228,.1),rgba(213,27,211,.045))}
+.canonicalTaxonomyBand>div:first-child{display:grid;gap:2px}.canonicalTaxonomyBand b{color:#fff;font-size:11px}.canonicalTaxonomyBand>div:first-child span{color:#b8cce0;font-size:9.5px}.canonicalCapabilityList{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.canonicalCapabilityList span{padding:5px 8px;border:1px solid rgba(162,15,159,.58);border-radius:999px;background:rgba(162,15,159,.11);color:#ffd9ff;font-size:9px;font-weight:900}
+.canonicalCapability{display:inline-flex;align-items:center;gap:6px;width:max-content;margin:5px 0 1px;padding:4px 7px;border:1px solid rgba(162,15,159,.55);border-radius:999px;background:rgba(162,15,159,.1);color:#ffd8ff;font-size:9px;font-weight:850;line-height:1}.canonicalCapability b{color:#d67ed5;font-size:7.5px;letter-spacing:.09em;text-transform:uppercase}.resultCard .canonicalCapability{margin-left:0}.offer>.canonicalCapability{margin:0 0 7px}
+
+@media(max-width:980px){
+  .appHeader,.pondHeader,.bubbleHeader,.boxHeader,header.top,.topin{min-height:auto!important;padding-top:10px!important;padding-bottom:10px!important;align-items:center!important;flex-wrap:wrap!important}
+  .brand{white-space:nowrap}
+  .appHeader .headerActions{width:100%;margin-left:0;display:flex;align-items:center;gap:6px;overflow:hidden}
+  .appHeader .conceptNav{flex:1 1 auto;overflow-x:auto;scrollbar-width:none}.appHeader .conceptNav::-webkit-scrollbar{display:none}
+  .pondHeader .conceptNav,.bubbleHeader .conceptNav,.boxHeader .conceptNav,.top>.conceptNav,.topin>.conceptNav{order:3;width:100%;margin:4px 0 0;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+  .pondHeader .conceptNav::-webkit-scrollbar,.bubbleHeader .conceptNav::-webkit-scrollbar,.boxHeader .conceptNav::-webkit-scrollbar,.top>.conceptNav::-webkit-scrollbar,.topin>.conceptNav::-webkit-scrollbar{display:none}
+  .top>.topActions{margin-left:auto}
+}
+@media(max-width:760px){.canonicalTaxonomyBand{align-items:flex-start;flex-direction:column}.canonicalCapabilityList{justify-content:flex-start}}
+@media(max-width:620px){
+  .appHeader,.pondHeader,.bubbleHeader,.boxHeader,header.top,.topin{padding-left:12px!important;padding-right:12px!important}
+  .brand{font-size:17px!important}.brand small{display:none!important}
+  .conceptNav a,.headerLink.conceptLink{min-height:36px;padding:8px 11px;font-size:10px}
+  .appHeader .tourButton{flex:0 0 auto;min-height:36px;padding:8px 11px;font-size:10px}
+  .appShell{padding-top:26px}
+}
+
+/* Easter egg: World and AR are deliberately kept out of the concept nav while
+   they are still being shaped. They live as two faint pills tucked under the
+   Navigator wordmark — barely visible until you go looking, but always in the
+   flow so they stay tappable on touch, where there is no hover to reveal them. */
+.brandStack{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px}
+.brandStack .brand{white-space:nowrap}
+.brandEgg{display:flex;gap:4px;opacity:.13;transition:opacity .22s ease}
+.brandEgg:hover,.brandEgg:focus-within{opacity:1}
+.brandEgg a{padding:1px 6px;border:1px solid rgba(120,220,255,.32);border-radius:999px;color:#78DCFF;font-size:7.5px;font-weight:900;letter-spacing:.11em;line-height:1.55;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.brandEgg a:hover,.brandEgg a:focus-visible{border-color:#0ff;background:rgba(0,255,255,.12);color:#fff;outline:0}
+.brandEgg a{position:relative}
+/* Extend the tap target to ~35px without growing the header or stealing the
+   bottom edge of the wordmark link above it. The pill stays small; the hit
+   area does not. */
+.brandEgg a::after{content:"";position:absolute;inset:-6px -3px -16px -3px}
+/* Equally faint on touch. The earlier bump to 50% was chasing a phantom: the
+   egg looked missing on a phone because the page had not been deployed yet,
+   not because it was too dim. The enlarged hit area above stays, so once you
+   know where it is you can still hit it. */
+@media(max-width:680px){.brandEgg a{font-size:7px;padding:1px 5px}}

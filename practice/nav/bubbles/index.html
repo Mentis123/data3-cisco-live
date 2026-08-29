@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000025">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Data#3 Navigator - Packed Portfolio Bubbles</title>
+  <link rel="stylesheet" href="/nav/bubbles/pack.css?v=20260811-8">
+  <link rel="stylesheet" href="/nav/nav-links.css?v=20260812-4">
+  <link rel="stylesheet" href="/nav/offering-detail.css?v=20260814-1">
+  <script src="/nav/bubbles/d3.v7.min.js?v=7.9.0" defer></script>
+  <script src="/nav/data.js?v=20260811-8" defer></script>
+  <script src="/nav/view-state.js?v=20260814-1" defer></script>
+  <script src="/nav/offering-detail.js?v=20260814-1" defer></script>
+  <script src="/nav/bubbles/pack.js?v=20260811-8" defer></script>
+  <script src="/nav/bubbles/enhance.js?v=20260814-1" defer></script>
+</head>
+<body>
+  <header class="bubbleHeader">
+    <div class="brandStack"><a class="brand" href="/nav">Data<sup>#</sup>3 Navigator <small>packed portfolio</small></a><span class="brandEgg"><a href="/nav/world">World</a><a href="/nav/ar">AR</a></span></div>
+    <nav class="conceptNav" aria-label="Navigator concepts"><a href="/nav">Builder</a><a href="/nav/pond">Pond</a><a class="active" href="/nav/bubbles" aria-current="page">Bubbles</a><a href="/nav/box">Box</a><a href="/nav/account">Account Brief</a><a href="/nav/archive">Old</a></nav>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <div><h1>The source portfolio, packed.</h1><p>What you open fills the bubble. Everything else tiles beside it, one tap away.</p></div>
+      <div class="depthKey" aria-label="Taxonomy levels"><span><i>0</i> Portfolio</span><span><i>1</i> Practice</span><span><i>2</i> Capability</span><span><i>3</i> Offering</span></div>
+    </section>
+
+    <section class="toolbar" aria-label="Bubble map controls">
+      <div><b id="mapStatus">Portfolio overview</b><span id="mapHint">Pick a Practice.</span></div>
+      <div class="toolbarActions"><button id="openAI" type="button">Data &amp; AI</button><button id="openSecurity" type="button">+ Security</button><button id="collapseAll" type="button">Reset</button></div>
+    </section>
+
+    <section class="workspace">
+      <div class="packColumn"><div class="frameLabel"><span>Portfolio</span><b>Data#3 technology products &amp; services</b><small id="portfolioSummary">9 practices · 0 open · 0 capabilities expanded</small></div><div class="packFrame" id="packFrame"><svg class="packSvg" id="packSvg" role="img" aria-label="Interactive packed-circle map of the Data#3 portfolio taxonomy"></svg><aside class="sideDock" id="sideDock" hidden aria-label="Tiled items outside the current focus"></aside></div></div>
+      <aside class="focusPanel" aria-live="polite">
+        <div><div class="eyebrow" id="detailKicker">Portfolio</div><h2 id="detailTitle">Practices, capabilities and offerings.</h2><p id="detailBody">Source-backed capability areas from the portfolio pack.</p><div class="detailMeta" id="detailMeta">Portfolio → Practice → Capability → Offering</div></div>
+        <div><div class="trail" id="trail"><span>Portfolio</span></div></div>
+        <div class="detailActions"><a href="/nav">Builder</a><a href="/nav/pond">Pond</a></div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

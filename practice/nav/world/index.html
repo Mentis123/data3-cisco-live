@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000025">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Data#3 Navigator - Portfolio World</title>
+  <link rel="stylesheet" href="/nav/nav-links.css?v=20260812-4">
+  <link rel="stylesheet" href="/nav/world/world.css?v=20260812-5">
+  <link rel="stylesheet" href="/nav/offering-detail.css?v=20260814-1">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/nav/vendor/three/build/three.module.min.js",
+      "three/addons/": "/nav/vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+  <script src="/nav/data.js?v=20260812-1" defer></script>
+  <script src="/nav/view-state.js?v=20260814-1" defer></script>
+  <script src="/nav/offering-detail.js?v=20260814-1" defer></script>
+  <script type="module" src="/nav/world3d/mobile-readability.js?v=20260813-2"></script>
+  <script type="module" src="/nav/world/world.js?v=20260813-2"></script>
+  <script type="module" src="/nav/world3d/experience-enhance.js?v=20260814-1"></script>
+</head>
+<body>
+  <header class="worldHeader">
+    <a class="brand" href="/nav">Data<sup>#</sup>3 Navigator <small>portfolio world</small></a>
+    <nav class="conceptNav" aria-label="Navigator concepts">
+      <a href="/nav">Builder</a>
+      <a href="/nav/pond">Pond</a>
+      <a href="/nav/bubbles">Bubbles</a>
+      <a href="/nav/box">Box</a>
+      <a class="active" href="/nav/world" aria-current="page">World</a>
+      <a href="/nav/ar">AR</a>
+      <a href="/nav/account">Account Brief</a>
+    </nav>
+  </header>
+
+  <main class="worldStage">
+    <canvas id="worldCanvas"></canvas>
+
+    <div class="worldHud" data-ui>
+      <div class="hudTop">
+        <div class="hudStatus">
+          <span class="hudKicker" id="hudKicker">Portfolio</span>
+          <b id="hudTitle">Data#3 technology products &amp; services</b>
+          <small id="hudCount">9 practices · 40 capabilities · 214 offerings</small>
+        </div>
+        <div class="hudHint" id="hudHint">Tap a totem to unpack a practice.</div>
+      </div>
+
+      <div class="hudBottom">
+        <div class="hudActions">
+          <button type="button" id="backButton" hidden>← Back</button>
+          <button type="button" id="resetButton" hidden>Reset view</button>
+        </div>
+        <a class="arChip" href="/nav/ar">
+          <span>Stand inside it</span>
+          <b>Open in AR ↗</b>
+        </a>
+      </div>
+    </div>
+
+    <aside class="detailCard" id="detailCard" hidden data-ui aria-live="polite"></aside>
+
+    <div class="worldVeil" id="worldVeil">
+      <div class="veilInner">
+        <b>Building the portfolio</b>
+        <span id="veilNote">Nine practices, 214 offerings.</span>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

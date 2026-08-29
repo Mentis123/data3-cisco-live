@@ -1,0 +1,12 @@
+STAFFNET INTELLIGENCE LAYER — OPTIONAL IMAGE PROMPTS
+
+These images are optional. The HTML demonstrator is fully standalone and does not require them. If generated, save them beside the HTML using the filenames shown.
+
+1) staffnet-hero.jpg
+Create a premium 16:9 corporate digital workplace hero image for an internal StaffNet Intelligence Layer. Show a sophisticated abstract information landscape that connects task journeys, trusted content, expert people, industries and practice perspectives into one coherent navigation system. Australian enterprise technology aesthetic, deep navy, pale blue, white and restrained orange accents, elegant Microsoft Fluent-inspired depth, subtle connected pathways and knowledge nodes, no readable text, no logos, no people, no robots, no glowing brain, no empty space, polished and presentation-ready.
+
+2) security-in-mining-cover.jpg
+Create a square editorial cover image for a short internal audio briefing titled conceptually “Security in Mining”. Show the visual seam between a modern corporate network and an Australian remote mining operation, with operational technology, processing infrastructure, haulage routes and secure network boundaries expressed through subtle diagonal hatch geometry. Deep burgundy, dark navy, mineral greys and restrained orange accent. Serious enterprise editorial style, no readable text, no logos, no people, no hacker imagery, no padlocks floating in space, no empty space.
+
+3) prism-lens-system.png
+Create a 16:9 abstract enterprise infographic background showing one trusted white information stream entering a clean geometric prism and separating into six restrained practice identities: violet dot-to-grid for AI & Data, burgundy diagonal hatch for Security, slate layered blocks for Hybrid Cloud, warm amber vertical bars for End User Compute, teal connected nodes for Networking, and blue overlapping waves for Collaboration. Dark navy and white corporate foundation, restrained orange accent, no labels or readable text, no rainbow treatment, no excessive glow, no empty space.

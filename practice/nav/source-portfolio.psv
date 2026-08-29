@@ -1,0 +1,263 @@
+P|Business Advisory|DIGITAL STRATEGY · BA|Digital Strategy|BA
+C|Business Advisory|Digital & ICT Advisory
+O|Business Advisory|Digital & ICT Advisory|Digital Strategy & Roadmaps|BA
+O|Business Advisory|Digital & ICT Advisory|CIO Advisory|BA
+O|Business Advisory|Digital & ICT Advisory|Technology Advisory|BA
+O|Business Advisory|Digital & ICT Advisory|Enterprise Architecture|BA
+O|Business Advisory|Digital & ICT Advisory|Solution Architecture & Design|BA
+O|Business Advisory|Digital & ICT Advisory|Transformation Strategy & Planning|BA
+O|Business Advisory|Digital & ICT Advisory|Cloud, Modern Workplace, Network & Infra. Strategy|BA
+O|Business Advisory|Digital & ICT Advisory|ICT Operations Advisory (ITIL/ITSM)|BA
+C|Business Advisory|Information & Analytics
+O|Business Advisory|Information & Analytics|Data & AI Strategy & Roadmaps|BA
+O|Business Advisory|Information & Analytics|Data Architecture|BA
+O|Business Advisory|Information & Analytics|Information Management & Governance|BA
+O|Business Advisory|Information & Analytics|Data Governance & Quality Control|BA
+C|Business Advisory|Cyber Security & Risk
+O|Business Advisory|Cyber Security & Risk|Cyber Security Assessment & Strategy|BA
+O|Business Advisory|Cyber Security & Risk|Governance, Risk & Compliance|BA
+O|Business Advisory|Cyber Security & Risk|Security as a Service (vCISO)|BA
+O|Business Advisory|Cyber Security & Risk|Identity & Access Management|BA
+O|Business Advisory|Cyber Security & Risk|Information Protection|BA
+O|Business Advisory|Cyber Security & Risk|FA for Security Envisioning & POC Workshop|Microsoft
+C|Business Advisory|Transformation & Governance
+O|Business Advisory|Transformation & Governance|Business Analysis|BA
+O|Business Advisory|Transformation & Governance|Business Process Optimisation|BA
+O|Business Advisory|Transformation & Governance|Business Case Development|BA
+O|Business Advisory|Transformation & Governance|Program & Project Management|BA
+O|Business Advisory|Transformation & Governance|Organisational Change Management|BA
+O|Business Advisory|Transformation & Governance|Vendor / Contract Management|BA
+O|Business Advisory|Transformation & Governance|Strategic Resource Augmentation|BA
+O|Business Advisory|Transformation & Governance|Implementation Planning|BA
+O|Business Advisory|Transformation & Governance|Solution Implementation|BA
+P|Data & AI|DIGITAL INNOVATION · D3 w/ BA|Digital Innovation|D3 w/ BA
+C|Data & AI|Data Platform & Engineering
+O|Data & AI|Data Platform & Engineering|Data Platforms & Migration|BA
+O|Data & AI|Data Platform & Engineering|Data Engineering & Integration|BA
+O|Data & AI|Data Platform & Engineering|Data Estate (Databases, SQL Server, Azure SQL)|Microsoft
+O|Data & AI|Data Platform & Engineering|Fabric Foundation Rapid|Microsoft
+O|Data & AI|Data Platform & Engineering|Power BI Premium to Fabric Transition|Microsoft
+C|Data & AI|Analytics & BI
+O|Data & AI|Analytics & BI|Business Intelligence (Power BI, Fabric, OneLake)|Microsoft
+O|Data & AI|Analytics & BI|Advanced Analytics & Decision Intelligence|BA
+O|Data & AI|Analytics & BI|Analytics Assessment and PoV|Microsoft
+O|Data & AI|Analytics & BI|Analytics Capability Roadmap|Microsoft
+C|Data & AI|Generative & Agentic AI
+O|Data & AI|Generative & Agentic AI|Advanced Analytics & AI (Databricks, ML, Azure AI / OpenAI)|Microsoft
+O|Data & AI|Generative & Agentic AI|Data & AI Driven Automation & Workflows|BA
+O|Data & AI|Generative & Agentic AI|Copilot Studio|Microsoft
+O|Data & AI|Generative & Agentic AI|Copilot Studio Prototyping|Microsoft
+O|Data & AI|Generative & Agentic AI|Microsoft AI Envisioning|Microsoft
+C|Data & AI|AI Governance & Adoption
+O|Data & AI|AI Governance & Adoption|Unified Data Governance (Purview)|Microsoft
+C|Data & AI|Copilot
+O|Data & AI|Copilot|Microsoft 365 Copilot - Pilot|Microsoft
+O|Data & AI|Copilot|M365 Copilot - Readiness Assessment|Microsoft
+O|Data & AI|Copilot|Microsoft 365 Copilot - Copilot Shield|Microsoft
+O|Data & AI|Copilot|M365 Copilot|Microsoft
+P|Security|DIGITAL INNOVATION · D3 w/ BA|Digital Innovation|D3 w/ BA
+C|Security|Data Security
+O|Security|Data Security|Information Protection|Microsoft
+O|Security|Data Security|Compliance|Microsoft
+C|Security|Identity & Access Security
+O|Security|Identity & Access Security|Entra ID (Azure Active Directory)|Microsoft
+O|Security|Identity & Access Security|Entra ID Premium (AADP)|Microsoft
+O|Security|Identity & Access Security|Advanced Identity (Entra/Entra Suite)|Microsoft
+O|Security|Identity & Access Security|Identity Manager (Entra)|Microsoft
+O|Security|Identity & Access Security|Multi-Factor and Single Sign On|Microsoft
+O|Security|Identity & Access Security|Microsoft Defender for Identity (MDI)|Microsoft
+O|Security|Identity & Access Security|Duo|Cisco
+O|Security|Identity & Access Security|Identity Services Engine (ISE)|Cisco
+C|Security|Network & Cloud Security
+O|Security|Network & Cloud Security|Firewalls|Cisco
+O|Security|Network & Cloud Security|Next Generation Firewall|Palo Alto
+O|Security|Network & Cloud Security|Defender for Cloud|Microsoft
+O|Security|Network & Cloud Security|Prisma Cloud|Palo Alto
+O|Security|Network & Cloud Security|Prisma Access|Palo Alto
+O|Security|Network & Cloud Security|SecureAccess/Umbrella|Cisco
+O|Security|Network & Cloud Security|SASE|Cisco
+O|Security|Network & Cloud Security|SD-WAN|Palo Alto
+O|Security|Network & Cloud Security|Defender for Cloud Apps|Microsoft
+O|Security|Network & Cloud Security|Defender for IoT|Microsoft
+O|Security|Network & Cloud Security|Secure Network Analytics (Stealthwatch)|Cisco
+C|Security|Endpoint & Workplace Security
+O|Security|Endpoint & Workplace Security|Defender for Endpoint (MDE)|Microsoft
+O|Security|Endpoint & Workplace Security|Intune (Security)|Microsoft
+O|Security|Endpoint & Workplace Security|Application Control|Microsoft
+O|Security|Endpoint & Workplace Security|Secure Endpoint|Cisco
+O|Security|Endpoint & Workplace Security|Cortex XDR|Palo Alto
+O|Security|Endpoint & Workplace Security|Carbon Black Application Control|VMware
+O|Security|Endpoint & Workplace Security|Carbon Black Endpoint Detection and Response|VMware
+O|Security|Endpoint & Workplace Security|Vulnerability Management|Tenable
+O|Security|Endpoint & Workplace Security|Defender for Office 365|Microsoft
+O|Security|Endpoint & Workplace Security|Email Filtering|Cisco
+O|Security|Endpoint & Workplace Security|Offensive Security & Penetration Testing|BA
+C|Security|AI Security
+C|Security|Security Operations
+O|Security|Security Operations|Sentinel|Microsoft
+O|Security|Security Operations|Managed Detection and Response|SecurityHQ
+O|Security|Security Operations|Managed Endpoint Detection and Response|SecurityHQ
+O|Security|Security Operations|Managed Vulnerability Management|SecurityHQ
+O|Security|Security Operations|Managed Vulnerability Management|Tenable
+O|Security|Security Operations|Managed Firewall|SecurityHQ
+O|Security|Security Operations|Incident Response|SecurityHQ
+O|Security|Security Operations|Penetration Testing|SecurityHQ
+O|Security|Security Operations|Managed XDR|Microsoft
+P|Applications & Automation|DIGITAL INNOVATION · D3 w/ BA|Digital Innovation|D3 w/ BA
+C|Applications & Automation|Business Apps (CRM / ERP)
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Sales (D365)|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Sales Enterprise Edition|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Service (D365)|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Service Ent. (attach)|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Service Enterprise|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Contact Center|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Experience (D365)|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Insights (D365)|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Dynamics 365 Customer Voice Usl|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|CRM Envisioning Workshop|Microsoft
+O|Applications & Automation|Business Apps (CRM / ERP)|Fitgap Assessment|Microsoft
+C|Applications & Automation|Workflow Automation
+O|Applications & Automation|Workflow Automation|Power Automate|Microsoft
+C|Applications & Automation|Digital Experience
+C|Applications & Automation|Agentic Process Automation
+C|Applications & Automation|Integration & Low-Code
+O|Applications & Automation|Integration & Low-Code|Power Apps|Microsoft
+O|Applications & Automation|Integration & Low-Code|Common Data Service Database Capacity|Microsoft
+O|Applications & Automation|Integration & Low-Code|Common Data Service Log Capacity|Microsoft
+P|End User Computing|DIGITAL FOUNDATION · D3|Digital Foundation|D3
+C|End User Computing|Modern Endpoint Management
+O|End User Computing|Modern Endpoint Management|Intune|Microsoft
+O|End User Computing|Modern Endpoint Management|Configuration Manager|Microsoft
+O|End User Computing|Modern Endpoint Management|Windows 11|Microsoft
+O|End User Computing|Modern Endpoint Management|Windows 10|Microsoft
+O|End User Computing|Modern Endpoint Management|M365 Optimiser|Microsoft
+O|End User Computing|Modern Endpoint Management|Workspace One|VMware
+C|End User Computing|Device as a Service
+O|End User Computing|Device as a Service|Laptop Devices|Microsoft
+O|End User Computing|Device as a Service|Laptop Devices|Dell
+O|End User Computing|Device as a Service|Laptop Devices|HPE
+O|End User Computing|Device as a Service|Laptop Devices|Lenovo
+C|End User Computing|Desktop & Application Management
+O|End User Computing|Desktop & Application Management|Windows 365|Microsoft
+O|End User Computing|Desktop & Application Management|Azure Virtual Desktop|Microsoft
+P|Collaboration|DIGITAL FOUNDATION · D3|Digital Foundation|D3
+C|Collaboration|Modern Work & M365
+O|Collaboration|Modern Work & M365|Teams|Microsoft
+O|Collaboration|Modern Work & M365|Sharepoint|Microsoft
+O|Collaboration|Modern Work & M365|Sharepoint Online|Microsoft
+O|Collaboration|Modern Work & M365|Microsoft 365 Apps|Microsoft
+O|Collaboration|Modern Work & M365|Exchange Online|Microsoft
+O|Collaboration|Modern Work & M365|Viva|Microsoft
+O|Collaboration|Modern Work & M365|Viva Engage|Microsoft
+O|Collaboration|Modern Work & M365|Viva Insights|Microsoft
+O|Collaboration|Modern Work & M365|Other|Microsoft
+O|Collaboration|Modern Work & M365|Other|Microsoft
+C|Collaboration|Meetings & Calling
+O|Collaboration|Meetings & Calling|Teams Rooms|Microsoft
+O|Collaboration|Meetings & Calling|Teams Phone|Microsoft
+O|Collaboration|Meetings & Calling|Collaboration Webex Calling|Cisco
+O|Collaboration|Meetings & Calling|Collaboration Webex Contact Centre|Cisco
+O|Collaboration|Meetings & Calling|Other|Cisco
+C|Collaboration|Adoption & Change
+O|Collaboration|Adoption & Change|Adoption and Change Management|Microsoft
+P|Networking|DIGITAL FOUNDATION · D3|Digital Foundation|D3
+C|Networking|Enterprise & Campus Networking
+O|Networking|Enterprise & Campus Networking|Networking (Nexus / ACI / Hyperfabric)|Cisco
+C|Networking|SD-WAN & Connectivity
+O|Networking|SD-WAN & Connectivity|SASE|Cisco
+O|Networking|SD-WAN & Connectivity|Prisma Access|Palo Alto
+O|Networking|SD-WAN & Connectivity|SD-WAN|Palo Alto
+C|Networking|Wireless & Mobility
+C|Networking|Network Security
+O|Networking|Network Security|Firewalls|Cisco
+O|Networking|Network Security|Next Generation Firewall|Palo Alto
+O|Networking|Network Security|Identity Services Engine (ISE)|Cisco
+O|Networking|Network Security|Secure Network Analytics (Stealthwatch)|Cisco
+O|Networking|Network Security|SecureAccess/Umbrella|Cisco
+P|Hybrid Cloud|DIGITAL FOUNDATION · D3|Digital Foundation|D3
+C|Hybrid Cloud|Azure & Public Cloud
+O|Hybrid Cloud|Azure & Public Cloud|Azure Landing Zone|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Workload Migration and Modernisation|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure VMware Solution|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Planning and Readiness Assessment|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Health Check|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Remediation|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Backup and Site Recovery|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Other|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Arc-enabled Multi-cloud Management|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Managed Service|Microsoft
+O|Hybrid Cloud|Azure & Public Cloud|Azure Platform Support|Microsoft
+C|Hybrid Cloud|Data Centre & Compute
+O|Hybrid Cloud|Data Centre & Compute|Compute (UCS)|Cisco
+O|Hybrid Cloud|Data Centre & Compute|vSphere|VMware
+O|Hybrid Cloud|Data Centre & Compute|NSX|VMware
+O|Hybrid Cloud|Data Centre & Compute|Azure Local|Lenovo
+O|Hybrid Cloud|Data Centre & Compute|Azure Local|Dell
+O|Hybrid Cloud|Data Centre & Compute|Azure Local|HPE
+O|Hybrid Cloud|Data Centre & Compute|Compute|Lenovo
+O|Hybrid Cloud|Data Centre & Compute|PowerFlex|Dell
+O|Hybrid Cloud|Data Centre & Compute|Other|Dell
+O|Hybrid Cloud|Data Centre & Compute|Bespoke Service - Consulting|Data#3
+O|Hybrid Cloud|Data Centre & Compute|Other|Cisco
+O|Hybrid Cloud|Data Centre & Compute|Other|Cisco
+C|Hybrid Cloud|Storage & Data Protection
+O|Hybrid Cloud|Storage & Data Protection|Storage|NetApp
+O|Hybrid Cloud|Storage & Data Protection|PowerStore|Dell
+O|Hybrid Cloud|Storage & Data Protection|Other - Alletra|HPE
+O|Hybrid Cloud|Storage & Data Protection|Storage|Everpure
+O|Hybrid Cloud|Storage & Data Protection|Other|Dell
+O|Hybrid Cloud|Storage & Data Protection|Data Domain|Dell
+O|Hybrid Cloud|Storage & Data Protection|Backup & Replication|Veeam
+O|Hybrid Cloud|Storage & Data Protection|Azure Backup|Veeam
+O|Hybrid Cloud|Storage & Data Protection|M365 Backup as a Service|Microsoft
+O|Hybrid Cloud|Storage & Data Protection|O365 Backup|11:11
+C|Hybrid Cloud|DevOps & Containerisation
+C|Hybrid Cloud|FinOps & Optimisation
+O|Hybrid Cloud|FinOps & Optimisation|Cloud Optimiser|Microsoft
+P|Lifecycle Services|DIGITAL LIFECYCLE · D3|Digital Lifecycle|D3
+C|Lifecycle Services|Advisory & Assessment
+O|Lifecycle Services|Advisory & Assessment|Azure Planning and Readiness Assessment|Microsoft
+O|Lifecycle Services|Advisory & Assessment|Azure Health Check|Microsoft
+O|Lifecycle Services|Advisory & Assessment|Analytics Assessment and PoV|Microsoft
+O|Lifecycle Services|Advisory & Assessment|Analytics Capability Roadmap|Microsoft
+O|Lifecycle Services|Advisory & Assessment|M365 Copilot - Readiness Assessment|Microsoft
+O|Lifecycle Services|Advisory & Assessment|Fitgap Assessment|Microsoft
+O|Lifecycle Services|Advisory & Assessment|FA for Security Envisioning & POC Workshop|Microsoft
+O|Lifecycle Services|Advisory & Assessment|Microsoft AI Envisioning|Microsoft
+O|Lifecycle Services|Advisory & Assessment|CRM Envisioning Workshop|Microsoft
+C|Lifecycle Services|Professional Services
+O|Lifecycle Services|Professional Services|Solution Implementation|BA
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Residency|Data#3
+O|Lifecycle Services|Professional Services|Lifecycle Incentives (PS)|Cisco
+O|Lifecycle Services|Professional Services|Lifecycle Incentives (PS)|Cisco
+O|Lifecycle Services|Professional Services|Lifecycle Incentives (PS)|Cisco
+C|Lifecycle Services|Managed Services
+O|Lifecycle Services|Managed Services|Enterprise Managed Service (New)|Data#3
+O|Lifecycle Services|Managed Services|Enterprise Managed Service (Renewal)|Data#3
+O|Lifecycle Services|Managed Services|Onsite Managed Services (OMS)|Data#3
+O|Lifecycle Services|Managed Services|Transition|Data#3
+O|Lifecycle Services|Managed Services|Minor Works (existing account)|Data#3
+O|Lifecycle Services|Managed Services|Other / Third Party|Data#3
+O|Lifecycle Services|Managed Services|Azure Managed Service|Microsoft
+O|Lifecycle Services|Managed Services|Managed Detection and Response|SecurityHQ
+O|Lifecycle Services|Managed Services|Managed Endpoint Detection and Response|SecurityHQ
+O|Lifecycle Services|Managed Services|Managed Vulnerability Management|SecurityHQ
+O|Lifecycle Services|Managed Services|Managed Vulnerability Management|Tenable
+O|Lifecycle Services|Managed Services|Managed Firewall|SecurityHQ
+O|Lifecycle Services|Managed Services|Managed XDR|Microsoft
+O|Lifecycle Services|Managed Services|Bespoke Service - Managed|Data#3
+C|Lifecycle Services|Support Services
+O|Lifecycle Services|Support Services|Microsoft Premier Support|Microsoft
+O|Lifecycle Services|Support Services|Azure Platform Support|Microsoft
+C|Lifecycle Services|Procurement & Asset Management
+O|Lifecycle Services|Procurement & Asset Management|Compliance|Data#3
+O|Lifecycle Services|Procurement & Asset Management|Technology Intelligence 360|Data#3
+O|Lifecycle Services|Procurement & Asset Management|Bespoke Service - Consulting|Data#3
+O|Lifecycle Services|Procurement & Asset Management|Bespoke Service - Managed|Data#3
+O|Lifecycle Services|Procurement & Asset Management|Laptop Devices|Microsoft

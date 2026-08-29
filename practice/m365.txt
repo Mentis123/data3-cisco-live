@@ -1,0 +1,145 @@
+🧠 Executive Summary: Building a World-Class AI Practice at Data#3
+Data#3 is uniquely positioned to lead the Australian and New Zealand enterprise AI market by launching a vertically integrated, functionally complete AI Practice — anchored by Forward Deployed Engineering (FDE) and accelerated by internal IP such as AgentSmith. This proposal outlines a clear, milestone-based strategy that blends thought leadership with execution readiness.
+The practice will be built in three distinct phases:
+Phase 1: PROVE
+Establish a credible, minimal viable practice with lighthouse customers, a functioning FDE model, and initial revenue. Demonstrate real customer value and validate the economics.
+Phase 2: VALIDATE
+Scale delivery capacity, build repeatable GTM and enablement engines, and prove that the model works across multiple verticals. Activate Microsoft co-sell and build market recognition.
+Phase 3: SCALE
+Achieve market leadership in ANZ, expand into verticalised offerings and managed services, and build a self-sustaining ecosystem. The practice becomes a strategic growth engine for Data#3.
+This framework is not theoretical — it is grounded in proven deployment models, market data, and operational design. It synthesises the best of four leading AI models and translates them into a coherent, actionable roadmap tailored to Data#3’s strengths and ambitions.
+
+🧱 Foundational Recommendations (Cross-Model Consensus)
+Across all four models, the following strategic pillars emerged as core building blocks:
+1. Vertical Practice Structure
+
+A top-to-bottom organisational model with clear functional layers: leadership, strategy, product, sales, delivery, enablement.
+Org-agnostic: roles are defined by function, not existing org chart.
+
+2. Forward Deployed Engineering (FDE) as Core Delivery Model
+
+Embedded engineers working inside customer environments.
+Weekly delivery of production-grade agents and automations.
+Inspired by Palantir, OpenAI, and Anthropic models.
+
+3. Milestone-Based Phasing
+
+Three phases (PROVE, VALIDATE, SCALE) triggered by outcomes, not calendar dates.
+Each phase has clear gate criteria: headcount, revenue, customer success, delivery metrics.
+
+4. Internal IP Acceleration
+
+Use of internal accelerators (e.g. AgentSmith) to multiply delivery velocity.
+FDEs leverage reusable templates, patterns, and governance kits.
+
+5. Governance by Design
+
+Strong emphasis on responsible AI, security, and compliance.
+Governance frameworks span platform, data, and agent layers.
+
+6. Partner-Aligned GTM
+
+Deep integration with Microsoft, Cisco, Dell, HP.
+Co-sell, joint marketing, and technical alignment.
+
+
+💡 Distinctive or Innovative Ideas (Model-Specific Highlights)
+Claude
+
+Six-tier practice structure with detailed scaling plans per phase.
+AgentSmith platform as internal-only IP to multiply FDE velocity.
+FDE career progression and certification programme.
+Embedded audit and gate review process for phase transitions.
+
+Grok
+
+“AI Forge Labs” workshops as lead generation and IP harvesting mechanism.
+AgentSmith-V7 as a sovereign Azure template for regulated industries.
+FDE pods with dual reporting lines (Delivery + Product) to ensure IP flow.
+
+ChatGPT
+
+D3 Governance Framework with five cross-cutting pillars: Guardrails, Grounding, Confidence, Observability, Evaluation.
+Horizontal FDE layer spanning all lifecycle phases.
+Clear mapping of services stack from Envision → Operate & Optimise.
+
+M365 Copilot
+
+Emphasis on phased partner integration and co-branded GTM.
+Strong alignment with existing Data#3 services and frameworks.
+Focus on verticalisation and managed services in Phase 3.
+
+
+🔗 Combined Integrated Strategy
+Phase 1: PROVE
+
+Assemble a lean, cross-functional team (15–25 people).
+Deliver 3–5 lighthouse customer engagements with embedded FDEs.
+Launch AgentSmith v1 and governance starter kits.
+Validate economics: >50% margin, <3 weeks to first agent, >65% FDE utilisation.
+Exit criteria: 3 referenceable customers, 5 active engagements, stable platform.
+
+Phase 2: VALIDATE
+
+Scale to 45–60 people across all tiers.
+Run 15+ FDE engagements with 2–3 pods.
+Activate Microsoft co-sell and publish joint case studies.
+Launch verticalised offerings and FDE-as-a-Service subscription model.
+Exit criteria: 10 reference customers, >30% expansion rate, $5–7M run rate.
+
+Phase 3: SCALE
+
+Expand to 100–135 people, with vertical specialisation and managed services.
+FDE becomes a guild with shared standards and continuous improvement.
+AgentSmith evolves into a platform with internal and external usage.
+Ecosystem motion with partners, ISVs, and Data#3 IP.
+Outcome: Data#3 becomes the default choice for enterprise AI in ANZ.
+
+
+⚠️ Risks, Open Questions, and Opportunities
+Risks
+
+Talent pipeline: difficulty hiring and onboarding quality FDEs.
+Over-scaling before economics are validated.
+Platform over-engineering without real-world feedback.
+Market confusion if GTM is not clearly differentiated.
+
+Open Questions
+
+Where should each function live within the existing org (IPT, shared services, etc.)?
+How do we balance internal IP with customer ownership and transparency?
+What is the optimal pricing model for FDE retainers and accelerators?
+
+Opportunities
+
+Acquisition of boutique AI firms to accelerate growth.
+Geographic expansion into Singapore and broader APAC.
+Spin-out of AgentSmith as a licensable product.
+Analyst positioning as “Palantir of ANZ”.
+
+
+📍 Recommended Next Actions / Roadmap
+Immediate (Next 2–4 Weeks)
+
+Executive alignment on framework.
+Identify Practice GM and Head of FDE.
+Map specialist roles to existing resources.
+Define IPT integration model.
+Identify 3–5 pilot customer targets.
+
+Near-Term (1–3 Months)
+
+Develop job descriptions and hiring plan.
+Build FDE training and certification programme.
+Finalise AgentSmith roadmap and team.
+Create sales collateral and GTM assets.
+Engage Microsoft for co-sell partnership.
+
+Launch Milestones
+
+Practice GM in seat (Month 1).
+First 3 Lead FDEs hired (Month 2).
+AgentSmith v1 ready (Month 3).
+First pilot customer engaged (Month 3).
+First production agent deployed (Month 4).
+5 FDE engagements active (Month 6).
