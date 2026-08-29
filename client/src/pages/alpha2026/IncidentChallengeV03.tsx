@@ -115,8 +115,16 @@ function savePlayHistory(history: PlayHistory, playHistoryKey: string) {
   }
 }
 
-function firstUnplayed(history: PlayHistory, incidentSet: IncidentDefinition[]) {
-  return incidentSet.find((incident) => !history[incident.id]) ?? incidentSet[0];
+function assignedUnplayed(
+  history: PlayHistory,
+  incidentSet: IncidentDefinition[],
+  randomise: boolean,
+) {
+  const unplayed = incidentSet.filter((incident) => !history[incident.id]);
+  if (unplayed.length === 0) return undefined;
+  return randomise
+    ? unplayed[Math.floor(Math.random() * unplayed.length)]
+    : unplayed[0];
 }
 
 export default function IncidentChallengeV03({
@@ -130,13 +138,13 @@ export default function IncidentChallengeV03({
     : livePlayHistoryKey;
   const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory(playHistoryKey, !archiveMode));
   const [selectedIncidentId, setSelectedIncidentId] = useState(() =>
-    firstUnplayed(loadPlayHistory(playHistoryKey, !archiveMode), incidentSet).id,
+    (assignedUnplayed(playHistory, incidentSet, !archiveMode) ?? incidentSet[0]).id,
   );
   const [phase, setPhase] = useState<Phase>("launch");
   const [stageIndex, setStageIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<IncidentOption | null>(null);
   const [incidentState, setIncidentState] = useState<IncidentState>(() =>
-    firstUnplayed(loadPlayHistory(playHistoryKey, !archiveMode), incidentSet).initialState,
+    (incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0]).initialState,
   );
   const [choices, setChoices] = useState<ChoiceRecord[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -146,7 +154,7 @@ export default function IncidentChallengeV03({
   const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
   const stage = incident.stages[stageIndex];
   const completedCount = incidentSet.filter((candidate) => playHistory[candidate.id]).length;
-  const nextUnplayedIncident = incidentSet.find((candidate) => !playHistory[candidate.id]);
+  const hasUnplayedIncident = incidentSet.some((candidate) => !playHistory[candidate.id]);
   const score = useMemo(() => choices.reduce((total, choice) => total + choice.option.points, 0), [choices]);
   const responseStyle = responseStyleFor(choices);
   const profile = profiles[responseStyle];
@@ -154,12 +162,12 @@ export default function IncidentChallengeV03({
   useEffect(() => {
     document.title = archiveMode
       ? `${versionLabel} archive | Cisco Live 2026 | Data#3`
-      : "Incident tabletop challenge | Cisco Live 2026 | Data#3";
+      : "Choose your own adventure: AI incident trade-offs | Cisco Live 2026 | Data#3";
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute(
       "content",
       archiveMode
         ? `Play the archived ${versionLabel} Cisco Live 2026 incident challenge.`
-        : "Take four fast, connected tabletop incident challenges for Cisco Live 2026.",
+        : "Choose your own AI incident adventure through four fast, connected trade-off challenges for Cisco Live 2026.",
     );
   }, [archiveMode, versionLabel]);
 
@@ -192,7 +200,7 @@ export default function IncidentChallengeV03({
   };
 
   const exit = () => {
-    const next = incidentSet.find((candidate) => !playHistory[candidate.id]);
+    const next = assignedUnplayed(playHistory, incidentSet, !archiveMode);
     if (next) {
       setSelectedIncidentId(next.id);
       resetPlay(next);
@@ -242,7 +250,7 @@ export default function IncidentChallengeV03({
   };
 
   const startNextUnplayed = () => {
-    const next = incidentSet.find((candidate) => !playHistory[candidate.id]);
+    const next = assignedUnplayed(playHistory, incidentSet, !archiveMode);
     if (next) startIncident(next);
     else setPhase("launch");
   };
@@ -256,7 +264,7 @@ export default function IncidentChallengeV03({
       // Clearing the active React state is sufficient for this session.
     }
     setPlayHistory({});
-    selectIncident(incidentSet[0]);
+    selectIncident(assignedUnplayed({}, incidentSet, !archiveMode) ?? incidentSet[0]);
     setPhase("launch");
   };
 
@@ -288,8 +296,8 @@ export default function IncidentChallengeV03({
       {phase === "launch" && (
         <main className="incident-launch">
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
-            <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "Tabletop challenge"}</p>
-            <h1 id="incident-launch-title">{archiveMode ? "Can you contain the incident?" : "The incident is live. What do you do next?"}</h1>
+            <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "AI incident challenge"}</p>
+            <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "Choose your own adventure: AI incident trade-offs."}</h1>
             <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : "Five decisions. Three defensible options. Every choice has a trade-off."}</p>
 
             <div className="incident-facts" aria-label="Challenge details">
@@ -350,7 +358,7 @@ export default function IncidentChallengeV03({
                       );
                     })}
                   </div>
-                  <p className="incident-prototype-note">Temporary testing control. The production game assigns the next unplayed incident.</p>
+                  <p className="incident-prototype-note">Temporary testing control. The production game randomly assigns one of your remaining incidents.</p>
                 </>
               )}
               {completedCount > 0 && (
@@ -530,7 +538,7 @@ export default function IncidentChallengeV03({
             </div>
 
             <div className="incident-result__actions">
-              {nextUnplayedIncident ? (
+              {hasUnplayedIncident ? (
                 <button className="incident-primary" type="button" onClick={startNextUnplayed}>
                   {archiveMode ? "Next unplayed incident" : "Try another incident"} <ArrowRight aria-hidden="true" />
                 </button>

@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Product | Data<sup>#</sup>3 Cisco Live 2026 booth activation |
-| Build | Tabletop incident series |
+| Build | Choose your own adventure: AI incident trade-offs |
 | Content review | v0.4 |
 | Prepared | 29 August 2026 |
 | Audience | Enterprise and corporate technology professionals |
@@ -194,7 +194,7 @@ All four styles are reachable in every incident:
 
 The prototype keeps incident progress in device-local history without revealing the assigned scenario before play:
 
-- The first unplayed incident is selected automatically behind a generic **Start incident** button.
+- One of the participant's remaining unplayed incidents is randomly selected behind a generic **Start incident** button.
 - A temporary numbered prototype selector allows internal testers to target an incident without exposing its title or premise.
 - Completed selector buttons grey out to show that all four incidents are tracked.
 - Completion survives refresh on the same device.
