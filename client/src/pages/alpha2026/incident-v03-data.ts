@@ -37,6 +37,10 @@ export type IncidentDefinition = {
   teaser: string;
   premise: string;
   learning: string;
+  briefing?: {
+    facts: [string, string, string];
+    objective: string;
+  };
   debrief: string;
   conversationPrompt?: string;
   initialState: IncidentState;

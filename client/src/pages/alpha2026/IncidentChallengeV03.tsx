@@ -26,7 +26,7 @@ import {
 } from "./incident-v04-data";
 import "./incident-challenge-v03.css";
 
-type Phase = "launch" | "decision" | "consequence" | "result";
+type Phase = "launch" | "briefing" | "decision" | "consequence" | "result";
 
 type ChoiceRecord = {
   stageId: string;
@@ -43,7 +43,7 @@ type PlayRecord = {
 type PlayHistory = Record<string, PlayRecord>;
 
 const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
-const livePlayHistoryKey = "data3-2026alpha-incident-history-v4";
+const livePlayHistoryKey = "data3-2026alpha-incident-history-v4-briefing";
 const legacyHistoryKey = "data3-2026alpha-completed-incidents-v1";
 
 type IncidentChallengeProps = {
@@ -136,7 +136,7 @@ export default function IncidentChallengeV03({
   const playHistoryKey = archiveMode
     ? `data3-2026alpha-incident-history-${versionLabel}`
     : livePlayHistoryKey;
-  const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory(playHistoryKey, !archiveMode));
+  const [playHistory, setPlayHistory] = useState<PlayHistory>(() => loadPlayHistory(playHistoryKey));
   const [selectedIncidentId, setSelectedIncidentId] = useState(() =>
     (assignedUnplayed(playHistory, incidentSet, !archiveMode) ?? incidentSet[0]).id,
   );
@@ -195,6 +195,15 @@ export default function IncidentChallengeV03({
   const startIncident = (definition: IncidentDefinition = incident) => {
     setSelectedIncidentId(definition.id);
     resetPlay(definition);
+    if (archiveMode || !definition.briefing) {
+      setStartedAt(Date.now());
+      setPhase("decision");
+      return;
+    }
+    setPhase("briefing");
+  };
+
+  const beginDecisions = () => {
     setStartedAt(Date.now());
     setPhase("decision");
   };
@@ -428,6 +437,33 @@ export default function IncidentChallengeV03({
         </main>
       )}
 
+      {phase === "briefing" && incident.briefing && (
+        <main className="incident-briefing">
+          <section className="incident-briefing__card" aria-labelledby="incident-briefing-title">
+            <p className="incident-kicker">Incident assigned · {incident.number}</p>
+            <h1 id="incident-briefing-title" ref={headingRef} tabIndex={-1}>{incident.title}</h1>
+            <p className="incident-briefing__premise">{incident.premise}</p>
+
+            <div className="incident-briefing__facts">
+              <strong>What you know</strong>
+              <ul>
+                {incident.briefing.facts.map((fact) => <li key={fact}>{fact}</li>)}
+              </ul>
+            </div>
+
+            <aside className="incident-briefing__objective">
+              <strong>Your objective</strong>
+              <p>{incident.briefing.objective}</p>
+            </aside>
+
+            <p className="incident-briefing__rules">Five decisions. No consequence-free answer. The clock starts when you enter.</p>
+            <button className="incident-primary" type="button" onClick={beginDecisions}>
+              Begin decisions <ArrowRight aria-hidden="true" />
+            </button>
+          </section>
+        </main>
+      )}
+
       {(phase === "decision" || phase === "consequence") && stage && (
         <main className="incident-game">
           <div className="incident-progress-row">
@@ -499,7 +535,7 @@ export default function IncidentChallengeV03({
           <section className="incident-result__summary" aria-labelledby="incident-result-title">
             <p className="incident-kicker">Incident {incident.number} contained · {completedCount}/{incidentSet.length} complete</p>
             <h1 id="incident-result-title" ref={headingRef} tabIndex={-1}>{profile.title}</h1>
-            <p className="incident-result__qualifier">Your response style in this incident.</p>
+            <p className="incident-result__qualifier">Your response style in this incident. Equal scores can reflect different trade-offs.</p>
 
             <div className="incident-scoreline">
               <div><strong>{score}</strong><span>/ 100</span><small>Decision quality</small></div>

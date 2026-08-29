@@ -1,4 +1,4 @@
-# Adaptive Incident Challenge
+# AI Incident Trade-offs
 
 ## Four-incident content and logic review
 
@@ -22,7 +22,7 @@ The four incidents are ready for prototype testing. They use one operating model
 
 The participant experience stays deliberately small:
 
-> Read the signal. Choose one action. See the consequence. Continue.
+> Receive a random incident. Read a short briefing. Choose one action. See the consequence. Continue.
 
 The sophistication remains beneath the interface. Each choice updates service, containment, evidence, and governance state. Later context changes according to that state.
 
@@ -47,12 +47,13 @@ The prototype enforces booth-speed content limits:
 | Element | Limit | Current maximum |
 |---|---:|---:|
 | Incident premise | 30 words | 18 words |
-| New stage context | 22 words | 20 words |
+| Briefing fact | 14 words | 12 words |
+| New stage context | 22 words | 19 words |
 | Action | 16 words | 9 words |
 | Consequence | 24 words | 15 words |
 | Engineering principle | 12 words | 10 words |
 
-No participant must read a paragraph before acting. Labels, metadata, and debrief content remain secondary to the current decision.
+The post-assignment briefing uses three scannable facts and one objective. During play, labels, metadata, and debrief content remain secondary to the current decision.
 
 ## Choice-quality rules
 
@@ -68,7 +69,13 @@ Every decision follows these rules:
 
 ## Scenario architecture
 
-Each incident contains five connected stages:
+After random assignment, each incident reveals a concise briefing before the timer begins:
+
+- **Situation** — one-sentence incident premise
+- **What you know** — three short, scenario-specific facts
+- **Your objective** — the future state the participant is trying to protect
+
+Each incident then contains five connected stages:
 
 | Stage | Purpose | Participant question |
 |---|---|---|
@@ -132,7 +139,7 @@ Stop unsafe action while preserving the evidence needed to find every copy and c
 
 1. Cut off the suspect source, constrain operation, or roll back context
 2. Preserve the source-to-decision trust trail
-3. Rebuild trusted context while a regulator asks for an impact account
+3. Rebuild trusted context after the assistant influences a live change and security asks for the tainted source and affected decisions
 4. Control provenance, identity, or unsafe output
 5. Restore recommendations through advisory, risk-scoped, or full autonomy
 
@@ -153,7 +160,7 @@ Restore fast service without making customers repeat work or asking people to tr
 
 1. Stop misrouting while preserving customer continuity
 2. Trace routing decisions and transferred context together
-3. Recover the backlog while priority customers escalate
+3. Recover the backlog after a priority customer reports that sensitive case details reached the wrong team
 4. Validate destination, context integrity, and routing confidence
 5. Restore routing through suggest, confidence-scoped, or full automation
 
@@ -169,9 +176,12 @@ Restore fast service without making customers repeat work or asking people to tr
 ### Incident score
 
 - Each incident has a best possible score of 100.
-- Lowest possible scores range from 76 to 78.
+- Lowest possible scores range from 61 to 66.
+- Each incident now produces 31 to 36 distinct totals across its 243 possible paths.
+- A score of 96 occurs in only one to four paths per incident, rather than being a common result of the shared coarse matrix.
 - Scores compare the balance achieved in this scenario; they do not diagnose professional competence.
 - Time is displayed separately and does not change the prototype score.
+- Equal scores can still represent different response styles and trade-off paths; the result screen now says so explicitly.
 
 ### Response style
 
@@ -196,6 +206,7 @@ The prototype keeps incident progress in device-local history without revealing 
 
 - One of the participant's remaining unplayed incidents is randomly selected behind a generic **Start incident** button.
 - A temporary numbered prototype selector allows internal testers to target an incident without exposing its title or premise.
+- **Start incident** reveals the assigned scenario briefing; **Begin decisions** starts the timer.
 - Completed selector buttons grey out to show that all four incidents are tracked.
 - Completion survives refresh on the same device.
 - The result offers **Try another incident** while unplayed incidents remain.
@@ -203,6 +214,8 @@ The prototype keeps incident progress in device-local history without revealing 
 - Replay retains the completion record and updates the best score and time.
 - **New player on this device** clears local history after confirmation.
 - No sign-in, email address, company, or contact details are required.
+
+The score calibration and briefing release uses a new local-history key so earlier coarse scores are not compared with the refined model. Prototype testers receive one clean four-incident pass after deployment.
 
 Event release still needs an explicit shared-device and participant-session policy.
 
@@ -248,7 +261,8 @@ The full build requires:
 
 The four-incident build is accepted for stakeholder testing when:
 
-- Four incidents appear on the launch hub.
+- Four numbered prototype controls appear on the launch hub without revealing scenario names.
+- Every randomly assigned incident has a briefing with three facts and one objective before timed decisions begin.
 - Every incident contains five stages and three actions per stage.
 - All 60 option identifiers are unique.
 - Every incident has a maximum score of 100.
@@ -257,7 +271,7 @@ The four-incident build is accepted for stakeholder testing when:
 - Completion, replay, next-unplayed, refresh, and new-player logic work locally.
 - Leaderboard ordering is score descending, then verified time ascending.
 - One public position is retained per anonymous player across all four incidents.
-- Result screens link to the live board and invite direct feedback with the booth team.
+- Result screens describe the planned production leaderboard integration and invite direct feedback with the booth team.
 - Participant-copy limits pass automatically.
 - The production client build succeeds.
 - Current and archive routes remain available.

@@ -64,6 +64,7 @@
 .incident-header-link svg { width: 16px; }
 
 .incident-launch,
+.incident-briefing,
 .incident-game,
 .incident-result {
   position: relative;
@@ -133,6 +134,20 @@
 
 .incident-mobile-qr { display: none; }
 .incident-archive-link { justify-self: center; color: rgba(120, 220, 255, 0.62); font-size: 0.7rem; text-underline-offset: 4px; }
+
+.incident-briefing { display: grid; padding-top: 20px; }
+.incident-briefing__card { width: min(780px, 100%); margin: 0 auto; border: 1px solid rgba(120, 220, 255, 0.25); border-radius: 20px; background: linear-gradient(145deg, rgba(0, 123, 195, 0.16), rgba(4, 4, 52, 0.97) 68%); padding: 22px; box-shadow: 0 28px 90px rgba(0, 0, 20, 0.34); }
+.incident-briefing__card h1 { margin: 0; color: #fff; font-size: clamp(2.45rem, 12vw, 4.5rem); font-weight: 900; letter-spacing: -0.058em; line-height: 0.96; text-wrap: balance; }
+.incident-briefing__premise { max-width: 680px; margin: 17px 0 0; color: rgba(238, 238, 238, 0.82); font-size: 1.02rem; line-height: 1.5; }
+.incident-briefing__facts { margin-top: 21px; border-top: 1px solid rgba(120, 220, 255, 0.16); padding-top: 17px; }
+.incident-briefing__facts > strong,
+.incident-briefing__objective > strong { color: var(--incident-aqua); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.incident-briefing__facts ul { display: grid; gap: 10px; margin: 13px 0 0; padding: 0; list-style: none; counter-reset: briefing-fact; }
+.incident-briefing__facts li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; color: rgba(238, 238, 238, 0.8); font-size: 1rem; line-height: 1.42; counter-increment: briefing-fact; }
+.incident-briefing__facts li::before { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: rgba(0, 174, 255, 0.12); color: var(--incident-aqua); font-size: 0.62rem; font-weight: 900; content: counter(briefing-fact, decimal-leading-zero); }
+.incident-briefing__objective { margin-top: 20px; border-left: 3px solid var(--incident-aqua); background: rgba(0, 174, 255, 0.09); padding: 14px 15px; }
+.incident-briefing__objective p { margin: 7px 0 0; color: #fff; font-size: 1rem; font-weight: 700; line-height: 1.45; }
+.incident-briefing__rules { margin: 16px 0 0; color: rgba(238, 238, 238, 0.56); font-size: 0.78rem; line-height: 1.45; }
 
 .incident-progress-row { display: flex; justify-content: space-between; gap: 18px; color: var(--incident-pale); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .incident-progress { height: 3px; margin: 12px 0 22px; overflow: hidden; background: rgba(120, 220, 255, 0.14); }
@@ -315,11 +330,12 @@
 @media (min-width: 760px) {
   .incident-header { min-height: 108px; padding: 22px 28px; }
   .incident-brand img { width: 150px; }
-  .incident-launch, .incident-game, .incident-result { padding: 48px 34px 68px; }
+  .incident-launch, .incident-briefing, .incident-game, .incident-result { padding: 48px 34px 68px; }
   .incident-launch { grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.72fr); align-items: start; gap: 42px; }
   .incident-launch__story { padding-top: 12px; }
   .incident-series__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .incident-launch__action, .incident-decision, .incident-consequence { padding: 30px; }
+  .incident-briefing__card { padding: 32px; }
   .incident-archive-link { grid-column: 1 / -1; }
   .incident-mobile-qr { display: grid; grid-template-columns: 144px minmax(0, 1fr); align-items: center; gap: 16px; margin-top: 16px; border-top: 1px solid rgba(120, 220, 255, 0.14); padding-top: 16px; color: #fff; text-decoration: none; }
   .incident-mobile-qr > span:first-child { display: block; width: 144px; height: 144px; overflow: visible; border: 0; border-radius: 8px; background: #fff; line-height: 0; }
