@@ -117,6 +117,8 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 
 - 2026-08-30 - **Plan**: Add a responsive AI Practice Worlds landing page at `/practice/worlds`, use the supplied three-world artwork as the shared visual foundation, introduce clear foundation-state descriptions for Capability Owner Index, AI Enablement Journey, and Innovation Engine, and validate the static route without changing existing Practice experiences.
 
+- 2026-08-30 - **Plan update**: Publish the AI Practice Operating Architecture landing page at the corrected route `/practice/oa` (not `/practice/worlds`); retain the three-world visual and keep all page assets relative to the Practice mount.
+
 ## Future Planning
 - Confirm the onsite signage script team is happy with the phrasing ahead of show open.
 - Capture feedback from the booth on whether visitors understand the shortened explainer.
