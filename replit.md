@@ -115,7 +115,18 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
   - **Results**: Copy now mirrors the onsite signage script and Side 3 messaging while preserving existing navigation behaviour.
   - **Issues**: None.
 
+- 2026-08-30 - **Plan**: Add a responsive AI Practice Operating Architecture landing page at `/practice/oa`, use the supplied three-world artwork as the visual foundation for Capability Owner Index, AI Enablement Journey, and Innovation Engine, keep all assets relative to the Practice mount, and validate the static route without changing existing Practice experiences.
+
+- 2026-08-30 - **What changed**: Added the AI Practice Operating Architecture landing page at `/practice/oa`, grounded in the supplied three-world artwork.
+  - **How**: Created a self-contained semantic HTML page and responsive CSS treatment, reused one local JPEG with precise top/middle/bottom crops, and kept every page asset relative so the existing `/practice` Express/Vercel mount serves it correctly.
+  - **Results**: Capability Owner Index, AI Enablement Journey, and Innovation Engine now have a cohesive responsive foundation; HTML structure, IDs, local assets, CSS balance, and static HTTP responses passed validation.
+  - **Issues**: No functional blockers. Final deployed visual QA behind the Practice access gate remains a follow-up once the Vercel deployment completes.
+
 ## Future Planning
+- Validate `/practice/oa` behind the production Practice access gate on desktop and a narrow phone after deployment.
+- Decide the navigation and content model inside each of the three OA worlds before making the foundation cards interactive.
+- Confirm the foundation descriptions and terminology with AI Practice leadership.
+- Replace the composite source with purpose-exported individual world panels if higher-resolution final artwork becomes available.
 - Confirm the onsite signage script team is happy with the phrasing ahead of show open.
 - Capture feedback from the booth on whether visitors understand the shortened explainer.
 - Revisit the terms copy if legal requests additional language before launch.
