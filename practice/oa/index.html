@@ -8,6 +8,7 @@
   <title>AI Practice Operating Architecture | Data#3</title>
   <link rel="preload" href="./practice-worlds-foundation.jpeg" as="image" fetchpriority="high">
   <link rel="stylesheet" href="./styles.css">
+  <script src="./script.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -44,9 +45,15 @@
         <span>One AI practice.</span>
       </h1>
 
-      <p class="hero-copy">
-        A connected operating architecture for building capability, enabling people and turning imagination into repeatable customer value.
-      </p>
+      <div class="north-star" aria-label="North Star">
+        <p class="north-star-label">North Star</p>
+        <div>
+          <p class="north-star-statement">Win more of the market, and run it leaner.</p>
+          <p class="north-star-note">
+            Everything below is in service of that. The three systems don&apos;t each shout it — they just do it.
+          </p>
+        </div>
+      </div>
 
       <a class="enter-link" href="#worlds">
         Enter the worlds
@@ -56,8 +63,8 @@
 
     <section class="worlds" id="worlds" aria-labelledby="worlds-heading">
       <div class="section-heading">
-        <h2 id="worlds-heading">Explore the operating architecture</h2>
-        <p>03 connected worlds</p>
+        <h2 id="worlds-heading">Open a system to explore the operating architecture</h2>
+        <p>03 connected systems</p>
       </div>
 
       <div class="world-grid">
@@ -70,13 +77,14 @@
           <div class="world-details">
             <div class="world-title">
               <p class="strapline">Every capability has a keeper</p>
-              <h3>Capability Owner Index</h3>
+              <h3 id="coi-card-title">Capability Owner Index</h3>
             </div>
             <p class="world-copy">
               Make ownership visible. Connect every capability to the people, offerings and expertise that bring it to life.
             </p>
-            <p class="status"><span aria-hidden="true"></span>Foundation live</p>
+            <p class="open-label" aria-hidden="true">Open guide <span>↗</span></p>
           </div>
+          <button class="world-hitarea" type="button" data-dialog="coi-dialog" aria-haspopup="dialog" aria-controls="coi-dialog" aria-expanded="false" aria-labelledby="coi-card-title"></button>
         </article>
 
         <article class="world-card violet" id="ai-enablement-journey">
@@ -88,13 +96,14 @@
           <div class="world-details">
             <div class="world-title">
               <p class="strapline">The path is lit for everyone</p>
-              <h3>AI Enablement Journey</h3>
+              <h3 id="enablement-card-title">AI Enablement Journey</h3>
             </div>
             <p class="world-copy">
               Give every person a clear, supported path from first curiosity to confident, repeatable AI practice.
             </p>
-            <p class="status"><span aria-hidden="true"></span>Foundation live</p>
+            <p class="open-label" aria-hidden="true">Open guide <span>↗</span></p>
           </div>
+          <button class="world-hitarea" type="button" data-dialog="enablement-dialog" aria-haspopup="dialog" aria-controls="enablement-dialog" aria-expanded="false" aria-labelledby="enablement-card-title"></button>
         </article>
 
         <article class="world-card cyan" id="innovation-engine">
@@ -106,13 +115,14 @@
           <div class="world-details">
             <div class="world-title">
               <p class="strapline">Imagination, industrialised</p>
-              <h3>Innovation Engine</h3>
+              <h3 id="innovation-card-title">Innovation Engine</h3>
             </div>
             <p class="world-copy">
               Turn promising ideas into governed, saleable outcomes through a repeatable innovation system.
             </p>
-            <p class="status"><span aria-hidden="true"></span>Foundation live</p>
+            <p class="open-label" aria-hidden="true">Open guide <span>↗</span></p>
           </div>
+          <button class="world-hitarea" type="button" data-dialog="innovation-dialog" aria-haspopup="dialog" aria-controls="innovation-dialog" aria-expanded="false" aria-labelledby="innovation-card-title"></button>
         </article>
       </div>
     </section>
@@ -130,5 +140,180 @@
     <p>Data<sup>#</sup>3 AI Practice</p>
     <p>Ownership · Enablement · Innovation</p>
   </footer>
+
+  <dialog class="system-dialog dialog-orange" id="coi-dialog" aria-labelledby="coi-dialog-title" aria-describedby="coi-dialog-lead">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <p class="dialog-kicker">01 · Data priority</p>
+          <h2 id="coi-dialog-title">Capability Owner Index</h2>
+          <p class="dialog-strapline">“Every capability has a keeper”</p>
+        </div>
+        <button class="dialog-close" type="button" data-close aria-label="Close Capability Owner Index guide">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <p class="dialog-lead" id="coi-dialog-lead">
+          <strong>The Data priority, made operational</strong> — governing the data about what we sell.
+        </p>
+
+        <div class="detail-grid">
+          <section class="detail-section">
+            <p class="detail-number">01</p>
+            <div>
+              <h3>Clear accountability</h3>
+              <p>
+                One accountable owner per capability, named by the Practice Manager. Every capability gets the designated point of contact.
+              </p>
+            </div>
+          </section>
+
+          <section class="detail-section">
+            <p class="detail-number">02</p>
+            <div>
+              <h3>Index, don&apos;t rebuild</h3>
+              <p>
+                It indexes what already exists — nothing migrates and nothing is rebuilt. This is a governance decision, not a platform build.
+              </p>
+            </div>
+          </section>
+
+          <section class="detail-section detail-wide">
+            <p class="detail-number">03</p>
+            <div>
+              <h3>A light, honest cadence</h3>
+              <p>
+                The capability owner is responsible for all offers in their capability area — kept honest by a light cadence: quarterly matrix, monthly record, on-change evidence.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <blockquote class="rule-callout">
+          <span>The market rule</span>
+          “Not on data3.com and not in a price book = aspiration, not offering.”
+        </blockquote>
+
+        <div class="point-callout">
+          <p>The point</p>
+          <strong>
+            One governed truth everyone works from — sellers, marketing, presales, delivery, tenders and renewals all quoting the same line.
+          </strong>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="system-dialog dialog-violet" id="enablement-dialog" aria-labelledby="enablement-dialog-title" aria-describedby="enablement-dialog-lead">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <p class="dialog-kicker">02 · People priority</p>
+          <h2 id="enablement-dialog-title">AI Enablement Journey</h2>
+          <p class="dialog-strapline">“The path is lit for everyone”</p>
+        </div>
+        <button class="dialog-close" type="button" data-close aria-label="Close AI Enablement Journey guide">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <p class="dialog-lead" id="enablement-dialog-lead">
+          <strong>The People priority, made operational</strong> — one governed journey across the tiered skills framework.
+        </p>
+
+        <section class="journey-section">
+          <p class="detail-number">01 · One progression</p>
+          <ol class="progression" aria-label="AI enablement progression">
+            <li>Foundations</li>
+            <li>Copilot</li>
+            <li>Agent Builder</li>
+            <li>Cowork / Studio</li>
+            <li>Specialist</li>
+          </ol>
+          <p class="journey-note">A compliance engine makes each tier enforceable.</p>
+        </section>
+
+        <div class="detail-grid">
+          <section class="detail-section">
+            <p class="detail-number">02</p>
+            <div>
+              <h3>Customer 0</h3>
+              <p>Proven on ourselves first — then turned into a repeatable customer offering.</p>
+            </div>
+          </section>
+
+          <section class="detail-section">
+            <p class="detail-number">03</p>
+            <div>
+              <h3>Prove movement</h3>
+              <p>
+                Made measurable through the AI Fluency Index: baseline, target the gaps, prove movement, renew.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <div class="point-callout">
+          <p>The point</p>
+          <strong>Every trained maker is future pipeline — enablement generates its own informed demand.</strong>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="system-dialog dialog-cyan" id="innovation-dialog" aria-labelledby="innovation-dialog-title" aria-describedby="innovation-dialog-lead">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <p class="dialog-kicker">03 · Workflows priority</p>
+          <h2 id="innovation-dialog-title">Innovation Engine</h2>
+          <p class="dialog-strapline">“Imagination, industrialised”</p>
+        </div>
+        <button class="dialog-close" type="button" data-close aria-label="Close Innovation Engine guide">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <p class="dialog-lead" id="innovation-dialog-lead">
+          <strong>The Workflows priority, made operational</strong> — an ISO 56000-aligned lifecycle from insight to impact.
+        </p>
+
+        <section class="journey-section">
+          <p class="detail-number">01 · Five stages</p>
+          <ol class="progression" aria-label="Innovation Engine stages">
+            <li>Understand</li>
+            <li>Prioritise</li>
+            <li>Experiment</li>
+            <li>Deploy</li>
+            <li>Capture Value</li>
+          </ol>
+          <p class="journey-note">The connective layer across the three workstreams.</p>
+        </section>
+
+        <section class="evidence-block" aria-labelledby="goldmine-heading">
+          <div>
+            <p class="detail-number">02 · Existing opportunity</p>
+            <h3 id="goldmine-heading">The goldmine already exists</h3>
+          </div>
+          <div class="metric-grid">
+            <p><strong>107</strong><span>use cases</span></p>
+            <p><strong>83</strong><span>extend capability we already have</span></p>
+            <p><strong>6</strong><span>are new builds</span></p>
+          </div>
+        </section>
+
+        <section class="patient-zero">
+          <p class="detail-number">03 · Patient Zero</p>
+          <h3>MS Contracts Assistant</h3>
+          <p>
+            Prove one thin slice end-to-end by the end of H1, leaving reusable gates, evidence and an operating pattern behind.
+          </p>
+        </section>
+
+        <div class="point-callout">
+          <p>The point</p>
+          <strong>Reuse over rebuild — one proven path, repeated, instead of scattered activity.</strong>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>
