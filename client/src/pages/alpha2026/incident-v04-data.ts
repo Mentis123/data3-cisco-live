@@ -36,7 +36,7 @@ const runawayAgentIncident: IncidentDefinition = {
       context:
         "Latency is climbing and the service is buckling. The agent is still creating new work.",
       question: "What do you stop first?",
-      takeaway: "Contain the mechanism, not only the symptom.",
+      takeaway: "Stopping retries removes the source of the extra load.",
       options: [
         {
           id: "R1-A",
@@ -65,7 +65,7 @@ const runawayAgentIncident: IncidentDefinition = {
             "Customers recover briefly. But more capacity feeds the storm and masks its cause.",
           signals: ["Service restored", "Cause obscured"],
           effects: { service: 16, containment: -8, evidence: -2, governance: 1 },
-          points: 13,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -79,7 +79,7 @@ const runawayAgentIncident: IncidentDefinition = {
           ? "The retry rate is easing, but a restart will erase the live trail through the agent and its tools."
           : "Retries are still adding load. The fastest recovery will overwrite the only live trail through the agent.",
       question: "What do you capture now?",
-      takeaway: "Preserve enough evidence to explain the behaviour.",
+      takeaway: "Live agent traces are hardest to recover after a restart.",
       options: [
         {
           id: "R2-A",
@@ -108,7 +108,7 @@ const runawayAgentIncident: IncidentDefinition = {
             "Service moves sooner. But the retry sequence may never be recoverable.",
           signals: ["Recovery accelerated", "Evidence at risk"],
           effects: { service: 12, containment: 2, evidence: -12, governance: -2 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -123,7 +123,7 @@ const runawayAgentIncident: IncidentDefinition = {
           : "The retry loop is contained, but its trigger is still uncertain. Any recovery path could restart it.",
       inject: "The service owner is unreachable, and the backlog will breach its target in 30 minutes.",
       question: "How do you restore service?",
-      takeaway: "Recovery should be controlled and reversible.",
+      takeaway: "A staged recovery can stop before the retry storm returns.",
       options: [
         {
           id: "R3-A",
@@ -166,7 +166,7 @@ const runawayAgentIncident: IncidentDefinition = {
           ? "Service is returning behind tighter boundaries. The next run still inherits today's retry rules."
           : "Service is returning, but the agent can still reach the same failure path. Its retry rules have not changed.",
       question: "Where does the guardrail go?",
-      takeaway: "Put control closest to the compounding risk.",
+      takeaway: "Retry limits work best where the repeated calls begin.",
       options: [
         {
           id: "R4-A",
@@ -195,7 +195,7 @@ const runawayAgentIncident: IncidentDefinition = {
             "Risk falls sharply. But the workflow is slower and barely autonomous.",
           signals: ["Human control", "Automation reduced"],
           effects: { service: -3, containment: 16, evidence: 8, governance: 18 },
-          points: 13,
+          points: 14,
           style: "evidence",
         },
       ],
@@ -209,7 +209,7 @@ const runawayAgentIncident: IncidentDefinition = {
           ? "Controls and evidence are strong. The team still has to choose how much trust to restore."
           : "Some uncertainty remains. Full autonomy would turn that uncertainty into customer impact.",
       question: "When is it safe to turn the agent back on?",
-      takeaway: "Restore trust in stages, not all at once.",
+      takeaway: "Automation earns back authority through observed results.",
       options: [
         {
           id: "R5-A",
@@ -279,7 +279,7 @@ const edgePressureIncident: IncidentDefinition = {
       context:
         "Some sites are slow; others are failing. A fleet-wide change could improve everything—or break everything.",
       question: "How do you stop it spreading?",
-      takeaway: "Keep local service while limiting fleet risk.",
+      takeaway: "Local fallback protects service without exposing the whole fleet.",
       options: [
         {
           id: "E1-A",
@@ -308,7 +308,7 @@ const edgePressureIncident: IncidentDefinition = {
             "The fix arrives fast. But one bad push can turn degradation into a fleet outage.",
           signals: ["Fast intervention", "Fleet exposed"],
           effects: { service: 10, containment: -10, evidence: -2, governance: -4 },
-          points: 11,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -322,7 +322,7 @@ const edgePressureIncident: IncidentDefinition = {
           ? "Local fallback is buying time, but telemetry and recovery still share the same thin links."
           : "Affected sites are losing useful service. Heavy collection could take the bandwidth needed to recover them.",
       question: "What evidence do you pull?",
-      takeaway: "Collect representative evidence without harming recovery.",
+      takeaway: "A representative sample protects both evidence and bandwidth.",
       options: [
         {
           id: "E2-A",
@@ -351,7 +351,7 @@ const edgePressureIncident: IncidentDefinition = {
             "Recovery stays fast. But edge-only failures remain inside the blind spot.",
           signals: ["Links preserved", "Blind spot remains"],
           effects: { service: 7, containment: 1, evidence: -10, governance: -2 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -366,7 +366,7 @@ const edgePressureIncident: IncidentDefinition = {
           : "The fleet pattern is still incomplete. One uniform recovery could repeat the same fault everywhere.",
       inject: "Your edge specialist is in flight, and two remote sites are about to lose local service.",
       question: "How do you bring the sites back?",
-      takeaway: "Recover in steps you can observe and reverse.",
+      takeaway: "Wave-based recovery limits how many sites one mistake can affect.",
       options: [
         {
           id: "E3-A",
@@ -409,7 +409,7 @@ const edgePressureIncident: IncidentDefinition = {
           ? "The fleet is returning, but the same release still has to cross unreliable links and varied hardware."
           : "Some sites remain degraded. The next release still needs to cross unreliable links and varied hardware safely.",
       question: "How do you contain the next bad push?",
-      takeaway: "Fleet safety comes from staged, local resilience.",
+      takeaway: "Health checks and local fallback stop one bad release spreading.",
       options: [
         {
           id: "E4-A",
@@ -438,7 +438,7 @@ const edgePressureIncident: IncidentDefinition = {
             "Control is immediate. But one button can now dark every site.",
           signals: ["Immediate control", "Single failure point"],
           effects: { service: 4, containment: 15, evidence: 1, governance: 12 },
-          points: 13,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -452,7 +452,7 @@ const edgePressureIncident: IncidentDefinition = {
           ? "Rollback and safe-mode controls are ready. Site health still varies."
           : "Fleet controls remain uneven. A fast return trades consistency for speed.",
       question: "When do you reactivate the fleet?",
-      takeaway: "Use health evidence to graduate trust.",
+      takeaway: "Each site should prove readiness before receiving full trust.",
       options: [
         {
           id: "E5-A",
@@ -481,7 +481,7 @@ const edgePressureIncident: IncidentDefinition = {
             "Full service returns fastest. But the fix is now tested by customers.",
           signals: ["Fleet live", "Customers testing"],
           effects: { service: 26, containment: 1, evidence: 3, governance: 5 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -522,7 +522,7 @@ const poisonedContextIncident: IncidentDefinition = {
       context:
         "The assistant is still active. You do not yet know whether data, a tool, or an identity is tainted.",
       question: "What do you cut off first?",
-      takeaway: "Break the trust path before cleaning the output.",
+      takeaway: "Stop access to suspect context before filtering the answers.",
       options: [
         {
           id: "P1-A",
@@ -551,7 +551,7 @@ const poisonedContextIncident: IncidentDefinition = {
             "A cleaner state returns quickly. But yesterday may already be poisoned.",
           signals: ["Context restored", "Entry time unknown"],
           effects: { service: 14, containment: 6, evidence: -3, governance: 2 },
-          points: 13,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -565,7 +565,7 @@ const poisonedContextIncident: IncidentDefinition = {
           ? "The suspect source is isolated, but its access and decision trail is still volatile."
           : "The assistant can still act on suspect context. Immediate cleanup would erase how that context became trusted.",
       question: "What do you protect before cleanup?",
-      takeaway: "Preserve the chain from source to decision.",
+      takeaway: "Source, access, and decision records show how bad context became trusted.",
       options: [
         {
           id: "P2-A",
@@ -594,7 +594,7 @@ const poisonedContextIncident: IncidentDefinition = {
             "Unsafe data disappears. But so does evidence of the compromised trust path.",
           signals: ["Context cleaned", "Evidence destroyed"],
           effects: { service: 10, containment: 14, evidence: -16, governance: -4 },
-          points: 11,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -609,7 +609,7 @@ const poisonedContextIncident: IncidentDefinition = {
           : "You cannot yet prove where trust broke. A fast restore may carry the same poison into a new source.",
       inject: "The assistant influenced a live change. Security needs the tainted source and affected decisions identified in 30 minutes.",
       question: "How do you restore trusted context?",
-      takeaway: "Re-establish trust before restoring confidence.",
+      takeaway: "A trusted restore begins with a source you can verify.",
       options: [
         {
           id: "P3-A",
@@ -628,7 +628,7 @@ const poisonedContextIncident: IncidentDefinition = {
             "Useful answers return quickly. But a filter is guarding a source you still distrust.",
           signals: ["Answers restored", "Source untrusted"],
           effects: { service: 24, containment: 2, evidence: 0, governance: 6 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
         {
@@ -652,7 +652,7 @@ const poisonedContextIncident: IncidentDefinition = {
           ? "A cleaner source is returning. Future context and tool access still need to prove origin and authority."
           : "Useful context is returning, but the trust boundary is still weak. Future sources and tools need proof before use.",
       question: "How do you stop bad context being trusted?",
-      takeaway: "Control the source, identity, and authority.",
+      takeaway: "Provenance and scoped identity stop unknown context from becoming authority.",
       options: [
         {
           id: "P4-A",
@@ -681,7 +681,7 @@ const poisonedContextIncident: IncidentDefinition = {
             "Obvious harm is caught. But the unsafe source stays trusted upstream.",
           signals: ["Outputs screened", "Cause remains"],
           effects: { service: 10, containment: 8, evidence: 12, governance: 14 },
-          points: 13,
+          points: 14,
           style: "evidence",
         },
       ],
@@ -695,7 +695,7 @@ const poisonedContextIncident: IncidentDefinition = {
           ? "The trust chain is stronger and explainable. Autonomy still changes the consequence of error."
           : "Trust has improved, but evidence or controls remain incomplete.",
       question: "When do you trust its recommendations again?",
-      takeaway: "Match autonomy to consequence and confidence.",
+      takeaway: "Higher-consequence actions need stronger evidence and human oversight.",
       options: [
         {
           id: "P5-A",
@@ -724,7 +724,7 @@ const poisonedContextIncident: IncidentDefinition = {
             "Autonomy returns fastest. But the test set may not represent real attacks.",
           signals: ["Autonomy restored", "Coverage uncertain"],
           effects: { service: 25, containment: 2, evidence: 4, governance: 7 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -765,7 +765,7 @@ const brokenHandoffIncident: IncidentDefinition = {
       context:
         "Some work is delayed, some exposed, and some silently lost. The routing engine is still active.",
       question: "How do you stop the misrouting now?",
-      takeaway: "Stop silent harm while preserving continuity.",
+      takeaway: "Pause silent misrouting before trying to clear the queue.",
       options: [
         {
           id: "H1-A",
@@ -808,7 +808,7 @@ const brokenHandoffIncident: IncidentDefinition = {
           ? "New misroutes have slowed, but context from in-flight cases is still disappearing between systems."
           : "The routing engine is still sending cases. Complaints reveal only the hand-offs people noticed.",
       question: "What shows you where it broke?",
-      takeaway: "Trace the decision and its context together.",
+      takeaway: "The routing decision and transferred context must be traced together.",
       options: [
         {
           id: "H2-A",
@@ -837,7 +837,7 @@ const brokenHandoffIncident: IncidentDefinition = {
             "Work moves sooner. But ephemeral hand-off context will not be in the CRM.",
           signals: ["Flow accelerated", "Context lost"],
           effects: { service: 12, containment: 1, evidence: -12, governance: -2 },
-          points: 11,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -852,7 +852,7 @@ const brokenHandoffIncident: IncidentDefinition = {
           : "You cannot yet prove which hand-off failed. A fresh sync could import the same routing mistake.",
       inject: "A priority customer says sensitive case details reached the wrong team.",
       question: "How do you restore routing?",
-      takeaway: "Repair affected work before trusting the pipeline.",
+      takeaway: "Repair affected cases before trusting the routing pipeline again.",
       options: [
         {
           id: "H3-A",
@@ -871,7 +871,7 @@ const brokenHandoffIncident: IncidentDefinition = {
             "The backlog moves quickly. But the sync may import the corrupted mapping.",
           signals: ["Backlog moving", "Fault may return"],
           effects: { service: 26, containment: 2, evidence: 1, governance: 2 },
-          points: 13,
+          points: 14,
           style: "rapid",
         },
         {
@@ -895,7 +895,7 @@ const brokenHandoffIncident: IncidentDefinition = {
           ? "Routing is returning, and the failed hop is visible. Each new transfer still needs proof of context and destination."
           : "Routing is returning without a complete trace. Each new transfer still needs proof of context and destination.",
       question: "How do you protect future hand-offs?",
-      takeaway: "Validate context, destination, and confidence.",
+      takeaway: "A safe hand-off verifies the payload, destination, and confidence.",
       options: [
         {
           id: "H4-A",
@@ -938,7 +938,7 @@ const brokenHandoffIncident: IncidentDefinition = {
           ? "Routes are more observable and controlled. Confidence still varies by case."
           : "Routing works again, but visibility or controls remain incomplete.",
       question: "When do you let it route alone again?",
-      takeaway: "Graduate autonomy using real routing evidence.",
+      takeaway: "Automation should expand only while real routing accuracy holds.",
       options: [
         {
           id: "H5-A",
@@ -967,7 +967,7 @@ const brokenHandoffIncident: IncidentDefinition = {
             "Automation returns fastest. But the sample may not cover real customer variation.",
           signals: ["Automation restored", "Coverage uncertain"],
           effects: { service: 25, containment: 2, evidence: 4, governance: 6 },
-          points: 12,
+          points: 14,
           style: "rapid",
         },
       ],
@@ -1005,9 +1005,9 @@ export const responseProfiles: Record<
     tradeoff: "Speed can hide the cause or repeat the fault.",
   },
   adaptive: {
-    title: "The balancer",
-    description: "You trade speed, safety, evidence, and control as the incident changes.",
-    strength: "Well-rounded judgement",
-    tradeoff: "Balance may miss the moment an extreme is needed.",
+    title: "The adaptive strategist",
+    description: "You change posture as the incident reveals new constraints.",
+    strength: "Context-aware judgement",
+    tradeoff: "Frequent course changes need clear ownership.",
   },
 };

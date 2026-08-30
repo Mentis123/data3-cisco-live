@@ -65,6 +65,7 @@
 
 .incident-launch,
 .incident-briefing,
+.incident-abandon,
 .incident-game,
 .incident-result {
   position: relative;
@@ -112,6 +113,7 @@
 .incident-prototype-picker button svg { width: 17px; height: 17px; }
 .incident-prototype-picker button.is-selected { border-color: var(--incident-aqua); background: rgba(0, 174, 255, 0.16); color: #fff; box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.08); }
 .incident-prototype-picker button.is-complete { border-color: rgba(157, 159, 162, 0.13); background: rgba(157, 159, 162, 0.08); color: rgba(238, 238, 238, 0.26); cursor: not-allowed; }
+.incident-prototype-picker button.is-abandoned { border-color: rgba(255, 184, 197, 0.14); background: rgba(255, 90, 120, 0.06); color: rgba(255, 184, 197, 0.34); cursor: not-allowed; }
 .incident-prototype-note { max-width: 390px; margin: 9px 0 0; color: rgba(238, 238, 238, 0.46); font-size: 0.7rem; line-height: 1.4; }
 .incident-new-player { display: inline-flex; min-height: 48px; align-items: center; gap: 7px; margin-top: 10px; border: 0; background: transparent; padding: 0 4px; color: rgba(120, 220, 255, 0.7); font: inherit; font-size: 0.76rem; font-weight: 800; cursor: pointer; }
 .incident-new-player svg { width: 17px; }
@@ -149,9 +151,22 @@
 .incident-briefing__objective p { margin: 7px 0 0; color: #fff; font-size: 1rem; font-weight: 700; line-height: 1.45; }
 .incident-briefing__rules { margin: 16px 0 0; color: rgba(238, 238, 238, 0.56); font-size: 0.78rem; line-height: 1.45; }
 
+.incident-abandon { display: grid; padding-top: 20px; }
+.incident-abandon__card { width: min(680px, 100%); margin: 0 auto; border: 1px solid rgba(120, 220, 255, 0.25); border-radius: 20px; background: linear-gradient(145deg, rgba(0, 123, 195, 0.16), rgba(4, 4, 52, 0.97) 68%); padding: 22px; box-shadow: 0 28px 90px rgba(0, 0, 20, 0.34); }
+.incident-abandon__card h1 { margin: 0; color: #fff; font-size: clamp(2.65rem, 13vw, 4.8rem); font-weight: 900; letter-spacing: -0.058em; line-height: 0.96; text-wrap: balance; }
+.incident-abandon__lead { margin: 17px 0 0; color: #fff; font-size: 1.1rem; font-weight: 700; line-height: 1.45; }
+.incident-abandon__impact { margin-top: 20px; border-left: 3px solid var(--incident-aqua); background: rgba(0, 174, 255, 0.08); padding: 14px 15px; }
+.incident-abandon__impact strong { color: var(--incident-aqua); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.incident-abandon__impact p { margin: 7px 0 0; color: rgba(238, 238, 238, 0.78); font-size: 0.96rem; line-height: 1.5; }
+.incident-abandon__actions { display: grid; gap: 9px; margin-top: 20px; }
+.incident-abandon__actions .incident-primary { margin-top: 0; }
+
 .incident-progress-row { display: flex; justify-content: space-between; gap: 18px; color: var(--incident-pale); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .incident-progress { height: 3px; margin: 12px 0 22px; overflow: hidden; background: rgba(120, 220, 255, 0.14); }
 .incident-progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--incident-blue), var(--incident-aqua)); }
+.incident-time-alert { display: flex; width: fit-content; min-height: 36px; align-items: center; gap: 7px; margin: -8px 0 14px; border: 1px solid rgba(120, 220, 255, 0.2); border-radius: 999px; background: rgba(0, 174, 255, 0.08); padding: 0 11px; color: var(--incident-pale); font-size: 0.67rem; font-weight: 800; }
+.incident-time-alert svg { width: 15px; }
+.incident-time-alert.is-over-target { border-color: rgba(255, 184, 197, 0.22); background: rgba(255, 90, 120, 0.07); color: #ffb8c5; }
 .incident-decision h1, .incident-consequence h1 { max-width: 820px; font-size: clamp(2.25rem, 10vw, 4rem); }
 .incident-context, .incident-consequence__update > p:not(.incident-kicker) { max-width: 780px; margin: 18px 0 0; color: rgba(238, 238, 238, 0.8); font-size: 1rem; line-height: 1.5; }
 .incident-inject { display: grid; max-width: 780px; gap: 4px; margin-top: 16px; border-left: 3px solid var(--incident-aqua); background: rgba(0, 174, 255, 0.1); padding: 11px 13px; }
@@ -179,11 +194,19 @@
 .incident-challenge-panel { border: 1px solid rgba(120, 220, 255, 0.21); border-radius: 20px; background: linear-gradient(145deg, rgba(0, 123, 195, 0.14), rgba(4, 4, 52, 0.95) 68%); padding: 20px; box-shadow: 0 28px 90px rgba(0, 0, 20, 0.3); }
 .incident-result__summary h1 { margin: 0; color: #fff; font-size: clamp(2.55rem, 12vw, 4.8rem); font-weight: 900; letter-spacing: -0.058em; line-height: 0.96; text-wrap: balance; }
 .incident-result__qualifier { margin: 12px 0 0; color: rgba(238, 238, 238, 0.68); font-size: 0.95rem; }
+.incident-profile-summary { margin: 13px 0 0; color: #fff; font-size: 1.05rem; font-weight: 700; line-height: 1.48; }
 .incident-scoreline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
 .incident-scoreline > div { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 5px; border: 1px solid rgba(120, 220, 255, 0.16); border-radius: 13px; background: rgba(0, 0, 37, 0.5); padding: 13px; }
 .incident-scoreline strong { color: #fff; font-size: clamp(2rem, 9vw, 3.2rem); letter-spacing: -0.05em; line-height: 1; }
 .incident-scoreline span { color: var(--incident-pale); font-size: 0.73rem; font-weight: 900; text-transform: uppercase; }
 .incident-scoreline small { grid-column: 1 / -1; color: rgba(238, 238, 238, 0.6); font-size: 0.75rem; }
+.incident-scoreline > div.is-over-target { border-color: rgba(255, 184, 197, 0.22); }
+.incident-scoreline > div.is-over-target small { color: #ffb8c5; }
+.incident-style-mix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.incident-style-mix > div { display: grid; gap: 4px; border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 13px; background: rgba(0, 174, 255, 0.08); padding: 13px; }
+.incident-style-mix small { color: rgba(238, 238, 238, 0.54); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; }
+.incident-style-mix strong { color: #fff; font-size: 0.96rem; line-height: 1.2; }
+.incident-style-mix span { color: var(--incident-pale); font-size: 0.7rem; }
 .incident-profile-copy { display: grid; gap: 10px; margin-top: 15px; }
 .incident-profile-copy > div { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; border-left: 2px solid rgba(120, 220, 255, 0.38); padding: 9px 0 9px 12px; }
 .incident-profile-copy svg { width: 20px; color: var(--incident-aqua); }
@@ -330,12 +353,14 @@
 @media (min-width: 760px) {
   .incident-header { min-height: 108px; padding: 22px 28px; }
   .incident-brand img { width: 150px; }
-  .incident-launch, .incident-briefing, .incident-game, .incident-result { padding: 48px 34px 68px; }
+  .incident-launch, .incident-briefing, .incident-abandon, .incident-game, .incident-result { padding: 48px 34px 68px; }
   .incident-launch { grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.72fr); align-items: start; gap: 42px; }
   .incident-launch__story { padding-top: 12px; }
   .incident-series__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .incident-launch__action, .incident-decision, .incident-consequence { padding: 30px; }
   .incident-briefing__card { padding: 32px; }
+  .incident-abandon__card { padding: 32px; }
+  .incident-abandon__actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .incident-archive-link { grid-column: 1 / -1; }
   .incident-mobile-qr { display: grid; grid-template-columns: 144px minmax(0, 1fr); align-items: center; gap: 16px; margin-top: 16px; border-top: 1px solid rgba(120, 220, 255, 0.14); padding-top: 16px; color: #fff; text-decoration: none; }
   .incident-mobile-qr > span:first-child { display: block; width: 144px; height: 144px; overflow: visible; border: 0; border-radius: 8px; background: #fff; line-height: 0; }
@@ -346,7 +371,7 @@
   .incident-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .incident-options button { min-height: 150px; grid-template-columns: 38px minmax(0, 1fr); grid-template-rows: auto 1fr; align-items: start; }
   .incident-options button > svg { align-self: end; justify-self: end; grid-column: 2; }
-  .incident-consequence__actions { grid-template-columns: minmax(0, 1fr) minmax(0, 0.65fr); }
+  .incident-consequence__actions { grid-template-columns: 1fr; }
   .incident-result { grid-template-columns: minmax(0, 1.08fr) minmax(350px, 0.82fr); align-items: start; }
   .incident-result__summary, .incident-result__state, .incident-challenge-panel, .incident-leaderboard-panel, .incident-booth-feedback { padding: 28px; }
   .incident-challenge-panel { grid-column: 1 / -1; }

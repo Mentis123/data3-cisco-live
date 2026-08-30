@@ -24,9 +24,15 @@ import {
   incidents as liveIncidents,
   responseProfiles as liveResponseProfiles,
 } from "./incident-v04-data";
+import {
+  analyseResponse,
+  responseStyleLabels,
+  scoreBandFor,
+} from "./incident-response-analysis";
 import "./incident-challenge-v03.css";
 
-type Phase = "launch" | "briefing" | "decision" | "consequence" | "result";
+type ActivePhase = "briefing" | "decision" | "consequence";
+type Phase = "launch" | ActivePhase | "abandon" | "result";
 
 type ChoiceRecord = {
   stageId: string;
@@ -38,17 +44,21 @@ type PlayRecord = {
   bestScore: number;
   lastScore: number;
   bestTimeSeconds: number;
+  lastOutcome?: "completed" | "abandoned";
+  lastTargetMet?: boolean;
 };
 
 type PlayHistory = Record<string, PlayRecord>;
 
 const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
-const livePlayHistoryKey = "data3-2026alpha-incident-history-v4-briefing";
+const livePlayHistoryKey = "data3-2026alpha-incident-history-v4-archetypes";
 const legacyHistoryKey = "data3-2026alpha-completed-incidents-v1";
+const responseTargetSeconds = 120;
+const responseWarningSeconds = 90;
 
 type IncidentChallengeProps = {
   incidentSet?: IncidentDefinition[];
-  profiles?: Record<ResponseStyle, { title: string; strength: string; tradeoff: string }>;
+  profiles?: Record<ResponseStyle, { title: string; description?: string; strength: string; tradeoff: string }>;
   archiveMode?: boolean;
   versionLabel?: string;
 };
@@ -149,15 +159,19 @@ export default function IncidentChallengeV03({
   const [choices, setChoices] = useState<ChoiceRecord[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [resumePhase, setResumePhase] = useState<ActivePhase>("briefing");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
   const stage = incident.stages[stageIndex];
-  const completedCount = incidentSet.filter((candidate) => playHistory[candidate.id]).length;
+  const attemptedCount = incidentSet.filter((candidate) => playHistory[candidate.id]).length;
   const hasUnplayedIncident = incidentSet.some((candidate) => !playHistory[candidate.id]);
+  const otherUnplayedCount = incidentSet.filter((candidate) => candidate.id !== incident.id && !playHistory[candidate.id]).length;
   const score = useMemo(() => choices.reduce((total, choice) => total + choice.option.points, 0), [choices]);
   const responseStyle = responseStyleFor(choices);
-  const profile = profiles[responseStyle];
+  const responseAnalysis = useMemo(() => analyseResponse(choices), [choices]);
+  const profile = archiveMode ? profiles[responseStyle] : responseAnalysis.profile;
+  const scoreBand = scoreBandFor(score);
 
   useEffect(() => {
     document.title = archiveMode
@@ -177,6 +191,14 @@ export default function IncidentChallengeV03({
       window.requestAnimationFrame(() => headingRef.current?.focus());
     }
   }, [phase, stageIndex]);
+
+  useEffect(() => {
+    if (!startedAt || (phase !== "decision" && phase !== "consequence")) return;
+    const updateElapsed = () => setElapsedSeconds(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+    updateElapsed();
+    const timer = window.setInterval(updateElapsed, 1000);
+    return () => window.clearInterval(timer);
+  }, [phase, startedAt]);
 
   const resetPlay = (definition: IncidentDefinition = incident) => {
     setStageIndex(0);
@@ -208,8 +230,8 @@ export default function IncidentChallengeV03({
     setPhase("decision");
   };
 
-  const exit = () => {
-    const next = assignedUnplayed(playHistory, incidentSet, !archiveMode);
+  const returnHome = (history: PlayHistory = playHistory) => {
+    const next = assignedUnplayed(history, incidentSet, !archiveMode);
     if (next) {
       setSelectedIncidentId(next.id);
       resetPlay(next);
@@ -217,6 +239,39 @@ export default function IncidentChallengeV03({
       resetPlay();
     }
     setPhase("launch");
+  };
+
+  const requestExit = () => {
+    if (archiveMode) {
+      returnHome();
+      return;
+    }
+
+    if (phase === "briefing" || phase === "decision" || phase === "consequence") {
+      setResumePhase(phase);
+      setPhase("abandon");
+      return;
+    }
+
+    returnHome();
+  };
+
+  const abandonIncident = () => {
+    const previous = playHistory[incident.id];
+    const nextHistory: PlayHistory = {
+      ...playHistory,
+      [incident.id]: {
+        plays: (previous?.plays ?? 0) + 1,
+        bestScore: previous?.bestScore ?? 0,
+        lastScore: previous?.lastScore ?? 0,
+        bestTimeSeconds: previous?.bestTimeSeconds ?? 0,
+        lastOutcome: "abandoned",
+        lastTargetMet: false,
+      },
+    };
+    setPlayHistory(nextHistory);
+    savePlayHistory(nextHistory, playHistoryKey);
+    returnHome(nextHistory);
   };
 
   const choose = (option: IncidentOption) => {
@@ -239,6 +294,8 @@ export default function IncidentChallengeV03({
           previous?.bestTimeSeconds && previous.bestTimeSeconds > 0
             ? Math.min(previous.bestTimeSeconds, seconds)
             : seconds,
+        lastOutcome: "completed",
+        lastTargetMet: seconds < responseTargetSeconds,
       },
     };
     setPlayHistory(nextHistory);
@@ -265,7 +322,7 @@ export default function IncidentChallengeV03({
   };
 
   const resetForNewPlayer = () => {
-    if (completedCount > 0 && !window.confirm("Clear completed incidents for a new player on this device?")) return;
+    if (attemptedCount > 0 && !window.confirm("Clear attempted incidents for a new player on this device?")) return;
     try {
       window.localStorage.removeItem(playHistoryKey);
       if (!archiveMode) window.localStorage.removeItem(legacyHistoryKey);
@@ -293,13 +350,13 @@ export default function IncidentChallengeV03({
             ) : (
               <span className="incident-header-link incident-version-label">Prototype · v0.4</span>
             )}
-            <span className="incident-status" aria-label={`Incident series, ${completedCount} of ${incidentSet.length} complete`}><span />{completedCount}/{incidentSet.length} complete</span>
+            <span className="incident-status" aria-label={`Incident series, ${attemptedCount} of ${incidentSet.length} ${archiveMode ? "complete" : "attempted"}`}><span />{attemptedCount}/{incidentSet.length} {archiveMode ? "complete" : "attempted"}</span>
           </div>
-        ) : (
-          <button className="incident-exit" type="button" onClick={exit}>
+        ) : phase !== "abandon" && phase !== "result" ? (
+          <button className="incident-exit" type="button" onClick={requestExit}>
             <X aria-hidden="true" /> Exit challenge
           </button>
-        )}
+        ) : null}
       </header>
 
       {phase === "launch" && (
@@ -320,7 +377,7 @@ export default function IncidentChallengeV03({
                 <>
                   <div className="incident-series__heading">
                     <h2 id="incident-series-title">Incident series</h2>
-                    <span>{completedCount} of {incidentSet.length} complete</span>
+                    <span>{attemptedCount} of {incidentSet.length} complete</span>
                   </div>
                   <div className="incident-series__grid" aria-label="Choose an incident">
                     {incidentSet.map((candidate) => {
@@ -346,7 +403,7 @@ export default function IncidentChallengeV03({
                 <>
                   <div className="incident-series__heading">
                     <h2 id="incident-series-title">Prototype selector</h2>
-                    <span>{completedCount} of {incidentSet.length} complete</span>
+                    <span>{attemptedCount} of {incidentSet.length} attempted</span>
                   </div>
                   <div className="incident-prototype-picker" aria-label="Temporary incident selector">
                     {incidentSet.map((candidate) => {
@@ -354,23 +411,23 @@ export default function IncidentChallengeV03({
                       const isSelected = candidate.id === incident.id;
                       return (
                         <button
-                          className={`${record ? "is-complete" : ""} ${isSelected && !record ? "is-selected" : ""}`}
+                          className={`${record ? record.bestScore > 0 ? "is-complete" : "is-abandoned" : ""} ${isSelected && !record ? "is-selected" : ""}`}
                           type="button"
                           key={candidate.id}
                           onClick={() => selectIncident(candidate)}
                           disabled={Boolean(record)}
                           aria-pressed={isSelected && !record}
-                          aria-label={`Incident ${candidate.number}${record ? ", completed" : isSelected ? ", selected" : ""}`}
+                          aria-label={`Incident ${candidate.number}${record ? record.bestScore > 0 ? ", completed" : ", abandoned" : isSelected ? ", selected" : ""}`}
                         >
-                          {record ? <Check aria-hidden="true" /> : candidate.number}
+                          {record ? record.bestScore > 0 ? <Check aria-hidden="true" /> : <X aria-hidden="true" /> : candidate.number}
                         </button>
                       );
                     })}
                   </div>
-                  <p className="incident-prototype-note">Temporary testing control. The production game randomly assigns one of your remaining incidents.</p>
+                  <p className="incident-prototype-note">Temporary testing control. Completed or abandoned attempts are locked; the production game randomly assigns one of the remaining incidents.</p>
                 </>
               )}
-              {completedCount > 0 && (
+              {attemptedCount > 0 && (
                 <button className="incident-new-player" type="button" onClick={resetForNewPlayer}>
                   <UserRound aria-hidden="true" /> New player on this device
                 </button>
@@ -396,9 +453,9 @@ export default function IncidentChallengeV03({
               </>
             ) : (
               <>
-                <p className="incident-kicker">{completedCount === incidentSet.length ? "Series complete" : "Assignment ready"}</p>
-                <h2 id="incident-assignment-title">{completedCount === incidentSet.length ? "All incidents contained." : "Your incident is locked."}</h2>
-                <p>{completedCount === incidentSet.length ? "You have completed all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
+                <p className="incident-kicker">{attemptedCount === incidentSet.length ? "Series attempted" : "Assignment ready"}</p>
+                <h2 id="incident-assignment-title">{attemptedCount === incidentSet.length ? "All incidents attempted." : "Your incident is locked."}</h2>
+                <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
                 <aside className="incident-learning">
                   <strong>What you will practise</strong>
                   <p>Contain pressure, preserve evidence, restore service, apply a guardrail, and decide when automation can return.</p>
@@ -408,9 +465,9 @@ export default function IncidentChallengeV03({
                   className="incident-primary"
                   type="button"
                   onClick={() => startIncident()}
-                  disabled={completedCount === incidentSet.length}
+                  disabled={attemptedCount === incidentSet.length}
                 >
-                  {completedCount === incidentSet.length ? "All incidents complete" : "Start incident"} <ArrowRight aria-hidden="true" />
+                  {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
                 </button>
               </>
             )}
@@ -464,6 +521,32 @@ export default function IncidentChallengeV03({
         </main>
       )}
 
+      {phase === "abandon" && (
+        <main className="incident-abandon">
+          <section className="incident-abandon__card" aria-labelledby="incident-abandon-title">
+            <p className="incident-kicker">Attempt in progress · Incident {incident.number}</p>
+            <h1 id="incident-abandon-title" ref={headingRef} tabIndex={-1}>Abandon hope?</h1>
+            <p className="incident-abandon__lead">Leaving now counts this incident as attempted.</p>
+            <div className="incident-abandon__impact">
+              <strong>If you abandon</strong>
+              <p>
+                You will not receive a score or response archetype for this run. {otherUnplayedCount > 0
+                  ? "Your next assignment will be a different remaining incident."
+                  : "This will complete your four-incident attempt history."}
+              </p>
+            </div>
+            <div className="incident-abandon__actions">
+              <button className="incident-primary" type="button" onClick={() => setPhase(resumePhase)}>
+                Keep going <ArrowRight aria-hidden="true" />
+              </button>
+              <button className="incident-secondary" type="button" onClick={abandonIncident}>
+                Abandon attempt <X aria-hidden="true" />
+              </button>
+            </div>
+          </section>
+        </main>
+      )}
+
       {(phase === "decision" || phase === "consequence") && stage && (
         <main className="incident-game">
           <div className="incident-progress-row">
@@ -480,6 +563,21 @@ export default function IncidentChallengeV03({
           >
             <span style={{ width: `${((stageIndex + 1) / incident.stages.length) * 100}%` }} />
           </div>
+
+          {!archiveMode && elapsedSeconds >= responseWarningSeconds && (
+            <div
+              className={`incident-time-alert ${elapsedSeconds >= responseTargetSeconds ? "is-over-target" : ""}`}
+              role="status"
+              aria-live="polite"
+            >
+              <Clock3 aria-hidden="true" />
+              <span>
+                {elapsedSeconds >= responseTargetSeconds
+                  ? "Two-minute response target missed. Keep going—your decisions still count."
+                  : "30 seconds left against the two-minute response target."}
+              </span>
+            </div>
+          )}
 
           {phase === "decision" && (
             <section className="incident-decision" aria-labelledby="incident-decision-title">
@@ -516,14 +614,13 @@ export default function IncidentChallengeV03({
                 <div className="incident-signals" aria-label="What changed">
                   {selectedOption.signals.map((signal) => <span key={signal}>{signal}</span>)}
                 </div>
-                <div className="incident-takeaway"><Lightbulb aria-hidden="true" /><p><strong>Engineering principle</strong>{stage.takeaway}</p></div>
+                <div className="incident-takeaway"><Lightbulb aria-hidden="true" /><p><strong>Why this matters</strong>{stage.takeaway}</p></div>
               </div>
               <div className="incident-consequence__actions">
                 <button className="incident-primary" type="button" onClick={continueIncident}>
                   {stageIndex === incident.stages.length - 1 ? "See your result" : "Continue incident"}
                   <ArrowRight aria-hidden="true" />
                 </button>
-                <button className="incident-secondary" type="button" onClick={exit}>Exit challenge</button>
               </div>
             </section>
           )}
@@ -533,14 +630,37 @@ export default function IncidentChallengeV03({
       {phase === "result" && (
         <main className="incident-result">
           <section className="incident-result__summary" aria-labelledby="incident-result-title">
-            <p className="incident-kicker">Incident {incident.number} contained · {completedCount}/{incidentSet.length} complete</p>
+            <p className="incident-kicker">Incident {incident.number} contained · {attemptedCount}/{incidentSet.length} {archiveMode ? "complete" : "attempted"}</p>
             <h1 id="incident-result-title" ref={headingRef} tabIndex={-1}>{profile.title}</h1>
-            <p className="incident-result__qualifier">Your response style in this incident. Equal scores can reflect different trade-offs.</p>
+            <p className="incident-result__qualifier">
+              {archiveMode
+                ? "Your response style in this incident."
+                : "Your incident-response archetype, based on how you traded containment, evidence, recovery, and adaptability."}
+            </p>
+            {!archiveMode && profile.description && <p className="incident-profile-summary">{profile.description}</p>}
 
             <div className="incident-scoreline">
-              <div><strong>{score}</strong><span>/ 100</span><small>Decision quality</small></div>
-              <div><strong>{elapsedSeconds}</strong><span>sec</span><small>Response time</small></div>
+              <div><strong>{score}</strong><span>/ 100</span><small>{archiveMode ? "Decision quality" : scoreBand}</small></div>
+              <div className={elapsedSeconds >= responseTargetSeconds ? "is-over-target" : ""}>
+                <strong>{elapsedSeconds}</strong><span>sec</span>
+                <small>{archiveMode ? "Response time" : elapsedSeconds >= responseTargetSeconds ? "Target missed" : "Inside 2-minute target"}</small>
+              </div>
             </div>
+
+            {!archiveMode && (
+              <div className="incident-style-mix" aria-label="Your response pattern">
+                <div>
+                  <small>Leading instinct</small>
+                  <strong>{responseStyleLabels[responseAnalysis.primary]}</strong>
+                  <span>{responseAnalysis.counts[responseAnalysis.primary]} of 5 decisions</span>
+                </div>
+                <div>
+                  <small>Counterweight</small>
+                  <strong>{responseStyleLabels[responseAnalysis.secondary]}</strong>
+                  <span>{responseAnalysis.counts[responseAnalysis.secondary]} of 5 decisions</span>
+                </div>
+              </div>
+            )}
 
             <div className="incident-profile-copy">
               <div><Check aria-hidden="true" /><p><strong>Your strength</strong>{profile.strength}</p></div>
@@ -579,7 +699,7 @@ export default function IncidentChallengeV03({
                   {archiveMode ? "Next unplayed incident" : "Try another incident"} <ArrowRight aria-hidden="true" />
                 </button>
               ) : (
-                <button className="incident-primary" type="button" onClick={exit}>
+                <button className="incident-primary" type="button" onClick={() => returnHome()}>
                   {archiveMode ? "View completed series" : "Return to home"} <ArrowRight aria-hidden="true" />
                 </button>
               )}
@@ -590,7 +710,7 @@ export default function IncidentChallengeV03({
               )}
               <div className="incident-result__quiet-actions">
                 <button type="button" onClick={() => startIncident()}><RotateCcw aria-hidden="true" /> Replay</button>
-                <button type="button" onClick={exit}><ScanLine aria-hidden="true" /> {archiveMode ? "Incident series" : "Home"}</button>
+                <button type="button" onClick={() => returnHome()}><ScanLine aria-hidden="true" /> {archiveMode ? "Incident series" : "Home"}</button>
               </div>
             </div>
           </aside>
@@ -613,7 +733,7 @@ export default function IncidentChallengeV03({
                 <Trophy aria-hidden="true" />
                 <div>
                   <h2 id="incident-leaderboard-title">Your result will travel with you.</h2>
-                  <p>The production game will use the Cisco Live sign-in pattern and carry your response style, score, and time into the leaderboard.</p>
+                  <p>The production game will use the Cisco Live sign-in pattern and carry your response archetype, score, and time into the leaderboard.</p>
                 </div>
               </div>
             </section>

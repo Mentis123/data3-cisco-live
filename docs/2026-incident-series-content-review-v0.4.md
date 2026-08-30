@@ -7,7 +7,7 @@
 | Product | Data<sup>#</sup>3 Cisco Live 2026 booth activation |
 | Build | Choose your own adventure: AI incident trade-offs |
 | Content review | v0.4 |
-| Prepared | 29 August 2026 |
+| Prepared | 30 August 2026 |
 | Audience | Enterprise and corporate technology professionals |
 | Status | Ready for participant validation and subject-matter review |
 
@@ -51,7 +51,7 @@ The prototype enforces booth-speed content limits:
 | New stage context | 22 words | 19 words |
 | Action | 16 words | 9 words |
 | Consequence | 24 words | 15 words |
-| Engineering principle | 12 words | 10 words |
+| Why this matters | 12 words | 11 words |
 
 The post-assignment briefing uses three scannable facts and one objective. During play, labels, metadata, and debrief content remain secondary to the current decision.
 
@@ -176,46 +176,58 @@ Restore fast service without making customers repeat work or asking people to tr
 ### Incident score
 
 - Each incident has a best possible score of 100.
-- Lowest possible scores range from 61 to 66.
-- Each incident now produces 31 to 36 distinct totals across its 243 possible paths.
-- A score of 96 occurs in only one to four paths per incident, rather than being a common result of the shared coarse matrix.
+- Every incident has a minimum possible score of 70.
+- Each incident produces 27 to 29 distinct totals across its 243 possible paths.
+- Every option is worth 14 to 20 points according to decision quality; time never changes the quality score.
 - Scores compare the balance achieved in this scenario; they do not diagnose professional competence.
 - Time is displayed separately and does not change the prototype score.
-- Equal scores can still represent different response styles and trade-off paths; the result screen now says so explicitly.
+- A two-minute response target keeps the booth experience moving: a quiet warning appears at 90 seconds and a missed target is recorded at 120 seconds without ending the game.
+- Equal scores can still represent different archetypes and trade-off paths.
 
-### Response style
+### Response archetype
 
-Response style now depends on the pattern of decisions, not the score:
+The final analysis ranks four underlying instincts across the five decisions: containment, evidence, recovery, and adaptability.
 
-- A style selected three or more times becomes the result style.
-- A mixed path becomes **The balancer**.
-- A tie resolves to the style of the final decision.
+- A leading instinct that is ahead by two or more decisions produces a focused archetype.
+- A closer pattern combines the leading and secondary instincts into a specific blended archetype.
+- Ties resolve to the instinct demonstrated earlier in the incident, reflecting the player's first move under pressure.
+- The result shows the leading instinct, counterweight, score band, strength, and watch-out.
 
-This separation is intentional. The score describes decision balance. The style describes the participant's response pattern.
+This separation is intentional. The score describes decision quality. The archetype describes how the participant tends to create that result.
 
-All four styles are reachable in every incident:
+All ten archetypes are reachable in every incident:
 
-- The balancer
+- The adaptive strategist
 - The restorer
 - The investigator
 - The first responder
+- The measured commander
+- The systems thinker
+- The pragmatic operator
+- The forensic guardian
+- The crisis commander
+- The diagnostic restorer
 
-## Completion and replay logic
+## Attempt, completion, and replay logic
 
 The prototype keeps incident progress in device-local history without revealing the assigned scenario before play:
 
 - One of the participant's remaining unplayed incidents is randomly selected behind a generic **Start incident** button.
 - A temporary numbered prototype selector allows internal testers to target an incident without exposing its title or premise.
 - **Start incident** reveals the assigned scenario briefing; **Begin decisions** starts the timer.
-- Completed selector buttons grey out to show that all four incidents are tracked.
-- Completion survives refresh on the same device.
+- At 90 seconds, the interface shows 30 seconds remaining against the response target. At 120 seconds, it marks the target missed but leaves every control playable.
+- **Exit challenge** opens a clear **Abandon hope?** confirmation instead of silently ending the run.
+- **Keep going** returns to the exact briefing, decision, or consequence in progress.
+- **Abandon attempt** records the incident as attempted, awards no score or archetype, and removes it from random assignment for that participant pass.
+- Completed selector buttons show a tick; abandoned selector buttons show a cross. Both grey out to show that all four attempts are tracked.
+- Attempt history survives refresh on the same device.
 - The result offers **Try another incident** while unplayed incidents remain.
-- After all four are complete, the result offers **Return to home**.
+- After all four are attempted, the result offers **Return to home**.
 - Replay retains the completion record and updates the best score and time.
 - **New player on this device** clears local history after confirmation.
 - No sign-in, email address, company, or contact details are required.
 
-The score calibration and briefing release uses a new local-history key so earlier coarse scores are not compared with the refined model. Prototype testers receive one clean four-incident pass after deployment.
+The score and archetype calibration uses a new local-history key so earlier results are not compared with the refined model. Prototype testers receive one clean four-incident pass after deployment.
 
 Event release still needs an explicit shared-device and participant-session policy.
 
@@ -224,11 +236,11 @@ Event release still needs an explicit shared-device and participant-session poli
 The v0.4 prototype does not ask the participant to create a separate leaderboard identity or submit a result. Its result screen notes the intended production integration:
 
 - Reuse the Cisco Live 2025 sign-in and participant pattern rather than adding a second identity step.
-- Carry the participant's response style, score, and completion time into the production leaderboard automatically.
+- Carry the participant's response archetype, score, and completion time into the production leaderboard automatically.
 - Keep one leaderboard position based on the participant's best run across all four incidents.
 - A higher decision-quality score ranks first.
 - The fastest server-verified completion time breaks a tied score.
-- Each row shows response style, best incident, and incidents completed.
+- Each row shows response archetype, best incident, and incidents completed.
 - A better replay or a stronger result in another incident updates the player's existing position.
 - Scores and decision paths should be recalculated by the server rather than trusted from the browser.
 - The public board must not expose the participant's account identifier or collect another display name.
@@ -249,8 +261,10 @@ The full build requires:
 - Minimum 16 px participant-facing body and action copy
 - Text labels for completion and consequence state; colour is supplementary
 - Focus movement to every new decision, consequence, and result heading
+- A focused, reversible confirmation before an attempt is abandoned
 - A polite live region around consequence content only
 - Progress-bar values exposed to assistive technology
+- A soft time target that never locks out a participant who reads or operates more slowly
 - Reduced-motion support
 - No sound dependency
 - No horizontal scrolling at 320 px
@@ -265,8 +279,8 @@ The four-incident build is accepted for stakeholder testing when:
 - Every randomly assigned incident has a briefing with three facts and one objective before timed decisions begin.
 - Every incident contains five stages and three actions per stage.
 - All 60 option identifiers are unique.
-- Every incident has a maximum score of 100.
-- All response styles are reachable in every incident.
+- Every incident has a score range of 70 to 100.
+- All ten response archetypes are reachable in every incident.
 - At least two later contexts adapt to earlier state in every incident.
 - Completion, replay, next-unplayed, refresh, and new-player logic work locally.
 - Leaderboard ordering is score descending, then verified time ascending.
