@@ -17,7 +17,7 @@ const BASE = '/practice';
 // Root-absolute references that belong to the practice site: its route
 // words, its top-level directories, and root-level asset files. The
 // look-ahead keeps the delimiter, so replacement only inserts the prefix.
-const ROUTE_WORDS = '(?:nav|box|assets|api|gate|sid|solcat|world|ar|p)';
+const ROUTE_WORDS = '(?:nav|box|assets|api|gate|sid|solcat|world|ar|p|conductor)';
 const ROOT_FILE = '[A-Za-z0-9_.-]+\\.(?:png|jpe?g|gif|svg|glb|mp3|mp4|css|js|mjs|html|md|txt|json|csv|psv|pdf|ico)';
 const ABSOLUTE_REF = new RegExp(
   `(["'\`=(,\\s])\\/(?=${ROUTE_WORDS}(?:\\/|["'\`?#\\s)])|(?=${ROOT_FILE}(?:["'\`?#\\s)])))`,
