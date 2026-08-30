@@ -124,10 +124,15 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 
 - 2026-08-30 - **Plan**: Add the OA North Star once at the top of `/practice/oa`, make each of the three system cards open a large accessible detail overlay using the supplied guidance copy, and implement responsive full-height mobile sheets with focus, dismissal, safe-area, and background-scroll handling.
 
+- 2026-08-30 - **What changed**: Added the OA North Star and three responsive system-guide overlays at `/practice/oa`.
+  - **How**: Turned each visual card into a full semantic dialog trigger, structured the supplied Capability Owner Index, AI Enablement Journey, and Innovation Engine guidance into scannable sections, and added native focus/Escape handling, backdrop and close-button dismissal, background-scroll locking, reduced-motion support, and mobile safe-area sheets.
+  - **Results**: The North Star appears once above the systems; all three guides open from the full card and remain readable from wide desktop to narrow phone layouts. JavaScript syntax, unique IDs, dialog relationships, local asset references, CSS structure, and mobile rules passed validation.
+  - **Issues**: No functional blockers. Production gate and deployed responsive behavior require final smoke validation after merge.
+
 ## Future Planning
-- Validate `/practice/oa` behind the production Practice access gate on desktop and a narrow phone after deployment.
-- Decide the navigation and content model inside each of the three OA worlds before making the foundation cards interactive.
-- Confirm the foundation descriptions and terminology with AI Practice leadership.
+- Validate all three `/practice/oa` overlays behind the production Practice access gate on desktop and a narrow phone after deployment.
+- Decide whether each guide remains an overlay or later links to a deeper system page.
+- Confirm the North Star, operating detail, metrics, and terminology with AI Practice leadership.
 - Replace the composite source with purpose-exported individual world panels if higher-resolution final artwork becomes available.
 - Confirm the onsite signage script team is happy with the phrasing ahead of show open.
 - Capture feedback from the booth on whether visitors understand the shortened explainer.
