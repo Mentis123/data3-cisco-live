@@ -115,6 +115,8 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
   - **Results**: Copy now mirrors the onsite signage script and Side 3 messaging while preserving existing navigation behaviour.
   - **Issues**: None.
 
+- 2026-08-30 - **Plan**: Add a responsive AI Practice Operating Architecture landing page at `/practice/oa`, use the supplied three-world artwork as the visual foundation for Capability Owner Index, AI Enablement Journey, and Innovation Engine, keep all assets relative to the Practice mount, and validate the static route without changing existing Practice experiences.
+
 ## Future Planning
 - Confirm the onsite signage script team is happy with the phrasing ahead of show open.
 - Capture feedback from the booth on whether visitors understand the shortened explainer.
