@@ -122,6 +122,8 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
   - **Results**: Capability Owner Index, AI Enablement Journey, and Innovation Engine now have a cohesive responsive foundation; HTML structure, IDs, local assets, CSS balance, and static HTTP responses passed validation.
   - **Issues**: No functional blockers. Final deployed visual QA behind the Practice access gate remains a follow-up once the Vercel deployment completes.
 
+- 2026-08-30 - **Plan**: Add the OA North Star once at the top of `/practice/oa`, make each of the three system cards open a large accessible detail overlay using the supplied guidance copy, and implement responsive full-height mobile sheets with focus, dismissal, safe-area, and background-scroll handling.
+
 ## Future Planning
 - Validate `/practice/oa` behind the production Practice access gate on desktop and a narrow phone after deployment.
 - Decide the navigation and content model inside each of the three OA worlds before making the foundation cards interactive.
