@@ -126,6 +126,20 @@ require('../practice/solcat-record-preload.js');
 const inner = require('../practice/server.js');
 
 const outer = express();
+
+// Relative asset URLs on the Practice landing page require the canonical
+// trailing slash. Without it, a browser resolves "./practice-home.css" from
+// /practice as /practice-home.css at the Cisco Live root.
+outer.use((req, res, next) => {
+  const queryAt = req.originalUrl.indexOf('?');
+  const pathname = queryAt === -1 ? req.originalUrl : req.originalUrl.slice(0, queryAt);
+  if ((req.method === 'GET' || req.method === 'HEAD') && pathname === BASE) {
+    const search = queryAt === -1 ? '' : req.originalUrl.slice(queryAt);
+    return res.redirect(308, `${BASE}/${search}`);
+  }
+  return next();
+});
+
 outer.use(BASE, inner);
 // Anything reaching this function without the prefix (misrouted probes)
 // goes to the practice landing page rather than a hang.
