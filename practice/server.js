@@ -96,15 +96,10 @@ app.use((req, res, next) => {
     return res.status(401).json({ error: 'Authentication required' });
 });
 
-// Private AI practice pipeline view. It is intentionally absent from every
-// navigation surface and can be assigned a different deployment path without
-// changing the page or exposing that path in client-side markup.
-const configuredPrivatePulsePath = process.env.PRIVATE_AI_PULSE_PATH || '/p/ai-ops-7f3c9';
-const PRIVATE_AI_PULSE_PATH = /^\/[A-Za-z0-9/_-]{6,}$/.test(configuredPrivatePulsePath) &&
-    !configuredPrivatePulsePath.startsWith('//') &&
-    !['/gate', '/nav', '/world', '/ar', '/solcat'].includes(configuredPrivatePulsePath)
-    ? configuredPrivatePulsePath
-    : '/p/ai-ops-7f3c9';
+// Practice Pulse is a first-class AI Practice environment behind the global
+// access gate. The former opaque path remains as a compatibility redirect.
+const PRIVATE_AI_PULSE_PATH = '/pulse';
+const LEGACY_PRIVATE_AI_PULSE_PATH = '/p/ai-ops-7f3c9';
 
 app.get(PRIVATE_AI_PULSE_PATH, (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -116,6 +111,14 @@ app.get(`${PRIVATE_AI_PULSE_PATH}/film-bible`, (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
     res.sendFile(path.join(__dirname, 'nav', 'practice-pulse', 'film-bible', 'index.html'));
+});
+
+app.get(LEGACY_PRIVATE_AI_PULSE_PATH, (req, res) => {
+    res.redirect(301, PRIVATE_AI_PULSE_PATH);
+});
+
+app.get(`${LEGACY_PRIVATE_AI_PULSE_PATH}/film-bible`, (req, res) => {
+    res.redirect(301, `${PRIVATE_AI_PULSE_PATH}/film-bible`);
 });
 
 // Do not expose a guessable static HTML URL for the private view. Its assets
@@ -517,6 +520,11 @@ app.post('/api/prometheus-chat', upload.array('files', 5), async (req, res) => {
 // Handle root route explicitly
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'), NO_STORE);
+});
+
+// AI governance — the previous Practice home preserved as a focused sub-site
+app.get('/governance', (req, res) => {
+    res.sendFile(path.join(__dirname, 'governance.html'), NO_STORE);
 });
 
 // Serve Stripe bundle explicitly
