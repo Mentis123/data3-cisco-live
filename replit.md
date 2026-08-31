@@ -129,6 +129,8 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
   - **Results**: The North Star appears once above the systems; all three guides open from the full card and remain readable from wide desktop to narrow phone layouts. JavaScript syntax, unique IDs, dialog relationships, local asset references, CSS structure, and mobile rules passed validation.
   - **Issues**: No functional blockers. Production gate and deployed responsive behavior require final smoke validation after merge.
 
+- 2026-08-31 - **Plan**: Make the complete 60-second film the first Film Bible experience, frame it explicitly as an AI-led production rather than a film that merely used AI tools, surface the prompt-to-image-to-motion-to-audio-to-edit workflow including Blender assembly and Final Cut Pro finishing, preserve the locked master/poster/captions, and validate responsive structure plus production-record consistency.
+
 ## Future Planning
 - Validate all three `/practice/oa` overlays behind the production Practice access gate on desktop and a narrow phone after deployment.
 - Decide whether each guide remains an overlay or later links to a deeper system page.
