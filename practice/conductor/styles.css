@@ -90,7 +90,7 @@ footer {
   letter-spacing: -0.03em;
 }
 
-.brand sup { color: var(--aqua); font-size: 0.62em; }
+.brand sup { color: inherit; font-size: 0.62em; }
 
 .brand small {
   color: var(--muted);

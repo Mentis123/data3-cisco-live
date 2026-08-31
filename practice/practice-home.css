@@ -88,7 +88,13 @@ footer {
 }
 
 .brand sup,
-footer sup { color: var(--aqua); font-size: 0.62em; }
+footer sup { color: inherit; font-size: 0.62em; }
+
+.brand-name {
+  color: var(--white);
+  font-weight: 900;
+  white-space: nowrap;
+}
 
 .brand small {
   color: var(--muted);
@@ -169,7 +175,7 @@ h1 {
   line-height: 0.9;
 }
 
-h1 sup { color: var(--aqua); font-size: 0.5em; vertical-align: super; }
+h1 sup { color: inherit; font-size: 0.5em; vertical-align: super; }
 
 .hero-lead {
   max-width: 720px;

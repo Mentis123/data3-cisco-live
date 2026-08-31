@@ -17,6 +17,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -125,9 +126,19 @@ a {
 }
 
 .wordmark {
+  color: #fff;
   font-size: 17px;
   font-weight: 900;
   letter-spacing: -0.045em;
+}
+
+.brand-name {
+  color: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  text-transform: none;
+  white-space: nowrap;
 }
 
 .wordmark sup,
