@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { ImmersiveToggle } from "@/components/VolumeToggle";
 import { audioManager } from "@/lib/audio";
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import Home from "@/pages/Home";
 import Leaderboard from "@/pages/Leaderboard";
 import LegacyLeaderboard from "@/pages/LegacyLeaderboard";
@@ -42,6 +42,24 @@ import IncidentChallengeLiveV04 from "@/pages/alpha2026/IncidentChallengeLiveV04
 import IncidentChallengeArchiveV03 from "@/pages/alpha2026/IncidentChallengeArchiveV03";
 import VersionArchive from "@/pages/alpha2026/VersionArchive";
 import Alpha2026Leaderboard from "@/pages/alpha2026/Alpha2026Leaderboard";
+
+const Dave = lazy(() => import("@/pages/dave/Dave"));
+
+function DaveRoute() {
+  return (
+    <Suspense
+      fallback={(
+        <main
+          aria-busy="true"
+          aria-label="Loading the Dave 3D experience"
+          style={{ position: "fixed", inset: 0, background: "#071019" }}
+        />
+      )}
+    >
+      <Dave />
+    </Suspense>
+  );
+}
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -304,6 +322,7 @@ function NewExperienceRouter() {
       <Route path="/2026alpha/cascade" component={CascadePrototype} />
       <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />
+      <Route path="/dave" component={DaveRoute} />
       <Route component={NotFound} />
     </Switch>
   );

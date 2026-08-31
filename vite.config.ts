@@ -23,6 +23,10 @@ export default defineConfig({
             return undefined;
           }
 
+          if (id.includes("/node_modules/three/")) {
+            return "three";
+          }
+
           if (id.includes("recharts") || id.includes("framer-motion")) {
             return "visualisation";
           }
