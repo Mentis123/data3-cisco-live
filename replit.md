@@ -131,8 +131,13 @@ The application implements a "Three-Reply Sprint" methodology through a mobile-f
 
 - 2026-08-31 - **Plan**: Make the complete 60-second film the first Film Bible experience, frame it explicitly as an AI-led production rather than a film that merely used AI tools, surface the prompt-to-image-to-motion-to-audio-to-edit workflow including Blender assembly and Final Cut Pro finishing, preserve the locked master/poster/captions, and validate responsive structure plus production-record consistency.
 
+- 2026-08-31 - **What changed**: Reordered the private Film Bible so the complete 60-second master is the first experience and reframed it as an AI-led production.
+  - **How**: Promoted the existing locked master, poster, captions, and downloads ahead of the former hero; made the master the first navigation item; added a concrete workflow covering Codex direction, GPT Images references, Seedance motion and effects, ElevenLabs voice, Suno score, Blender frame assembly, Final Cut Pro finishing, and human approval; and aligned the machine-readable production manifest.
+  - **Results**: The Film Bible now opens with “This wasn’t just made with AI. It was made by AI.” and immediately proves that claim beside the one-minute film. Unique IDs, heading hierarchy, section order, workflow terminology, manifest JSON, locked media references, responsive selectors, and CSS structure passed validation.
+  - **Issues**: No functional blockers. The deployed private route requires final playback and narrow-phone smoke validation after merge.
+
 ## Future Planning
-- Validate all three `/practice/oa` overlays behind the production Practice access gate on desktop and a narrow phone after deployment.
+- Validate the Film Bible master-first experience and all three `/practice/oa` overlays behind the production Practice access gate on desktop and a narrow phone after deployment.
 - Decide whether each guide remains an overlay or later links to a deeper system page.
 - Confirm the North Star, operating detail, metrics, and terminology with AI Practice leadership.
 - Replace the composite source with purpose-exported individual world panels if higher-resolution final artwork becomes available.
