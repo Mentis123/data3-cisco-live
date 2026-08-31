@@ -15,8 +15,8 @@
       <span>AI practice film bible</span>
     </a>
     <nav aria-label="Bible sections">
+        <a href="#master-cut">Watch first</a>
         <a href="#handoff">Handoff</a>
-        <a href="#master-cut">Master</a>
         <a href="#title-treatment">Title</a>
         <a href="#opening-cut">Opening cut</a>
         <a href="#assets">Assets</a>
@@ -27,13 +27,49 @@
   </header>
 
   <main>
-    <section class="hero" aria-labelledby="pageTitle">
+    <section id="master-cut" class="section masterFirst" aria-labelledby="pageTitle">
+      <div class="sectionHead">
+        <div>
+          <p class="eyebrow">Watch first · complete 60-second film</p>
+          <h1 id="pageTitle">This wasn’t just made with AI.<br><span>It was made by AI.</span></h1>
+        </div>
+        <p>This film is the output of an AI-led production system — from the commercial argument and prompts through reference images, generated motion, voice, score, assembly and final edit.</p>
+      </div>
+      <article class="openingCut masterCut">
+        <div class="openingVideoShell">
+          <video controls playsinline preload="metadata" poster="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-poster.png?v=20260828-final">
+            <source src="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.mp4?v=20260828-final" type="video/mp4">
+            <track kind="captions" srclang="en-AU" label="English" src="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.srt?v=20260828-final">
+            Your browser does not support embedded MP4 video.
+          </video>
+        </div>
+        <aside class="openingMeta">
+          <p class="miniLabel">Complete master · 60 seconds · picture and mix locked</p>
+          <h3>One minute. One AI-led production.</h3>
+          <p>AI helped turn a commercial idea into a governed production system, carrying the work from narrative and prompt architecture through generated imagery, motion and sound to the finished film.</p>
+          <dl aria-label="AI-led production workflow">
+            <div><dt>Direction + prompts</dt><dd>Codex shaped the metaphor, script, continuity rules, shot briefs and generation prompts.</dd></div>
+            <div><dt>Reference images</dt><dd>GPT Images created the visual references and approved keyframes that locked the character, world and materials.</dd></div>
+            <div><dt>Motion + physical sound</dt><dd>Seedance 2.5 generated eleven motion sources and their synchronised diegetic effects.</dd></div>
+            <div><dt>Voice + score</dt><dd>ElevenLabs supplied the voice performance; Suno created the selected Graphite Ascend score.</dd></div>
+            <div><dt>Assembly + final cut</dt><dd>Blender delivered frame-accurate picture assembly; Final Cut Pro became the finishing bench for timing, overlays, captions, mix and export.</dd></div>
+            <div><dt>Human role</dt><dd>Intent, creative direction, judgement, rejection, selection and final approval stayed human throughout.</dd></div>
+          </dl>
+          <div class="openingLinks">
+            <a class="manifestLink" href="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.mp4?v=20260828-final" download>Download master MP4</a>
+            <a class="manifestLink" href="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.srt?v=20260828-final" target="_blank" rel="noreferrer">Open captions</a>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <section class="hero" aria-labelledby="storyTitle">
       <div class="heroCopy">
         <p class="eyebrow">Internal production source of truth · 28 August 2026</p>
-        <h1 id="pageTitle">From transactions to<br><span>retained momentum</span></h1>
+        <h2 id="storyTitle">From transactions to<br><span>retained momentum</span></h2>
         <p class="lede">A one-minute AI practice film built around a physical commercial truth: separate grey transactions accumulate, but bundled commitments become load-bearing.</p>
         <div class="heroActions">
-          <a class="primary" href="#master-cut">Watch the master</a>
+          <a class="primary" href="#handoff">Explore how it was made</a>
           <button class="secondary" type="button" data-copy-target="handoffPrompt">Copy Codex handoff</button>
         </div>
       </div>
@@ -138,38 +174,6 @@
           </dl>
           <button class="copyButton" type="button" data-copy-target="titleTreatmentCopy">Copy title specification</button>
         </div>
-      </article>
-    </section>
-
-    <section id="master-cut" class="section">
-      <div class="sectionHead">
-        <div><p class="eyebrow">Picture lock</p><h2>Watch the complete one-minute film</h2></div>
-        <p>The full commercial journey: transactional climbs, the reset, a bundled commitment, three annuity vehicles, the portfolio shift, and the bridge to higher ground.</p>
-      </div>
-      <article class="openingCut masterCut">
-        <div class="openingVideoShell">
-          <video controls playsinline preload="metadata" poster="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-poster.png?v=20260828-final">
-            <source src="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.mp4?v=20260828-final" type="video/mp4">
-            <track kind="captions" srclang="en-AU" label="English" src="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.srt?v=20260828-final">
-            Your browser does not support embedded MP4 video.
-          </video>
-        </div>
-        <aside class="openingMeta">
-          <p class="miniLabel">Complete master | picture and mix locked</p>
-          <h3>Build a renewing AI business</h3>
-          <p>Eleven Seedance sources are assembled with deterministic Data<sup>#</sup>3 overlays, the supplied ElevenLabs performance, Graphite Ascend, native diegetic effects, accessible captions, quick picture fades, and a final-instant audio resolve.</p>
-          <dl>
-            <div><dt>Picture</dt><dd>60.0s | 1280 x 720 | 24 fps</dd></div>
-            <div><dt>Voice</dt><dd>Supplied ElevenLabs v3 performance, tightened to 58.35s</dd></div>
-            <div><dt>Score</dt><dd>Graphite Ascend | continuous 60-second edit</dd></div>
-            <div><dt>Motion</dt><dd>11 of 11 generated | vehicle beats tightened to narration | proof and bridge finish on deliberate holds</dd></div>
-            <div><dt>Final polish</dt><dd>180ms picture rise | 280ms picture resolve | words retain full opacity about 300ms longer</dd></div>
-          </dl>
-          <div class="openingLinks">
-            <a class="manifestLink" href="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.mp4?v=20260828-final" download>Download master MP4</a>
-            <a class="manifestLink" href="/nav/practice-pulse/film-bible/generated/build-a-renewing-ai-business-master.srt?v=20260828-final" target="_blank" rel="noreferrer">Open captions</a>
-          </div>
-        </aside>
       </article>
     </section>
 
