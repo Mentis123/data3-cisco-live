@@ -1,12 +1,25 @@
 import { useEffect, useRef } from "react";
 import { DaveScene } from "./dave-scene";
+import { sourceFrameToActiveTime } from "./dave-physical";
 import "./dave.css";
 
 declare global {
   interface Window {
     __DAVE_QA__?: {
       ready: boolean;
+      setTime: (seconds: number) => void;
+      setSourceFrame: (frame: number) => void;
       setFrame: (frame: number) => void;
+      setBraidVisible: (visible: boolean) => void;
+      setFrameVisible: (visible: boolean) => void;
+      getPhysicsState: () => {
+        activeTime: number;
+        rootYawDegrees: number;
+        contact: number[];
+        braidVisible: boolean;
+        frameVisible: boolean;
+        mirrorCount: number;
+      };
     };
   }
 }
@@ -38,9 +51,19 @@ export default function Dave() {
     });
 
     if (qaMode) {
+      const setSourceFrame = (frame: number) => {
+        daveScene.renderAt(sourceFrameToActiveTime(frame));
+      };
       window.__DAVE_QA__ = {
         ready: true,
+        setTime: (seconds) => daveScene.renderAt(seconds),
+        setSourceFrame,
+        // Backwards-compatible synthetic 30 fps control. Canonical video
+        // anchors must use setSourceFrame() so recorder duplication is removed.
         setFrame: (frame) => daveScene.renderAt(frame / 30),
+        setBraidVisible: (visible) => daveScene.setBraidVisible(visible),
+        setFrameVisible: (visible) => daveScene.setFrameVisible(visible),
+        getPhysicsState: () => daveScene.getPhysicsState(),
       };
     }
     window.dispatchEvent(new Event("dave:ready"));
@@ -72,10 +95,10 @@ export default function Dave() {
         ref={canvasRef}
         className="dave-canvas"
         data-dave-canvas
-        aria-label="An iridescent glass cube filled with wireframe knots rotates above a dark checkerboard floor."
+        aria-label="A mirrored cube with one iridescent seven-strand figure-eight cable rotates above a dark checkerboard floor."
       />
       <p className="dave-description">
-        An iridescent glass cube filled with wireframe knots rotates above a dark checkerboard floor.
+        A mirrored cube with one iridescent seven-strand figure-eight cable rotates above a dark checkerboard floor.
       </p>
     </main>
   );
