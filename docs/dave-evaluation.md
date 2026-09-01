@@ -88,10 +88,14 @@ they are not mislabeled as final-screenshot residuals.
   device performance remain device-specific.
 - Portrait and landscape captures retain the selected source time on resize
   and do not clip the assembly.
-- The visitor camera uses a padded `2.08 × side` radius; deterministic QA keeps
-  the calibrated `1.87 × side` source framing. Mirror targets adapt from
-  512–768 px and both reflection and half-float composition buffers use 4×
-  multisampling where supported.
+- A canvas `ResizeObserver`, dynamic-viewport sizing, and a post-layout frame
+  correction prevent the lazy route from retaining the browser's temporary
+  300×150 canvas aspect when it opens in mobile Safari.
+- The visitor camera uses a minimum `2.08 × side` radius plus an aspect-aware
+  bounding-sphere fit with 18% tangent margin; deterministic QA keeps the
+  calibrated `1.87 × side` source framing. Mirror targets adapt from 512–768 px
+  and both reflection and half-float composition buffers use 4× multisampling
+  where supported.
 - Lazy `/dave` route, fixed-time mode, and legacy synthetic-30-fps `setFrame()`
   remain intact; canonical comparisons use `setSourceFrame()`.
 - Full-repo `npm run check` still reports unrelated pre-existing TypeScript

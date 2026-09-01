@@ -75,10 +75,22 @@ export default function Dave() {
     window.dispatchEvent(new Event("dave:ready"));
 
     const resize = () => daveScene.resize();
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
+    const visualViewport = window.visualViewport;
+    visualViewport?.addEventListener("resize", resize);
+    let settledResizeFrame = 0;
+    const settleFrame = window.requestAnimationFrame(() => {
+      settledResizeFrame = window.requestAnimationFrame(resize);
+    });
 
     window.addEventListener("resize", resize);
 
     return () => {
+      window.cancelAnimationFrame(settleFrame);
+      window.cancelAnimationFrame(settledResizeFrame);
+      resizeObserver.disconnect();
+      visualViewport?.removeEventListener("resize", resize);
       window.removeEventListener("resize", resize);
       delete window.__DAVE_QA__;
       sceneRef.current = null;

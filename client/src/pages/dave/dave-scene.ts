@@ -26,6 +26,7 @@ const HALF_CUBE = CUBE_SIZE / 2;
 const CUBE_CENTRE_Y = HALF_CUBE * Math.sqrt(3);
 const REFERENCE_CAMERA_RADIUS = CUBE_SIZE * 1.87;
 const INTERACTIVE_CAMERA_RADIUS = CUBE_SIZE * 2.08;
+const INTERACTIVE_FRAMING_MARGIN = 1.18;
 const AUTO_ROTATE_RADIANS_PER_SECOND = TAU / LOOP_SECONDS;
 const AUTO_ROTATE_FRAME_INTERVAL = 1 / 30;
 
@@ -262,7 +263,8 @@ export class DaveScene {
   private readonly frameFamily: THREE.Group;
   private readonly mirrorSystem: DaveMirrorSystem;
   private readonly fixedTime?: number;
-  private readonly cameraRadius: number;
+  private readonly interactiveFraming: boolean;
+  private cameraRadius: number;
   private animationFrame = 0;
   private lastAnimationAt = 0;
   private autoRotate = false;
@@ -273,7 +275,8 @@ export class DaveScene {
   constructor(canvas: HTMLCanvasElement, options: DaveSceneOptions = {}) {
     this.canvas = canvas;
     this.fixedTime = options.fixedTime;
-    this.cameraRadius = options.interactiveFraming
+    this.interactiveFraming = options.interactiveFraming ?? false;
+    this.cameraRadius = this.interactiveFraming
       ? INTERACTIVE_CAMERA_RADIUS
       : REFERENCE_CAMERA_RADIUS;
     this.renderer = new THREE.WebGLRenderer({
@@ -362,18 +365,41 @@ export class DaveScene {
     }
     const aspect = width / height;
     this.camera.aspect = aspect;
-    this.camera.fov = aspect < 1
-      ? Math.min(
-        THREE.MathUtils.radToDeg(
-          2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV) / 2) / aspect),
-        ),
-        140,
-      ) : CAMERA_FOV;
+    if (this.interactiveFraming) {
+      const verticalHalfFov = THREE.MathUtils.degToRad(CAMERA_FOV) / 2;
+      const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * aspect);
+      const limitingHalfFov = Math.min(verticalHalfFov, horizontalHalfFov);
+      const fittedRadius = (
+        CUBE_CENTRE_Y / Math.sin(limitingHalfFov)
+      ) * INTERACTIVE_FRAMING_MARGIN;
+      this.cameraRadius = Math.max(INTERACTIVE_CAMERA_RADIUS, fittedRadius);
+      this.camera.fov = CAMERA_FOV;
+
+      if (!this.manualView) {
+        const cameraHeight = this.camera.position.y - CUBE_CENTRE_Y;
+        this.camera.position.set(
+          0,
+          CUBE_CENTRE_Y + cameraHeight,
+          Math.sqrt(this.cameraRadius ** 2 - cameraHeight ** 2),
+        );
+        this.camera.lookAt(this.controls.target);
+      }
+    } else {
+      this.camera.fov = aspect < 1
+        ? Math.min(
+          THREE.MathUtils.radToDeg(
+            2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV) / 2) / aspect),
+          ),
+          140,
+        ) : CAMERA_FOV;
+    }
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height, false);
     this.composer.setSize(width, height);
     if (this.canvas.dataset.ready === "true") {
-      this.renderAt(this.lastRenderedAt);
+      // Resizing must not reset either a manually chosen pose or auto-rotation.
+      this.controls.update();
+      this.composer.render();
     }
   }
 

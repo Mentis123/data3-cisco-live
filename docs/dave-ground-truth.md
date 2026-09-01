@@ -93,10 +93,19 @@ FOV and radius are covariant; a direct all-corner alternative is
 `73.73° / 1.822 × side`, but the stable vanishing-point fit above keeps the
 shell within 1–2 px and is used by the implementation.
 
-The interactive visitor view adds framing margin at `2.08 × side`, keeping the
-entire rotated shell comfortably inside both portrait and landscape viewports.
-QA/reference URLs retain the calibrated `1.87 × side` radius so the source
-comparison remains unchanged.
+The interactive visitor view starts at a minimum `2.08 × side` radius, then
+fits the cube's full bounding sphere against the tighter horizontal/vertical
+field with an additional 18% tangent margin. Portrait phones therefore pull
+back farther automatically instead of clipping the shell. QA/reference URLs
+retain the calibrated `1.87 × side` radius so the source comparison remains
+unchanged.
+
+The lazy route observes the rendered canvas itself rather than relying only on
+`window.resize`. This is required on mobile Safari: the Three.js scene can be
+constructed while the lazy CSS still leaves the canvas at its 300×150 default,
+and the later portrait layout does not necessarily emit a window resize. A
+`ResizeObserver`, `100dvh`/`100dvw`, Visual Viewport resize listener, and a
+post-layout frame correction keep projection and drawing-buffer aspect aligned.
 
 The exact periodic horizon fit, with state `u=0…199`, is:
 
