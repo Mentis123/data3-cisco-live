@@ -93,6 +93,11 @@ FOV and radius are covariant; a direct all-corner alternative is
 `73.73° / 1.822 × side`, but the stable vanishing-point fit above keeps the
 shell within 1–2 px and is used by the implementation.
 
+The interactive visitor view adds framing margin at `2.08 × side`, keeping the
+entire rotated shell comfortably inside both portrait and landscape viewports.
+QA/reference URLs retain the calibrated `1.87 × side` radius so the source
+comparison remains unchanged.
+
 The exact periodic horizon fit, with state `u=0…199`, is:
 
 ```text
@@ -150,9 +155,10 @@ evidence, but are not uniquely identifiable from the tone-mapped 512 px video:
   longitudinal lines.
 
 The directly viewed strands use 256 centerline samples and 12 radial segments.
-Reflection proxies use the identical analytic curves/radii at 96×6 tessellation,
-which is above the resolving power of their 384 px render targets and avoids
-submitting the direct-view mesh density for every virtual cell.
+Near reflection proxies use the identical analytic curves/radii at 96×6
+tessellation. Beyond order four, where tubes are sub-pixel, the same curves are
+sampled as 20-segment strand traces. This retains the image path while avoiding
+millions of unresolved tube vertices.
 
 ![Measured cross-section and seven-strand hypothesis](./dave-reference/object-strand-cross-section.webp)
 
@@ -204,16 +210,18 @@ model fits them at 8.2 px RMS.
 
 The render uses actual finite, inward-facing `Reflector` coatings with oblique
 clipping, separate double-sided smoky transmission panes, and mathematically
-equivalent unfolded image cells for bounded recursion. The physical source in
-a face reflection is optical order one, so input proxies stop one order before
-the requested final optical depth:
+equivalent unfolded image cells. A literal infinity cannot be submitted to a
+finite GPU, so the unfolded series continues through input order 12. With the
+measured/calibrated reflectance of `0.62`, the next reflected contribution is
+below half of one 8-bit display step at normal incidence; the omitted infinite
+tail is therefore optically converged rather than visibly truncated. The
+physical source in a face reflection is optical order one:
 
-- cable input proxies through order 3 (62 proxies plus the physical source),
-  producing final reflected orders 1–4; the corresponding unfolded target has
-  129 cells including its source before view/aperture culling;
-- frame-edge input proxies through order 5 (230 proxies plus the physical
-  twelve-edge frame), producing final orders 1–6; the corresponding unfolded
-  target has 377 cells including its source;
+- cable input proxies through order 12 (2,624 proxies plus the physical
+  source), producing final reflected orders 1–13; orders 1–4 use tube geometry
+  and orders 5–12 use sub-pixel curve traces;
+- frame-edge input proxies through order 12 (2,624 proxies plus the physical
+  twelve-edge frame), producing final reflected orders 1–13;
 - negative-determinant transforms retained and strand materials double-sided;
 - odd-parity cable cells are baked with reversed triangle winding because
   Three.js does not support negative-scale `InstancedMesh` matrices;
@@ -223,6 +231,10 @@ the requested final optical depth:
 - all reflection planes and cell coordinates inherit the same rigid root;
 - every reflective coating faces inward; camera-near panels transmit the
   direct physical object while the inward far/side coatings reflect it.
+
+Reflection targets adapt from 512 to 768 px by viewport size and use 4× MSAA.
+The half-float post-processing buffers are also 4× multisampled where supported,
+which removes the earlier stair-stepping on frame edges and fine reflections.
 
 ## Mirror optics
 

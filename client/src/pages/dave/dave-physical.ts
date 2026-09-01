@@ -4,12 +4,16 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 const TAU = Math.PI * 2;
 const CURVE_SEGMENTS = 256;
 const REFLECTION_CURVE_SEGMENTS = 96;
+const DEEP_REFLECTION_CURVE_SEGMENTS = 20;
+const FULL_GEOMETRY_BOUNCES = 4;
+const ENERGY_CONVERGENCE_BOUNCES = 12;
 const OUTER_STRAND_COUNT = 6;
 const REFLECTION_LAYER = 2;
 
 export type BraidLayer = {
   geometry: THREE.BufferGeometry;
-  material: THREE.Material;
+  deepGeometry: THREE.BufferGeometry;
+  material: THREE.MeshPhysicalMaterial;
 };
 
 export type PhysicalBraid = {
@@ -182,6 +186,22 @@ function strandMaterial(colour: THREE.ColorRepresentation) {
   });
 }
 
+function createDeepReflectionGeometry(curve: THREE.Curve<THREE.Vector3>) {
+  const positions: number[] = [];
+  const start = new THREE.Vector3();
+  const end = new THREE.Vector3();
+
+  for (let index = 0; index < DEEP_REFLECTION_CURVE_SEGMENTS; index += 1) {
+    curve.getPoint(index / DEEP_REFLECTION_CURVE_SEGMENTS, start);
+    curve.getPoint((index + 1) / DEEP_REFLECTION_CURVE_SEGMENTS, end);
+    positions.push(start.x, start.y, start.z, end.x, end.y, end.z);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  return geometry;
+}
+
 export function createPhysicalBraid(): PhysicalBraid {
   const group = new THREE.Group();
   group.name = "dave-physical-braid";
@@ -219,7 +239,11 @@ export function createPhysicalBraid(): PhysicalBraid {
       true,
     );
     const material = strandMaterial(colour);
-    layers.push({ geometry: reflectionGeometry, material });
+    layers.push({
+      geometry: reflectionGeometry,
+      deepGeometry: createDeepReflectionGeometry(curve),
+      material,
+    });
     group.add(new THREE.Mesh(physicalGeometry, material));
   });
 
@@ -236,6 +260,45 @@ export function createPhysicalBraid(): PhysicalBraid {
   group.updateMatrix();
 
   return { group, layers };
+}
+
+function createDeepReflectionLines(
+  source: THREE.BufferGeometry,
+  material: THREE.MeshPhysicalMaterial,
+  cells: MirrorCell[],
+  physicalBraidMatrix: THREE.Matrix4,
+) {
+  const sourcePosition = source.getAttribute("position");
+  const positions: number[] = [];
+  const colours: number[] = [];
+  const point = new THREE.Vector3();
+
+  cells.forEach((cell) => {
+    const transform = cell.matrix.clone().multiply(physicalBraidMatrix);
+    const colour = material.color.clone().multiply(mirrorBounceColour(cell.bounces));
+    for (let index = 0; index < sourcePosition.count; index += 1) {
+      point.fromBufferAttribute(sourcePosition, index).applyMatrix4(transform);
+      positions.push(point.x, point.y, point.z);
+      colours.push(colour.r, colour.g, colour.b);
+    }
+  });
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colours, 3));
+  const lineMaterial = new THREE.LineBasicMaterial({
+    color: 0xffffff,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const lines = new THREE.LineSegments(geometry, lineMaterial);
+  lines.name = "dave-energy-converged-deep-braid-images";
+  lines.layers.set(REFLECTION_LAYER);
+  lines.frustumCulled = false;
+  return lines;
 }
 
 /**
@@ -282,12 +345,14 @@ export function createRecursiveMirrorImages(
   const images = new THREE.Group();
   images.name = "dave-recursive-braid-images";
 
-  // The physical source becomes optical depth one in a face Reflector. Input
-  // proxies through depth three therefore produce final depths two through four.
-  const cells = createMirrorCells(halfExtent, 3);
+  // A finite GPU cannot submit a literally infinite series. We unfold the
+  // mirror box until the remaining 0.62^N optical energy is below an 8-bit
+  // display step. Near images retain full tubes; unresolved distant images use
+  // the same analytic strand curves as line traces.
+  const cells = createMirrorCells(halfExtent, ENERGY_CONVERGENCE_BOUNCES);
 
-  layers.forEach(({ geometry, material }) => {
-    for (let bounces = 1; bounces <= 3; bounces += 1) {
+  layers.forEach(({ geometry, deepGeometry, material }) => {
+    for (let bounces = 1; bounces <= FULL_GEOMETRY_BOUNCES; bounces += 1) {
       const shell = cells.filter((cell) => cell.bounces === bounces);
       if (bounces % 2 === 1) {
         images.add(createOddParityImages(geometry, material, shell, physicalBraidMatrix));
@@ -308,6 +373,14 @@ export function createRecursiveMirrorImages(
       mesh.frustumCulled = false;
       images.add(mesh);
     }
+
+    images.add(createDeepReflectionLines(
+      deepGeometry,
+      material,
+      cells.filter((cell) => cell.bounces > FULL_GEOMETRY_BOUNCES),
+      physicalBraidMatrix,
+    ));
+    deepGeometry.dispose();
   });
 
   return images;
@@ -327,7 +400,7 @@ export function createRecursiveFrameImages(
   images.name = "dave-recursive-frame-images";
   const sourcePosition = source.getAttribute("position");
   // As above, the face Reflector itself supplies the final bounce.
-  const cells = createMirrorCells(halfExtent, 5);
+  const cells = createMirrorCells(halfExtent, ENERGY_CONVERGENCE_BOUNCES);
 
   layers.forEach((layer) => {
     const positions: number[] = [];

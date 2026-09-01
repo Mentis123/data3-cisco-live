@@ -111,7 +111,10 @@ export function createMirrorFaceDefinitions(halfExtent: number): MirrorFace[] {
  * the twelve physical frame edges, and the analytically generated image cells.
  * They do not render the floor, sky, glass shell, or one another.
  */
-export function createMirrorSystem(halfExtent: number): DaveMirrorSystem {
+export function createMirrorSystem(
+  halfExtent: number,
+  reflectionTextureSize = 512,
+): DaveMirrorSystem {
   const group = new THREE.Group();
   group.name = "dave-six-planar-mirrors";
 
@@ -122,9 +125,9 @@ export function createMirrorSystem(halfExtent: number): DaveMirrorSystem {
     const mirror = new Reflector(geometry, {
       clipBias: 0.001,
       color: 0xedeae8,
-      textureWidth: 384,
-      textureHeight: 384,
-      multisample: 0,
+      textureWidth: reflectionTextureSize,
+      textureHeight: reflectionTextureSize,
+      multisample: 4,
       shader: smokedMirrorShader,
     });
     mirror.name = `dave-mirror-${face.name}`;

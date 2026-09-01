@@ -67,7 +67,7 @@ they are not mislabeled as final-screenshot residuals.
 | Mirror parity | Pass: `Translate(side*n) × diag((-1)^n)`; odd cells baked with reversed winding, even cells instanced |
 | Total bounce energy | Pass: per-order shader multiplier attenuates diffuse, emissive, specular, clearcoat, and iridescence together |
 | Finite clipping | Pass: stock oblique reflection clipping plus finite 0.9925-side apertures |
-| Recursion | Pass: proxy inputs 3/5 plus the face bounce produce final cable/frame orders 4/6 |
+| Recursion | Pass: proxy inputs through order 12 plus the face bounce produce optically converged final order 13; the remaining infinite tail is below half an 8-bit display step |
 | Source dependency | Pass by construction and QA toggles: each physical source family owns every derived image |
 | Physical frame | Pass: one `EdgesGeometry` cage, exactly twelve source edges; no scaled duplicate cages |
 | Fake geometry audit | Pass: no random copies, face grid, volume lattice, nested cage, fixed sparkles, or keyed rim animation |
@@ -88,6 +88,10 @@ they are not mislabeled as final-screenshot residuals.
   device performance remain device-specific.
 - Portrait and landscape captures retain the selected source time on resize
   and do not clip the assembly.
+- The visitor camera uses a padded `2.08 × side` radius; deterministic QA keeps
+  the calibrated `1.87 × side` source framing. Mirror targets adapt from
+  512–768 px and both reflection and half-float composition buffers use 4×
+  multisampling where supported.
 - Lazy `/dave` route, fixed-time mode, and legacy synthetic-30-fps `setFrame()`
   remain intact; canonical comparisons use `setSourceFrame()`.
 - Full-repo `npm run check` still reports unrelated pre-existing TypeScript

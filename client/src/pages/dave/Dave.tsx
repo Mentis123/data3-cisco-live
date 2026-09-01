@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DaveScene } from "./dave-scene";
 import { sourceFrameToActiveTime } from "./dave-physical";
 import "./dave.css";
@@ -19,6 +19,7 @@ declare global {
         braidVisible: boolean;
         frameVisible: boolean;
         mirrorCount: number;
+        autoRotate: boolean;
       };
     };
   }
@@ -36,6 +37,8 @@ function fixedReferenceTime() {
 
 export default function Dave() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sceneRef = useRef<DaveScene | null>(null);
+  const [autoRotate, setAutoRotate] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,7 +52,9 @@ export default function Dave() {
       // The exhibit is intentionally still until the visitor moves the view.
       // QA and `?t=` retain deterministic frame selection.
       fixedTime: requestedTime ?? 0,
+      interactiveFraming: !qaMode && requestedTime === undefined,
     });
+    sceneRef.current = daveScene;
 
     if (qaMode) {
       const setSourceFrame = (frame: number) => {
@@ -76,6 +81,7 @@ export default function Dave() {
     return () => {
       window.removeEventListener("resize", resize);
       delete window.__DAVE_QA__;
+      sceneRef.current = null;
       daveScene.dispose();
     };
   }, []);
@@ -89,6 +95,22 @@ export default function Dave() {
         aria-label="An interactive mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view. Use a two-finger drag to slide the view left, right, up, or down; pinch or scroll to zoom."
         title="Drag/swipe to rotate · Two-finger drag to slide · Scroll/pinch to zoom"
       />
+      <button
+        type="button"
+        className="dave-auto-rotate"
+        role="switch"
+        aria-checked={autoRotate}
+        onClick={() => {
+          setAutoRotate((current) => {
+            const next = !current;
+            sceneRef.current?.setAutoRotate(next);
+            return next;
+          });
+        }}
+      >
+        <span className="dave-auto-rotate__indicator" aria-hidden="true" />
+        Auto rotate
+      </button>
       <p className="dave-description">
         A mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe to rotate; use a two-finger drag to slide the view; scroll or pinch to zoom.
       </p>

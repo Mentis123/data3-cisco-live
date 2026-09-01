@@ -24,9 +24,15 @@ const CAMERA_FOV = 72;
 const CUBE_SIZE = 3.3;
 const HALF_CUBE = CUBE_SIZE / 2;
 const CUBE_CENTRE_Y = HALF_CUBE * Math.sqrt(3);
-const CAMERA_RADIUS = CUBE_SIZE * 1.87;
+const REFERENCE_CAMERA_RADIUS = CUBE_SIZE * 1.87;
+const INTERACTIVE_CAMERA_RADIUS = CUBE_SIZE * 2.08;
+const AUTO_ROTATE_RADIANS_PER_SECOND = TAU / LOOP_SECONDS;
+const AUTO_ROTATE_FRAME_INTERVAL = 1 / 30;
 
-type DaveSceneOptions = { fixedTime?: number };
+type DaveSceneOptions = {
+  fixedTime?: number;
+  interactiveFraming?: boolean;
+};
 
 type PhysicalFrame = {
   group: THREE.Group;
@@ -137,14 +143,14 @@ function createRotatingContactEmitters() {
 
   emitters.forEach(({ position, colour }) => {
     const light = new THREE.PointLight(colour, 12, 2.2, 2);
-    light.position.set(...position);
+    light.position.set(position[0], position[1], position[2]);
     light.layers.enable(REFLECTION_CONTENT_LAYER);
     group.add(light);
   });
   return group;
 }
 
-function createCrystal(): CrystalAssembly {
+function createCrystal(reflectionTextureSize: number): CrystalAssembly {
   const root = new THREE.Group();
   root.name = "dave-rigid-mirror-root";
   root.position.y = CUBE_CENTRE_Y;
@@ -167,7 +173,7 @@ function createCrystal(): CrystalAssembly {
   const recursiveFrame = createRecursiveFrameImages(
     physicalFrame.geometry, physicalFrame.layers, HALF_CUBE,
   );
-  const mirrorSystem = createMirrorSystem(HALF_CUBE);
+  const mirrorSystem = createMirrorSystem(HALF_CUBE, reflectionTextureSize);
 
   const braidFamily = new THREE.Group();
   braidFamily.name = "dave-braid-source-and-images";
@@ -207,6 +213,13 @@ function addPhysicalLights(scene: THREE.Scene) {
     light.layers.enable(3);
     scene.add(light);
   });
+}
+
+function chooseReflectionTextureSize(canvas: HTMLCanvasElement) {
+  const longestSide = Math.max(canvas.clientWidth, canvas.clientHeight);
+  if (longestSide >= 1100) return 768;
+  if (longestSide >= 600) return 640;
+  return 512;
 }
 
 function disposeScene(scene: THREE.Scene) {
@@ -249,9 +262,10 @@ export class DaveScene {
   private readonly frameFamily: THREE.Group;
   private readonly mirrorSystem: DaveMirrorSystem;
   private readonly fixedTime?: number;
+  private readonly cameraRadius: number;
   private animationFrame = 0;
-  private startedAt = 0;
-  private pausedAt = 0;
+  private lastAnimationAt = 0;
+  private autoRotate = false;
   private lastRenderedAt = 0;
   private manualView = false;
   private disposed = false;
@@ -259,6 +273,9 @@ export class DaveScene {
   constructor(canvas: HTMLCanvasElement, options: DaveSceneOptions = {}) {
     this.canvas = canvas;
     this.fixedTime = options.fixedTime;
+    this.cameraRadius = options.interactiveFraming
+      ? INTERACTIVE_CAMERA_RADIUS
+      : REFERENCE_CAMERA_RADIUS;
     this.renderer = new THREE.WebGLRenderer({
       canvas, antialias: true, alpha: false, powerPreference: "high-performance", stencil: true,
     });
@@ -271,7 +288,7 @@ export class DaveScene {
     this.scene.background = this.backgroundTexture;
     this.scene.fog = new THREE.Fog(0x171a1f, 15, 46);
     this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 1000);
-    this.camera.position.set(0, CUBE_CENTRE_Y, CAMERA_RADIUS);
+    this.camera.position.set(0, CUBE_CENTRE_Y, this.cameraRadius);
     this.camera.lookAt(0, CUBE_CENTRE_Y, 0);
     this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.target.set(0, CUBE_CENTRE_Y, 0);
@@ -312,7 +329,7 @@ export class DaveScene {
     this.scene.add(floorGroup);
 
     addPhysicalLights(this.scene);
-    const crystal = createCrystal();
+    const crystal = createCrystal(chooseReflectionTextureSize(this.canvas));
     this.crystal = crystal.root;
     this.crystalBody = crystal.body;
     this.braidFamily = crystal.braidFamily;
@@ -320,7 +337,11 @@ export class DaveScene {
     this.mirrorSystem = crystal.mirrorSystem;
     this.scene.add(this.crystal);
 
-    this.composer = new EffectComposer(this.renderer);
+    const composerTarget = new THREE.WebGLRenderTarget(1, 1, {
+      type: THREE.HalfFloatType,
+      samples: Math.min(4, this.renderer.capabilities.maxSamples),
+    });
+    this.composer = new EffectComposer(this.renderer, composerTarget);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.bloomPass = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.18, 0.22, 0.92);
     this.outputPass = new OutputPass();
@@ -375,7 +396,7 @@ export class DaveScene {
       this.camera.position.set(
         0,
         CUBE_CENTRE_Y + cameraHeight,
-        Math.sqrt(CAMERA_RADIUS ** 2 - cameraHeight ** 2),
+        Math.sqrt(this.cameraRadius ** 2 - cameraHeight ** 2),
       );
       this.camera.lookAt(this.controls.target);
     }
@@ -415,17 +436,40 @@ export class DaveScene {
       braidVisible: this.braidFamily.visible,
       frameVisible: this.frameFamily.visible,
       mirrorCount: this.mirrorSystem.mirrors.length,
+      autoRotate: this.autoRotate,
     };
   }
 
-  start() {
-    if (this.disposed || this.animationFrame || this.fixedTime !== undefined) return;
-    this.startedAt = performance.now() - this.pausedAt * 1000;
+  setAutoRotate(enabled: boolean) {
+    if (this.disposed || this.autoRotate === enabled) return;
+    this.autoRotate = enabled;
+    if (!enabled) {
+      this.stop();
+      this.composer.render();
+      return;
+    }
+
+    this.lastAnimationAt = performance.now();
+    this.start();
+  }
+
+  private start() {
+    if (this.disposed || this.animationFrame || !this.autoRotate) return;
     const frame = (now: number) => {
-      if (this.disposed) return;
-      const elapsed = (now - this.startedAt) / 1000;
-      this.pausedAt = elapsed;
-      this.renderAt(elapsed);
+      if (this.disposed || !this.autoRotate) {
+        this.animationFrame = 0;
+        return;
+      }
+
+      const elapsed = Math.min((now - this.lastAnimationAt) / 1000, 0.1);
+      if (elapsed >= AUTO_ROTATE_FRAME_INTERVAL) {
+        this.crystal.rotation.y = (
+          this.crystal.rotation.y + elapsed * AUTO_ROTATE_RADIANS_PER_SECOND
+        ) % TAU;
+        this.lastAnimationAt = now;
+        this.controls.update();
+        this.composer.render();
+      }
       this.animationFrame = window.requestAnimationFrame(frame);
     };
     this.animationFrame = window.requestAnimationFrame(frame);
