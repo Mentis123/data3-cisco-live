@@ -277,16 +277,19 @@ export class DaveScene {
     this.controls.target.set(0, CUBE_CENTRE_Y, 0);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
-    this.controls.enablePan = false;
+    this.controls.enablePan = true;
+    this.controls.screenSpacePanning = true;
     this.controls.minDistance = CUBE_SIZE * 0.78;
     this.controls.maxDistance = CUBE_SIZE * 5.5;
     this.controls.minPolarAngle = 0.08;
     this.controls.maxPolarAngle = Math.PI - 0.08;
     this.controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
-    this.controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
-    this.controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+    this.controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
+    this.controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
     this.controls.touches.ONE = THREE.TOUCH.ROTATE;
-    this.controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+    // A two-finger drag translates the viewing target in screen space. A
+    // pinch in the same gesture continues to dolly/zoom.
+    this.controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
     this.controls.addEventListener("start", this.takeManualControl);
     this.controls.addEventListener("change", this.renderControlledView);
 

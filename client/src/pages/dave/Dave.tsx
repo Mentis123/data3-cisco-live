@@ -86,11 +86,11 @@ export default function Dave() {
         ref={canvasRef}
         className="dave-canvas"
         data-dave-canvas
-        aria-label="An interactive mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view. Scroll or pinch to zoom."
-        title="Drag or swipe in any direction to rotate · Scroll or pinch to zoom"
+        aria-label="An interactive mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view. Use a two-finger drag to slide the view left, right, up, or down; pinch or scroll to zoom."
+        title="Drag/swipe to rotate · Two-finger drag to slide · Scroll/pinch to zoom"
       />
       <p className="dave-description">
-        A mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view; scroll or pinch to zoom.
+        A mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe to rotate; use a two-finger drag to slide the view; scroll or pinch to zoom.
       </p>
     </main>
   );
