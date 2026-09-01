@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -241,6 +242,7 @@ export class DaveScene {
   private readonly scene: THREE.Scene;
   private readonly backgroundTexture: THREE.Texture;
   private readonly camera: THREE.PerspectiveCamera;
+  private readonly controls: OrbitControls;
   private readonly crystal: THREE.Group;
   private readonly crystalBody: THREE.Group;
   private readonly braidFamily: THREE.Group;
@@ -251,6 +253,7 @@ export class DaveScene {
   private startedAt = 0;
   private pausedAt = 0;
   private lastRenderedAt = 0;
+  private manualView = false;
   private disposed = false;
 
   constructor(canvas: HTMLCanvasElement, options: DaveSceneOptions = {}) {
@@ -270,6 +273,22 @@ export class DaveScene {
     this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 1000);
     this.camera.position.set(0, CUBE_CENTRE_Y, CAMERA_RADIUS);
     this.camera.lookAt(0, CUBE_CENTRE_Y, 0);
+    this.controls = new OrbitControls(this.camera, this.canvas);
+    this.controls.target.set(0, CUBE_CENTRE_Y, 0);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.08;
+    this.controls.enablePan = false;
+    this.controls.minDistance = CUBE_SIZE * 0.78;
+    this.controls.maxDistance = CUBE_SIZE * 5.5;
+    this.controls.minPolarAngle = 0.08;
+    this.controls.maxPolarAngle = Math.PI - 0.08;
+    this.controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+    this.controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+    this.controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+    this.controls.touches.ONE = THREE.TOUCH.ROTATE;
+    this.controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+    this.controls.addEventListener("start", this.takeManualControl);
+    this.controls.addEventListener("change", this.renderControlledView);
 
     const checkerTexture = createCheckerTexture();
     checkerTexture.anisotropy = Math.min(this.renderer.capabilities.getMaxAnisotropy(), 8);
@@ -343,15 +362,34 @@ export class DaveScene {
     // braid and their virtual-image coordinate system share the same rigid spin.
     this.crystal.rotation.y = THREE.MathUtils.degToRad(60.5) + phase * TAU;
 
-    const cameraHeight = CUBE_SIZE * (
-      -0.00940651964861105
-      + 0.148949643215445 * Math.sin(phase * TAU + 0.03130027235207833)
-    );
-    this.camera.position.y = CUBE_CENTRE_Y + cameraHeight;
-    this.camera.position.z = Math.sqrt(CAMERA_RADIUS ** 2 - cameraHeight ** 2);
-    this.camera.lookAt(0, CUBE_CENTRE_Y, 0);
+    if (this.manualView) {
+      this.controls.update();
+    } else {
+      const cameraHeight = CUBE_SIZE * (
+        -0.00940651964861105
+        + 0.148949643215445 * Math.sin(phase * TAU + 0.03130027235207833)
+      );
+      this.camera.position.set(
+        0,
+        CUBE_CENTRE_Y + cameraHeight,
+        Math.sqrt(CAMERA_RADIUS ** 2 - cameraHeight ** 2),
+      );
+      this.camera.lookAt(this.controls.target);
+    }
     this.composer.render();
   }
+
+  private readonly takeManualControl = () => {
+    this.manualView = true;
+  };
+
+  private readonly renderControlledView = () => {
+    // Fixed-time and reduced-motion renders have no animation loop, so camera
+    // interactions must explicitly repaint the reflective scene.
+    if (!this.animationFrame && !this.disposed) {
+      this.composer.render();
+    }
+  };
 
   setBraidVisible(visible: boolean) {
     this.braidFamily.visible = visible;
@@ -401,6 +439,9 @@ export class DaveScene {
     if (this.disposed) return;
     this.disposed = true;
     this.stop();
+    this.controls.removeEventListener("start", this.takeManualControl);
+    this.controls.removeEventListener("change", this.renderControlledView);
+    this.controls.dispose();
     this.mirrorSystem.dispose();
     disposeScene(this.scene);
     this.bloomPass.dispose();

@@ -17,6 +17,13 @@
   min-width: 0;
   min-height: 0;
   outline: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.dave-canvas:active {
+  cursor: grabbing;
 }
 
 .dave-experience::after {
