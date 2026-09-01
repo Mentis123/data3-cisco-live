@@ -43,11 +43,12 @@ export default function Dave() {
       return;
     }
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const requestedTime = fixedReferenceTime();
     const qaMode = new URLSearchParams(window.location.search).get("qa") === "1";
     const daveScene = new DaveScene(canvas, {
-      fixedTime: requestedTime ?? (qaMode || reduceMotion.matches ? 0 : undefined),
+      // The exhibit is intentionally still until the visitor moves the view.
+      // QA and `?t=` retain deterministic frame selection.
+      fixedTime: requestedTime ?? 0,
     });
 
     if (qaMode) {
@@ -69,21 +70,11 @@ export default function Dave() {
     window.dispatchEvent(new Event("dave:ready"));
 
     const resize = () => daveScene.resize();
-    const visibility = () => {
-      if (document.visibilityState === "visible") {
-        daveScene.start();
-      } else {
-        daveScene.stop();
-      }
-    };
 
     window.addEventListener("resize", resize);
-    document.addEventListener("visibilitychange", visibility);
-    daveScene.start();
 
     return () => {
       window.removeEventListener("resize", resize);
-      document.removeEventListener("visibilitychange", visibility);
       delete window.__DAVE_QA__;
       daveScene.dispose();
     };
@@ -95,11 +86,11 @@ export default function Dave() {
         ref={canvasRef}
         className="dave-canvas"
         data-dave-canvas
-        aria-label="An interactive mirrored cube with one iridescent seven-strand figure-eight cable rotating above a dark checkerboard floor. Drag to rotate the view and scroll or pinch to zoom."
-        title="Drag to rotate · Scroll or pinch to zoom"
+        aria-label="An interactive mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view. Scroll or pinch to zoom."
+        title="Drag or swipe in any direction to rotate · Scroll or pinch to zoom"
       />
       <p className="dave-description">
-        A mirrored cube with one iridescent seven-strand figure-eight cable rotates above a dark checkerboard floor.
+        A mirrored cube with one iridescent seven-strand figure-eight cable above a dark checkerboard floor. Drag or swipe in any direction to rotate the view; scroll or pinch to zoom.
       </p>
     </main>
   );
