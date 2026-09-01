@@ -10,6 +10,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "evaluate:dave": "node scripts/evaluate-dave.mjs",
+    "test:dave-glass": "node scripts/test-dave-glass.mjs",
     "db:push": "drizzle-kit push",
     "db:migrate": "tsx scripts/apply-trivia-migration.ts",
     "db:migrate:announced": "tsx scripts/apply-announced-migration.ts",

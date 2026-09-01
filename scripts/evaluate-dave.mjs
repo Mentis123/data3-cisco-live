@@ -257,6 +257,12 @@ try {
     const time = activeTime(frame);
     assertClose(state.activeTime, time, 1e-9, `frame ${frame} active time`);
     assertClose(state.rootYawDegrees, 60.5 + 45 * time, 1e-7, `frame ${frame} yaw`);
+    assertClose(
+      state.glassStripeTurns,
+      state.rootYawDegrees / 360,
+      1e-9,
+      `frame ${frame} glass stripe phase`,
+    );
     state.contact.forEach((coordinate, axis) => {
       assertClose(coordinate, 0, 1e-6, `frame ${frame} contact axis ${axis}`);
     });

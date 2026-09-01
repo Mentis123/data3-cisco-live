@@ -62,6 +62,8 @@ they are not mislabeled as final-screenshot residuals.
 | Rigid dependency | Pass: cable, frame, six coatings, panes, and body lights inherit one root; no child counter-rotation |
 | Cable views | Pass: edge ovals at 0039/0159; face lobes at 0099/0219 |
 | Cable hypothesis | Pass for selected fit: lifted `cos(q)` Gerono centerline, seven physical strands, one twist |
+| Glass volume | Pass by material/state audit: dielectric `IOR=1.47`, `transmission=0.78`, neutral body tint, low `0.075` roughness, clearcoat and static-world environment response |
+| Spectral lanes | Pass: narrow Fresnel-weighted surface accents; QA asserts their phase equals `rootYaw/360`, with no independent animation clock |
 | Mirror orientation | Pass: six inward `FrontSide` coatings plus separate smoky double-sided panes |
 | Render history | Pass: frame 0099 is pixel-identical after different prior phases (0 changed pixels) |
 | Mirror parity | Pass: `Translate(side*n) × diag((-1)^n)`; odd cells baked with reversed winding, even cells instanced |
@@ -76,6 +78,9 @@ they are not mislabeled as final-screenshot residuals.
 ## Build and runtime checks
 
 - `npm run build:client`: pass.
+- `npm run test:dave-glass`: pass; asserts the dielectric material constants,
+  root-yaw uniform coupling, shader injection, and post-shading attenuation in
+  the first recursive mirror proxy.
 - `npm run evaluate:dave`: checked-in, dependency-light Chromium/CDP capture,
   state assertion, history-independence, source-dependency, responsive-layout,
   and pixel-metric harness. Set `DAVE_CHROMIUM` only if Chromium is not in a

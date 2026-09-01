@@ -47,6 +47,7 @@ type CrystalAssembly = {
   braidFamily: THREE.Group;
   frameFamily: THREE.Group;
   mirrorSystem: DaveMirrorSystem;
+  setGlassStripePhase: (turns: number) => void;
 };
 
 function createBackgroundTexture() {
@@ -197,6 +198,7 @@ function createCrystal(reflectionTextureSize: number): CrystalAssembly {
     braidFamily,
     frameFamily,
     mirrorSystem,
+    setGlassStripePhase: physicalBraid.setStripePhase,
   };
 }
 
@@ -262,6 +264,7 @@ export class DaveScene {
   private readonly braidFamily: THREE.Group;
   private readonly frameFamily: THREE.Group;
   private readonly mirrorSystem: DaveMirrorSystem;
+  private readonly setGlassStripePhase: (turns: number) => void;
   private readonly fixedTime?: number;
   private readonly interactiveFraming: boolean;
   private cameraRadius: number;
@@ -270,6 +273,7 @@ export class DaveScene {
   private autoRotate = false;
   private lastRenderedAt = 0;
   private manualView = false;
+  private glassStripeTurns = 0;
   private disposed = false;
 
   constructor(canvas: HTMLCanvasElement, options: DaveSceneOptions = {}) {
@@ -289,6 +293,7 @@ export class DaveScene {
     this.scene = new THREE.Scene();
     this.backgroundTexture = createBackgroundTexture();
     this.scene.background = this.backgroundTexture;
+    this.scene.environment = this.backgroundTexture;
     this.scene.fog = new THREE.Fog(0x171a1f, 15, 46);
     this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 1000);
     this.camera.position.set(0, CUBE_CENTRE_Y, this.cameraRadius);
@@ -338,6 +343,7 @@ export class DaveScene {
     this.braidFamily = crystal.braidFamily;
     this.frameFamily = crystal.frameFamily;
     this.mirrorSystem = crystal.mirrorSystem;
+    this.setGlassStripePhase = crystal.setGlassStripePhase;
     this.scene.add(this.crystal);
 
     const composerTarget = new THREE.WebGLRenderTarget(1, 1, {
@@ -411,6 +417,7 @@ export class DaveScene {
     // This is the only animated object transform: all mirrors, physical frame,
     // braid and their virtual-image coordinate system share the same rigid spin.
     this.crystal.rotation.y = THREE.MathUtils.degToRad(60.5) + phase * TAU;
+    this.updateGlassMaterialPhase();
 
     if (this.manualView) {
       this.controls.update();
@@ -441,6 +448,14 @@ export class DaveScene {
     }
   };
 
+  private updateGlassMaterialPhase() {
+    // Root yaw is the sole clock for the traveling optical response. Orbiting
+    // the camera still changes true reflections, but pausing the sculpture
+    // freezes these calibrated surface lanes as well.
+    this.glassStripeTurns = this.crystal.rotation.y / TAU;
+    this.setGlassStripePhase(this.glassStripeTurns);
+  }
+
   setBraidVisible(visible: boolean) {
     this.braidFamily.visible = visible;
     this.renderAt(this.lastRenderedAt);
@@ -463,6 +478,7 @@ export class DaveScene {
       frameVisible: this.frameFamily.visible,
       mirrorCount: this.mirrorSystem.mirrors.length,
       autoRotate: this.autoRotate,
+      glassStripeTurns: this.glassStripeTurns,
     };
   }
 
@@ -492,6 +508,7 @@ export class DaveScene {
         this.crystal.rotation.y = (
           this.crystal.rotation.y + elapsed * AUTO_ROTATE_RADIANS_PER_SECOND
         ) % TAU;
+        this.updateGlassMaterialPhase();
         this.lastAnimationAt = now;
         this.controls.update();
         this.composer.render();

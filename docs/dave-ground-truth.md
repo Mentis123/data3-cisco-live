@@ -50,7 +50,7 @@ to make one-second comparisons easy.
 
 ## One rigid physical assembly
 
-The outer frame, all six mirror substrates, the central seven-strand cable,
+The outer frame, all six mirror substrates, the central seven-filament glass form,
 and any body-mounted emitters are one rigid object. No child billboards,
 counter-rotates, bobs, or receives an independent phase.
 
@@ -148,10 +148,11 @@ the narrow open ellipse visible at frames 0039 and 0159. `B/A=1.58` and
 
 ![Curve equation over independent face and edge frames](./dave-reference/object-curve-fit.webp)
 
-The best-supported visible-section reconstruction is a physical seven-strand
-hex cable. The centerline and bundle envelope are directly constrained; seven
-strands and one full twist are the best fit to the cross-section/color-order
-evidence, but are not uniquely identifiable from the tone-mapped 512 px video:
+The best-supported visible-section reconstruction is a physical seven-filament
+hex bundle in reflective glass. The centerline and bundle envelope are directly
+constrained; seven filaments and one full twist are the best fit to the
+cross-section/contour evidence, but are not uniquely identifiable from the
+tone-mapped 512 px video:
 
 - one center strand plus six equally spaced outer strands;
 - strand radius approximately `0.05` scene units;
@@ -159,9 +160,12 @@ evidence, but are not uniquely identifiable from the tone-mapped 512 px video:
 - total bundle radius approximately `0.150`;
 - one slow closed twist around the full lemniscate (the selected starting fit;
   zero and two turns are the nearest plausible ablations);
-- muted silver, teal, rose, slate blue, amber, and green physical materials;
-- rounded `TubeGeometry`, clearcoat/specular response, and no one-pixel fake
-  longitudinal lines.
+- a neutral smoky glass body on every filament, rather than seven opaque
+  silver/teal/rose/blue/amber/green cables;
+- narrow silver, teal, rose, slate blue, amber, and green surface-response
+  lanes that sit over the transmitted body;
+- rounded `TubeGeometry`, volume transmission, clearcoat/specular response,
+  and no one-pixel line geometry on the directly viewed object.
 
 The directly viewed strands use 256 centerline samples and 12 radial segments.
 Near reflection proxies use the identical analytic curves/radii at 96×6
@@ -172,6 +176,61 @@ millions of unresolved tube vertices.
 ![Measured cross-section and seven-strand hypothesis](./dave-reference/object-strand-cross-section.webp)
 
 ![Cable face/edge evidence at the canonical angles](./dave-reference/object-angle-evidence.webp)
+
+## Glass volume and traveling spectral lanes
+
+The later close inspection changes the material interpretation, not the fitted
+lemniscate geometry. Across the clean anchors, most of each filament is dark,
+neutral, and partially transmitting. Bright mirror-frame paths and neighboring
+filament contours remain visible through the bundle. Its pale double rims are
+specular/refraction boundaries. The cyan, green, rose, blue, and gold marks are
+much narrower than a filament and change their longitudinal position as root
+yaw advances; they are surface reflections/interference lanes, not base-color
+fills.
+
+![Glass transmission and traveling spectral-band evidence](./dave-reference/glass-material-evidence.webp)
+
+| Source anchor | Active time / yaw | Material evidence |
+| --- | --- | --- |
+| 0009 | 0.00 s / 60.5° | Nearly black transmitted core, silver double rim, short cyan/rose peaks on the lower loop |
+| 0039 | 1.00 s / 105.5° | Edge view compresses the glass volume while teal and blue lanes run along the open oval |
+| 0099 | 3.00 s / 195.5° | Broad face view exposes pale transparent gaps between filaments; colored lanes occupy only portions of each lobe |
+| 0129 | 4.00 s / 240.5° | Rose/gold peaks have moved to different contour sections while the same rigid geometry remains |
+| 0159 | 5.00 s / 285.5° | Opposite edge view again produces thin bright rims rather than opaque colored rods |
+| 0219 | 7.00 s / 15.5° | Opposite face view retains a neutral body with teal/rose accents in new screen positions |
+
+The runtime therefore uses `MeshPhysicalMaterial` as a real dielectric volume:
+
+| Property | Runtime value |
+| --- | ---: |
+| Metalness | `0` |
+| Roughness | `0.075` |
+| Transmission | `0.78` |
+| Thickness | `0.16` scene units |
+| IOR | `1.47` |
+| Attenuation distance | `0.72` scene units |
+| Clearcoat / clearcoat roughness | `1.0 / 0.035` |
+| Environment intensity | `1.65` |
+| Iridescence / iridescence IOR | `0.24 / 1.34` |
+
+The static world environment now contributes to the glass BRDF, so orbiting the
+camera changes real view-dependent reflections. A restrained procedural term
+models the unresolved thin spectral lanes. For tube UV `(u,v)`, strand offset
+`o`, and rigid root turns `phi = rootYaw/(2*pi)`:
+
+```text
+path pulse = cos(2*pi * (5*u - 1.25*phi + o))
+rail roll  = fract(v + 0.115*sin(2*pi*(2*u+o)) - 0.18*phi + o)
+```
+
+Only a narrow rail near the center of `rail roll` receives the strand's accent,
+and it is weighted by a Fresnel term. The values `5`, `1.25`, and `0.18` are a
+calibrated perceptual fit to the compressed anchors, not uniquely measurable
+material constants. Crucially, `phi` comes from the root transform rather than
+wall-clock time: switching auto-rotate off freezes the lanes exactly with the
+sculpture, while manual camera orbit still changes physical reflection angles.
+The same shader is composed into the full-geometry mirror proxies before
+per-bounce attenuation, so colored energy cannot remain bright at deep orders.
 
 ## Six physical mirrors and recursive virtual images
 
@@ -231,9 +290,11 @@ physical source in a face reflection is optical order one:
   and orders 5–12 use sub-pixel curve traces;
 - frame-edge input proxies through order 12 (2,624 proxies plus the physical
   twelve-edge frame), producing final reflected orders 1–13;
-- negative-determinant transforms retained and strand materials double-sided;
+- negative-determinant transforms retained;
 - odd-parity cable cells are baked with reversed triangle winding because
   Three.js does not support negative-scale `InstancedMesh` matrices;
+- closed glass tubes use their outward `FrontSide` boundary; the winding fix
+  keeps odd mirror images front-facing without a glitch-prone double pass;
 - recursive proxies visible only to the six reflection cameras;
 - all other mirrors hidden during each reflection pass, preventing an
   uncontrolled render-target recursion loop;

@@ -9,6 +9,9 @@ const FULL_GEOMETRY_BOUNCES = 4;
 const ENERGY_CONVERGENCE_BOUNCES = 12;
 const OUTER_STRAND_COUNT = 6;
 const REFLECTION_LAYER = 2;
+const STRIPE_PATH_REPEATS = 5;
+const STRIPE_TRAVEL_PER_TURN = 1.25;
+const STRIPE_ROLL_PER_TURN = 0.18;
 
 export type BraidLayer = {
   geometry: THREE.BufferGeometry;
@@ -19,6 +22,7 @@ export type BraidLayer = {
 export type PhysicalBraid = {
   group: THREE.Group;
   layers: BraidLayer[];
+  setStripePhase: (turns: number) => void;
 };
 
 export type MirrorLineLayer = {
@@ -87,9 +91,15 @@ function reverseTriangleWinding(geometry: THREE.BufferGeometry) {
 }
 
 function bounceMaterial(material: THREE.Material, bounces: number) {
+  const baseBeforeCompile = material.onBeforeCompile;
+  const baseProgramCacheKey = material.customProgramCacheKey();
   const attenuated = material.clone();
   const attenuation = mirrorBounceColour(bounces);
-  attenuated.onBeforeCompile = (shader) => {
+  attenuated.onBeforeCompile = (shader, renderer) => {
+    // Reflection proxies retain the source glass shader. Attenuation is
+    // composed afterwards so the spectral surface lanes lose energy with the
+    // rest of the reflected radiance instead of glowing through deep bounces.
+    baseBeforeCompile.call(material, shader, renderer);
     shader.uniforms.daveBounceAttenuation = { value: attenuation };
     shader.fragmentShader = shader.fragmentShader
       .replace(
@@ -101,7 +111,9 @@ function bounceMaterial(material: THREE.Material, bounces: number) {
         "outgoingLight *= daveBounceAttenuation;\n#include <opaque_fragment>",
       );
   };
-  attenuated.customProgramCacheKey = () => `dave-mirror-bounce-${bounces}`;
+  attenuated.customProgramCacheKey = () => (
+    `${baseProgramCacheKey}|dave-mirror-bounce-${bounces}`
+  );
   return attenuated;
 }
 
@@ -170,20 +182,108 @@ function strandCurve(
   return new THREE.CatmullRomCurve3(points, true, "centripetal", 0.5);
 }
 
-function strandMaterial(colour: THREE.ColorRepresentation) {
-  const color = new THREE.Color(colour);
-  return new THREE.MeshPhysicalMaterial({
-    color,
-    emissive: color.clone().multiplyScalar(0.008),
-    metalness: 0.48,
-    roughness: 0.2,
+function strandMaterial(
+  accentValue: THREE.ColorRepresentation,
+  strandIndex: number,
+  stripePhase: { value: number },
+) {
+  const accent = new THREE.Color(accentValue);
+  const glassTint = new THREE.Color("#d5e0e2").lerp(accent, 0.08);
+  const attenuationTint = new THREE.Color("#dbe5e4").lerp(accent, 0.18);
+  const stripeOffset = strandIndex / (OUTER_STRAND_COUNT + 1);
+  const material = new THREE.MeshPhysicalMaterial({
+    color: glassTint,
+    emissive: 0x000000,
+    metalness: 0,
+    roughness: 0.075,
+    transmission: 0.78,
+    thickness: 0.16,
+    ior: 1.47,
+    attenuationColor: attenuationTint,
+    attenuationDistance: 0.72,
+    specularIntensity: 1,
+    specularColor: new THREE.Color("#e8f4f5"),
     clearcoat: 1,
-    clearcoatRoughness: 0.14,
-    iridescence: 0.42,
-    iridescenceIOR: 1.3,
-    envMapIntensity: 0.9,
-    side: THREE.DoubleSide,
+    clearcoatRoughness: 0.035,
+    iridescence: 0.24,
+    iridescenceIOR: 1.34,
+    iridescenceThicknessRange: [120, 340],
+    envMapIntensity: 1.65,
+    // Closed tube volumes render their outward boundary once. Odd-parity
+    // mirror proxies reverse winding above, so they retain correct front faces
+    // without a costly/unstable transparent double pass.
+    side: THREE.FrontSide,
+    dithering: true,
   });
+
+  material.userData.daveAccent = accent.getHex();
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.daveStripePhase = stripePhase;
+    shader.uniforms.daveStripeOffset = { value: stripeOffset };
+    shader.uniforms.daveStripeColour = { value: accent };
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec2 vDaveTubeUv;",
+      )
+      .replace(
+        "#include <uv_vertex>",
+        "#include <uv_vertex>\nvDaveTubeUv = uv;",
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        [
+          "#include <common>",
+          "uniform float daveStripePhase;",
+          "uniform float daveStripeOffset;",
+          "uniform vec3 daveStripeColour;",
+          "varying vec2 vDaveTubeUv;",
+        ].join("\n"),
+      )
+      .replace(
+        "#include <opaque_fragment>",
+        `
+          // A narrow longitudinal reflection lane rolls around each glass
+          // filament while small energy peaks travel along its closed path.
+          // Both coordinates derive from rigid root yaw; there is no separate
+          // clock, so the optical motion stops exactly when the object stops.
+          float daveRailCoordinate = fract(
+            vDaveTubeUv.y
+            + 0.115 * sin(6.28318530718 * (vDaveTubeUv.x * 2.0 + daveStripeOffset))
+            - daveStripePhase * ${STRIPE_ROLL_PER_TURN.toFixed(2)}
+            + daveStripeOffset
+          );
+          float daveRailDistance = abs(daveRailCoordinate - 0.5);
+          float daveRail = 1.0 - smoothstep(0.026, 0.088, daveRailDistance);
+          float davePathWave = 0.5 + 0.5 * cos(
+            6.28318530718 * (
+              vDaveTubeUv.x * ${STRIPE_PATH_REPEATS.toFixed(1)}
+              - daveStripePhase * ${STRIPE_TRAVEL_PER_TURN.toFixed(2)}
+              + daveStripeOffset
+            )
+          );
+          float davePathPulse = smoothstep(0.16, 0.92, davePathWave);
+          float daveFresnel = pow(
+            1.0 - saturate(dot(geometryNormal, geometryViewDir)),
+            2.15
+          );
+          float daveStripe = daveRail
+            * (0.34 + 0.66 * davePathPulse)
+            * (0.42 + 0.58 * daveFresnel);
+          outgoingLight = mix(
+            outgoingLight,
+            outgoingLight * vec3(0.82, 0.91, 0.94),
+            0.12
+          );
+          outgoingLight += daveStripeColour * daveStripe * 0.24;
+          outgoingLight += vec3(0.72, 0.84, 0.88) * daveFresnel * 0.035;
+          #include <opaque_fragment>
+        `,
+      );
+  };
+  material.customProgramCacheKey = () => "dave-reflective-glass-stripes-v1";
+  return material;
 }
 
 function createDeepReflectionGeometry(curve: THREE.Curve<THREE.Vector3>) {
@@ -209,18 +309,19 @@ export function createPhysicalBraid(): PhysicalBraid {
   const centerline = new GeronoBraidCurve();
   const frames = centerline.computeFrenetFrames(CURVE_SEGMENTS, true);
   const layers: BraidLayer[] = [];
+  const stripePhase = { value: 0 };
 
-  const colours = [
-    "#7f9295",
-    "#a6b8b8",
-    "#3f7d78",
-    "#8a4f63",
-    "#4b6c84",
-    "#8b6d4f",
-    "#4c6d54",
+  const accents = [
+    "#b8d2d2",
+    "#d0dcda",
+    "#48a99e",
+    "#b55e7d",
+    "#568eb5",
+    "#bf965f",
+    "#639578",
   ];
 
-  colours.forEach((colour, index) => {
+  accents.forEach((accent, index) => {
     const curve = index === 0 ? centerline : strandCurve(centerline, frames, index - 1);
     const physicalGeometry = new THREE.TubeGeometry(
       curve,
@@ -238,7 +339,7 @@ export function createPhysicalBraid(): PhysicalBraid {
       6,
       true,
     );
-    const material = strandMaterial(colour);
+    const material = strandMaterial(accent, index, stripePhase);
     layers.push({
       geometry: reflectionGeometry,
       deepGeometry: createDeepReflectionGeometry(curve),
@@ -259,7 +360,13 @@ export function createPhysicalBraid(): PhysicalBraid {
   });
   group.updateMatrix();
 
-  return { group, layers };
+  return {
+    group,
+    layers,
+    setStripePhase: (turns) => {
+      stripePhase.value = turns;
+    },
+  };
 }
 
 function createDeepReflectionLines(
@@ -275,7 +382,10 @@ function createDeepReflectionLines(
 
   cells.forEach((cell) => {
     const transform = cell.matrix.clone().multiply(physicalBraidMatrix);
-    const colour = material.color.clone().multiply(mirrorBounceColour(cell.bounces));
+    const accent = new THREE.Color(
+      material.userData.daveAccent ?? material.color.getHex(),
+    );
+    const colour = accent.multiply(mirrorBounceColour(cell.bounces));
     for (let index = 0; index < sourcePosition.count; index += 1) {
       point.fromBufferAttribute(sourcePosition, index).applyMatrix4(transform);
       positions.push(point.x, point.y, point.z);
