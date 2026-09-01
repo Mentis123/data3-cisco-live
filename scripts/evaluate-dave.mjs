@@ -251,6 +251,7 @@ try {
 
   const metrics = [];
   const states = [];
+  let previousEnvironmentCaptures = 0;
   for (const frame of anchors) {
     await evaluate(cdp, `window.__DAVE_QA__.setSourceFrame(${frame})`);
     const state = await evaluate(cdp, "window.__DAVE_QA__.getPhysicsState()");
@@ -263,6 +264,25 @@ try {
       1e-9,
       `frame ${frame} glass stripe phase`,
     );
+    assertClose(
+      state.aluminiumGlassMetalness,
+      0.58,
+      1e-9,
+      `frame ${frame} aluminium coating`,
+    );
+    assertClose(
+      state.aluminiumGlassTransmission,
+      0.42,
+      1e-9,
+      `frame ${frame} glass transmission`,
+    );
+    if (state.glassEnvironmentSize < 256) {
+      throw new Error(`Recursive glass environment is undersized (${state.glassEnvironmentSize}).`);
+    }
+    if (state.glassEnvironmentCaptures <= previousEnvironmentCaptures) {
+      throw new Error(`Frame ${frame} did not refresh the recursive glass environment.`);
+    }
+    previousEnvironmentCaptures = state.glassEnvironmentCaptures;
     state.contact.forEach((coordinate, axis) => {
       assertClose(coordinate, 0, 1e-6, `frame ${frame} contact axis ${axis}`);
     });

@@ -6,9 +6,11 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
 import {
+  ALUMINIUM_GLASS_OPTICS,
   createPhysicalBraid,
   createRecursiveFrameImages,
   createRecursiveMirrorImages,
+  REFLECTION_LAYER,
   type MirrorLineLayer,
 } from "./dave-physical";
 import {
@@ -29,6 +31,7 @@ const INTERACTIVE_CAMERA_RADIUS = CUBE_SIZE * 2.08;
 const INTERACTIVE_FRAMING_MARGIN = 1.18;
 const AUTO_ROTATE_RADIANS_PER_SECOND = TAU / LOOP_SECONDS;
 const AUTO_ROTATE_FRAME_INTERVAL = 1 / 30;
+const GLASS_ENVIRONMENT_UPDATE_RADIANS = THREE.MathUtils.degToRad(3);
 
 type DaveSceneOptions = {
   fixedTime?: number;
@@ -48,6 +51,7 @@ type CrystalAssembly = {
   frameFamily: THREE.Group;
   mirrorSystem: DaveMirrorSystem;
   setGlassStripePhase: (turns: number) => void;
+  setGlassEnvironment: (texture: THREE.Texture | null) => void;
 };
 
 function createBackgroundTexture() {
@@ -131,6 +135,9 @@ function createPhysicalFrame(): PhysicalFrame {
     group.add(lines);
   });
   enableMirrorContent(group);
+  // Unlike the self-sampling glass source, the non-reflective physical frame
+  // is safe to include in the aluminium-glass cube environment.
+  group.traverse((object) => object.layers.enable(REFLECTION_LAYER));
   return { group, geometry, layers };
 }
 
@@ -146,6 +153,7 @@ function createRotatingContactEmitters() {
   emitters.forEach(({ position, colour }) => {
     const light = new THREE.PointLight(colour, 12, 2.2, 2);
     light.position.set(position[0], position[1], position[2]);
+    light.layers.enable(REFLECTION_LAYER);
     light.layers.enable(REFLECTION_CONTENT_LAYER);
     group.add(light);
   });
@@ -199,6 +207,7 @@ function createCrystal(reflectionTextureSize: number): CrystalAssembly {
     frameFamily,
     mirrorSystem,
     setGlassStripePhase: physicalBraid.setStripePhase,
+    setGlassEnvironment: physicalBraid.setEnvironment,
   };
 }
 
@@ -213,6 +222,7 @@ function addPhysicalLights(scene: THREE.Scene) {
   lights[2].position.set(-5, 2.5, 3);
   lights[3].position.set(3, 1.5, -5);
   lights.forEach((light) => {
+    light.layers.enable(REFLECTION_LAYER);
     light.layers.enable(3);
     scene.add(light);
   });
@@ -223,6 +233,10 @@ function chooseReflectionTextureSize(canvas: HTMLCanvasElement) {
   if (longestSide >= 1100) return 768;
   if (longestSide >= 600) return 640;
   return 512;
+}
+
+function chooseGlassEnvironmentTextureSize(canvas: HTMLCanvasElement) {
+  return Math.max(canvas.clientWidth, canvas.clientHeight) >= 1000 ? 384 : 256;
 }
 
 function disposeScene(scene: THREE.Scene) {
@@ -265,6 +279,9 @@ export class DaveScene {
   private readonly frameFamily: THREE.Group;
   private readonly mirrorSystem: DaveMirrorSystem;
   private readonly setGlassStripePhase: (turns: number) => void;
+  private readonly setGlassEnvironment: (texture: THREE.Texture | null) => void;
+  private readonly glassEnvironmentTarget: THREE.WebGLCubeRenderTarget;
+  private readonly glassEnvironmentCamera: THREE.CubeCamera;
   private readonly fixedTime?: number;
   private readonly interactiveFraming: boolean;
   private cameraRadius: number;
@@ -274,6 +291,8 @@ export class DaveScene {
   private lastRenderedAt = 0;
   private manualView = false;
   private glassStripeTurns = 0;
+  private glassEnvironmentCaptures = 0;
+  private lastGlassEnvironmentYaw = Number.NaN;
   private disposed = false;
 
   constructor(canvas: HTMLCanvasElement, options: DaveSceneOptions = {}) {
@@ -344,7 +363,34 @@ export class DaveScene {
     this.frameFamily = crystal.frameFamily;
     this.mirrorSystem = crystal.mirrorSystem;
     this.setGlassStripePhase = crystal.setGlassStripePhase;
+    this.setGlassEnvironment = crystal.setGlassEnvironment;
     this.scene.add(this.crystal);
+
+    // The direct aluminium-glass filaments sample an environment made only
+    // from the unfolded recursive image layer. The physical source is absent
+    // from this camera, so the cube texture contains its mirror images without
+    // ever sampling the render target currently being written.
+    this.glassEnvironmentTarget = new THREE.WebGLCubeRenderTarget(
+      chooseGlassEnvironmentTextureSize(this.canvas),
+      {
+        type: THREE.HalfFloatType,
+        generateMipmaps: true,
+        minFilter: THREE.LinearMipmapLinearFilter,
+        magFilter: THREE.LinearFilter,
+        depthBuffer: true,
+      },
+    );
+    this.glassEnvironmentTarget.texture.name = "dave-recursive-self-environment";
+    this.glassEnvironmentCamera = new THREE.CubeCamera(
+      0.1,
+      CUBE_SIZE * 16,
+      this.glassEnvironmentTarget,
+    );
+    this.glassEnvironmentCamera.name = "dave-recursive-environment-camera";
+    this.glassEnvironmentCamera.position.set(0, CUBE_CENTRE_Y, 0);
+    this.glassEnvironmentCamera.layers.set(REFLECTION_LAYER);
+    this.scene.add(this.glassEnvironmentCamera);
+    this.setGlassEnvironment(this.glassEnvironmentTarget.texture);
 
     const composerTarget = new THREE.WebGLRenderTarget(1, 1, {
       type: THREE.HalfFloatType,
@@ -418,6 +464,7 @@ export class DaveScene {
     // braid and their virtual-image coordinate system share the same rigid spin.
     this.crystal.rotation.y = THREE.MathUtils.degToRad(60.5) + phase * TAU;
     this.updateGlassMaterialPhase();
+    this.updateGlassEnvironment(true);
 
     if (this.manualView) {
       this.controls.update();
@@ -456,6 +503,21 @@ export class DaveScene {
     this.setGlassStripePhase(this.glassStripeTurns);
   }
 
+  private updateGlassEnvironment(force = false) {
+    const yaw = this.crystal.rotation.y;
+    const yawDelta = Math.abs(Math.atan2(
+      Math.sin(yaw - this.lastGlassEnvironmentYaw),
+      Math.cos(yaw - this.lastGlassEnvironmentYaw),
+    ));
+    if (!force && Number.isFinite(yawDelta) && yawDelta < GLASS_ENVIRONMENT_UPDATE_RADIANS) {
+      return;
+    }
+
+    this.glassEnvironmentCamera.update(this.renderer, this.scene);
+    this.lastGlassEnvironmentYaw = yaw;
+    this.glassEnvironmentCaptures += 1;
+  }
+
   setBraidVisible(visible: boolean) {
     this.braidFamily.visible = visible;
     this.renderAt(this.lastRenderedAt);
@@ -479,6 +541,10 @@ export class DaveScene {
       mirrorCount: this.mirrorSystem.mirrors.length,
       autoRotate: this.autoRotate,
       glassStripeTurns: this.glassStripeTurns,
+      aluminiumGlassMetalness: ALUMINIUM_GLASS_OPTICS.metalness,
+      aluminiumGlassTransmission: ALUMINIUM_GLASS_OPTICS.transmission,
+      glassEnvironmentCaptures: this.glassEnvironmentCaptures,
+      glassEnvironmentSize: this.glassEnvironmentTarget.width,
     };
   }
 
@@ -509,6 +575,7 @@ export class DaveScene {
           this.crystal.rotation.y + elapsed * AUTO_ROTATE_RADIANS_PER_SECOND
         ) % TAU;
         this.updateGlassMaterialPhase();
+        this.updateGlassEnvironment();
         this.lastAnimationAt = now;
         this.controls.update();
         this.composer.render();
@@ -533,6 +600,9 @@ export class DaveScene {
     this.controls.removeEventListener("change", this.renderControlledView);
     this.controls.dispose();
     this.mirrorSystem.dispose();
+    this.setGlassEnvironment(null);
+    this.glassEnvironmentCamera.removeFromParent();
+    this.glassEnvironmentTarget.dispose();
     disposeScene(this.scene);
     this.bloomPass.dispose();
     this.outputPass.dispose();

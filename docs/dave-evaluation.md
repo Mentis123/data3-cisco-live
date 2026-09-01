@@ -62,7 +62,8 @@ they are not mislabeled as final-screenshot residuals.
 | Rigid dependency | Pass: cable, frame, six coatings, panes, and body lights inherit one root; no child counter-rotation |
 | Cable views | Pass: edge ovals at 0039/0159; face lobes at 0099/0219 |
 | Cable hypothesis | Pass for selected fit: lifted `cos(q)` Gerono centerline, seven physical strands, one twist |
-| Glass volume | Pass by material/state audit: dielectric `IOR=1.47`, `transmission=0.78`, neutral body tint, low `0.075` roughness, clearcoat and static-world environment response |
+| Aluminium glass | Pass by material/state audit: `0.58` effective coating metalness over `IOR=1.47`, `0.42` transmitting glass, `0.052` roughness and clearcoat |
+| Self-reflection environment | Pass: source-centered half-float cube capture sees only attenuated unfolded self/frame images; the physical source is excluded, preventing read/write feedback |
 | Spectral lanes | Pass: narrow Fresnel-weighted surface accents; QA asserts their phase equals `rootYaw/360`, with no independent animation clock |
 | Mirror orientation | Pass: six inward `FrontSide` coatings plus separate smoky double-sided panes |
 | Render history | Pass: frame 0099 is pixel-identical after different prior phases (0 changed pixels) |
@@ -78,9 +79,10 @@ they are not mislabeled as final-screenshot residuals.
 ## Build and runtime checks
 
 - `npm run build:client`: pass.
-- `npm run test:dave-glass`: pass; asserts the dielectric material constants,
-  root-yaw uniform coupling, shader injection, and post-shading attenuation in
-  the first recursive mirror proxy.
+- `npm run test:dave-glass`: pass; asserts the layered aluminium-glass constants,
+  root-yaw uniform coupling, recursive-environment assignment, capture-feedback
+  exclusion, shader injection, and post-shading attenuation in the first mirror
+  proxy.
 - `npm run evaluate:dave`: checked-in, dependency-light Chromium/CDP capture,
   state assertion, history-independence, source-dependency, responsive-layout,
   and pixel-metric harness. Set `DAVE_CHROMIUM` only if Chromium is not in a

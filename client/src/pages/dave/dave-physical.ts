@@ -13,6 +13,17 @@ const STRIPE_PATH_REPEATS = 5;
 const STRIPE_TRAVEL_PER_TURN = 1.25;
 const STRIPE_ROLL_PER_TURN = 0.18;
 
+export const ALUMINIUM_GLASS_OPTICS = Object.freeze({
+  metalness: 0.58,
+  roughness: 0.052,
+  transmission: 0.42,
+  thickness: 0.13,
+  ior: 1.47,
+  attenuationDistance: 0.62,
+  clearcoatRoughness: 0.022,
+  envMapIntensity: 2.15,
+});
+
 export type BraidLayer = {
   geometry: THREE.BufferGeometry;
   deepGeometry: THREE.BufferGeometry;
@@ -23,6 +34,7 @@ export type PhysicalBraid = {
   group: THREE.Group;
   layers: BraidLayer[];
   setStripePhase: (turns: number) => void;
+  setEnvironment: (texture: THREE.Texture | null) => void;
 };
 
 export type MirrorLineLayer = {
@@ -188,27 +200,27 @@ function strandMaterial(
   stripePhase: { value: number },
 ) {
   const accent = new THREE.Color(accentValue);
-  const glassTint = new THREE.Color("#d5e0e2").lerp(accent, 0.08);
-  const attenuationTint = new THREE.Color("#dbe5e4").lerp(accent, 0.18);
+  const glassTint = new THREE.Color("#b9c2c4").lerp(accent, 0.045);
+  const attenuationTint = new THREE.Color("#c8d0cf").lerp(accent, 0.12);
   const stripeOffset = strandIndex / (OUTER_STRAND_COUNT + 1);
   const material = new THREE.MeshPhysicalMaterial({
     color: glassTint,
     emissive: 0x000000,
-    metalness: 0,
-    roughness: 0.075,
-    transmission: 0.78,
-    thickness: 0.16,
-    ior: 1.47,
+    metalness: ALUMINIUM_GLASS_OPTICS.metalness,
+    roughness: ALUMINIUM_GLASS_OPTICS.roughness,
+    transmission: ALUMINIUM_GLASS_OPTICS.transmission,
+    thickness: ALUMINIUM_GLASS_OPTICS.thickness,
+    ior: ALUMINIUM_GLASS_OPTICS.ior,
     attenuationColor: attenuationTint,
-    attenuationDistance: 0.72,
+    attenuationDistance: ALUMINIUM_GLASS_OPTICS.attenuationDistance,
     specularIntensity: 1,
     specularColor: new THREE.Color("#e8f4f5"),
     clearcoat: 1,
-    clearcoatRoughness: 0.035,
-    iridescence: 0.24,
+    clearcoatRoughness: ALUMINIUM_GLASS_OPTICS.clearcoatRoughness,
+    iridescence: 0.18,
     iridescenceIOR: 1.34,
     iridescenceThicknessRange: [120, 340],
-    envMapIntensity: 1.65,
+    envMapIntensity: ALUMINIUM_GLASS_OPTICS.envMapIntensity,
     // Closed tube volumes render their outward boundary once. Odd-parity
     // mirror proxies reverse winding above, so they retain correct front faces
     // without a costly/unstable transparent double pass.
@@ -217,6 +229,7 @@ function strandMaterial(
   });
 
   material.userData.daveAccent = accent.getHex();
+  material.userData.daveOpticalModel = "aluminium-coated-glass";
   material.onBeforeCompile = (shader) => {
     shader.uniforms.daveStripePhase = stripePhase;
     shader.uniforms.daveStripeOffset = { value: stripeOffset };
@@ -276,8 +289,8 @@ function strandMaterial(
             outgoingLight * vec3(0.82, 0.91, 0.94),
             0.12
           );
-          outgoingLight += daveStripeColour * daveStripe * 0.24;
-          outgoingLight += vec3(0.72, 0.84, 0.88) * daveFresnel * 0.035;
+          outgoingLight += daveStripeColour * daveStripe * 0.18;
+          outgoingLight += vec3(0.76, 0.86, 0.89) * daveFresnel * 0.045;
           #include <opaque_fragment>
         `,
       );
@@ -365,6 +378,12 @@ export function createPhysicalBraid(): PhysicalBraid {
     layers,
     setStripePhase: (turns) => {
       stripePhase.value = turns;
+    },
+    setEnvironment: (texture) => {
+      layers.forEach(({ material }) => {
+        material.envMap = texture;
+        material.needsUpdate = true;
+      });
     },
   };
 }

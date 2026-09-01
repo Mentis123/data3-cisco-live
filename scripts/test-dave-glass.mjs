@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import {
+  ALUMINIUM_GLASS_OPTICS,
   createPhysicalBraid,
   createRecursiveMirrorImages,
 } from "../client/src/pages/dave/dave-physical.ts";
@@ -34,10 +35,19 @@ const braid = createPhysicalBraid();
 const directMesh = braid.group.children[0];
 const directMaterial = directMesh.material;
 
-assert(directMaterial.metalness === 0, "Glass must remain dielectric.");
-assert(directMaterial.roughness === 0.075, "Glass roughness drifted from the source fit.");
-assert(directMaterial.transmission === 0.78, "Glass transmission drifted from the source fit.");
-assert(directMaterial.ior === 1.47, "Glass IOR drifted from the source fit.");
+assert(
+  directMaterial.metalness === ALUMINIUM_GLASS_OPTICS.metalness,
+  "Aluminium coating reflectance drifted from the source fit.",
+);
+assert(
+  directMaterial.roughness === ALUMINIUM_GLASS_OPTICS.roughness,
+  "Aluminium-glass roughness drifted from the source fit.",
+);
+assert(
+  directMaterial.transmission === ALUMINIUM_GLASS_OPTICS.transmission,
+  "Glass substrate transmission drifted from the source fit.",
+);
+assert(directMaterial.ior === ALUMINIUM_GLASS_OPTICS.ior, "Glass IOR drifted.");
 assert(directMaterial.side === THREE.FrontSide, "Closed glass must use one outward boundary.");
 assert(directMaterial.userData.daveAccent !== undefined, "Glass accent metadata is missing.");
 
@@ -69,6 +79,16 @@ const firstBounce = mirrorImages.children.find(
 assert(firstBounce, "Could not find the first physical reflection proxy.");
 
 const bounceMaterial = firstBounce.material;
+const recursiveEnvironment = new THREE.CubeTexture();
+braid.setEnvironment(recursiveEnvironment);
+assert(
+  directMaterial.envMap === recursiveEnvironment,
+  "Direct aluminium-glass does not sample the recursive self environment.",
+);
+assert(
+  bounceMaterial.envMap === null,
+  "Reflection proxy must not sample the cube target that captures it.",
+);
 const bounceShader = shaderFixture();
 bounceMaterial.onBeforeCompile(bounceShader, {});
 const stripePosition = bounceShader.fragmentShader.indexOf(
@@ -88,4 +108,4 @@ assert(
   "Reflection proxy does not share the physical glass phase.",
 );
 
-console.log("Dave glass material, yaw phase, and bounce composition: pass");
+console.log("Dave aluminium-glass, recursive environment, yaw phase, and bounce composition: pass");

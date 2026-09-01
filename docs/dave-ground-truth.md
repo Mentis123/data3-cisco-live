@@ -199,19 +199,22 @@ fills.
 | 0159 | 5.00 s / 285.5° | Opposite edge view again produces thin bright rims rather than opaque colored rods |
 | 0219 | 7.00 s / 15.5° | Opposite face view retains a neutral body with teal/rose accents in new screen positions |
 
-The runtime therefore uses `MeshPhysicalMaterial` as a real dielectric volume:
+The runtime therefore models a thin sputtered-aluminium coating over a real
+glass volume. Bulk aluminium is opaque; this is an effective layered fit for a
+partially transmitting metallic coating, not a claim that solid aluminium
+transmits light:
 
 | Property | Runtime value |
 | --- | ---: |
-| Metalness | `0` |
-| Roughness | `0.075` |
-| Transmission | `0.78` |
-| Thickness | `0.16` scene units |
+| Effective coating metalness | `0.58` |
+| Roughness | `0.052` |
+| Glass-substrate transmission | `0.42` |
+| Thickness | `0.13` scene units |
 | IOR | `1.47` |
-| Attenuation distance | `0.72` scene units |
-| Clearcoat / clearcoat roughness | `1.0 / 0.035` |
-| Environment intensity | `1.65` |
-| Iridescence / iridescence IOR | `0.24 / 1.34` |
+| Attenuation distance | `0.62` scene units |
+| Clearcoat / clearcoat roughness | `1.0 / 0.022` |
+| Recursive environment intensity | `2.15` |
+| Iridescence / iridescence IOR | `0.18 / 1.34` |
 
 The static world environment now contributes to the glass BRDF, so orbiting the
 camera changes real view-dependent reflections. A restrained procedural term
@@ -231,6 +234,36 @@ wall-clock time: switching auto-rotate off freezes the lanes exactly with the
 sculpture, while manual camera orbit still changes physical reflection angles.
 The same shader is composed into the full-geometry mirror proxies before
 per-bounce attenuation, so colored energy cannot remain bright at deep orders.
+
+### Reflections of its own recursive reflections
+
+A static sky environment cannot make the central form reflect the mirror room.
+The direct aluminium-glass filaments now sample a live cube environment captured
+at the physical source center. Its six 90° cameras see only render layer 2: the
+twelve non-reflective physical frame edges plus the mathematically unfolded
+cable and frame images through input order 12. They do not see the physical
+glass source, mirror coatings, smoky panes, floor, or main camera.
+This separation is the feedback guard: no material ever samples the cube target
+while that same material is being drawn into it.
+
+The resulting optical chain is:
+
+```text
+attenuated self-images orders 1…12
+  -> 256/384 px half-float cube environment
+  -> aluminium-glass surface reflection
+  -> physical planar-mirror reflection
+  -> displayed reflected object containing its reflected self-images
+```
+
+The unfolded input already converges below the 8-bit visibility threshold, so
+the cube capture adds a surface-reflection stage without inventing a new copy
+field or an uncontrolled render-target recursion. Deterministic `renderAt()`
+calls refresh all six cube faces for every source anchor. During auto-rotate the
+map refreshes each 3° of root yaw (15 updates per second at the measured 45°/s),
+halving the additional capture rate while retaining mipmapped 256 px mobile and
+384 px large-viewport targets. Camera orbit does not require a recapture: the
+room and object are still, while the physical BRDF changes with the view vector.
 
 ## Six physical mirrors and recursive virtual images
 
