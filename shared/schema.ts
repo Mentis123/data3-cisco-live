@@ -340,3 +340,121 @@ export type InsertWordCloudEntry = z.infer<typeof insertWordCloudEntrySchema>;
 export type WordCloudEntry = typeof wordCloudEntries.$inferSelect;
 export type InsertResetTimestamp = z.infer<typeof insertResetTimestampSchema>;
 export type ResetTimestamp = typeof resetTimestamps.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Decision Room (When the agent acts tabletop)
+// Room instrument for the 90-minute workshop. No scores, no ranking, no winner.
+// See docs/tabletop/DECISION_ROOM_BUILD.md and the PRD in docs/tabletop.
+// ---------------------------------------------------------------------------
+
+export const workshopSessions = pgTable("workshop_sessions", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  joinCode: text("join_code").notNull().unique(),
+  consoleKey: text("console_key").notNull().unique(),
+  name: text("name").notNull(),
+  variant: text("variant").notNull(),
+  status: text("status").notNull().default("live"),
+  activeRound: integer("active_round").notNull().default(1),
+  resultsVisible: boolean("results_visible").notNull().default(false),
+  revision: integer("revision").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+});
+
+export const workshopTeams = pgTable(
+  "workshop_teams",
+  {
+    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    sessionId: text("session_id").notNull(),
+    tableCode: text("table_code").notNull(),
+    displayName: text("display_name").notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+  },
+  (table) => ({
+    sessionTableCode: uniqueIndex("workshop_teams_session_code_idx").on(table.sessionId, table.tableCode),
+  }),
+);
+
+export const workshopRounds = pgTable(
+  "workshop_rounds",
+  {
+    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    sessionId: text("session_id").notNull(),
+    roundNumber: integer("round_number").notNull(),
+    contentKey: text("content_key").notNull(),
+    state: text("state").notNull().default("pending"),
+    durationSeconds: integer("duration_seconds").notNull(),
+    openedAt: timestamp("opened_at", { withTimezone: true }),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+  },
+  (table) => ({
+    sessionRound: uniqueIndex("workshop_rounds_session_number_idx").on(table.sessionId, table.roundNumber),
+  }),
+);
+
+export const workshopDecisions = pgTable(
+  "workshop_decisions",
+  {
+    id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+    sessionId: text("session_id").notNull(),
+    teamId: text("team_id").notNull(),
+    roundId: text("round_id").notNull(),
+    optionKey: text("option_key"),
+    ownAction: text("own_action"),
+    confidence: integer("confidence"),
+    rationale: text("rationale"),
+    isLocked: boolean("is_locked").notNull().default(false),
+    selectedForDisplay: boolean("selected_for_display").notNull().default(false),
+    displayOrder: integer("display_order"),
+    lockedAt: timestamp("locked_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`now()`).notNull(),
+  },
+  (table) => ({
+    teamRound: uniqueIndex("workshop_decisions_team_round_idx").on(table.teamId, table.roundId),
+  }),
+);
+
+export const workshopEvents = pgTable("workshop_events", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: text("session_id").notNull(),
+  actorType: text("actor_type").notNull(),
+  actorId: text("actor_id"),
+  eventType: text("event_type").notNull(),
+  payload: jsonb("payload"),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(sql`now()`).notNull(),
+});
+
+export const workshopVariants = ["enterprise", "government"] as const;
+export type WorkshopVariant = (typeof workshopVariants)[number];
+
+export const createWorkshopSchema = z.object({
+  variant: z.enum(workshopVariants),
+  name: z.string().trim().min(2).max(80).optional(),
+  tableCount: z.number().int().min(2).max(12).optional(),
+});
+
+export const joinWorkshopSchema = z.object({
+  tableCode: z.string().trim().min(1).max(16),
+});
+
+export const workshopDecisionSchema = z
+  .object({
+    optionKey: z.string().trim().max(24).nullable().optional(),
+    ownAction: z.string().trim().max(240).nullable().optional(),
+    confidence: z.number().int().min(1).max(5).nullable().optional(),
+    rationale: z.string().trim().max(240).nullable().optional(),
+    lock: z.boolean().optional(),
+  })
+  .refine((value) => !(value.optionKey && value.ownAction), {
+    message: "Choose a listed option or write your own action, not both",
+    path: ["ownAction"],
+  });
+
+export const workshopActionSchema = z.object({
+  action: z.enum(["open", "close", "publish", "hide", "advance", "reopen", "select", "end", "reset"]),
+  teamId: z.string().trim().max(64).optional(),
+  decisionId: z.string().trim().max(64).optional(),
+  selected: z.boolean().optional(),
+});
