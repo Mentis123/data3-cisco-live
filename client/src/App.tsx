@@ -42,6 +42,9 @@ import IncidentChallengeLiveV04 from "@/pages/alpha2026/IncidentChallengeLiveV04
 import IncidentChallengeArchiveV03 from "@/pages/alpha2026/IncidentChallengeArchiveV03";
 import VersionArchive from "@/pages/alpha2026/VersionArchive";
 import Alpha2026Leaderboard from "@/pages/alpha2026/Alpha2026Leaderboard";
+import DecisionRoomTable from "@/pages/workshop/DecisionRoomTable";
+import DecisionRoomConsole from "@/pages/workshop/DecisionRoomConsole";
+import DecisionRoomAdmin from "@/pages/workshop/DecisionRoomAdmin";
 
 const Dave = lazy(() => import("@/pages/dave/Dave"));
 
@@ -322,6 +325,11 @@ function NewExperienceRouter() {
       <Route path="/2026alpha/cascade" component={CascadePrototype} />
       <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />
+      <Route path="/workshop" component={DecisionRoomTable} />
+      <Route path="/workshop/admin" component={DecisionRoomAdmin} />
+      <Route path="/workshop/admin/:sessionId" component={DecisionRoomAdmin} />
+      <Route path="/workshop/console/:consoleKey" component={DecisionRoomConsole} />
+      <Route path="/workshop/:joinCode" component={DecisionRoomTable} />
       <Route path="/dave" component={DaveRoute} />
       <Route component={NotFound} />
     </Switch>

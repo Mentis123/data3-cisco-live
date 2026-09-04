@@ -7,6 +7,7 @@ This repository hosts the current Express + Vite implementation of the Cisco Sol
 - `/` presents the Cisco Live 2026 holding page while the new experience is developed.
 - `/2026alpha` runs the standalone, mobile-first 2026 adaptive incident challenge.
 - `/2026alpha/archive` preserves the superseded Cascade, Permission to act, and Signal Room prototypes.
+- `/workshop` runs the Decision Room, the room instrument for the "When the agent acts" tabletop (participant view, projected console and facilitator controls). See [`docs/tabletop/DECISION_ROOM_BUILD.md`](docs/tabletop/DECISION_ROOM_BUILD.md).
 - `/2025` preserves the complete 2025 Beat the Bot experience, including its game, leaderboard, admin, and supporting routes.
 - Previous direct links such as `/play` and `/leaderboard` redirect into their `/2025` equivalents for continuity.
 
@@ -33,6 +34,7 @@ The development server boots the Express API (from `server/index.ts`) and Vite d
 - `DATABASE_URL` or one of Vercel's `POSTGRES_URL*` secrets – Neon/Vercel Postgres connection string.
 - `OPENAI_API_KEY` – API key used by the AI orchestration layer.
 - `ADMIN_KEY` – Shared secret that guards the admin HTTP routes.
+- `WORKSHOP_FACILITATOR_SECRET` – Required for the Decision Room facilitator routes (minimum 16 characters). There is no default: without it those routes return 503. Never commit it.
 
 If neither `DATABASE_URL` nor any `POSTGRES_URL*` secret is provided the API automatically falls back to an in-memory storage layer seeded with demo leaderboard data. This keeps the dashboard usable for local previews, but production deployments **must** supply a real database connection.
 
