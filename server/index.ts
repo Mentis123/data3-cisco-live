@@ -26,7 +26,7 @@ import { log } from "./logging.js";
   server.listen(
     {
       port,
-      host: "0.0.0.0",
+      host: process.env.APP_BIND_HOST || "0.0.0.0",
       reusePort: true,
     },
     () => {
