@@ -22,7 +22,7 @@ async function request<T>(url:string, options:RequestInit={}) {
 }
 const json=(body:unknown, headers:Record<string,string>={})=>({method:"POST",headers:{"Content-Type":"application/json",...headers},body:JSON.stringify(body)});
 function useClock(started:string|null|undefined){const [now,setNow]=useState(Date.now());useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id)},[]);if(!started)return"--:--";const left=12*60-Math.floor((now-new Date(started).getTime())/1000);const abs=Math.abs(left);return `${left<0?"+":""}${Math.floor(abs/60).toString().padStart(2,"0")}:${(abs%60).toString().padStart(2,"0")}`;}
-function Frame({children,wide=false}:{children:ReactNode;wide?:boolean}){return <main className={`dr-shell ${wide?"dr-wide":""}`}><header className="dr-brand"><div className="dr-mark">D<span>#</span>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ACTS</small></div></header>{children}<footer>Observe · govern · secure</footer></main>}
+function Frame({children,wide=false}:{children:ReactNode;wide?:boolean}){return <main className={`dr-shell ${wide?"dr-wide":""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">D<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ACTS</small></div></header>{children}<footer>Observe · govern · secure</footer></main>}
 function ErrorText({message}:{message:string}){return message?<p className="dr-error"><AlertTriangle size={18}/>{message}</p>:null}
 
 function Landing({presetCode}:{presetCode?:string}){
