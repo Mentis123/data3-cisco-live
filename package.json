@@ -11,6 +11,7 @@
     "check": "tsc",
     "evaluate:dave": "node scripts/evaluate-dave.mjs",
     "test:dave-glass": "node scripts/test-dave-glass.mjs",
+    "smoke:decision-room": "node scripts/smoke-decision-room.mjs",
     "db:push": "drizzle-kit push",
     "db:migrate": "tsx scripts/apply-trivia-migration.ts",
     "db:migrate:announced": "tsx scripts/apply-announced-migration.ts",
