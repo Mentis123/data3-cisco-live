@@ -29,7 +29,7 @@ Optimistic, clean and credible — never dystopian. Keep the visual world releva
 const productionMedia: Record<string, { image: string; video?: string; alt: string; review: string }> = {
   "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", video: "/caudit/P02_SEEDANCE.mp4", alt: "Connected university campus at blue hour", review: "First pass · use 00:00–00:13 only; exclude the late generated cloud icon." },
   "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY_PEOPLE_FREE.png", video: "/caudit/P03_SEEDANCE.mp4", alt: "Abstract licensing and operational layers around a decision node", review: "Approved rerender · clean 21-second orbit, distinct system layers and a single closing cyan route with no generated lettering." },
-  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", video: "/caudit/P04_SEEDANCE.mp4", alt: "Three luminous service paths leading to a university", review: "Approved first pass · exactly three routes remain distinct; one stable anonymous figure appears from behind." },
+  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", video: "/caudit/P04_SEEDANCE.mp4", alt: "Three luminous service paths leading to a university", review: "Source contains generated lettering from 00:04–00:15. The review master uses only clean 00:00–00:04 and 00:15–00:20 sections, extended with controlled forward and reverse timing." },
   "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor", review: "Approved first pass · clean support corridor and usable white transition." },
   "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", video: "/caudit/P06_SEEDANCE.mp4", alt: "Six connected capability streams around a university campus", review: "Approved first pass · six streams remain distinct and settle on the university hub without lettering." },
   "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", video: "/caudit/P07_SEEDANCE.mp4", alt: "Three continuing-value patterns surrounding a university", review: "Approved first pass · three support patterns remain separate and resolve into a warm campus composition." },
@@ -44,7 +44,7 @@ export const promptItems: PromptItem[] = [
     purpose: "Uses NotebookLM only as a grounded source assistant, not as the finished video generator.",
     input: "NotebookLM chat with the approved deck as its only source",
     duration: "Reference only",
-    prompt: `Using only the approved CAUDIT 2026 LSP presentation, produce a factual coverage checklist for a two-minute-twenty-second narrated film.
+    prompt: `Using only the approved CAUDIT 2026 LSP presentation, produce a factual coverage checklist for an approximately three-minute narrated film.
 
 Group repeated slide content into one connected story. Preserve every material point about licensing, higher-education experience, account support, the agreement lifecycle, flexible support, MyD3, Premier Support, Azure, broader Microsoft capability, service engagement, continuing value and onboarding.
 
@@ -55,9 +55,9 @@ Return a concise checklist that can be compared against the locked master voiceo
   {
     id: "nlm-focus",
     group: "NotebookLM",
-    title: "Locked 2:20 coverage brief",
-    purpose: "Defines the complete information payload for the shorter film.",
-    duration: "2:20 target · 2:30 hard ceiling",
+    title: "Locked 3:02 coverage brief",
+    purpose: "Defines the complete information payload for the finished review master.",
+    duration: "3:02 review master",
     input: "Editorial reference; do not ask NotebookLM to render the final video",
     prompt: `Build one connected executive narrative for senior university IT, commercial and procurement leaders in Australia and New Zealand around:
 1. Microsoft licensing as the starting point of the Data#3 relationship.
@@ -90,7 +90,7 @@ Report only: missing material points, unsupported claims, accidental inclusion c
     group: "Seedance 2.5",
     title: "P01 — The PowerPoint comes alive",
     purpose: "The opening fake-out: begin on the exact real cover slide, then enter its abstract ribbon world.",
-    duration: "12 seconds · 720p · 16:9",
+    duration: "12-second source · master 00:00–00:12 · 720p · 16:9",
     input: "@Image1 = P01_COVER_SLIDE.png · Generate Audio OFF",
     image: "/caudit/P01_COVER_SLIDE.png",
     video: "/caudit/P01_COVER_TRANSITION.mp4",
@@ -158,7 +158,7 @@ Perfectly balanced 16:9 landscape. Keep the centre and lower-centre pristine for
 No text, logos, objects, people, logo-like shapes, bright detail behind the central safe area or watermark.`],
   ].map(([id, title, purpose, image, alt, prompt]) => ({ id, title, purpose, image, alt, group: "Nano Banana Pro" as const, prompt: `${styleLock}\n\nSHOT — ${prompt}` })),
   ...[
-    ["sd-p02-campus", "P02 — Education relationship", "18 seconds · 00:12–00:30", "@Image1 = O3_FUTURE_CAMPUS.png · Generate Audio OFF", "Higher-education experience, local accountability and national specialist support.", `Generate one continuous 18-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p02-campus", "P02 — Education relationship", "18-second source · master 00:12–00:36", "@Image1 = O3_FUTURE_CAMPUS.png · Generate Audio OFF", "Higher-education experience, local accountability and national specialist support.", `Generate one continuous 18-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve every building, path, light source and existing distant person. Keep the Australian or New Zealand university architecture physically credible.
 
@@ -169,7 +169,7 @@ Use @Image1 as the exact first frame. Preserve every building, path, light sourc
 14.0–18.0s: The connecting threads settle into a coherent network. End with the central walkway leading cleanly towards camera-right for an editorial cut.
 
 No new buildings, crowds, signs, text, logos, interface, scene replacement, fast flight, camera roll, face morphing or watermark. Generate no audio.`],
-    ["sd-p03-lifecycle", "P03 — The licensing lifecycle", "21 seconds · 00:30–00:51", "@Image1 = O4_COMPLEXITY_PEOPLE_FREE.png · Generate Audio OFF", "Agreement administration, licensing guidance, optimisation, advocacy and escalation.", `Generate one continuous 21-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p03-lifecycle", "P03 — The licensing lifecycle", "21-second source · master 00:36–01:01", "@Image1 = O4_COMPLEXITY_PEOPLE_FREE.png · Generate Audio OFF", "Agreement administration, licensing guidance, optimisation, advocacy and escalation.", `Generate one continuous 21-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the central glass-and-metal decision node, the room geometry and the distinct abstract licensing, cloud, security, data and operational layers. No layer may contain readable symbols.
 
@@ -180,7 +180,7 @@ Use @Image1 as the exact first frame. Preserve the central glass-and-metal decis
 16.0–21.0s: The ordered workflow stabilises around the decision node. A single cyan route opens ahead as the camera completes its orbit and settles.
 
 No people, faces, bodies, text, letters, numbers, written documents, logos, dashboards, interface panels, symbols, morphing, alarms, danger, rapid cuts, camera shake or watermark. Generate no audio.`],
-    ["sd-p04-flex", "P04 — Support shaped to the institution", "20 seconds · 00:51–01:11", "@Image1 = O5_SIGNAL_PEOPLE_FREE.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p04-flex", "P04 — Support shaped to the institution", "20-second source · master 01:01–01:20", "@Image1 = O5_SIGNAL_PEOPLE_FREE.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the people-free foreground platform, campus horizon and exactly three primary luminous routes. The routes are abstract service paths, never labelled.
 
@@ -191,7 +191,7 @@ Use @Image1 as the exact first frame. Preserve the people-free foreground platfo
 15.0–20.0s: The translucent planes settle and the three routes remain separate, proportionate and connected to the same bright campus destination. End on a stable, intelligible composition.
 
 Exactly three main routes. No people, faces, bodies, labels, text, numbers, dashboards, logos, contracts, hard-sell imagery, path duplication, camera roll or watermark. Generate no audio.`],
-    ["sd-p05-support", "P05 — Operational support pathway", "20 seconds · 01:11–01:31", "@Image1 = O6_HANDOFF.png · Generate Audio OFF", "Separately scoped Premier Support and Azure operations as accountable pathways, not inclusions.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p05-support", "P05 — Operational support pathway", "20-second source · master 01:20–01:59", "@Image1 = O6_HANDOFF.png · Generate Audio OFF", "Separately scoped Premier Support and Azure operations as accountable pathways, not inclusions.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the centred luminous corridor, strong vanishing point and clean blue-black, cyan and teal palette.
 
@@ -202,7 +202,7 @@ Use @Image1 as the exact first frame. Preserve the centred luminous corridor, st
 15.0–20.0s: The camera makes one smooth acceleration towards the bright horizon while all three lanes remain visibly distinct. End in a controlled cyan-white occlusion for a clean cut.
 
 No text, icons, labels, logos, people, dashboards, literal clouds, incident alarms, scene replacement, spin, camera shake, excessive centre blur or watermark. Generate no audio.`],
-    ["sd-p06-capability", "P06 — Connected Microsoft capability", "19 seconds · 01:31–01:50", "@Image1 = C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png · Generate Audio OFF", "Broader separately scoped capability across Modern Work, security, data and AI, applications and automation.", `Generate one continuous 19-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p06-capability", "P06 — Connected Microsoft capability", "19-second source · master 01:59–02:18", "@Image1 = C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png · Generate Audio OFF", "Broader separately scoped capability across Modern Work, security, data and AI, applications and automation.", `Generate one continuous 19-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the central university hub and all six distinct capability streams. Do not merge, multiply or label the streams.
 
@@ -213,7 +213,7 @@ Use @Image1 as the exact first frame. Preserve the central university hub and al
 14.0–19.0s: One subtle pulse passes from the hub back through every stream, showing a two-way relationship. Settle with all six streams still distinct and the institution visually central.
 
 No text, labels, icons, logos, new buildings, new people, fantasy magic, stream duplication, merging, camera shake, hard cuts or watermark. Generate no audio.`],
-    ["sd-p07-value", "P07 — Continuing value as priorities change", "16 seconds · 01:50–02:06", "@Image1 = C2_CONTINUING_VALUE_PEOPLE_FREE.png · optional 3-second cutaway to C3_HUMAN_PAYOFF.png in the edit · Generate Audio OFF", "Consulting, services, projects and operations supporting changing institutional priorities.", `Generate one continuous 16-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p07-value", "P07 — Continuing value as priorities change", "16-second source · master 02:18–02:35", "@Image1 = C2_CONTINUING_VALUE_PEOPLE_FREE.png · optional 3-second cutaway to C3_HUMAN_PAYOFF.png in the edit · Generate Audio OFF", "Consulting, services, projects and operations supporting changing institutional priorities.", `Generate one continuous 16-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve exactly three distinct support patterns around the credible university environment.
 
@@ -224,7 +224,7 @@ Use @Image1 as the exact first frame. Preserve exactly three distinct support pa
 12.0–16.0s: All three patterns balance around the campus as warm human light grows subtly in the learning spaces. End on a stable frame suitable for a brief cutaway to the approved C3 human-payoff still.
 
 No text, pricing, diagrams, contracts, logos, new people, duplicated paths, guarantees, excessive motion, camera roll or watermark. Generate no audio.`],
-    ["sd-p08-close", "P08 — Agreement cycle and clean close", "14 seconds · 02:06–02:20", "@Image1 = C4_ENDFRAME.png · Generate Audio OFF", "Scope, validation, documentation, onboarding, verification and ongoing support resolve into a typography-free finish.", `Generate one continuous 14-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p08-close", "P08 — Agreement cycle and clean close", "14-second prompt · master 02:35–03:02", "@Image1 = C4_ENDFRAME.png · Generate Audio OFF", "Scope, validation, documentation, onboarding, verification and ongoing support resolve into a typography-free finish.", `Generate one continuous 14-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre area, the navy field and restrained cyan-teal edge light. Do not add any lettering or branding.
 
@@ -232,17 +232,17 @@ Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre
 
 8.0–11.0s: The pulses resolve into one calm, continuous perimeter glow and the single restrained flare shimmers once.
 
-11.0–14.0s: All motion settles into a clean three-second hold beneath the final voiceover and the sustained chord from Convergence.
+11.0–14.0s: All motion settles into a clean three-second hold beneath the final voiceover and the sustained chord from Horizon Open.
 
 No text, numbers, logos, icons, people, objects, bright detail in the centre, presentation interface, sudden flare, fade to white, camera shake or watermark. Generate no audio.`],
   ].map(([id, title, duration, input, purpose, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose, prompt, ...productionMedia[id] })),
   {
     id: "suno-opening",
     group: "Suno",
-    title: "Locked music source A — The Drop",
+    title: "Locked music source A — Forward Momentum",
     purpose: "Use the already-generated opening render as the tonal source for the cover fake-out and first forward push.",
-    duration: "Existing 28–32 second source · edit to picture",
-    input: "Existing Pixio Songcraft render · instrumental source · do not regenerate",
+    duration: "Supplied 00:46.8 instrumental master · edit to picture",
+    input: "Forward Momentum.mp3 · supplied Pixio Songcraft render · do not regenerate",
     prompt: `Cinematic cyberpunk corporate trailer music, instrumental only.
 
 Begin with approximately three seconds of near-silence: a faint corporate room tone, subtle projector hum and minimal low-frequency tension. At 0:03, deliver a single powerful but sophisticated bass impact as the visual presentation breaks open.
@@ -258,10 +258,10 @@ Target duration: 28 to 32 seconds. Approximately 125 to 130 BPM. Dark minor open
   {
     id: "suno-closing",
     group: "Suno",
-    title: "Locked music source B — Convergence",
+    title: "Locked music source B — Horizon Open",
     purpose: "Use the already-generated closing render as the tonal source for connected capability, human resolution and the end frame.",
-    duration: "Existing 24–30 second source · edit to picture",
-    input: "Existing Pixio Songcraft render · instrumental source · do not regenerate",
+    duration: "Supplied 02:34.1 instrumental master · edit to picture",
+    input: "Horizon Open.mp3 · supplied Pixio Songcraft render · do not regenerate",
     prompt: `Cinematic corporate synthwave outro, instrumental only.
 
 Begin with confident forward motion that feels connected to a premium technology film. Use warm synth pads, restrained arpeggios, subtle cinematic percussion and a controlled deep bass foundation. Allow darker cyberpunk colours at the opening, then gradually resolve into a spacious, optimistic and human final section.
@@ -272,15 +272,15 @@ Avoid vocals, retro parody, aggressive EDM drops, horror tension and anthemic co
 
 Target duration: 24 to 30 seconds. Approximately 110 to 118 BPM. Include clear edit points near 0:04, 0:12, 0:18 and 0:23. End with one clean sustained hopeful chord that can hold under the final brand frame.`,
     secondaryLabel: "Mix lock",
-    secondaryText: "Use The Drop and Convergence as the two locked music sources · build the 2:20 continuous bed in the edit · voiceover leads by 4–6 dB · preserve Convergence's clean final chord",
+    secondaryText: "Use Forward Momentum and Horizon Open as the two locked music sources · crossfade from 00:38 to 00:46.8 · let Horizon Open's clean final chord land with the 03:02 close · voiceover remains dominant",
   },
   {
     id: "vo-master",
     group: "ElevenLabs",
     title: "Locked master voiceover — single copy block",
     purpose: "The complete source-grounded narration in one uninterrupted block for a single long ElevenLabs generation.",
-    duration: "Approx. 2:20 including deliberate pauses",
-    input: "ElevenLabs Text to Speech · Amelia · eleven_multilingual_v2 · language en · stability 0.55 · similarity 0.75 · style 0.05 · speed 0.94 · speaker boost ON · normalisation auto · seed 34017",
+    duration: "Supplied 03:02 male master read including deliberate pauses",
+    input: "ElevenLabs Text to Speech · Ninja Sensei male voice · speed 0.94 · stability 0.55 · similarity 0.75 · supplied master v3",
     prompt: `Every Microsoft agreement starts with a set of choices. For a university, the value comes from making those choices clearly and having the right support around them.
 
 Data three brings more than thirty years of education experience, long-standing engagement with CAUDIT members, and national coverage across Australia, Fiji and the Pacific. Each institution has a local account contact, backed by Microsoft licensing and contract specialists, national solution experts, and direct escalation pathways into Microsoft.
@@ -314,17 +314,17 @@ export const productionSteps = [
   "Use longer visual holds under detailed narration instead of recreating slide layouts or generated information graphics.",
   "Run NotebookLM only as a coverage checker against the approved deck and locked master script.",
   "Generate the entire ElevenLabs narration as one file; split it only during the final edit.",
-  "Use the existing Suno renders The Drop and Convergence as the two locked music sources; bridge and extend their instrumental material into one continuous bed in the final edit.",
+  "Use the supplied renders Forward Momentum and Horizon Open as the two locked music sources; crossfade them into one continuous 3:02 bed in the final edit.",
   "Mix external narration and music over clean picture; Seedance native audio remains off unless a shot-specific effects stem is deliberately requested.",
   "Use no generated or post-production lettering. Keep supplied cover typography intact as source artwork and deliver subtitles as a separate SRT file.",
   "Run narrative, commercial, visual, audio, accessibility and technical QA, then export the review and final masters.",
 ];
 
 export const qualityGates = [
-  { title: "Narrative", items: ["Target 2:20; never exceed 2:30", "Every approved deck concept appears once", "Licensing begins the relationship and connected capability expands it"] },
+  { title: "Narrative", items: ["Review master runs 3:02", "Every approved deck concept appears once", "Licensing begins the relationship and connected capability expands it"] },
   { title: "Commercial", items: ["Core and separately scoped capability are distinct", "No pricing, terms, guardrails or guarantees", "Sustained, flexible and standing are access patterns, not inclusions"] },
   { title: "Visual", items: ["The source cover stays pixel-sharp", "No new lettering, labels or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
-  { title: "Audio", items: ["One long ElevenLabs master read", "The Drop and Convergence remain the locked music sources", "Narration wins over music by 4–6 dB", "Data three and My D three are pronounced correctly", "The opening impact is conformed to the approved P01 cut"] },
+  { title: "Audio", items: ["One long ElevenLabs male master read", "Forward Momentum and Horizon Open are the locked music sources", "Narration remains clearly dominant over the music bed", "Data three and My D three are pronounced correctly", "The final mix is stereo, limited and free of clipping"] },
   { title: "Accessibility and technical", items: ["16:9 720p generation and consistent master frame rate", "No more than three flashes per second", "A reviewed SRT accompanies the film without burned-in typography", "No clipping, black frames, watermark or distorted audio"] },
 ];
 

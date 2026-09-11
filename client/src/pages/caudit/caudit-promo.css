@@ -1,0 +1,69 @@
+.caudit-promo {
+  --ink: #000025;
+  --cyan: #00aeff;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: radial-gradient(circle at 50% 42%, rgba(0, 174, 255, 0.13), transparent 48%), var(--ink);
+  color: #eee;
+  font-family: "Helvetica Neue", "HelveticaNeue", Arial, sans-serif;
+}
+
+.caudit-promo * { box-sizing: border-box; }
+
+.caudit-promo-header {
+  min-height: 70px;
+  padding: 14px clamp(18px, 4vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid rgba(120, 220, 255, 0.15);
+}
+
+.caudit-promo-brand { display: flex; align-items: center; gap: 20px; font-size: 21px; font-weight: 900; }
+.caudit-promo-brand sup { font-size: 0.5em; position: relative; top: -0.45em; }
+.caudit-promo-brand span {
+  border-left: 1px solid rgba(120, 220, 255, 0.35);
+  padding-left: 20px;
+  color: #78dcff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.caudit-promo-status { color: #8ea9b8; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.caudit-promo-stage { width: 100%; display: grid; place-items: start center; padding: clamp(18px, 3vw, 44px); }
+.caudit-promo-stage video {
+  display: block;
+  width: min(1600px, 100%);
+  aspect-ratio: 16 / 9;
+  background: #020219;
+  border: 1px solid rgba(120, 220, 255, 0.2);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.45), 0 0 80px rgba(0, 174, 255, 0.08);
+}
+
+.caudit-promo-footer { display: flex; justify-content: center; padding: 24px 20px 34px; }
+.caudit-promo-footer a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 18px;
+  border: 1px solid rgba(0, 174, 255, 0.45);
+  color: #dff7ff;
+  background: rgba(0, 174, 255, 0.08);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.caudit-promo-footer a:hover { background: var(--cyan); color: var(--ink); }
+.caudit-promo-footer svg { width: 17px; }
+
+@media (max-width: 680px) {
+  .caudit-promo-header { min-height: 62px; }
+  .caudit-promo-status, .caudit-promo-brand span { display: none; }
+  .caudit-promo-stage { padding: 12px; }
+  .caudit-promo-footer { padding-top: 16px; }
+}

@@ -43,7 +43,8 @@ import IncidentChallengeArchiveV03 from "@/pages/alpha2026/IncidentChallengeArch
 import VersionArchive from "@/pages/alpha2026/VersionArchive";
 import Alpha2026Leaderboard from "@/pages/alpha2026/Alpha2026Leaderboard";
 import DecisionRoom from "@/pages/decision-room/DecisionRoom";
-import CAUDIT from "@/pages/caudit/CAUDIT";
+import CAUDITBible from "@/pages/caudit/CAUDIT";
+import CAUDITPromo from "@/pages/caudit/CAUDITPromo";
 
 const Dave = lazy(() => import("@/pages/dave/Dave"));
 
@@ -330,7 +331,8 @@ function NewExperienceRouter() {
       <Route path="/decision-room/console/:id" component={DecisionRoom} />
       <Route path="/decision-room/admin/:id" component={DecisionRoom} />
       <Route path="/dave" component={DaveRoute} />
-      <Route path="/caudit" component={CAUDIT} />
+      <Route path="/caudit/bible" component={CAUDITBible} />
+      <Route path="/caudit" component={CAUDITPromo} />
       <Route component={NotFound} />
     </Switch>
   );

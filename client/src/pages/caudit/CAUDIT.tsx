@@ -79,8 +79,11 @@ function PromptCard({ item }: { item: PromptItem }) {
 
 function ShotTracker() {
   const [done, setDone] = useState<Record<string, boolean>>(() => {
-    try { return JSON.parse(localStorage.getItem("caudit-shot-tracker") || "{}"); }
-    catch { return {}; }
+    try {
+      const saved = localStorage.getItem("caudit-shot-tracker");
+      return saved ? JSON.parse(saved) : Object.fromEntries(shotIds.map((id) => [id, true]));
+    }
+    catch { return Object.fromEntries(shotIds.map((id) => [id, true])); }
   });
 
   useEffect(() => {
@@ -140,14 +143,14 @@ export default function CAUDIT() {
         <div className="caudit-hero-copy">
           <span className="caudit-eyebrow"><Sparkles aria-hidden="true" /> Refined production workspace</span>
           <h1>Signal through<br /><em>the noise.</em></h1>
-          <p>A locked 2:20 story, one continuous voiceover, one master score and every production prompt in one copy-ready workspace.</p>
+          <p>A locked 3:02 review master, one continuous voiceover, two joined music sources and every production prompt in one copy-ready workspace.</p>
         </div>
         <div className="caudit-storyline" aria-label="Film structure">
           <div><span>00:00</span><strong>Real title slide</strong><p>The credible fake-out</p></div>
-          <div><span>00:07</span><strong>The slide comes alive</strong><p>Enter the ribbon world</p></div>
-          <div><span>00:12</span><strong>Licensing lifecycle</strong><p>One connected narrative</p></div>
-          <div><span>01:32</span><strong>Connected capability</strong><p>The relationship expands</p></div>
-          <div><span>02:25</span><strong>Resolved close</strong><p>Human outcome, clean settle</p></div>
+          <div><span>00:12</span><strong>Education relationship</strong><p>Experience and accountability</p></div>
+          <div><span>00:36</span><strong>Licensing lifecycle</strong><p>One connected narrative</p></div>
+          <div><span>01:59</span><strong>Connected capability</strong><p>The relationship expands</p></div>
+          <div><span>02:35</span><strong>Agreement cycle</strong><p>Clean resolved close</p></div>
         </div>
       </section>
 
@@ -195,7 +198,7 @@ export default function CAUDIT() {
       <footer className="caudit-footer">
           <div><Data3Name /><p>Supplied cover artwork and AI-generated production imagery. No generated or post-production lettering; subtitles remain a separate SRT file.</p></div>
         <div><h2>Research sources</h2>{researchLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}<ExternalLink aria-hidden="true" /></a>)}</div>
-        <p className="caudit-updated">Locked 11 September 2026 · Australian English · Production workspace v3.0</p>
+        <p className="caudit-updated">Review master locked 12 September 2026 · Australian English · Production workspace v4.0</p>
       </footer>
     </main>
   );
