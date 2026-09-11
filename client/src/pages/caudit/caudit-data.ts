@@ -28,33 +28,26 @@ export const promptItems: PromptItem[] = [
   {
     id: "nlm-visual",
     group: "NotebookLM",
-    title: "Custom visual style",
-    purpose: "Creates the calm, credible middle section and preserves contrast with the cinematic bookends.",
-    input: "Video Overview → Visual style → Custom",
-    prompt: `Premium cinematic enterprise editorial style for senior university technology, commercial and procurement leaders in Australia and New Zealand.
+    title: "Source recovery brief",
+    purpose: "Uses NotebookLM only as a grounded source assistant, not as the finished video generator.",
+    input: "NotebookLM chat with the approved deck as its only source",
+    duration: "Reference only",
+    prompt: `Using only the approved CAUDIT 2026 LSP presentation, produce a factual coverage checklist for a two-minute-twenty-second narrated film.
 
-Use credible contemporary higher-education environments: Australian and New Zealand campuses, research spaces, technology operations, collaborative decision-making and clean modern architecture. Prioritise natural human moments over posed stock photography.
+Group repeated slide content into one connected story. Preserve every material point about licensing, higher-education experience, account support, the agreement lifecycle, flexible support, MyD3, Premier Support, Azure, broader Microsoft capability, service engagement, continuing value and onboarding.
 
-Use a deep navy, white, cyan and teal palette aligned to Data#3. Combine editorial photography with restrained information graphics, simple diagrams, source-slide visuals where accurate, gentle motion and strong hierarchy.
+Clearly identify which services are optional or separately scoped. Omit claims marked REQUIRES OWNER VALIDATION. Do not draft visuals, manufacture statistics, add product claims or write a slide-by-slide narration.
 
-Show clarity emerging from complexity, connected platforms, accountable support, secure environments and capability developing over time. Keep the result modern, calm, human, executive-level and commercially credible.
-
-Avoid cyberpunk treatment in this middle section, cartoons, whiteboards, kawaii, generic collages, science-fiction cities, glowing brains, excessive holograms, dense dashboards, walls of text and generated branding. Never generate or imitate the Data#3 logo. Avoid readable text inside generated imagery.
-
-This section must feel intentionally calmer than the separately produced cinematic opening and closing.`,
+Return a concise checklist that can be compared against the locked master voiceover.`,
   },
   {
     id: "nlm-focus",
     group: "NotebookLM",
-    title: "Explainer steering prompt",
-    purpose: "Directs the source-grounded three-to-four-minute executive narrative.",
-    duration: "3–4 minutes",
-    input: "Video Overview → Format: Explainer → Steering prompt",
-    prompt: `Create a concise three-to-four-minute executive explainer for senior university IT, commercial and procurement leaders in Australia and New Zealand.
-
-This is the substantive middle of a larger film. A separate cinematic opening and closing will be added. Begin directly with the Microsoft licensing story. Do not create a company introduction, logo animation, dramatic hook, long recap or end card.
-
-Build one connected narrative around:
+    title: "Locked 2:20 coverage brief",
+    purpose: "Defines the complete information payload for the shorter film.",
+    duration: "2:20 target · 2:30 hard ceiling",
+    input: "Editorial reference; do not ask NotebookLM to render the final video",
+    prompt: `Build one connected executive narrative for senior university IT, commercial and procurement leaders in Australia and New Zealand around:
 1. Microsoft licensing as the starting point of the Data#3 relationship.
 2. Dedicated higher-education experience and accountable account support.
 3. The licensing lifecycle: agreement management, licensing guidance, commercial optimisation, customer advocacy and Microsoft escalation.
@@ -62,31 +55,46 @@ Build one connected narrative around:
 5. Proportionate visibility and control through MyD3.
 6. Broader, separately scoped capability across Azure, Modern Work, Security, Data and AI, Copilot, applications, automation and technical support.
 7. Continuing value through sustained capability, flexible access to specialist expertise and standing operational support.
-8. A simple invitation to engage the Data#3 education account team.
+8. A clear agreement-cycle pathway from scope confirmation to ongoing support.
 
 Clearly distinguish core licensing services from optional or separately purchased services. Never imply that Premier Support, Azure, managed services, consulting, projects or wider Microsoft capabilities are included in the licensing agreement.
 
 Do not include pricing, contract terms, minimum commitments, team ratios or commercial guardrails. Do not guarantee savings, optimisation, incident resolution, risk reduction or business outcomes.
 
-Use confident, concise and consultative Australian business English. Synthesise the source instead of reading slides aloud. Omit any claim explicitly marked “REQUIRES OWNER VALIDATION”, and never mention internal notes or drafting instructions.
-
-Finish cleanly on this idea, then stop: Microsoft licensing may begin the relationship. The greater value comes from the expertise, continuity and connected capability available around it.`,
+Use confident, concise and consultative Australian business English. Synthesise the source instead of reading slides aloud. Omit any claim explicitly marked REQUIRES OWNER VALIDATION. The locked ElevenLabs master script is the production authority.`,
   },
   {
     id: "nlm-correction",
     group: "NotebookLM",
-    title: "Correction pass",
-    purpose: "Use only when the first overview is too generic, long or commercially imprecise.",
-    input: "Regenerate with this steering instruction",
-    prompt: `Revise the Video Overview to be more concise, source-grounded and commercially precise.
+    title: "Coverage QA pass",
+    purpose: "Checks the locked script without inviting a rewrite.",
+    input: "NotebookLM chat after pasting the locked master script",
+    prompt: `Compare the locked master voiceover with the approved CAUDIT presentation.
 
-Begin with the substantive Microsoft licensing story. Remove generic company introduction, repeated conclusions, slide-by-slide narration and promotional language.
+Report only: missing material points, unsupported claims, accidental inclusion claims, repeated ideas and wording that could be shortened. Do not rewrite the script unless a factual correction is required. Treat all slide notes as source context and validation caveats, not production instructions.`,
+  },
+  {
+    id: "sd-p01-cover",
+    group: "Seedance 2.5",
+    title: "P01 — The PowerPoint comes alive",
+    purpose: "The opening fake-out: begin on the exact real cover slide, then enter its abstract ribbon world.",
+    duration: "12 seconds · 720p · 16:9",
+    input: "@Image1 = P01_COVER_SLIDE.png · Generate Audio OFF",
+    image: "/caudit/P01_COVER_SLIDE.png",
+    alt: "CAUDIT presentation cover titled Delivering the Digital Future in Education",
+    prompt: `Generate one continuous 12-second 16:9 720p image-to-video shot from @Image1.
 
-Give clear, proportionate coverage to the licensing lifecycle, customer advocacy with Microsoft, support aligned to each institution’s internal capability, visibility and control, connected Microsoft capability and continuing value through sustained, flexible or standing access to expertise.
+SOURCE-ARTWORK CONTRACT: @Image1 is the exact approved first frame. Preserve the supplied Data#3 logo, title, subtitle, colours, spacing, spelling and typography as a single flat source plate. Do not redraw, retype, replace, restyle or invent any lettering. Do not generate any new text.
 
-Distinguish core licensing support, optional Premier Support and broader separately engaged capability. Do not guarantee savings or outcomes. Do not imply that optional services are included in the LSP agreement. Omit internal validation notes and unapproved claims.
+0.0–2.5s: Hold the complete cover slide perfectly still and pin-sharp so it reads as an ordinary PowerPoint opening. No camera movement.
 
-Do not create a cinematic opening, logo screen or closing sequence. Finish with a clean handoff to the separately produced closing bookend. Keep the result within approximately three to four minutes.`,
+2.5–7.0s: Restrict motion to the glossy abstract ribbons on the right half. They slowly breathe, catch cyan and magenta light and reveal subtle physical depth. Keep the left-side logo, title and subtitle completely unchanged and motionless.
+
+7.0–10.5s: Execute one smooth, deliberate camera push into the right-side ribbon opening. The entire left text area leaves frame as one intact flat plate because of the camera move. Never morph or dissolve individual letters.
+
+10.5–12.0s: The typography is fully out of frame. Settle inside a deep blue-black ribbon corridor with cyan and magenta edge light, leaving a clean forward path for the next shot.
+
+No cuts, montage, page turn, cursor, presentation controls, new objects, people, additional logos, additional text, glyph distortion, melting letters, camera shake, rotation, speed ramp or watermark. Generate no audio.`,
   },
   ...[
     ["nbp-o2", "O2 — The slide cannot contain the story", "First frame for the bass-drop transformation.", "/caudit/O2_SLIDE_BREAK.png", "Dark presentation surface separating to reveal a cyan-lit corridor", `The abstract physical surface of a premium dark corporate presentation begins to separate into precise glass-like layers, as if the flat slide can no longer contain the luminous world behind it. Hairline cyan and teal light pours through sharp cracks. The centre opens onto a deep illuminated corridor. A few controlled fragments move towards camera, frozen at the decisive first instant of the break.
@@ -210,132 +218,79 @@ AUDIO: One quiet sustained resolving tone. No dialogue.
 Do not add text, logos, objects or people. Do not move detail into the safe area.`],
   ].map(([id, title, duration, input, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose: "Image-to-video motion prompt with one action, one camera move and a usable end state.", prompt })),
   {
-    id: "suno-open",
+    id: "suno-master",
     group: "Suno",
-    title: "Opening track — The drop",
-    purpose: "Creates the transition from ordinary slide walkthrough to cinematic momentum.",
-    duration: "28–32 seconds",
-    input: "Custom mode → Instrumental ON",
-    prompt: `Premium cinematic electronic underscore for an enterprise technology film. Begin with approximately three seconds of near-silence and low-frequency anticipation. At 0:03, deliver one sophisticated sub-bass impact. Build into modern synth pulses, restrained arpeggios, precise glitch percussion, cinematic drums and controlled harmonic lift.
+    title: "Locked master score — One connected relationship",
+    purpose: "One continuous instrumental bed for the complete film, with editorial landmarks matched to the locked picture plan.",
+    duration: "2:25 master · 2:20 content target",
+    input: "Pixio Songcraft · Custom Mode ON · Make Instrumental ON",
+    prompt: `Create one continuous premium cinematic electronic instrumental for a concise enterprise technology film aimed at senior Australian and New Zealand university leaders.
 
-Emotional arc: routine and constrained → surprising → advanced → optimistic → confident. Dark minor opening resolving towards a hopeful forward tonal centre. Approximately 126 BPM. Clear editorial accents around 0:03, 0:10, 0:17 and 0:24. Finish with forward momentum and an unresolved sustained pad for transition into narration. Instrumental only.`,
-    secondaryLabel: "Exclude",
-    secondaryText: "vocals, choir, spoken word, horror tension, aggressive industrial noise, festival EDM drop, retro synthwave parody, comedy, distorted mastering, long fade-out",
+Length: approximately two minutes twenty-five seconds. Tempo: approximately 112 BPM. Begin with two seconds of near-silence beneath a static PowerPoint cover. From 0:02, introduce a restrained low pulse. At 0:07, deliver one refined sub-bass transition as the cover artwork comes alive and the camera enters the abstract ribbon world.
+
+From 0:12 to 0:50, establish confident forward motion using warm analogue synths, precise electronic percussion and subtle glass-like textures. From 0:50 to 1:32, reduce density so detailed narration remains completely clear. From 1:32 to 2:06, widen the harmony and add measured momentum as connected capability expands. From 2:06, soften the rhythm into warmer human pads. At 2:18, begin the final resolution. Hold one clean, hopeful sustained chord from 2:22 to 2:25.
+
+The music must feel assured, intelligent, modern and human. Keep the midrange sparse under narration. Use controlled sub bass, restrained percussion and clean dynamics. No dramatic trailer booms after the opening transition.
+
+Instrumental only. No vocals, choir, spoken word, corporate rock, sentimental piano lead, festival EDM, retro synthwave parody, horror tension, aggressive industrial noise, comedy, distorted mastering or long fade-out.`,
+    secondaryLabel: "Mix lock",
+    secondaryText: "Voiceover leads at all times · score ducks 4–6 dB under speech · one opening impact at 0:07 · final chord holds 0:02:22–0:02:25",
   },
   {
-    id: "suno-close",
-    group: "Suno",
-    title: "Closing track — Convergence",
-    purpose: "Resolves the visual world into connected capability and a warm endframe.",
-    duration: "24–30 seconds",
-    input: "Custom mode → Instrumental ON",
-    prompt: `Premium cinematic electronic outro using the same sonic family as the opening: deep navy synth atmosphere, cyan-like arpeggios, restrained cinematic percussion and controlled sub bass. Begin with confident forward motion, then gradually open into warmer pads, greater harmonic space and a human final section.
-
-Emotional arc: connected → assured → spacious → optimistic. Approximately 114 BPM. Clear editorial accents around 0:04, 0:12, 0:18 and 0:23. End with one clean sustained hopeful chord that holds under the brand frame. Instrumental only.`,
-    secondaryLabel: "Exclude",
-    secondaryText: "vocals, choir, spoken word, retro parody, aggressive EDM, horror tension, anthemic corporate rock, sentimental piano climax, distorted mastering, abrupt ending",
-  },
-  {
-    id: "vo-open",
+    id: "vo-master",
     group: "ElevenLabs",
-    title: "Opening voiceover — preferred",
-    purpose: "A confident, restrained provocation over the opening bookend.",
-    duration: "Approx. 16–19 seconds",
-    input: "Multilingual v2 or preferred long-form model; Australian or neutral business voice",
-    prompt: `Everyone else will walk you through their slides.
+    title: "Locked master voiceover — single copy block",
+    purpose: "The complete source-grounded narration in one uninterrupted block for a single long ElevenLabs generation.",
+    duration: "Approx. 2:20 including deliberate pauses",
+    input: "ElevenLabs Text to Speech · Amelia · eleven_multilingual_v2 · language en · stability 0.55 · similarity 0.75 · style 0.05 · speed 0.94 · speaker boost ON · normalisation auto · seed 34017",
+    prompt: `Every Microsoft agreement starts with a set of choices. For a university, the value comes from making those choices clearly and having the right support around them.
 
-We thought you deserved something different.
+Data three brings more than thirty years of education experience, long-standing engagement with CAUDIT members, and national coverage across Australia, Fiji and the Pacific. Each institution has a local account contact, backed by Microsoft licensing and contract specialists, national solution experts, and direct escalation pathways into Microsoft.
 
-Beneath the licensing, the renewals and the complexity… there is a clearer way to buy well, operate with confidence and evolve with purpose.
+That team supports the full agreement lifecycle. It coordinates quotes, orders, enrolments, amendments and renewals. It interprets licensing requirements, provides education-specific guidance, reviews consumption and licensing positions, models renewal scenarios, and advocates for customers when licensing, entitlement or operational issues need escalation.
 
-This is Data three.`,
-    secondaryLabel: "Starting settings",
-    secondaryText: "Stability 55 · Similarity 75 · Style 0 · Speed 0.94 · Speaker boost only if it improves the chosen voice",
-  },
-  {
-    id: "vo-open-alt",
-    group: "ElevenLabs",
-    title: "Opening voiceover — executive alternative",
-    purpose: "A more formal option when the preferred opening feels too theatrical.",
-    duration: "Approx. 14–17 seconds",
-    input: "Use the same locked voice and settings as the preferred opening",
-    prompt: `A Microsoft agreement may look like a transaction.
+The level of support remains flexible. Institutions with strong internal capability can focus on core licensing administration and enquiries. Those wanting deeper support can add reviews, planning, roadmap briefings, governance and specialist engagement as priorities change.
 
-For a university, it is the beginning of something much larger.
+My D three provides a secure central view of agreements, software and cloud reporting, quotes, orders, assets, support cases and lifecycle information.
 
-Commercial clarity. Operational confidence. The capability to keep evolving.
+Optional Premier Support adds accountable incident ownership across Microsoft cloud and on-premises technology, using a pre-purchased pool of hours and escalation to Microsoft when product intervention is required.
 
-This is the wider Microsoft relationship, backed by Data three.`,
-    secondaryLabel: "Pronunciation",
-    secondaryText: "Keep “Data three” in the speech script. Add the real Data#3 wordmark visually in the edit.",
-  },
-  {
-    id: "vo-close",
-    group: "ElevenLabs",
-    title: "Closing voiceover — preferred",
-    purpose: "Connects licensing to continuing capability without implying bundled services.",
-    duration: "Approx. 22–26 seconds",
-    input: "Use the same locked voice; begin after the visual re-entry settles",
-    prompt: `Licensing is only the beginning.
+Around Azure, separately scoped services can provide platform support, priority incident handling, cost visibility, right-sizing, governance, monitoring and managed operations.
 
-Beyond the agreement is the capability to support, secure, optimise and evolve.
+The same relationship can connect institutions with expertise across modern work, security, data and artificial intelligence, applications and automation. Engagement can take the form of consulting, packaged services, projects or ongoing managed services. Each is scoped and purchased separately from the Microsoft agreement.
 
-Sustained capability for continuing priorities.
-Flexible specialist expertise as needs change.
-Standing operational support where continuity matters.
+University priorities change over time. Licensing optimisation may lead to cloud adoption, security uplift, responsible artificial intelligence adoption or broader transformation. Data three helps bring the right expertise into the relationship at the right time.
 
-One relationship. Connected capability.
+The next agreement cycle begins by confirming scope and requirements, validating licensing and enrolment information, completing documentation, preparing onboarding and handover, then verifying licences and beginning ongoing support.
 
-Your Microsoft investment. Your way.
-
-Backed by Data three.`,
-    secondaryLabel: "Delivery",
-    secondaryText: "Pause after the first line. Separate the three access patterns without reading them like a product list. Let the final line land over the approved wordmark.",
-  },
-  {
-    id: "vo-close-alt",
-    group: "ElevenLabs",
-    title: "Closing voiceover — shorter alternative",
-    purpose: "Use when the final edit needs a tighter close.",
-    duration: "Approx. 14–17 seconds",
-    input: "Use the same locked voice and settings",
-    prompt: `Licensing begins the relationship.
-
-Continuing value comes from what surrounds it: support, cloud, security, data and AI, and access to the right expertise as priorities change.
-
-One relationship. Connected capability.
-
-Backed by Data three.`,
-    secondaryLabel: "Pronunciation",
-    secondaryText: "Keep “Data three” in the speech script. Add the real approved wordmark in the edit.",
+Your Microsoft investment. Your way. Backed by Data three.`,
+    secondaryLabel: "Pronunciation and edit lock",
+    secondaryText: "Say Data three and My D three exactly as written · generate as one file · preserve natural paragraph pauses · split only in the edit · no alternate reads unless the master fails QA",
   },
 ];
 
 export const productionSteps = [
-  "Lock the edited PowerPoint source and export the real title slide.",
-  "Generate the NotebookLM Explainer from the locked deck only.",
-  "Review the explainer for accuracy, commercial separation, tone and duration.",
-  "Generate the opening music, then lock the exact bass-drop timestamp.",
-  "Use the supplied opening keyframes to generate the five short Seedance cuts.",
-  "Generate and lock the opening narration.",
-  "Assemble the opening and NotebookLM handoff.",
-  "Generate the closing track as a tonal sibling of the opening.",
-  "Use the supplied closing keyframes to generate the four Seedance cuts.",
-  "Generate and lock the closing narration.",
-  "Assemble the complete film and add approved branding and typography.",
-  "Run narrative, commercial, visual, audio, accessibility and technical QA.",
-  "Export a review version, caption file and final master.",
+  "Hold the real cover slide perfectly still, then use P01 to enter its abstract ribbon world.",
+  "Generate each Seedance scene in narrative order and add every approved frame or cut to this Bible as it lands.",
+  "Keep the middle source-grounded: licensing lifecycle, education experience, flexible support, MyD3, Premier Support, Azure and wider Microsoft capability.",
+  "Use longer visual holds under detailed narration instead of recreating slide layouts or generated information graphics.",
+  "Run NotebookLM only as a coverage checker against the approved deck and locked master script.",
+  "Generate the entire ElevenLabs narration as one file; split it only during the final edit.",
+  "Generate one continuous Suno Songcraft master and align its opening impact, quieter middle and final resolving chord to picture.",
+  "Mix external narration and music over clean picture; Seedance native audio remains off unless a shot-specific effects stem is deliberately requested.",
+  "Use no generated or post-production lettering. Keep supplied cover typography intact as source artwork and deliver subtitles as a separate SRT file.",
+  "Run narrative, commercial, visual, audio, accessibility and technical QA, then export the review and final masters.",
 ];
 
 export const qualityGates = [
-  { title: "Narrative", items: ["Licensing appears immediately", "Buy well, Operate with confidence and Evolve with purpose remain intelligible", "The ending expands the relationship without diluting the licensing proposition"] },
+  { title: "Narrative", items: ["Target 2:20; never exceed 2:30", "Every approved deck concept appears once", "Licensing begins the relationship and connected capability expands it"] },
   { title: "Commercial", items: ["Core and separately scoped capability are distinct", "No pricing, terms, guardrails or guarantees", "Sustained, flexible and standing are access patterns, not inclusions"] },
-  { title: "Visual", items: ["Real title slide stays crisp", "Generated text and logos are absent", "People, architecture and key props stay stable", "The middle is intentionally calmer than the bookends"] },
-  { title: "Audio", items: ["The bass drop lands on the visual break", "Narration wins over music", "“Data three” is pronounced correctly", "The closing chord holds cleanly under the brand frame"] },
-  { title: "Accessibility and technical", items: ["16:9 sequence and consistent frame rate", "No more than three flashes per second", "Captions reviewed; social-first versions use burned-in captions", "No clipping, black frames or distorted audio"] },
+  { title: "Visual", items: ["The source cover stays pixel-sharp", "No new lettering, labels or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
+  { title: "Audio", items: ["One long ElevenLabs master read", "Narration wins over music by 4–6 dB", "Data three and My D three are pronounced correctly", "The opening impact lands at 0:07"] },
+  { title: "Accessibility and technical", items: ["16:9 720p generation and consistent master frame rate", "No more than three flashes per second", "A reviewed SRT accompanies the film without burned-in typography", "No clipping, black frames, watermark or distorted audio"] },
 ];
 
-export const shotIds = ["O1", "O2", "O3", "O4", "O5", "O6", "NLM", "C1", "C2", "C3", "C4", "A1", "A2", "VO1", "VO2", "BRAND", "MASTER"];
+export const shotIds = ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "MUSIC", "VOICE", "MIX", "SRT", "MASTER"];
 
 export const researchLinks = [
   { label: "Gemini Notebook Video Overviews", url: "https://support.google.com/gemininotebook/answer/16454555?hl=en" },

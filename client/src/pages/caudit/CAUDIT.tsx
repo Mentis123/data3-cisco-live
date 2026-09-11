@@ -125,13 +125,14 @@ export default function CAUDIT() {
         <div className="caudit-hero-copy">
           <span className="caudit-eyebrow"><Sparkles aria-hidden="true" /> Refined production workspace</span>
           <h1>Signal through<br /><em>the noise.</em></h1>
-          <p>Cinematic bookends, a source-grounded executive explainer and every production prompt in one copy-ready workspace.</p>
+          <p>A locked 2:20 story, one continuous voiceover, one master score and every production prompt in one copy-ready workspace.</p>
         </div>
         <div className="caudit-storyline" aria-label="Film structure">
           <div><span>00:00</span><strong>Real title slide</strong><p>The credible fake-out</p></div>
-          <div><span>00:03</span><strong>Cinematic opening</strong><p>Noise resolves into signal</p></div>
-          <div><span>00:28</span><strong>Executive explainer</strong><p>Licensing starts the story</p></div>
-          <div><span>Close</span><strong>Connected capability</strong><p>Human outcome, brand settle</p></div>
+          <div><span>00:07</span><strong>The slide comes alive</strong><p>Enter the ribbon world</p></div>
+          <div><span>00:12</span><strong>Licensing lifecycle</strong><p>One connected narrative</p></div>
+          <div><span>01:32</span><strong>Connected capability</strong><p>The relationship expands</p></div>
+          <div><span>02:25</span><strong>Resolved close</strong><p>Human outcome, clean settle</p></div>
         </div>
       </section>
 
@@ -177,9 +178,9 @@ export default function CAUDIT() {
       </section>
 
       <footer className="caudit-footer">
-        <div><Data3Name /><p>AI-generated reference frames. Add the real approved wordmark and all critical typography in the edit.</p></div>
+          <div><Data3Name /><p>Supplied cover artwork and AI-generated production imagery. No generated or post-production lettering; subtitles remain a separate SRT file.</p></div>
         <div><h2>Research sources</h2>{researchLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}<ExternalLink aria-hidden="true" /></a>)}</div>
-        <p className="caudit-updated">Refined 11 September 2026 · Australian English · Production workspace v2.0</p>
+        <p className="caudit-updated">Locked 11 September 2026 · Australian English · Production workspace v3.0</p>
       </footer>
     </main>
   );
