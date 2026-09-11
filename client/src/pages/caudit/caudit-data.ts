@@ -29,10 +29,10 @@ Optimistic, clean and credible — never dystopian. Keep the visual world releva
 const productionMedia: Record<string, { image: string; video?: string; alt: string; review: string }> = {
   "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", video: "/caudit/P02_SEEDANCE.mp4", alt: "Connected university campus at blue hour", review: "First pass · use 00:00–00:13 only; exclude the late generated cloud icon." },
   "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY_PEOPLE_FREE.png", alt: "Abstract licensing and operational layers around a decision node", review: "People-free, typography-resistant replacement reference approved · animation waiting on Pixio's provider." },
-  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", alt: "Three luminous service paths leading to a university", review: "People-free reference approved · animation waiting on Pixio's provider." },
+  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", video: "/caudit/P04_SEEDANCE.mp4", alt: "Three luminous service paths leading to a university", review: "Approved first pass · exactly three routes remain distinct; one stable anonymous figure appears from behind." },
   "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor", review: "Approved first pass · clean support corridor and usable white transition." },
-  "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", alt: "Six connected capability streams around a university campus", review: "People-free reference approved · animation waiting on Pixio's provider." },
-  "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", alt: "Three continuing-value patterns surrounding a university", review: "People-free reference approved · animation waiting on Pixio's provider." },
+  "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", video: "/caudit/P06_SEEDANCE.mp4", alt: "Six connected capability streams around a university campus", review: "Approved first pass · six streams remain distinct and settle on the university hub without lettering." },
+  "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", video: "/caudit/P07_SEEDANCE.mp4", alt: "Three continuing-value patterns surrounding a university", review: "Approved first pass · three support patterns remain separate and resolve into a warm campus composition." },
   "sd-p08-close": { image: "/caudit/C4_ENDFRAME.png", video: "/caudit/P08_SEEDANCE.mp4", alt: "Clean blue-black cinematic end field with cyan edge light", review: "Approved first pass · typography-free closing field with a clean final hold." },
 };
 
