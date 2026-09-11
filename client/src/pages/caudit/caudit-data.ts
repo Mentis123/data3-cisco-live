@@ -25,6 +25,16 @@ Optimistic, clean and credible — never dystopian. Keep the visual world releva
 
 16:9 landscape. Photorealistic. Corporate-grade. No generated text, logos, presentation interface, readable signage, recognisable real people, copyrighted characters, decay, aggression, heavy rain or generic glowing AI brains.`;
 
+const productionMedia: Record<string, { image: string; video?: string; alt: string }> = {
+  "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", alt: "Connected university campus at blue hour" },
+  "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY.png", alt: "Abstract licensing and operational layers around a technology leader" },
+  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", alt: "Three luminous service paths leading to a university" },
+  "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor" },
+  "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", alt: "Six connected capability streams around a university campus" },
+  "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", alt: "Three continuing-value patterns surrounding a university" },
+  "sd-p08-close": { image: "/caudit/C4_ENDFRAME.png", video: "/caudit/P08_SEEDANCE.mp4", alt: "Clean blue-black cinematic end field with cyan edge light" },
+};
+
 export const promptItems: PromptItem[] = [
   {
     id: "nlm-visual",
@@ -114,7 +124,7 @@ Architecture must remain physically plausible. No readable signage, logos, holog
 Use distinct abstract forms: nested translucent agreement planes, network arcs, shield-like light fields, clustered compute nodes and branching service paths. Medium-wide low angle with the subject centred and strong foreground-to-background depth. Communicate cognitive complexity, never danger.
 
 No readable text, written documents, logos, recognisable person, duplicated anatomy, dystopian mood or watermark.`],
-    ["nbp-o5", "O5 — The signal", "Resolves the noise into three clear narrative paths.", "/caudit/O5_SIGNAL.png", "Technology leader facing three ordered light paths towards a university", `The same university technology world is now calm and intelligible. One anonymous executive, seen from behind, faces exactly three luminous routes that resolve from residual complexity and lead towards a bright, credible campus.
+    ["nbp-o5", "O5 — The signal", "Resolves the noise into three clear narrative paths.", "/caudit/O5_SIGNAL_PEOPLE_FREE.png", "Three ordered light paths towards a university", `The same university technology world is now calm and intelligible. One anonymous executive, seen from behind, faces exactly three luminous routes that resolve from residual complexity and lead towards a bright, credible campus.
 
 Route one uses precise layered arcs to suggest commercial clarity. Route two forms a stable protected corridor to suggest operational confidence. Route three rises towards research spaces to suggest purposeful evolution. The routes share an origin and destination but remain clearly distinct.
 
@@ -124,12 +134,12 @@ Wide over-the-shoulder 16:9 frame, optimistic light and realistic materials. Exa
 Symmetrical 16:9 transition plate with a centred vanishing point and unobstructed middle third. Highly dimensional, premium enterprise visual effects with controlled motion energy.
 
 No text, logos, people, interface elements, rotation, centre clutter or watermark.`],
-    ["nbp-c1", "C1 — Connected capability", "Shows multiple separately scoped capabilities connecting through one relationship.", "/caudit/C1_CONNECTED_CAPABILITY.png", "Six distinct technology streams connecting around a university campus", `A modern university campus forms the central hub of a connected technology ecosystem. Six distinct but harmonious streams approach from visually different domains: cloud compute, collaboration spaces, cyber security operations, data platforms, responsible AI capability and technical support.
+    ["nbp-c1", "C1 — Connected capability", "Shows multiple separately scoped capabilities connecting through one relationship.", "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", "Six distinct technology streams connecting around a university campus", `A modern university campus forms the central hub of a connected technology ecosystem. Six distinct but harmonious streams approach from visually different domains: cloud compute, collaboration spaces, cyber security operations, data platforms, responsible AI capability and technical support.
 
 Each stream keeps its own form and remains separate until it joins a stable orbit around the institution. The image must communicate access to connected capabilities, not a bundled product. Elevated wide frame with clean spatial separation and credible architecture.
 
 No text, logos, familiar vendor icons, interface, fantasy city or watermark.`],
-    ["nbp-c2", "C2 — Three ways capability supports the journey", "Represents sustained, flexible and standing access patterns.", "/caudit/C2_CONTINUING_VALUE.png", "Three distinct support patterns surrounding a university environment", `A sophisticated cinematic metaphor for exactly three complementary access patterns supporting one university environment.
+    ["nbp-c2", "C2 — Three ways capability supports the journey", "Represents sustained, flexible and standing access patterns.", "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", "Three distinct support patterns surrounding a university environment", `A sophisticated cinematic metaphor for exactly three complementary access patterns supporting one university environment.
 
 Pattern one is a continuous illuminated team pathway, steady and always connected. Pattern two is an adaptable specialist stream that branches cleanly towards two changing technical challenges and can rejoin. Pattern three is a stable protective operational halo surrounding the campus. All three work together while remaining unmistakably distinct.
 
@@ -168,7 +178,7 @@ Use @Image1 as the exact first frame. Preserve the anonymous executive, their bo
 16.0–21.0s: The ordered workflow stabilises around the executive. A single cyan route opens ahead as the camera completes its orbit and settles.
 
 No text, numbers, written documents, logos, dashboards, new people, duplicate limbs, morphing, alarms, danger, rapid cuts, camera shake or watermark. Generate no audio.`],
-    ["sd-p04-flex", "P04 — Support shaped to the institution", "20 seconds · 00:51–01:11", "@Image1 = O5_SIGNAL.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p04-flex", "P04 — Support shaped to the institution", "20 seconds · 00:51–01:11", "@Image1 = O5_SIGNAL_PEOPLE_FREE.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the anonymous executive, campus horizon and exactly three primary luminous routes. The routes are abstract service paths, never labelled.
 
@@ -190,7 +200,7 @@ Use @Image1 as the exact first frame. Preserve the centred luminous corridor, st
 15.0–20.0s: The camera makes one smooth acceleration towards the bright horizon while all three lanes remain visibly distinct. End in a controlled cyan-white occlusion for a clean cut.
 
 No text, icons, labels, logos, people, dashboards, literal clouds, incident alarms, scene replacement, spin, camera shake, excessive centre blur or watermark. Generate no audio.`],
-    ["sd-p06-capability", "P06 — Connected Microsoft capability", "19 seconds · 01:31–01:50", "@Image1 = C1_CONNECTED_CAPABILITY.png · Generate Audio OFF", "Broader separately scoped capability across Modern Work, security, data and AI, applications and automation.", `Generate one continuous 19-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p06-capability", "P06 — Connected Microsoft capability", "19 seconds · 01:31–01:50", "@Image1 = C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png · Generate Audio OFF", "Broader separately scoped capability across Modern Work, security, data and AI, applications and automation.", `Generate one continuous 19-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the central university hub and all six distinct capability streams. Do not merge, multiply or label the streams.
 
@@ -201,7 +211,7 @@ Use @Image1 as the exact first frame. Preserve the central university hub and al
 14.0–19.0s: One subtle pulse passes from the hub back through every stream, showing a two-way relationship. Settle with all six streams still distinct and the institution visually central.
 
 No text, labels, icons, logos, new buildings, new people, fantasy magic, stream duplication, merging, camera shake, hard cuts or watermark. Generate no audio.`],
-    ["sd-p07-value", "P07 — Continuing value as priorities change", "16 seconds · 01:50–02:06", "@Image1 = C2_CONTINUING_VALUE.png · optional 3-second cutaway to C3_HUMAN_PAYOFF.png in the edit · Generate Audio OFF", "Consulting, services, projects and operations supporting changing institutional priorities.", `Generate one continuous 16-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p07-value", "P07 — Continuing value as priorities change", "16 seconds · 01:50–02:06", "@Image1 = C2_CONTINUING_VALUE_PEOPLE_FREE.png · optional 3-second cutaway to C3_HUMAN_PAYOFF.png in the edit · Generate Audio OFF", "Consulting, services, projects and operations supporting changing institutional priorities.", `Generate one continuous 16-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve exactly three distinct support patterns around the credible university environment.
 
@@ -223,7 +233,7 @@ Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre
 11.0–14.0s: All motion settles into a clean three-second hold beneath the final voiceover and the sustained chord from Convergence.
 
 No text, numbers, logos, icons, people, objects, bright detail in the centre, presentation interface, sudden flare, fade to white, camera shake or watermark. Generate no audio.`],
-  ].map(([id, title, duration, input, purpose, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose, prompt })),
+  ].map(([id, title, duration, input, purpose, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose, prompt, ...productionMedia[id] })),
   {
     id: "suno-opening",
     group: "Suno",
