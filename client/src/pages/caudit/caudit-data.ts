@@ -13,6 +13,7 @@ export type PromptItem = {
   image?: string;
   video?: string;
   alt?: string;
+  review?: string;
 };
 
 export const groups: PromptGroup[] = ["NotebookLM", "Nano Banana Pro", "Seedance 2.5", "Suno", "ElevenLabs"];
@@ -25,14 +26,14 @@ Optimistic, clean and credible — never dystopian. Keep the visual world releva
 
 16:9 landscape. Photorealistic. Corporate-grade. No generated text, logos, presentation interface, readable signage, recognisable real people, copyrighted characters, decay, aggression, heavy rain or generic glowing AI brains.`;
 
-const productionMedia: Record<string, { image: string; video?: string; alt: string }> = {
-  "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", alt: "Connected university campus at blue hour" },
-  "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY.png", alt: "Abstract licensing and operational layers around a technology leader" },
-  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", alt: "Three luminous service paths leading to a university" },
-  "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor" },
-  "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", alt: "Six connected capability streams around a university campus" },
-  "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", alt: "Three continuing-value patterns surrounding a university" },
-  "sd-p08-close": { image: "/caudit/C4_ENDFRAME.png", video: "/caudit/P08_SEEDANCE.mp4", alt: "Clean blue-black cinematic end field with cyan edge light" },
+const productionMedia: Record<string, { image: string; video?: string; alt: string; review: string }> = {
+  "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", video: "/caudit/P02_SEEDANCE.mp4", alt: "Connected university campus at blue hour", review: "First pass · use 00:00–00:13 only; exclude the late generated cloud icon." },
+  "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY.png", alt: "Abstract licensing and operational layers around a technology leader", review: "First pass rejected because generated interface lettering appears late in the shot; clean opening material remains archived for the edit." },
+  "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", alt: "Three luminous service paths leading to a university", review: "People-free reference approved · animation waiting on Pixio's provider." },
+  "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor", review: "Approved first pass · clean support corridor and usable white transition." },
+  "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", alt: "Six connected capability streams around a university campus", review: "People-free reference approved · animation waiting on Pixio's provider." },
+  "sd-p07-value": { image: "/caudit/C2_CONTINUING_VALUE_PEOPLE_FREE.png", alt: "Three continuing-value patterns surrounding a university", review: "People-free reference approved · animation waiting on Pixio's provider." },
+  "sd-p08-close": { image: "/caudit/C4_ENDFRAME.png", video: "/caudit/P08_SEEDANCE.mp4", alt: "Clean blue-black cinematic end field with cyan edge light", review: "Approved first pass · typography-free closing field with a clean final hold." },
 };
 
 export const promptItems: PromptItem[] = [
@@ -94,6 +95,7 @@ Report only: missing material points, unsupported claims, accidental inclusion c
     image: "/caudit/P01_COVER_SLIDE.png",
     video: "/caudit/P01_COVER_TRANSITION.mp4",
     alt: "CAUDIT presentation cover titled Delivering the Digital Future in Education",
+    review: "Approved first pass · supplied cover remains intact and the camera exits into the ribbon corridor.",
     prompt: `Generate one continuous 12-second 16:9 720p image-to-video shot from @Image1.
 
 SOURCE-ARTWORK CONTRACT: @Image1 is the exact approved first frame. Preserve the supplied Data#3 logo, title, subtitle, colours, spacing, spelling and typography as a single flat source plate. Do not redraw, retype, replace, restyle or invent any lettering. Do not generate any new text.

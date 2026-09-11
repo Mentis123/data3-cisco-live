@@ -58,6 +58,7 @@ function PromptCard({ item }: { item: PromptItem }) {
         <h3>{item.title}</h3>
         <p className="caudit-purpose">{item.purpose}</p>
         {item.input && <p className="caudit-input"><strong>Use in</strong> {item.input}</p>}
+        {item.review && <p className="caudit-input"><strong>Production review</strong> {item.review}</p>}
         <div className="caudit-code-wrap">
           <pre><code>{item.prompt}</code></pre>
           <CopyButton text={item.prompt} />
