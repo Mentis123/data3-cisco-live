@@ -28,7 +28,7 @@ Optimistic, clean and credible — never dystopian. Keep the visual world releva
 
 const productionMedia: Record<string, { image: string; video?: string; alt: string; review: string }> = {
   "sd-p02-campus": { image: "/caudit/O3_FUTURE_CAMPUS.png", video: "/caudit/P02_SEEDANCE.mp4", alt: "Connected university campus at blue hour", review: "First pass · use 00:00–00:13 only; exclude the late generated cloud icon." },
-  "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY.png", alt: "Abstract licensing and operational layers around a technology leader", review: "First pass rejected because generated interface lettering appears late in the shot; clean opening material remains archived for the edit." },
+  "sd-p03-lifecycle": { image: "/caudit/O4_COMPLEXITY_PEOPLE_FREE.png", alt: "Abstract licensing and operational layers around a decision node", review: "People-free, typography-resistant replacement reference approved · animation waiting on Pixio's provider." },
   "sd-p04-flex": { image: "/caudit/O5_SIGNAL_PEOPLE_FREE.png", alt: "Three luminous service paths leading to a university", review: "People-free reference approved · animation waiting on Pixio's provider." },
   "sd-p05-support": { image: "/caudit/O6_HANDOFF.png", video: "/caudit/P05_SEEDANCE.mp4", alt: "Centred luminous support corridor", review: "Approved first pass · clean support corridor and usable white transition." },
   "sd-p06-capability": { image: "/caudit/C1_CONNECTED_CAPABILITY_PEOPLE_FREE.png", alt: "Six connected capability streams around a university campus", review: "People-free reference approved · animation waiting on Pixio's provider." },
@@ -121,12 +121,12 @@ No explosion, bent or molten fragments, readable text, logos, interface, people 
 Elevated 24 mm cinematic lens, forward-leading walkway and deep layered perspective. Warm interior light balances cyan and teal guidance light with gentle atmospheric depth.
 
 Architecture must remain physically plausible. No readable signage, logos, hologram clichés, dystopian rain, identifiable people or watermark.`],
-    ["nbp-o4", "O4 — The noise", "Visualises licensing and operational complexity without panic or danger.", "/caudit/O4_COMPLEXITY.png", "University technology leader surrounded by complex luminous system layers", `A university technology executive, seen from behind, stands calmly in a modern operations environment while licensing obligations, cloud systems, cyber security signals, data flows, AI opportunities and operational demands form an overwhelming but orderly spatial storm around them.
+    ["nbp-o4", "O4 — The noise", "Visualises licensing and operational complexity without panic or danger.", "/caudit/O4_COMPLEXITY_PEOPLE_FREE.png", "Abstract decision node surrounded by complex luminous system layers", `An elegant circular glass-and-brushed-metal decision node stands at the centre of a modern operations environment while licensing obligations, cloud systems, cyber security signals, data flows, AI opportunities and operational demands form an overwhelming but orderly spatial storm around it.
 
 Use distinct abstract forms: nested translucent agreement planes, network arcs, shield-like light fields, clustered compute nodes and branching service paths. Medium-wide low angle with the subject centred and strong foreground-to-background depth. Communicate cognitive complexity, never danger.
 
 No readable text, written documents, logos, recognisable person, duplicated anatomy, dystopian mood or watermark.`],
-    ["nbp-o5", "O5 — The signal", "Resolves the noise into three clear narrative paths.", "/caudit/O5_SIGNAL_PEOPLE_FREE.png", "Three ordered light paths towards a university", `The same university technology world is now calm and intelligible. One anonymous executive, seen from behind, faces exactly three luminous routes that resolve from residual complexity and lead towards a bright, credible campus.
+    ["nbp-o5", "O5 — The signal", "Resolves the noise into three clear narrative paths.", "/caudit/O5_SIGNAL_PEOPLE_FREE.png", "Three ordered light paths towards a university", `The same university technology world is now calm and intelligible. Exactly three luminous routes resolve from residual complexity and lead from a dark circular platform towards a bright, credible campus. The foreground is completely people-free.
 
 Route one uses precise layered arcs to suggest commercial clarity. Route two forms a stable protected corridor to suggest operational confidence. Route three rises towards research spaces to suggest purposeful evolution. The routes share an origin and destination but remain clearly distinct.
 
@@ -169,28 +169,28 @@ Use @Image1 as the exact first frame. Preserve every building, path, light sourc
 14.0–18.0s: The connecting threads settle into a coherent network. End with the central walkway leading cleanly towards camera-right for an editorial cut.
 
 No new buildings, crowds, signs, text, logos, interface, scene replacement, fast flight, camera roll, face morphing or watermark. Generate no audio.`],
-    ["sd-p03-lifecycle", "P03 — The licensing lifecycle", "21 seconds · 00:30–00:51", "@Image1 = O4_COMPLEXITY.png · Generate Audio OFF", "Agreement administration, licensing guidance, optimisation, advocacy and escalation.", `Generate one continuous 21-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p03-lifecycle", "P03 — The licensing lifecycle", "21 seconds · 00:30–00:51", "@Image1 = O4_COMPLEXITY_PEOPLE_FREE.png · Generate Audio OFF", "Agreement administration, licensing guidance, optimisation, advocacy and escalation.", `Generate one continuous 21-second 16:9 720p image-to-video shot from @Image1.
 
-Use @Image1 as the exact first frame. Preserve the anonymous executive, their body proportions and clothing, the room geometry and the distinct abstract licensing, cloud, security, data and operational layers. No layer may contain readable symbols.
+Use @Image1 as the exact first frame. Preserve the central glass-and-metal decision node, the room geometry and the distinct abstract licensing, cloud, security, data and operational layers. No layer may contain readable symbols.
 
-0.0–6.0s: Hold the executive calm and still while the separate system layers move with restrained complexity around them. The camera begins one slow 20-degree orbit at constant height.
+0.0–6.0s: Hold the decision node stable while the separate system layers move with restrained complexity around it. The camera begins one slow 20-degree orbit at constant height.
 
 6.0–16.0s: Without changing scene, the layers progressively align into an ordered circular workflow: agreement planes, licensing signals, consumption arcs, scenario branches and one clean escalation route. Each family remains visually distinct; nothing becomes a literal diagram.
 
-16.0–21.0s: The ordered workflow stabilises around the executive. A single cyan route opens ahead as the camera completes its orbit and settles.
+16.0–21.0s: The ordered workflow stabilises around the decision node. A single cyan route opens ahead as the camera completes its orbit and settles.
 
-No text, numbers, written documents, logos, dashboards, new people, duplicate limbs, morphing, alarms, danger, rapid cuts, camera shake or watermark. Generate no audio.`],
+No people, faces, bodies, text, letters, numbers, written documents, logos, dashboards, interface panels, symbols, morphing, alarms, danger, rapid cuts, camera shake or watermark. Generate no audio.`],
     ["sd-p04-flex", "P04 — Support shaped to the institution", "20 seconds · 00:51–01:11", "@Image1 = O5_SIGNAL_PEOPLE_FREE.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
-Use @Image1 as the exact first frame. Preserve the anonymous executive, campus horizon and exactly three primary luminous routes. The routes are abstract service paths, never labelled.
+Use @Image1 as the exact first frame. Preserve the people-free foreground platform, campus horizon and exactly three primary luminous routes. The routes are abstract service paths, never labelled.
 
-0.0–5.0s: Residual visual noise drains calmly into the three existing routes. The executive remains steady and the camera holds its central composition.
+0.0–5.0s: Residual visual noise drains calmly into the three existing routes while the camera holds its central composition.
 
 5.0–15.0s: Each route illuminates once in sequence at a different intensity, expressing core administration, deeper specialist support and standing visibility. A set of clean translucent planes rises briefly beside the paths like controlled windows into the same system, but contains no interface or symbols. Begin one gentle forward push.
 
 15.0–20.0s: The translucent planes settle and the three routes remain separate, proportionate and connected to the same bright campus destination. End on a stable, intelligible composition.
 
-Exactly three main routes. No labels, text, numbers, dashboards, logos, contracts, new people, hard-sell imagery, path duplication, camera roll or watermark. Generate no audio.`],
+Exactly three main routes. No people, faces, bodies, labels, text, numbers, dashboards, logos, contracts, hard-sell imagery, path duplication, camera roll or watermark. Generate no audio.`],
     ["sd-p05-support", "P05 — Operational support pathway", "20 seconds · 01:11–01:31", "@Image1 = O6_HANDOFF.png · Generate Audio OFF", "Separately scoped Premier Support and Azure operations as accountable pathways, not inclusions.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the centred luminous corridor, strong vanishing point and clean blue-black, cyan and teal palette.
