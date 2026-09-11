@@ -146,79 +146,84 @@ Perfectly balanced 16:9 landscape. Keep the centre and lower-centre pristine for
 No text, logos, objects, people, logo-like shapes, bright detail behind the central safe area or watermark.`],
   ].map(([id, title, purpose, image, alt, prompt]) => ({ id, title, purpose, image, alt, group: "Nano Banana Pro" as const, prompt: `${styleLock}\n\nSHOT — ${prompt}` })),
   ...[
-    ["sd-o2", "O2 — The drop", "3–4 seconds", "@Image1 = O2 frame; @Image2 = real title slide, reference only", `Use @Image1 as the exact first frame. Use @Image2 only to preserve the proportions and placement of the real title-slide composite; do not render its text or logo.
+    ["sd-p02-campus", "P02 — Education relationship", "18 seconds · 00:12–00:30", "@Image1 = O3_FUTURE_CAMPUS.png · Generate Audio OFF", "Higher-education experience, local accountability and national specialist support.", `Generate one continuous 18-second 16:9 720p image-to-video shot from @Image1.
 
-ACTION: The surface holds almost still, then separates once on a decisive bass impact. Precise glass-like layers peel towards camera as cyan light expands through the opening.
-CAMERA: One fast, controlled push through the centre.
-END FRAME: Full-frame white-cyan light bloom, held cleanly for eight frames.
-AUDIO: One refined low-frequency impact, brief glass separation and a smooth tonal rise. No dialogue.
+Use @Image1 as the exact first frame. Preserve every building, path, light source and existing distant person. Keep the Australian or New Zealand university architecture physically credible.
 
-Preserve the deep navy, cyan and teal treatment. No new objects, people, text or logos. Fragments remain rigid and physically coherent; no melting, explosion, spin or camera roll.`],
-    ["sd-o3", "O3 — Arrival", "6–8 seconds", "@Image1 = O3 frame", `Use @Image1 as the exact first frame and preserve every building, path, light source and person.
+0.0–4.0s: Hold the wide campus composition with only natural distant pedestrian movement and barely perceptible atmospheric depth.
 
-ACTION: Subtle data-light threads flow between buildings. Distant people continue walking naturally at normal speed.
-CAMERA: One smooth forward aerial glide, descending slightly towards the illuminated central walkway; restrained parallax only.
-END FRAME: Settle above the central path with stable architecture and forward momentum.
-AUDIO: Soft campus ambience and a restrained electronic pulse. No voices.
+4.0–14.0s: Subtle cyan and teal data-light threads begin travelling between the sandstone, glass research spaces and central campus path, expressing a connected support relationship. The camera makes one slow forward aerial glide, descending slightly towards the illuminated walkway. Keep the motion calm enough to carry detailed narration.
 
-Do not add buildings, crowds, signs, text or logos. Do not morph architecture, faces or bodies. Keep the mood advanced, optimistic and credible.`],
-    ["sd-o4", "O4 — Complexity", "5–7 seconds", "@Image1 = O4 frame", `Use @Image1 as the exact first frame. Preserve the subject, clothing, body proportions, room geometry and lighting.
+14.0–18.0s: The connecting threads settle into a coherent network. End with the central walkway leading cleanly towards camera-right for an editorial cut.
 
-ACTION: The distinct licensing, cloud, security, data, AI and operational layers accelerate around the stationary subject and grow denser without colliding.
-CAMERA: One slow 25-degree arc around the subject at constant height.
-END FRAME: Hold with the subject still readable and the visual density at its peak.
-AUDIO: Layered restrained digital movement and low tension; no alarms or dialogue.
+No new buildings, crowds, signs, text, logos, interface, scene replacement, fast flight, camera roll, face morphing or watermark. Generate no audio.`],
+    ["sd-p03-lifecycle", "P03 — The licensing lifecycle", "21 seconds · 00:30–00:51", "@Image1 = O4_COMPLEXITY.png · Generate Audio OFF", "Agreement administration, licensing guidance, optimisation, advocacy and escalation.", `Generate one continuous 21-second 16:9 720p image-to-video shot from @Image1.
 
-Do not create text, written documents, logos or new people. No warping, duplication, scene change, violence or chaotic camera shake.`],
-    ["sd-o5", "O5 — Resolution", "6–8 seconds", "@Image1 = O5 frame", `Use @Image1 as the exact first frame. Preserve the subject, campus and exactly three main pathways.
+Use @Image1 as the exact first frame. Preserve the anonymous executive, their body proportions and clothing, the room geometry and the distinct abstract licensing, cloud, security, data and operational layers. No layer may contain readable symbols.
 
-ACTION: Residual scattered signals flow cleanly into the three routes. Each route illuminates once in sequence, then all three move towards the shared horizon.
-CAMERA: One central forward push that begins calmly and builds measured momentum.
-END FRAME: Centre on the three routes converging towards bright campus space without merging into one beam.
-AUDIO: Tension resolves into three tonal pulses and one forward rhythmic bed. No dialogue.
+0.0–6.0s: Hold the executive calm and still while the separate system layers move with restrained complexity around them. The camera begins one slow 20-degree orbit at constant height.
 
-No labels, text, logos, objects or people. Do not replace the environment or create additional paths.`],
-    ["sd-o6", "O6 — Handoff", "3–5 seconds", "@Image1 = O6 frame", `Use @Image1 as the exact first frame and preserve the centred corridor.
+6.0–16.0s: Without changing scene, the layers progressively align into an ordered circular workflow: agreement planes, licensing signals, consumption arcs, scenario branches and one clean escalation route. Each family remains visually distinct; nothing becomes a literal diagram.
 
-ACTION: Edge filaments stream backwards with controlled speed while the central path remains stable.
-CAMERA: One smooth acceleration towards the bright horizon; no rotation.
-END FRAME: Clean white-cyan full-frame hold for 12 frames, suitable for a hard cut or short dissolve.
-AUDIO: Focused air rush and gentle tonal lift. No impact and no dialogue.
+16.0–21.0s: The ordered workflow stabilises around the executive. A single cyan route opens ahead as the camera completes its orbit and settles.
 
-No text, logos, people, new objects, scene replacement or excessive motion blur in the centre.`],
-    ["sd-c1", "C1 — Convergence", "6–8 seconds", "@Image1 = C1 frame", `Use @Image1 as the exact first frame. Preserve the campus hub and all six distinct capability streams.
+No text, numbers, written documents, logos, dashboards, new people, duplicate limbs, morphing, alarms, danger, rapid cuts, camera shake or watermark. Generate no audio.`],
+    ["sd-p04-flex", "P04 — Support shaped to the institution", "20 seconds · 00:51–01:11", "@Image1 = O5_SIGNAL.png · Generate Audio OFF", "Flexible support levels and proportionate MyD3 visibility without a literal dashboard.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
-ACTION: The six streams travel smoothly towards the institution, complete one restrained orbit and settle into a stable connected pattern. A single subtle pulse marks connection.
-CAMERA: One slow confident push towards the campus with controlled parallax.
-END FRAME: Each stream remains visibly separate around the connected hub.
-AUDIO: Warm technical ambience and one soft connection pulse. No dialogue.
+Use @Image1 as the exact first frame. Preserve the anonymous executive, campus horizon and exactly three primary luminous routes. The routes are abstract service paths, never labelled.
 
-Do not merge the streams, add labels, logos, buildings or people, or introduce fantasy effects.`],
-    ["sd-c2", "C2 — Continuing value", "7–9 seconds", "@Image1 = C2 frame", `Use @Image1 as the exact first frame and preserve exactly three support patterns.
+0.0–5.0s: Residual visual noise drains calmly into the three existing routes. The executive remains steady and the camera holds its central composition.
 
-ACTION: The continuous pathway maintains steady flow. The adaptable stream branches briefly towards two specialist needs and rejoins. The operational halo stays stable throughout.
-CAMERA: One gentle lateral move with a slight forward drift to reveal how the patterns complement one another.
-END FRAME: All three patterns remain distinct, active and balanced around the campus.
-AUDIO: Three restrained textures working in harmony; no dialogue.
+5.0–15.0s: Each route illuminates once in sequence at a different intensity, expressing core administration, deeper specialist support and standing visibility. A set of clean translucent planes rises briefly beside the paths like controlled windows into the same system, but contains no interface or symbols. Begin one gentle forward push.
 
-Do not add text, pricing, diagrams, contracts, people or logos. No hard-sell visual language or excessive motion.`],
-    ["sd-c3", "C3 — Human payoff", "5–7 seconds", "@Image1 = C3 frame", `Use @Image1 as the exact first frame. Preserve every person, face, garment, architectural line and light source.
+15.0–20.0s: The translucent planes settle and the three routes remain separate, proportionate and connected to the same bright campus destination. End on a stable, intelligible composition.
 
-ACTION: People continue their existing natural movement at normal speed. Background campus activity remains subtle and credible.
-CAMERA: One gentle eye-level forward dolly through the space with no reframing jump.
-END FRAME: Settle on a warm human composition with technology still secondary.
-AUDIO: Natural campus room tone and soft footsteps. No intelligible dialogue.
+Exactly three main routes. No labels, text, numbers, dashboards, logos, contracts, new people, hard-sell imagery, path duplication, camera roll or watermark. Generate no audio.`],
+    ["sd-p05-support", "P05 — Operational support pathway", "20 seconds · 01:11–01:31", "@Image1 = O6_HANDOFF.png · Generate Audio OFF", "Separately scoped Premier Support and Azure operations as accountable pathways, not inclusions.", `Generate one continuous 20-second 16:9 720p image-to-video shot from @Image1.
 
-Do not add or remove people, change faces or clothing, alter signage or architecture, or create repeated figures, face warping or exaggerated motion.`],
-    ["sd-c4", "C4 — Endframe settle", "4–6 seconds", "@Image1 = C4 frame", `Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre safe area precisely.
+Use @Image1 as the exact first frame. Preserve the centred luminous corridor, strong vanishing point and clean blue-black, cyan and teal palette.
 
-ACTION: Sparse particles drift almost imperceptibly. Cyan-teal edge light moves gently and the single flare shimmers once.
-CAMERA: Effectively locked off, with a barely perceptible one per cent push before a complete settle.
-END FRAME: Two-second clean hold for the approved wordmark and closing statement.
-AUDIO: One quiet sustained resolving tone. No dialogue.
+0.0–6.0s: Hold a steady forward path while restrained edge filaments flow backwards. Keep the centre clear and calm under narration.
 
-Do not add text, logos, objects or people. Do not move detail into the safe area.`],
-  ].map(([id, title, duration, input, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose: "Image-to-video motion prompt with one action, one camera move and a usable end state.", prompt })),
+6.0–15.0s: Two secondary support lanes appear alongside the central path without merging into it. One maintains a steady protective pulse; the other reveals measured cloud-like infrastructure depth. Their visual separation must make them feel optional and deliberately connected, not automatically included.
+
+15.0–20.0s: The camera makes one smooth acceleration towards the bright horizon while all three lanes remain visibly distinct. End in a controlled cyan-white occlusion for a clean cut.
+
+No text, icons, labels, logos, people, dashboards, literal clouds, incident alarms, scene replacement, spin, camera shake, excessive centre blur or watermark. Generate no audio.`],
+    ["sd-p06-capability", "P06 — Connected Microsoft capability", "19 seconds · 01:31–01:50", "@Image1 = C1_CONNECTED_CAPABILITY.png · Generate Audio OFF", "Broader separately scoped capability across Modern Work, security, data and AI, applications and automation.", `Generate one continuous 19-second 16:9 720p image-to-video shot from @Image1.
+
+Use @Image1 as the exact first frame. Preserve the central university hub and all six distinct capability streams. Do not merge, multiply or label the streams.
+
+0.0–5.0s: Hold the complete connected-capability composition with slow ambient movement inside each existing stream.
+
+5.0–14.0s: The six streams travel smoothly towards the university, complete one restrained partial orbit and connect through separate points around the hub. The camera makes one slow confident push with controlled parallax.
+
+14.0–19.0s: One subtle pulse passes from the hub back through every stream, showing a two-way relationship. Settle with all six streams still distinct and the institution visually central.
+
+No text, labels, icons, logos, new buildings, new people, fantasy magic, stream duplication, merging, camera shake, hard cuts or watermark. Generate no audio.`],
+    ["sd-p07-value", "P07 — Continuing value as priorities change", "16 seconds · 01:50–02:06", "@Image1 = C2_CONTINUING_VALUE.png · optional 3-second cutaway to C3_HUMAN_PAYOFF.png in the edit · Generate Audio OFF", "Consulting, services, projects and operations supporting changing institutional priorities.", `Generate one continuous 16-second 16:9 720p image-to-video shot from @Image1.
+
+Use @Image1 as the exact first frame. Preserve exactly three distinct support patterns around the credible university environment.
+
+0.0–5.0s: The continuous pathway maintains a steady flow and the operational halo remains calm and stable. The camera begins one gentle lateral move with a slight forward drift.
+
+5.0–12.0s: The adaptable specialist stream branches briefly towards two emerging needs, illuminates them without labels, then rejoins the wider relationship. The other patterns remain active and visually separate.
+
+12.0–16.0s: All three patterns balance around the campus as warm human light grows subtly in the learning spaces. End on a stable frame suitable for a brief cutaway to the approved C3 human-payoff still.
+
+No text, pricing, diagrams, contracts, logos, new people, duplicated paths, guarantees, excessive motion, camera roll or watermark. Generate no audio.`],
+    ["sd-p08-close", "P08 — Agreement cycle and clean close", "14 seconds · 02:06–02:20", "@Image1 = C4_ENDFRAME.png · Generate Audio OFF", "Scope, validation, documentation, onboarding, verification and ongoing support resolve into a typography-free finish.", `Generate one continuous 14-second 16:9 720p image-to-video shot from @Image1.
+
+Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre area, the navy field and restrained cyan-teal edge light. Do not add any lettering or branding.
+
+0.0–8.0s: Six faint edge-light pulses travel in sequence around the perimeter, suggesting an orderly agreement cycle without becoming icons or a diagram. The centre remains completely clean. The camera performs a barely perceptible two per cent push.
+
+8.0–11.0s: The pulses resolve into one calm, continuous perimeter glow and the single restrained flare shimmers once.
+
+11.0–14.0s: All motion settles into a clean three-second hold beneath the final voiceover and the sustained chord from Convergence.
+
+No text, numbers, logos, icons, people, objects, bright detail in the centre, presentation interface, sudden flare, fade to white, camera shake or watermark. Generate no audio.`],
+  ].map(([id, title, duration, input, purpose, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose, prompt })),
   {
     id: "suno-opening",
     group: "Suno",
