@@ -32,6 +32,7 @@ const INTERACTIVE_FRAMING_MARGIN = 1.18;
 const AUTO_ROTATE_RADIANS_PER_SECOND = TAU / LOOP_SECONDS;
 const AUTO_ROTATE_FRAME_INTERVAL = 1 / 30;
 const GLASS_ENVIRONMENT_UPDATE_RADIANS = THREE.MathUtils.degToRad(3);
+const CONTACT_EMITTER_REACH = 1.5;
 
 type DaveSceneOptions = {
   fixedTime?: number;
@@ -151,7 +152,11 @@ function createRotatingContactEmitters() {
   ] as const;
 
   emitters.forEach(({ position, colour }) => {
-    const light = new THREE.PointLight(colour, 12, 2.2, 2);
+    // 1.5-unit reach: the emitters light the floor and the grounded vertex,
+    // and only their tail reaches the glass (which starts ~1.5 units away).
+    // A 2.2 reach flooded the lower loop green; 1.5 scores better on every
+    // region of every source anchor.
+    const light = new THREE.PointLight(colour, 12, CONTACT_EMITTER_REACH, 2);
     light.position.set(position[0], position[1], position[2]);
     light.layers.enable(REFLECTION_LAYER);
     light.layers.enable(REFLECTION_CONTENT_LAYER);
