@@ -46,6 +46,17 @@ export default function CAUDITPromo() {
         </video>
       </section>
 
+      <section className="caudit-promo-about" aria-labelledby="caudit-promo-title">
+        <span>CAUDIT 2026 · Microsoft licensing services</span>
+        <h1 id="caudit-promo-title">Delivering the Digital Future in Education</h1>
+        <p>
+          A three-minute look at how Data<sup>#</sup>3 can help CAUDIT members maximise the value of their Microsoft investment—from agreement and licensing support to connected cloud, security, data, and AI capability.
+        </p>
+        <p>
+          Created for senior university IT, commercial, and procurement leaders across Australia and New Zealand.
+        </p>
+      </section>
+
       <footer className="caudit-promo-footer">
         <a href="/caudit/bible">
           See the production Bible

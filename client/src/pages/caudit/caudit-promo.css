@@ -2,8 +2,8 @@
   --ink: #000025;
   --cyan: #00aeff;
   min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   background: radial-gradient(circle at 50% 42%, rgba(0, 174, 255, 0.13), transparent 48%), var(--ink);
   color: #eee;
   font-family: "Helvetica Neue", "HelveticaNeue", Arial, sans-serif;
@@ -50,7 +50,49 @@
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.45), 0 0 80px rgba(0, 174, 255, 0.08);
 }
 
-.caudit-promo-footer { display: flex; justify-content: center; padding: 24px 20px 34px; }
+.caudit-promo-about {
+  width: min(980px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 26px 0 18px;
+  text-align: center;
+}
+
+.caudit-promo-about > span {
+  display: block;
+  margin-bottom: 12px;
+  color: #78dcff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.caudit-promo-about h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.caudit-promo-about p {
+  max-width: 840px;
+  margin: 18px auto 0;
+  color: #c7dbe5;
+  font-size: clamp(17px, 1.7vw, 20px);
+  line-height: 1.5;
+}
+
+.caudit-promo-about p + p {
+  margin-top: 8px;
+  color: #8ea9b8;
+  font-size: 15px;
+}
+
+.caudit-promo-about sup { font-size: 0.55em; position: relative; top: -0.4em; }
+
+.caudit-promo-footer { display: flex; justify-content: center; margin-top: auto; padding: 24px 20px 34px; }
 .caudit-promo-footer a {
   min-height: 48px;
   display: inline-flex;
@@ -72,5 +114,7 @@
   .caudit-promo-header { min-height: 62px; }
   .caudit-promo-status, .caudit-promo-edition { display: none; }
   .caudit-promo-stage { padding: 12px; }
+  .caudit-promo-about { width: calc(100% - 32px); padding-top: 22px; text-align: left; }
+  .caudit-promo-about p { margin-top: 14px; }
   .caudit-promo-footer { padding-top: 16px; }
 }
