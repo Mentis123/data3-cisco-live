@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import "./caudit-promo.css";
 
 function Data3Name() {
-  return <>Data<sup>#</sup>3</>;
+  return <span className="caudit-promo-wordmark">Data<sup>#</sup>3</span>;
 }
 
 export default function CAUDITPromo() {
@@ -22,7 +22,7 @@ export default function CAUDITPromo() {
       <header className="caudit-promo-header">
         <div className="caudit-promo-brand">
           <Data3Name />
-          <span>CAUDIT 2026</span>
+          <span className="caudit-promo-edition">CAUDIT 2026</span>
         </div>
         <span className="caudit-promo-status">Review master · 03:02</span>
       </header>

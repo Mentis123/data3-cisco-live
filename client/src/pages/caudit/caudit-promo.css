@@ -21,9 +21,16 @@
   border-bottom: 1px solid rgba(120, 220, 255, 0.15);
 }
 
-.caudit-promo-brand { display: flex; align-items: center; gap: 20px; font-size: 21px; font-weight: 900; }
-.caudit-promo-brand sup { font-size: 0.5em; position: relative; top: -0.45em; }
-.caudit-promo-brand span {
+.caudit-promo-brand { display: flex; align-items: center; gap: 20px; }
+.caudit-promo-wordmark {
+  color: #eee;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+.caudit-promo-wordmark sup { color: inherit; font: inherit; font-size: 1em; line-height: 0; position: relative; top: -0.36em; }
+.caudit-promo-edition {
   border-left: 1px solid rgba(120, 220, 255, 0.35);
   padding-left: 20px;
   color: #78dcff;
@@ -63,7 +70,7 @@
 
 @media (max-width: 680px) {
   .caudit-promo-header { min-height: 62px; }
-  .caudit-promo-status, .caudit-promo-brand span { display: none; }
+  .caudit-promo-status, .caudit-promo-edition { display: none; }
   .caudit-promo-stage { padding: 12px; }
   .caudit-promo-footer { padding-top: 16px; }
 }

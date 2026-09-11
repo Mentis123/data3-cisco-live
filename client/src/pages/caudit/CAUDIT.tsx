@@ -4,7 +4,7 @@ import { groups, productionSteps, promptItems, qualityGates, researchLinks, shot
 import "./caudit.css";
 
 function Data3Name() {
-  return <>Data<sup>#</sup>3</>;
+  return <span className="caudit-wordmark">Data<sup>#</sup>3</span>;
 }
 
 function CopyButton({ text, label = "Copy prompt" }: { text: string; label?: string }) {
@@ -133,7 +133,7 @@ export default function CAUDIT() {
   return (
     <main className="caudit-page">
       <header className="caudit-header">
-        <div className="caudit-brand"><Data3Name /><span>CAUDIT 2026</span></div>
+        <div className="caudit-brand"><Data3Name /><span className="caudit-edition">CAUDIT 2026</span></div>
         <nav aria-label="Page sections">
           <a href="#prompts">Prompts</a><a href="#workflow">Workflow</a><a href="#tracker">Tracker</a><a href="#qa">Quality gates</a>
         </nav>
