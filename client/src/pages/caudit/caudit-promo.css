@@ -29,7 +29,7 @@
   letter-spacing: normal;
   white-space: nowrap;
 }
-.caudit-promo-wordmark sup { color: inherit; font: inherit; font-size: 1em; line-height: 0; position: relative; top: -0.36em; }
+.caudit-promo-wordmark sup { color: inherit; font-family: inherit; font-style: inherit; font-weight: inherit; font-size: 0.55em; line-height: 0; vertical-align: super; }
 .caudit-promo-edition {
   border-left: 1px solid rgba(120, 220, 255, 0.35);
   padding-left: 20px;
