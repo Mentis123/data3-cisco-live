@@ -25,14 +25,28 @@ function CopyButton({ text, label = "Copy prompt" }: { text: string; label?: str
 }
 
 function PromptCard({ item }: { item: PromptItem }) {
+  const media = item.video || item.image;
+
   return (
-    <article className={`caudit-prompt-card ${item.image ? "has-image" : ""}`} id={item.id}>
-      {item.image && (
+    <article className={`caudit-prompt-card ${media ? "has-image" : ""}`} id={item.id}>
+      {media && (
         <div className="caudit-frame-wrap">
-          <img src={item.image} alt={item.alt || ""} className="caudit-frame" loading="lazy" />
-          <a className="caudit-download" href={item.image} download aria-label={`Download ${item.title}`}>
+          {item.video ? (
+            <video
+              src={item.video}
+              poster={item.image}
+              aria-label={item.alt || item.title}
+              className="caudit-frame"
+              controls
+              playsInline
+              preload="metadata"
+            />
+          ) : (
+            <img src={item.image} alt={item.alt || ""} className="caudit-frame" loading="lazy" />
+          )}
+          <a className="caudit-download" href={media} download aria-label={`Download ${item.title}`}>
             <Download aria-hidden="true" />
-            Download frame
+            Download {item.video ? "cut" : "frame"}
           </a>
         </div>
       )}

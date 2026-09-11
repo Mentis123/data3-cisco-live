@@ -11,6 +11,7 @@ export type PromptItem = {
   secondaryLabel?: string;
   secondaryText?: string;
   image?: string;
+  video?: string;
   alt?: string;
 };
 
@@ -81,6 +82,7 @@ Report only: missing material points, unsupported claims, accidental inclusion c
     duration: "12 seconds · 720p · 16:9",
     input: "@Image1 = P01_COVER_SLIDE.png · Generate Audio OFF",
     image: "/caudit/P01_COVER_SLIDE.png",
+    video: "/caudit/P01_COVER_TRANSITION.mp4",
     alt: "CAUDIT presentation cover titled Delivering the Digital Future in Education",
     prompt: `Generate one continuous 12-second 16:9 720p image-to-video shot from @Image1.
 
@@ -218,23 +220,42 @@ AUDIO: One quiet sustained resolving tone. No dialogue.
 Do not add text, logos, objects or people. Do not move detail into the safe area.`],
   ].map(([id, title, duration, input, prompt]) => ({ id, group: "Seedance 2.5" as const, title, duration, input, purpose: "Image-to-video motion prompt with one action, one camera move and a usable end state.", prompt })),
   {
-    id: "suno-master",
+    id: "suno-opening",
     group: "Suno",
-    title: "Locked master score — One connected relationship",
-    purpose: "One continuous instrumental bed for the complete film, with editorial landmarks matched to the locked picture plan.",
-    duration: "2:25 master · 2:20 content target",
-    input: "Pixio Songcraft · Custom Mode ON · Make Instrumental ON",
-    prompt: `Create one continuous premium cinematic electronic instrumental for a concise enterprise technology film aimed at senior Australian and New Zealand university leaders.
+    title: "Locked music source A — The Drop",
+    purpose: "Use the already-generated opening render as the tonal source for the cover fake-out and first forward push.",
+    duration: "Existing 28–32 second source · edit to picture",
+    input: "Existing Pixio Songcraft render · instrumental source · do not regenerate",
+    prompt: `Cinematic cyberpunk corporate trailer music, instrumental only.
 
-Length: approximately two minutes twenty-five seconds. Tempo: approximately 112 BPM. Begin with two seconds of near-silence beneath a static PowerPoint cover. From 0:02, introduce a restrained low pulse. At 0:07, deliver one refined sub-bass transition as the cover artwork comes alive and the camera enters the abstract ribbon world.
+Begin with approximately three seconds of near-silence: a faint corporate room tone, subtle projector hum and minimal low-frequency tension. At 0:03, deliver a single powerful but sophisticated bass impact as the visual presentation breaks open.
 
-From 0:12 to 0:50, establish confident forward motion using warm analogue synths, precise electronic percussion and subtle glass-like textures. From 0:50 to 1:32, reduce density so detailed narration remains completely clear. From 1:32 to 2:06, widen the harmony and add measured momentum as connected capability expands. From 2:06, soften the rhythm into warmer human pads. At 2:18, begin the final resolution. Hold one clean, hopeful sustained chord from 2:22 to 2:25.
+After the drop, build with premium synthwave pulses, deep controlled sub bass, glitch percussion, cinematic drums, restrained arpeggios and rising harmonic energy. The mood moves from routine and constrained to surprising, advanced, optimistic and confident.
 
-The music must feel assured, intelligent, modern and human. Keep the midrange sparse under narration. Use controlled sub bass, restrained percussion and clean dynamics. No dramatic trailer booms after the opening transition.
+Avoid aggressive industrial noise, horror, dystopian tension, vocals, comedy, retro parody and excessive EDM festival energy.
 
-Instrumental only. No vocals, choir, spoken word, corporate rock, sentimental piano lead, festival EDM, retro synthwave parody, horror tension, aggressive industrial noise, comedy, distorted mastering or long fade-out.`,
+Target duration: 28 to 32 seconds. Approximately 125 to 130 BPM. Dark minor opening that resolves toward a hopeful, forward-moving tonal centre. Strong edit points around 0:03, 0:10, 0:17 and 0:24. Finish with forward momentum rather than a complete musical ending so it can transition into the body of the film.`,
+    secondaryLabel: "Edit lock",
+    secondaryText: "Keep the source render · establish near-silence under the cover · align its main impact to the P01 visual break · carry its tonal tail into the quieter middle bed",
+  },
+  {
+    id: "suno-closing",
+    group: "Suno",
+    title: "Locked music source B — Convergence",
+    purpose: "Use the already-generated closing render as the tonal source for connected capability, human resolution and the end frame.",
+    duration: "Existing 24–30 second source · edit to picture",
+    input: "Existing Pixio Songcraft render · instrumental source · do not regenerate",
+    prompt: `Cinematic corporate synthwave outro, instrumental only.
+
+Begin with confident forward motion that feels connected to a premium technology film. Use warm synth pads, restrained arpeggios, subtle cinematic percussion and a controlled deep bass foundation. Allow darker cyberpunk colours at the opening, then gradually resolve into a spacious, optimistic and human final section.
+
+The music should support the ideas of connected capability, continuity and progress without becoming sentimental or triumphalist.
+
+Avoid vocals, retro parody, aggressive EDM drops, horror tension and anthemic corporate rock.
+
+Target duration: 24 to 30 seconds. Approximately 110 to 118 BPM. Include clear edit points near 0:04, 0:12, 0:18 and 0:23. End with one clean sustained hopeful chord that can hold under the final brand frame.`,
     secondaryLabel: "Mix lock",
-    secondaryText: "Voiceover leads at all times · score ducks 4–6 dB under speech · one opening impact at 0:07 · final chord holds 0:02:22–0:02:25",
+    secondaryText: "Use The Drop and Convergence as the two locked music sources · build the 2:20 continuous bed in the edit · voiceover leads by 4–6 dB · preserve Convergence's clean final chord",
   },
   {
     id: "vo-master",
@@ -276,7 +297,7 @@ export const productionSteps = [
   "Use longer visual holds under detailed narration instead of recreating slide layouts or generated information graphics.",
   "Run NotebookLM only as a coverage checker against the approved deck and locked master script.",
   "Generate the entire ElevenLabs narration as one file; split it only during the final edit.",
-  "Generate one continuous Suno Songcraft master and align its opening impact, quieter middle and final resolving chord to picture.",
+  "Use the existing Suno renders The Drop and Convergence as the two locked music sources; bridge and extend their instrumental material into one continuous bed in the final edit.",
   "Mix external narration and music over clean picture; Seedance native audio remains off unless a shot-specific effects stem is deliberately requested.",
   "Use no generated or post-production lettering. Keep supplied cover typography intact as source artwork and deliver subtitles as a separate SRT file.",
   "Run narrative, commercial, visual, audio, accessibility and technical QA, then export the review and final masters.",
@@ -286,11 +307,11 @@ export const qualityGates = [
   { title: "Narrative", items: ["Target 2:20; never exceed 2:30", "Every approved deck concept appears once", "Licensing begins the relationship and connected capability expands it"] },
   { title: "Commercial", items: ["Core and separately scoped capability are distinct", "No pricing, terms, guardrails or guarantees", "Sustained, flexible and standing are access patterns, not inclusions"] },
   { title: "Visual", items: ["The source cover stays pixel-sharp", "No new lettering, labels or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
-  { title: "Audio", items: ["One long ElevenLabs master read", "Narration wins over music by 4–6 dB", "Data three and My D three are pronounced correctly", "The opening impact lands at 0:07"] },
+  { title: "Audio", items: ["One long ElevenLabs master read", "The Drop and Convergence remain the locked music sources", "Narration wins over music by 4–6 dB", "Data three and My D three are pronounced correctly", "The opening impact is conformed to the approved P01 cut"] },
   { title: "Accessibility and technical", items: ["16:9 720p generation and consistent master frame rate", "No more than three flashes per second", "A reviewed SRT accompanies the film without burned-in typography", "No clipping, black frames, watermark or distorted audio"] },
 ];
 
-export const shotIds = ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "MUSIC", "VOICE", "MIX", "SRT", "MASTER"];
+export const shotIds = ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "MUSIC-A", "MUSIC-B", "VOICE", "MIX", "SRT", "MASTER"];
 
 export const researchLinks = [
   { label: "Gemini Notebook Video Overviews", url: "https://support.google.com/gemininotebook/answer/16454555?hl=en" },
