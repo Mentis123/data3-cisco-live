@@ -1,4 +1,4 @@
-export type PromptGroup = "NotebookLM" | "Nano Banana Pro" | "Seedance 2.5" | "Suno" | "ElevenLabs";
+export type PromptGroup = "NotebookLM" | "Nano Banana Pro" | "Seedance 2.5" | "Grok Imagine" | "Suno" | "ElevenLabs";
 
 export type PromptItem = {
   id: string;
@@ -16,7 +16,7 @@ export type PromptItem = {
   review?: string;
 };
 
-export const groups: PromptGroup[] = ["NotebookLM", "Nano Banana Pro", "Seedance 2.5", "Suno", "ElevenLabs"];
+export const groups: PromptGroup[] = ["NotebookLM", "Nano Banana Pro", "Seedance 2.5", "Grok Imagine", "Suno", "ElevenLabs"];
 
 const styleLock = `STYLE LOCK — Premium cyberpunk-corporate cinema for senior Australian and New Zealand university leaders.
 
@@ -305,7 +305,139 @@ Your Microsoft investment. Your way. Backed by Data three.`,
     secondaryLabel: "Pronunciation and edit lock",
     secondaryText: "Say Data three and My D three exactly as written · generate as one file · preserve natural paragraph pauses · split only in the edit · no alternate reads unless the master fails QA",
   },
+  {
+    id: "grok-b01-adviser",
+    group: "Grok Imagine",
+    title: "B01 — Local adviser review",
+    purpose: "A human-scale cutaway for the local account contact and national capability passage.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 24 mm composition",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. Generate a clean 16:9 landscape still in Quality mode, validate the composition, then animate only the motion prompt in Quality mode. Keep the final shot extra wide with a medium-distance subject, generous negative space on the right for Arial editorial labels, and no tight close-up.
+
+[Subject + environment] A university IT leader and a trusted technology adviser review one shared laptop in a bright contemporary campus workspace. Natural, credible Australian or New Zealand higher-education setting. The people are generic illustrative characters, realistic proportions, relaxed professional posture, no recognisable real person.
+[Camera + composition] Extra-wide 24 mm establishing medium shot, camera at eye level, people occupying the left 45 percent of frame, clean negative space across the right 40 percent, generous breathing room above and around both figures, no edge cropping.
+[Style + lighting] Premium cinematic corporate film, Data#3 blue-black and cyan accents used subtly, warm daylight through glass, restrained depth of field, realistic skin and materials, fine film grain.
+[Details] Laptop screen softly out of focus with no readable interface, books and campus details abstracted, calm human collaboration, no text, logos, signage, charts or watermark added by the prompt.
+
+Image-to-video motion prompt: One small natural gesture as the adviser indicates one point on the laptop; the IT leader nods. Slow lateral camera drift to the right while preserving the wide composition and the empty label space. No dialogue, no generated text, no extra people, no zoom into faces, no camera shake.`,
+  },
+  {
+    id: "grok-b02-commercial",
+    group: "Grok Imagine",
+    title: "B02 — Licensing options review",
+    purpose: "Makes commercial guidance and scenario planning tangible during the lifecycle narration.",
+    duration: "6–8 seconds · final 3–4 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · wide 28 mm desk scene",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then a single restrained camera move. Keep a large uncluttered dark area on the left for typography and place the action on the right at medium distance.
+
+[Subject + environment] Two university technology specialists sit at a long table reviewing a small set of abstract printed option cards and a laptop. The cards contain no readable words, numbers or logos. Contemporary boardroom with glass, dark timber and a soft campus view beyond.
+[Camera + composition] Extra-wide 28 mm three-quarter view from the left, action placed in the right half, 40 percent quiet negative space on the left, full upper bodies and table edge visible, no tight hands-only crop.
+[Style + lighting] Photorealistic cinematic film look, cool blue ambient light balanced with a warm practical lamp, restrained reflections, realistic enterprise documentary tone.
+[Details] The laptop interface is fully defocused; papers are deliberately non-legible; no identifiable real people, brands or invented metrics.
+
+Image-to-video motion prompt: One specialist slides a single option card toward the other and both lean in slightly. Camera makes one slow 10-degree push from left to right. Preserve the empty left area, no text generation, no rapid cuts, no added objects or audio.`,
+  },
+  {
+    id: "grok-b03-roadmap",
+    group: "Grok Imagine",
+    title: "B03 — Roadmap and specialist planning",
+    purpose: "A clean bridge for proactive lifecycle support and deeper specialist engagement.",
+    duration: "6–8 seconds · final 4–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 24 mm office view",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then animate with one calm movement. Keep the frame extra wide and leave the upper-left third quiet for one short label.
+
+[Subject + environment] Three diverse university and technology specialists stand around a large table in a modern campus project room, considering a wall of softly blurred planning panels. They are collaborating, not presenting to camera; realistic proportions and natural posture.
+[Camera + composition] Extra-wide 24 mm wide shot, people grouped in the right two-thirds, broad negative space in the upper-left and foreground, full room context, no tight close-up, no face cropped by the frame.
+[Style + lighting] Cinematic enterprise documentary, blue-hour light through windows, warm practical pools, subtle cyan reflections, credible and optimistic.
+[Details] Planning panels have colour blocks and lines only, no legible text, no logos, no fake product dashboard or invented statistics.
+
+Image-to-video motion prompt: One person traces a route across the blurred planning surface while the group shifts attention together. Camera performs a slow, slightly elevated arc around the table. Preserve the negative space and wide context; no dialogue, text, extra people or camera shake.`,
+  },
+  {
+    id: "grok-b04-incident",
+    group: "Grok Imagine",
+    title: "B04 — Accountable incident ownership",
+    purpose: "Adds a concrete human action beneath the Optional Premier Support narration.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · wide 28 mm workstation shot",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then a gentle push-in only. Compose wide with the engineer on the right and open dark space on the left for the qualifier Optional Premier Support.
+
+[Subject + environment] A calm support engineer in a modern operations room wears a headset and reviews a live incident with focused attention. Generic illustrative person, realistic proportions, no recognisable real individual. A second workstation glows softly in the far background.
+[Camera + composition] Extra-wide 28 mm side three-quarter view, engineer in the right 45 percent, negative space on the left, desk and room context visible, no close-up of face or screen.
+[Style + lighting] Photorealistic cinematic enterprise film, controlled cyan monitor light with warm edge light on the engineer, realistic skin and fabric, subtle grain.
+[Details] All screens are abstract colour and shape, fully unreadable, no incident number, customer name, product logo or alarm graphics.
+
+Image-to-video motion prompt: The engineer listens, makes one concise note, then reaches for a second control. Slow push-in of less than five percent while the left negative space stays stable. No generated lettering, no frantic alarms, no dialogue, no camera shake.`,
+  },
+  {
+    id: "grok-b05-azure",
+    group: "Grok Imagine",
+    title: "B05 — Azure platform operations",
+    purpose: "Gives Azure support, monitoring and managed operations a credible physical environment.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide architectural shot",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then one slow tracking movement. Keep the server corridor extra wide with clear floor and ceiling breathing room and a quiet upper-right region for a label.
+
+[Subject + environment] A physically plausible modern data-centre corridor with orderly server racks, glass doors, cable management and cool air movement. No dramatic emergency, no fantasy holograms, no visible brand marks.
+[Camera + composition] Extra-wide 24 mm symmetrical architectural shot, long vanishing point, racks framing both sides without crowding, generous empty upper-right and lower foreground space, no tight rack detail.
+[Style + lighting] Premium cinematic infrastructure film, cool cyan practical lighting with restrained violet depth, realistic reflections, subtle haze, no cyberpunk excess.
+[Details] No readable rack labels, dashboards, numbers, logos or invented technical claims. The scene must look operational and calm.
+
+Image-to-video motion prompt: Slow forward tracking move down the corridor with one gentle light pulse travelling along the floor edge. Keep geometry straight and the wide composition stable. No people, text, audio, whip pan or camera shake.`,
+  },
+  {
+    id: "grok-b06-managed",
+    group: "Grok Imagine",
+    title: "B06 — Managed operations team",
+    purpose: "Makes ongoing managed services feel like accountable human operations, not abstract glowing infrastructure.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 24 mm operations room",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then one lateral tracking motion. Place the team on the left and leave generous negative space on the right for the words Managed services.
+
+[Subject + environment] Two diverse operations specialists sit in a calm monitoring room, reviewing a wall of softly abstracted displays and exchanging one considered glance. Generic illustrative people, realistic proportions, no recognisable real persons.
+[Camera + composition] Extra-wide 24 mm wide shot, team in the left third, open darkened right third, full desks and room architecture visible, no close-up and no cropped faces.
+[Style + lighting] Cinematic documentary realism, deep navy environment, soft cyan screen light and warm rim light, premium but believable, fine film grain.
+[Details] Displays contain only blurred blocks and gentle lines, no readable dashboards, metrics, incident numbers, logos or warning symbols.
+
+Image-to-video motion prompt: One specialist points once to a calm display while the other makes a small confirming gesture. Camera tracks slowly right, preserving the open right-hand space. No alarm, text, dialogue, extra people or camera shake.`,
+  },
+  {
+    id: "grok-b07-university",
+    group: "Grok Imagine",
+    title: "B07 — Technology in university life",
+    purpose: "Connects the services to people and learning without pretending to show a specific customer or campus.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 24 mm campus interior",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then a slow observational move. Keep the scene extra wide, with a clear architectural edge and open upper-left space for one short phrase.
+
+[Subject + environment] A credible contemporary university learning commons at late afternoon, with a small group of students and staff collaborating around a table in the middle distance. The emphasis is on the space and natural activity, not individual faces.
+[Camera + composition] Extra-wide 24 mm establishing view, people in the centre-right middle distance, broad architectural negative space upper-left, generous foreground and ceiling room, no tight portrait crop.
+[Style + lighting] Warm human interior light balanced with blue-hour daylight, cinematic film look, realistic materials, subtle Data#3 cyan accents only in practical reflections.
+[Details] No readable screens, signage, logos, uniforms or identifiable real people. Keep the environment physically plausible and quiet.
+
+Image-to-video motion prompt: Gentle natural collaboration and one slow camera drift toward the windows. Maintain wide context and open upper-left space. No speaking to camera, no generated text, no sudden crowd movement or camera shake.`,
+  },
+  {
+    id: "grok-b08-handover",
+    group: "Grok Imagine",
+    title: "B08 — Onboarding and handover",
+    purpose: "A human closing beat for the five-step agreement cycle and transition into ongoing support.",
+    duration: "6–8 seconds · final 3–5 seconds",
+    input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 28 mm side angle",
+    prompt: `Recommended path: Text-to-image first, then image-to-video. 16:9 landscape, Quality still, then animate one restrained movement. Keep the shot extra wide, with open space on the left for the step label and the people on the right at medium distance.
+
+[Subject + environment] A university technology lead and an adviser complete a calm onboarding handover beside a bright campus foyer. They review one shared folder on a laptop and exchange a natural, brief acknowledgement; avoid a staged handshake close-up.
+[Camera + composition] Extra-wide 28 mm side angle, both people fully visible in the right half, broad foyer and campus depth behind them, generous left negative space, no face or hand cropped.
+[Style + lighting] Optimistic cinematic enterprise documentary, warm morning light with restrained cyan reflections, realistic materials, natural posture and believable scale.
+[Details] Laptop and documents are deliberately unreadable, no signatures, logos, terms, numbers or invented customer identity.
+
+Image-to-video motion prompt: The adviser closes the folder and the two people turn together toward the campus walkway. Camera makes one slow pull-back, preserving the open left space and full-body context. No text, no close-up, no extra people, no dialogue or camera shake.
+
+Provider note: keep any required generation provenance visible in the source export; do not crop, erase or cover it.`,
+  },
 ];
+
+export const grokBrollItems = promptItems.filter((item) => item.group === "Grok Imagine");
 
 export const productionSteps = [
   "Hold the real cover slide perfectly still, then use P01 to enter its abstract ribbon world.",
@@ -316,14 +448,14 @@ export const productionSteps = [
   "Generate the entire ElevenLabs narration as one file; split it only during the final edit.",
   "Use the supplied renders Forward Momentum and Horizon Open as the two locked music sources; crossfade them into one continuous 3:02 bed in the final edit.",
   "Mix external narration and music over clean picture; Seedance native audio remains off unless a shot-specific effects stem is deliberately requested.",
-  "Use no generated or post-production lettering. Keep supplied cover typography intact as source artwork and deliver subtitles as a separate SRT file.",
+  "Use concise, precisely placed Arial labels in post where they clarify the footage; keep generated imagery free of lettering, preserve supplied cover typography, and deliver subtitles as a separate SRT file.",
   "Run narrative, commercial, visual, audio, accessibility and technical QA, then export the review and final masters.",
 ];
 
 export const qualityGates = [
   { title: "Narrative", items: ["Review master runs 3:02", "Every approved deck concept appears once", "Licensing begins the relationship and connected capability expands it"] },
   { title: "Commercial", items: ["Core and separately scoped capability are distinct", "No pricing, terms, guardrails or guarantees", "Sustained, flexible and standing are access patterns, not inclusions"] },
-  { title: "Visual", items: ["The source cover stays pixel-sharp", "No new lettering, labels or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
+  { title: "Visual", items: ["The source cover stays pixel-sharp", "Arial labels are concise, positioned precisely and legible on phone-sized playback", "Generated footage contains no invented lettering or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
   { title: "Audio", items: ["One long ElevenLabs male master read", "Forward Momentum and Horizon Open are the locked music sources", "Narration remains clearly dominant over the music bed", "Data three and My D three are pronounced correctly", "The final mix is stereo, limited and free of clipping"] },
   { title: "Accessibility and technical", items: ["16:9 720p generation and consistent master frame rate", "No more than three flashes per second", "A reviewed SRT accompanies the film without burned-in typography", "No clipping, black frames, watermark or distorted audio"] },
 ];

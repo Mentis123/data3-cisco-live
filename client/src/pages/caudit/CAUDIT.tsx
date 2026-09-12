@@ -24,7 +24,7 @@ function CopyButton({ text, label = "Copy prompt" }: { text: string; label?: str
   );
 }
 
-function PromptCard({ item }: { item: PromptItem }) {
+export function PromptCard({ item }: { item: PromptItem }) {
   const media = item.video || item.image;
 
   return (
@@ -135,7 +135,7 @@ export default function CAUDIT() {
       <header className="caudit-header">
         <div className="caudit-brand"><Data3Name /><span className="caudit-edition">CAUDIT 2026</span></div>
         <nav aria-label="Page sections">
-          <a href="#prompts">Prompts</a><a href="#workflow">Workflow</a><a href="#tracker">Tracker</a><a href="#qa">Quality gates</a>
+          <a href="#prompts">Prompts</a><a href="/caudit/grok">Grok B-roll</a><a href="#workflow">Workflow</a><a href="#tracker">Tracker</a><a href="#qa">Quality gates</a>
         </nav>
       </header>
 
