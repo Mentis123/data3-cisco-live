@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Clipboard, Download, ExternalLink, Search, Sparkles } from "lucide-react";
 import { groups, productionSteps, promptItems, qualityGates, researchLinks, shotIds, type PromptGroup, type PromptItem } from "./caudit-data";
 import "./caudit.css";
+import CAUDITSourceGallery from "./CAUDITSourceGallery";
 
 function Data3Name() {
   return <span className="caudit-wordmark">Data<sup>#</sup>3</span>;
@@ -143,7 +144,8 @@ export default function CAUDIT() {
         <div className="caudit-hero-copy">
           <span className="caudit-eyebrow"><Sparkles aria-hidden="true" /> Refined production workspace</span>
           <h1>Signal through<br /><em>the noise.</em></h1>
-          <p>A locked 3:02 review master, one continuous voiceover, two joined music sources and every production prompt in one copy-ready workspace.</p>
+          <p>The 3:05 final film: cinematic footage, six human and operational cutaways, precise Arial messaging, one continuous narration and a voice-first mix.</p>
+          <div className="caudit-release-links"><a href="/caudit">Watch the final film →</a><a href="/caudit/archive">Video archive · all three versions →</a><a href="/caudit/CAUDIT_2026_EDIT_NOTES.md" download>Final edit notes ↓</a></div>
         </div>
         <div className="caudit-storyline" aria-label="Film structure">
           <div><span>00:00</span><strong>Real title slide</strong><p>The credible fake-out</p></div>
@@ -153,6 +155,14 @@ export default function CAUDIT() {
           <div><span>02:35</span><strong>Agreement cycle</strong><p>Clean resolved close</p></div>
         </div>
       </section>
+
+      <section className="caudit-section caudit-release-note">
+        <span className="caudit-kicker">Final production lock</span>
+        <p>29 timeline segments · 24 fps · forward-only footage · three short information beats · one intentional dark transition. The eight original cinematic sources remain below, alongside all eight supplied B-roll clips.</p>
+        <p><strong>Voiceover copy:</strong> the ElevenLabs block remains one continuous, copy-ready read. “Data three” and “My D three” are pronunciation instructions only; visible final labels and captions use Data#3 and MyD3.</p>
+        <a href="#vo-master" onClick={() => { setActiveGroup("All"); setQuery(""); }}>Jump to the single voiceover block ↓</a>
+      </section>
+      <CAUDITSourceGallery />
 
       <section className="caudit-command" id="prompts" aria-label="Prompt library controls">
         <div className="caudit-search"><Search aria-hidden="true" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prompts, shots or tools…" aria-label="Search the prompt library" /></div>
@@ -196,9 +206,9 @@ export default function CAUDIT() {
       </section>
 
       <footer className="caudit-footer">
-          <div><Data3Name /><p>Supplied cover artwork and AI-generated production imagery. No generated or post-production lettering; subtitles remain a separate SRT file.</p></div>
+          <div><Data3Name /><p>Supplied cover artwork and illustrative AI-generated imagery. Editorial Arial labels are composited in post; optional captions are supplied separately as SRT and WebVTT.</p><a href="/caudit/archive">Video archive · original, review and final →</a></div>
         <div><h2>Research sources</h2>{researchLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}<ExternalLink aria-hidden="true" /></a>)}</div>
-        <p className="caudit-updated">Review master locked 12 September 2026 · Australian English · Production workspace v4.0</p>
+        <p className="caudit-updated">Final cinematic edit · 12 September 2026 · Australian English · Production workspace v5.0</p>
       </footer>
     </main>
   );

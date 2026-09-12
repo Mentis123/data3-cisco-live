@@ -2,6 +2,7 @@ import { ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
 import { PromptCard } from "./CAUDIT";
 import { grokBrollItems } from "./caudit-data";
 import "./caudit.css";
+import CAUDITSourceGallery from "./CAUDITSourceGallery";
 
 function Data3Name() {
   return <span className="caudit-wordmark">Data<sup>#</sup>3</span>;
@@ -39,6 +40,7 @@ export default function CAUDITGrok() {
         <div><span>Text</span><strong>No generated lettering</strong></div>
       </section>
 
+      <CAUDITSourceGallery />
       <section className="caudit-section caudit-grok-intro" id="prompts">
         <div className="caudit-section-heading">
           <div><span className="caudit-kicker">Copy-ready shot briefs</span><h2>Eight cutaways with a job to do</h2></div>
