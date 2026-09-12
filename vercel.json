@@ -20,6 +20,7 @@
     { "src": "/practice/(.*)", "dest": "/api/practice.js" },
     { "src": "/api", "dest": "/api/index.ts" },
     { "src": "/api/(.*)", "dest": "/api/index.ts" },
+    { "src": "/caudit/?", "dest": "/caudit.html" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
