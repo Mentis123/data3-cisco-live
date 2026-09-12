@@ -1,299 +1,351 @@
 1
-00:00:00,140 --> 00:00:02,263
+00:00:00,160 --> 00:00:02,290
 Every Microsoft agreement starts
 
 2
-00:00:02,263 --> 00:00:03,722
+00:00:02,330 --> 00:00:03,960
 with a set of choices.
 
 3
-00:00:03,722 --> 00:00:05,911
+00:00:04,000 --> 00:00:06,460
 For a university, the value comes
 
 4
-00:00:05,911 --> 00:00:08,100
+00:00:06,500 --> 00:00:08,960
 from making those choices clearly
 
 5
-00:00:08,100 --> 00:00:10,820
+00:00:09,000 --> 00:00:10,960
 and having the right support around them.
 
 6
-00:00:11,540 --> 00:00:14,325
+00:00:11,000 --> 00:00:13,290
 Data#3 brings more than thirty years
 
 7
-00:00:14,325 --> 00:00:15,995
+00:00:13,330 --> 00:00:15,290
 of education experience,
 
 8
-00:00:15,995 --> 00:00:19,128
-long-standing engagement with CAUDIT members,
+00:00:15,330 --> 00:00:16,960
+long-standing engagement
 
 9
-00:00:19,128 --> 00:00:21,843
-and national coverage across Australia,
+00:00:17,000 --> 00:00:17,960
+with CAUDIT members,
 
 10
-00:00:21,843 --> 00:00:23,305
-Fiji and the Pacific.
+00:00:18,000 --> 00:00:21,020
+and national coverage across Australia,
 
 11
-00:00:23,305 --> 00:00:26,438
-Each institution has a local account contact,
+00:00:21,060 --> 00:00:23,100
+Fiji and the Pacific.
 
 12
-00:00:26,438 --> 00:00:28,457
-backed by Microsoft licensing
+00:00:23,160 --> 00:00:24,420
+Each institution has a
 
 13
-00:00:28,457 --> 00:00:30,197
-and contract specialists,
+00:00:24,460 --> 00:00:26,030
+local account contact,
 
 14
-00:00:30,197 --> 00:00:32,007
-national solution experts,
+00:00:26,070 --> 00:00:28,000
+backed by Microsoft licensing
 
 15
-00:00:32,007 --> 00:00:34,096
-and direct escalation pathways
+00:00:28,040 --> 00:00:29,960
+and contract specialists,
 
 16
-00:00:34,096 --> 00:00:35,140
-into Microsoft.
+00:00:30,000 --> 00:00:31,770
+national solution experts,
 
 17
-00:00:35,900 --> 00:00:39,176
-That team supports the full agreement lifecycle.
+00:00:31,810 --> 00:00:33,730
+and direct escalation pathways
 
 18
-00:00:39,176 --> 00:00:42,043
-It coordinates quotes, orders, enrolments,
+00:00:33,770 --> 00:00:34,960
+into Microsoft.
 
 19
-00:00:42,043 --> 00:00:43,681
-amendments and renewals.
+00:00:35,000 --> 00:00:36,700
+That team supports the
 
 20
-00:00:43,681 --> 00:00:46,206
-It interprets licensing requirements,
+00:00:36,740 --> 00:00:38,960
+full agreement lifecycle.
 
 21
-00:00:46,206 --> 00:00:48,731
-provides education-specific guidance,
+00:00:39,000 --> 00:00:42,010
+It coordinates quotes, orders, enrolments,
 
 22
-00:00:48,731 --> 00:00:51,734
-reviews consumption and licensing positions,
+00:00:42,050 --> 00:00:43,960
+amendments and renewals.
 
 23
-00:00:51,734 --> 00:00:53,441
-models renewal scenarios,
+00:00:44,000 --> 00:00:45,960
+It interprets licensing requirements,
 
 24
-00:00:53,441 --> 00:00:55,284
-and advocates for customers
+00:00:46,000 --> 00:00:49,100
+provides education-specific guidance,
 
 25
-00:00:55,284 --> 00:00:57,126
-when licensing, entitlement
+00:00:49,160 --> 00:00:50,280
+reviews consumption and
 
 26
-00:00:57,126 --> 00:00:59,720
-or operational issues need escalation.
+00:00:50,320 --> 00:00:51,540
+licensing positions,
 
 27
-00:01:00,600 --> 00:01:03,260
-The level of support remains flexible.
+00:00:51,580 --> 00:00:52,960
+models renewal scenarios,
 
 28
-00:01:03,260 --> 00:01:06,340
-Institutions with strong internal capability
+00:00:53,000 --> 00:00:54,850
+and advocates for customers
 
 29
-00:01:06,340 --> 00:01:09,280
-can focus on core licensing administration
+00:00:54,890 --> 00:00:56,960
+when licensing, entitlement
 
 30
-00:01:09,280 --> 00:01:10,260
-and enquiries.
+00:00:57,000 --> 00:00:59,960
+or operational issues need escalation.
 
 31
-00:01:10,260 --> 00:01:13,410
-Those wanting deeper support can add reviews,
+00:01:00,000 --> 00:01:02,960
+The level of support remains flexible.
 
 32
-00:01:13,410 --> 00:01:16,140
-planning, roadmap briefings, governance
+00:01:03,000 --> 00:01:04,700
+Institutions with strong
 
 33
-00:01:16,140 --> 00:01:17,890
-and specialist engagement
+00:01:04,740 --> 00:01:06,010
+internal capability
 
 34
-00:01:17,890 --> 00:01:19,360
-as priorities change.
+00:01:06,050 --> 00:01:08,780
+can focus on core licensing administration
 
 35
-00:01:20,200 --> 00:01:23,303
-MyD3 provides a secure central view
+00:01:08,820 --> 00:01:10,100
+and enquiries.
 
 36
-00:01:23,303 --> 00:01:26,632
-of agreements, software and cloud reporting,
+00:01:10,160 --> 00:01:11,340
+Those wanting deeper
 
 37
-00:01:26,632 --> 00:01:29,432
-quotes, orders, assets, support cases
+00:01:11,380 --> 00:01:13,030
+support can add reviews,
 
 38
-00:01:29,432 --> 00:01:31,400
-and lifecycle information.
+00:01:13,070 --> 00:01:16,100
+planning, roadmap briefings, governance
 
 39
-00:01:32,060 --> 00:01:34,630
-Optional Premier Support adds accountable
+00:01:16,140 --> 00:01:18,030
+and specialist engagement
 
 40
-00:01:34,630 --> 00:01:37,200
-incident ownership across Microsoft cloud
+00:01:18,070 --> 00:01:19,960
+as priorities change.
 
 41
-00:01:37,200 --> 00:01:38,892
-and on-premises technology,
+00:01:20,000 --> 00:01:22,850
+MyD3 provides a secure central view
 
 42
-00:01:38,892 --> 00:01:41,086
-using a pre-purchased pool of hours
+00:01:22,890 --> 00:01:24,960
+of agreements, software
 
 43
-00:01:41,086 --> 00:01:42,778
-and escalation to Microsoft
+00:01:25,000 --> 00:01:26,150
+and cloud reporting,
 
 44
-00:01:42,778 --> 00:01:45,160
-when product intervention is required.
+00:01:26,190 --> 00:01:29,990
+quotes, orders, assets, support cases
 
 45
-00:01:45,940 --> 00:01:48,782
-Around Azure, separately scoped services
+00:01:30,030 --> 00:01:32,100
+and lifecycle information.
 
 46
-00:01:48,782 --> 00:01:50,842
-can provide platform support,
+00:01:32,160 --> 00:01:35,010
+Optional Premier Support adds accountable
 
 47
-00:01:50,842 --> 00:01:53,968
-priority incident handling, cost visibility,
+00:01:35,050 --> 00:01:37,950
+incident ownership across Microsoft cloud
 
 48
-00:01:53,968 --> 00:01:56,526
-right-sizing, governance, monitoring
+00:01:37,990 --> 00:01:40,030
+and on-premises technology,
 
 49
-00:01:56,526 --> 00:01:58,160
-and managed operations.
+00:01:40,070 --> 00:01:40,960
+using a pre-purchased pool of hours
 
 50
-00:01:59,020 --> 00:02:01,615
-The same relationship can connect institutions
+00:01:41,000 --> 00:01:42,690
+and escalation to Microsoft
 
 51
-00:02:01,615 --> 00:02:04,096
-with expertise across modern work, security,
+00:01:42,730 --> 00:01:44,960
+when product intervention is required.
 
 52
-00:02:04,096 --> 00:02:05,958
-data and artificial intelligence,
+00:01:45,000 --> 00:01:47,860
+Around Azure, separately scoped services
 
 53
-00:02:05,958 --> 00:02:07,537
-applications and automation.
+00:01:47,900 --> 00:01:49,960
+can provide platform support,
 
 54
-00:02:07,537 --> 00:02:09,962
-Engagement can take the form of consulting,
+00:01:50,000 --> 00:01:51,210
+priority incident
 
 55
-00:02:09,962 --> 00:02:11,485
-packaged services, projects
+00:01:51,250 --> 00:01:53,170
+handling, cost visibility,
 
 56
-00:02:11,485 --> 00:02:13,065
-or ongoing managed services.
+00:01:53,380 --> 00:01:55,970
+right-sizing, governance, monitoring
 
 57
-00:02:13,065 --> 00:02:15,264
-Each is scoped and purchased separately
+00:01:56,010 --> 00:01:58,100
+and managed operations.
 
 58
-00:02:15,264 --> 00:02:16,900
-from the Microsoft agreement.
+00:01:58,150 --> 00:01:59,260
+The same relationship
 
 59
-00:02:17,520 --> 00:02:20,012
-University priorities change over time.
+00:01:59,300 --> 00:02:00,860
+can connect institutions
 
 60
-00:02:20,012 --> 00:02:21,992
-Licensing optimisation may lead
+00:02:00,900 --> 00:02:02,310
+with expertise across
 
 61
-00:02:21,992 --> 00:02:24,229
-to cloud adoption, security uplift,
+00:02:02,350 --> 00:02:03,960
+modern work, security,
 
 62
-00:02:24,229 --> 00:02:27,040
-responsible artificial intelligence adoption
+00:02:04,000 --> 00:02:06,960
+data and artificial intelligence,
 
 63
-00:02:27,040 --> 00:02:28,701
-or broader transformation.
+00:02:07,000 --> 00:02:08,960
+applications and automation.
 
 64
-00:02:28,701 --> 00:02:31,384
-Data#3 helps bring the right expertise
+00:02:09,000 --> 00:02:10,410
+Engagement can take
 
 65
-00:02:31,384 --> 00:02:33,940
-into the relationship at the right time.
+00:02:10,450 --> 00:02:12,210
+the form of consulting,
 
 66
-00:02:34,640 --> 00:02:37,552
-The next agreement cycle begins
+00:02:12,250 --> 00:02:14,540
+packaged services, projects
 
 67
-00:02:37,552 --> 00:02:41,027
-by confirming scope and requirements,
+00:02:14,580 --> 00:02:16,960
+or ongoing managed services.
 
 68
-00:02:41,027 --> 00:02:45,441
-validating licensing and enrolment information,
+00:02:17,000 --> 00:02:19,110
+Each is scoped and purchased separately
 
 69
-00:02:45,441 --> 00:02:47,789
-completing documentation,
+00:02:19,150 --> 00:02:21,100
+from the Microsoft agreement.
 
 70
-00:02:47,789 --> 00:02:50,982
-preparing onboarding and handover,
+00:02:21,160 --> 00:02:24,100
+University priorities change over time.
 
 71
-00:02:50,982 --> 00:02:53,142
-then verifying licences
+00:02:24,140 --> 00:02:26,520
+Licensing optimisation may lead
 
 72
-00:02:53,142 --> 00:02:55,960
-and beginning ongoing support.
+00:02:26,560 --> 00:02:29,030
+to cloud adoption, security uplift,
 
 73
-00:02:56,840 --> 00:02:59,121
-Your Microsoft investment.
+00:02:29,070 --> 00:02:30,410
+responsible artificial
 
 74
-00:02:59,121 --> 00:02:59,998
-Your way.
+00:02:30,450 --> 00:02:31,970
+intelligence adoption
 
 75
-00:02:59,998 --> 00:03:01,840
+00:02:32,010 --> 00:02:33,960
+or broader transformation.
+
+76
+00:02:34,000 --> 00:02:36,860
+Data#3 helps bring the right expertise
+
+77
+00:02:36,900 --> 00:02:40,100
+into the relationship at the right time.
+
+78
+00:02:40,150 --> 00:02:41,990
+The next agreement cycle begins
+
+79
+00:02:42,030 --> 00:02:44,560
+by confirming scope and requirements,
+
+80
+00:02:44,600 --> 00:02:46,220
+validating licensing and
+
+81
+00:02:46,260 --> 00:02:48,030
+enrolment information,
+
+82
+00:02:48,070 --> 00:02:49,990
+completing documentation,
+
+83
+00:02:50,030 --> 00:02:51,960
+preparing onboarding and handover,
+
+84
+00:02:52,000 --> 00:02:53,700
+then verifying licences
+
+85
+00:02:53,740 --> 00:02:56,100
+and beginning ongoing support.
+
+86
+00:02:56,843 --> 00:02:58,652
+Your Microsoft investment.
+
+87
+00:02:58,963 --> 00:02:59,861
+Your way.
+
+88
+00:03:00,343 --> 00:03:01,969
 Backed by Data#3.

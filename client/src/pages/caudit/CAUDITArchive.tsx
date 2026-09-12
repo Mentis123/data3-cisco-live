@@ -4,7 +4,7 @@ import "./caudit.css";
 const versions = [
   { id: "notebooklm", title: "01 — Original NotebookLM film", time: "03:49", file: "CAUDIT_NOTEBOOKLM_ORIGINAL", poster: "CAUDIT_NOTEBOOKLM_POSTER.jpg", captions: false, description: "The original supplied reference. Preserved unchanged as the starting point of the production." },
   { id: "review", title: "02 — First cinematic review", time: "03:02", file: "CAUDIT_2026_LSP_REVIEW", poster: "P01_COVER_SLIDE.png", captions: true, description: "The previously published cut, preserved unchanged — including its original mix, repeated footage and historical captions." },
-  { id: "final", title: "03 — Final cinematic film", time: "03:05", file: "CAUDIT_2026_LSP_FINAL", poster: "P01_COVER_SLIDE.png", captions: true, description: "The recut: human and operational B-roll, precise Arial messaging, selective information graphics, intentional transitions and a quieter, speech-ducked music bed." },
+  { id: "final", title: "03 — Final cinematic film", time: "03:05", file: "CAUDIT_2026_LSP_FINAL", poster: "P01_COVER_SLIDE.png", captions: true, description: "The final recut: human and operational B-roll, word-aligned captions, narration-matched Arial messaging, intentional transitions, a quieter speech-ducked music bed and a return to the original cover slide." },
 ];
 
 export default function CAUDITArchive() {
@@ -22,8 +22,8 @@ export default function CAUDITArchive() {
           <article className="caudit-archive-card" key={version.id} id={version.id}>
             <div><span className="caudit-kicker">{version.time} · {version.id === "final" ? "Current release" : "Historical version"}</span><h2>{version.title}</h2><p>{version.description}</p></div>
             <video controls playsInline preload="none" poster={`/caudit/${version.poster}`} aria-label={version.title}>
-              <source src={`/caudit/${version.file}.mp4`} type="video/mp4" />
-              {version.captions && <track kind="captions" src={`/caudit/${version.file}.vtt`} srcLang="en" label="English" />}
+              <source src={`/caudit/${version.file}.mp4${version.id === "final" ? "?v=20260912-sync2" : ""}`} type="video/mp4" />
+              {version.captions && <track kind="captions" src={`/caudit/${version.file}.vtt${version.id === "final" ? "?v=20260912-sync2" : ""}`} srcLang="en" label="English" />}
             </video>
             <div className="caudit-release-links"><a href={`/caudit/${version.file}.mp4`} download>Download MP4</a>{version.captions && <a href={`/caudit/${version.file}.srt`} download>Download captions</a>}</div>
           </article>

@@ -144,7 +144,7 @@ export default function CAUDIT() {
         <div className="caudit-hero-copy">
           <span className="caudit-eyebrow"><Sparkles aria-hidden="true" /> Refined production workspace</span>
           <h1>Signal through<br /><em>the noise.</em></h1>
-          <p>The 3:05 final film: cinematic footage, six human and operational cutaways, precise Arial messaging, one continuous narration and a voice-first mix.</p>
+          <p>The 3:05 final film: cinematic footage, six human and operational cutaways, precise Arial messaging, word-aligned captions, one continuous narration and a voice-first mix.</p>
           <div className="caudit-release-links"><a href="/caudit">Watch the final film →</a><a href="/caudit/archive">Video archive · all three versions →</a><a href="/caudit/CAUDIT_2026_EDIT_NOTES.md" download>Final edit notes ↓</a></div>
         </div>
         <div className="caudit-storyline" aria-label="Film structure">
@@ -152,13 +152,13 @@ export default function CAUDIT() {
           <div><span>00:12</span><strong>Education relationship</strong><p>Experience and accountability</p></div>
           <div><span>00:36</span><strong>Licensing lifecycle</strong><p>One connected narrative</p></div>
           <div><span>01:59</span><strong>Connected capability</strong><p>The relationship expands</p></div>
-          <div><span>02:35</span><strong>Agreement cycle</strong><p>Clean resolved close</p></div>
+          <div><span>02:40</span><strong>Agreement cycle</strong><p>Five steps, then back to the deck</p></div>
         </div>
       </section>
 
       <section className="caudit-section caudit-release-note">
         <span className="caudit-kicker">Final production lock</span>
-        <p>29 timeline segments · 24 fps · forward-only footage · three short information beats · one intentional dark transition. The eight original cinematic sources remain below, alongside all eight supplied B-roll clips.</p>
+        <p>28 timeline segments · 24 fps · forward-only footage · 88 word-aligned caption cues · three short information beats · one intentional dark transition · final dissolve back to the untouched cover slide. The eight original cinematic sources remain below, alongside all eight supplied B-roll clips.</p>
         <p><strong>Voiceover copy:</strong> the ElevenLabs block remains one continuous, copy-ready read. “Data three” and “My D three” are pronunciation instructions only; visible final labels and captions use Data#3 and MyD3.</p>
         <a href="#vo-master" onClick={() => { setActiveGroup("All"); setQuery(""); }}>Jump to the single voiceover block ↓</a>
       </section>

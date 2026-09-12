@@ -35,10 +35,10 @@ export default function CAUDITPromo() {
           poster="/caudit/P01_COVER_SLIDE.png"
           aria-label="Delivering the Digital Future in Education"
         >
-          <source src="/caudit/CAUDIT_2026_LSP_FINAL.mp4" type="video/mp4" />
+          <source src="/caudit/CAUDIT_2026_LSP_FINAL.mp4?v=20260912-sync2" type="video/mp4" />
           <track
             kind="captions"
-            src="/caudit/CAUDIT_2026_LSP_FINAL.vtt"
+            src="/caudit/CAUDIT_2026_LSP_FINAL.vtt?v=20260912-sync2"
             srcLang="en"
             label="English"
           />
