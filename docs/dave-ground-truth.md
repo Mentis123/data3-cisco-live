@@ -148,30 +148,47 @@ the narrow open ellipse visible at frames 0039 and 0159. `B/A=1.58` and
 
 ![Curve equation over independent face and edge frames](./dave-reference/object-curve-fit.webp)
 
-The best-supported visible-section reconstruction is a physical seven-filament
-hex bundle in reflective glass. The centerline and bundle envelope are directly
-constrained; seven filaments and one full twist are the best fit to the
-cross-section/contour evidence, but are not uniquely identifiable from the
-tone-mapped 512 px video:
+The visible section is a flat band of seven glass filaments, not a round hex
+bundle. Across every clean anchor the object reads as parallel bright rims side
+by side: a wide band in the face views (0099/0219), a thin edge in the edge
+views (0039/0159), and the three broad highlight rows of the measured section
+profile are rows of a band seen obliquely. The centreline and band envelope are
+directly constrained; the strand count and the twist are the best fit to the
+contour evidence but are not uniquely identifiable from the tone-mapped 512 px
+video:
 
-- one center strand plus six equally spaced outer strands;
-- strand radius approximately `0.05` scene units;
-- outer-strand center ring radius approximately `0.10`;
-- total bundle radius approximately `0.150`;
-- one slow closed twist around the full lemniscate (the selected starting fit;
-  zero and two turns are the nearest plausible ablations);
-- a neutral smoky glass body on every filament, rather than seven opaque
-  silver/teal/rose/blue/amber/green cables;
+- seven strands side by side across a `0.30` scene-unit band, strand radius
+  `0.024`, strand spacing `0.05` (band envelope radius `0.15`, matching the
+  measured `0.046 × side`);
+- the band's width direction starts inside the lemniscate's own plane and
+  turns by **one half-twist** over the lap, so the band is one-sided: strand
+  `+o` continues as strand `−o`, the three outer pairs each close as one
+  two-lap curve, and only the centre strand closes on itself. Zero, one, and
+  two half-twists score within 1% of each other on every source ROI (see
+  `dave-evaluation.md`), so the twist is a selected hypothesis, not a
+  measurement; one half-twist is the Möbius topology the sculpture is meant
+  to read as;
+- the band is framed by the curve's rotation-minimising frame (Three's closed
+  Frenet-frame builder, which distributes the closure rotation evenly), so
+  the twist count is exactly the authored count;
+- a dark, neutral, partially transmitting glass body on every filament
+  (`#3d474b` lerped 6% toward the strand accent), rather than a light grey
+  body: the reference cores are nearly black and only the rims are bright;
 - narrow silver, teal, rose, slate blue, amber, and green surface-response
   lanes that sit over the transmitted body;
 - rounded `TubeGeometry`, volume transmission, clearcoat/specular response,
   and no one-pixel line geometry on the directly viewed object.
 
-The directly viewed strands use 256 centerline samples and 12 radial segments.
-Near reflection proxies use the identical analytic curves/radii at 96×6
-tessellation. Beyond order four, where tubes are sub-pixel, the same curves are
-sampled as 20-segment strand traces. This retains the image path while avoiding
-millions of unresolved tube vertices.
+The directly viewed strands use 256 centreline samples per lap and 12 radial
+segments. Near reflection proxies use the identical analytic curves/radii at
+96×6 tessellation per lap. Beyond order four, where tubes are sub-pixel, the
+same curves are sampled as 20-segment strand traces. This retains the image
+path while avoiding millions of unresolved tube vertices.
+
+The rejected hex bundle (one centre strand plus six at ring radius `0.10`,
+strand radius `0.05`, one full twist) rendered as a light, saturated rope
+roughly twice the reference's apparent thickness; replacing it lowered the
+centre-ROI error at every anchor.
 
 ![Measured cross-section and seven-strand hypothesis](./dave-reference/object-strand-cross-section.webp)
 
@@ -375,8 +392,36 @@ therefore generate highlights first; bloom is applied afterward.
 - Fixed world floor and sky while the assembly rotates.
 - Three body-mounted colored point emitters rotate rigidly near the grounded
   vertex and light a physical rough floor. This is a real-time contact-light
-  approximation, explicitly not a spectral/refraction caustic solver.
+  approximation, explicitly not a spectral/refraction caustic solver. Their
+  reach is `1.5` scene units: the glass starts about `1.5` units from the
+  emitters, so only the tail of each light touches it. The earlier `2.2`
+  reach flooded the lower loop green at 0009/0129; `1.5` scores better on the
+  full frame, the cube ROI, and the centre ROI at every anchor.
 - No hard cast shadow and no rotating checkerboard.
+
+## Numerical robustness
+
+The recursive glass environment is a live half-float cube render target. Two
+things can put a non-finite value into it, and one non-finite texel is enough
+to black out the whole frame: the glass samples it, bloom's blur pyramid
+spreads the NaN across every pixel, and the composite goes dark. Before this
+was guarded, four of the nine source anchors (0039, 0099, 0159, 0219, i.e.
+active times 1, 3, 5, 7 s) rendered fully black under software WebGL, and any
+device could hit the same texel at some yaw.
+
+- A `0.052`-roughness GGX lobe peaks near `1/(π·α²) ≈ 4.4·10⁴`, which is the
+  half-float limit. The glass shader therefore caps `outgoingLight` at `48`:
+  far above the bloom threshold and anything the display can show, far below
+  `65504`, so no capture or mipmap can overflow to infinity.
+- Every environment sample the glass reads (`radiance`, `iblIrradiance`,
+  `clearcoatRadiance`) is replaced by zero when it is NaN or infinite, and the
+  planar mirror shader does the same with its reflection sample. The direct
+  glass is the only material that samples the cube capture, so this is the
+  single choke point.
+
+`npm run test:dave-glass` asserts both guards are present in the compiled
+shader, and `npm run evaluate:dave` would now fail loudly (mean error and the
+history-independence gate) if a frame went black.
 
 ## Evaluation gates
 
@@ -413,4 +458,6 @@ Release:
 - deterministic nine-anchor capture completes without page or WebGL errors.
 
 The final anchor renders, per-frame pixel metrics, and gate results are recorded
-in [`dave-evaluation.md`](./dave-evaluation.md).
+in [`dave-evaluation.md`](./dave-evaluation.md). `DAVE_QUERY="key=value"`
+appends a query string to the QA URL so A/B variants can be scored with the
+same harness without editing the scene.

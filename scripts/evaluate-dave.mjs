@@ -15,6 +15,8 @@ const chromeProfile = await mkdtemp(join(tmpdir(), "dave-chrome-"));
 const vitePort = 4175 + Math.floor(Math.random() * 400);
 const cdpPort = 9222 + Math.floor(Math.random() * 400);
 const anchors = [9, 39, 69, 99, 129, 159, 189, 219, 240];
+// Optional extra query string for A/B experiments, e.g. DAVE_QUERY="twist=1".
+const query = process.env.DAVE_QUERY ? `&${process.env.DAVE_QUERY}` : "";
 
 async function findExecutable(directory, names, depth = 4) {
   if (!directory || depth < 0 || !existsSync(directory)) return undefined;
@@ -192,7 +194,7 @@ let cdp;
 
 try {
   await waitFor(async () => {
-    const response = await fetch(`http://127.0.0.1:${vitePort}/dave?qa=1`);
+    const response = await fetch(`http://127.0.0.1:${vitePort}/dave?qa=1${query}`);
     return response.ok;
   }, "Vite");
 
@@ -243,10 +245,12 @@ try {
       }, true);
     `,
   });
-  await cdp.send("Page.navigate", { url: `http://127.0.0.1:${vitePort}/dave?qa=1` });
+  await cdp.send("Page.navigate", { url: `http://127.0.0.1:${vitePort}/dave?qa=1${query}` });
   await waitFor(
     () => evaluate(cdp, "Boolean(window.__DAVE_QA__?.ready && document.querySelector(\"canvas[data-ready='true']\"))"),
     "Dave WebGL scene",
+    // Software WebGL needs well over the default 12 s for the first frame.
+    1200,
   );
 
   const metrics = [];

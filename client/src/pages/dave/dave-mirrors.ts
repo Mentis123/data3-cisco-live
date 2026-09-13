@@ -45,6 +45,7 @@ const smokedMirrorShader = {
     void main() {
       #include <logdepthbuf_fragment>
       vec3 reflection = texture2DProj(tDiffuse, vUv).rgb;
+      if (any(isnan(reflection)) || any(isinf(reflection))) reflection = vec3(0.0);
       reflection = max(reflection - vec3(0.006), vec3(0.0));
       vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
       float grazing = 1.0 - abs(dot(normalize(vWorldNormal), viewDirection));
