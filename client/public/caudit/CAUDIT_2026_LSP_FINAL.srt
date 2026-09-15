@@ -1,351 +1,555 @@
 1
-00:00:00,160 --> 00:00:02,290
-Every Microsoft agreement starts
+00:00:00,000 --> 00:00:02,330
+Every Microsoft agreement starts with
 
 2
-00:00:02,330 --> 00:00:03,960
-with a set of choices.
+00:00:02,330 --> 00:00:05,840
+choices. For a university, value comes
 
 3
-00:00:04,000 --> 00:00:06,460
-For a university, the value comes
+00:00:05,840 --> 00:00:06,640
+from making those
 
 4
-00:00:06,500 --> 00:00:08,960
-from making those choices clearly
+00:00:06,640 --> 00:00:08,990
+choices clearly, with the right support
 
 5
-00:00:09,000 --> 00:00:10,960
-and having the right support around them.
+00:00:08,990 --> 00:00:11,870
+from the beginning. Data#3 brings
 
 6
-00:00:11,000 --> 00:00:13,290
-Data#3 brings more than thirty years
+00:00:11,870 --> 00:00:13,600
+more than 30 years of
 
 7
-00:00:13,330 --> 00:00:15,290
-of education experience,
+00:00:13,600 --> 00:00:15,980
+education experience, long-standing
 
 8
-00:00:15,330 --> 00:00:16,960
-long-standing engagement
+00:00:15,980 --> 00:00:18,210
+engagement with CAUDIT members, and
 
 9
-00:00:17,000 --> 00:00:17,960
-with CAUDIT members,
+00:00:18,210 --> 00:00:20,240
+coverage across Australia,
 
 10
-00:00:18,000 --> 00:00:21,020
-and national coverage across Australia,
+00:00:20,240 --> 00:00:23,350
+Fiji, and the Pacific. Every institution
 
 11
-00:00:21,060 --> 00:00:23,100
-Fiji and the Pacific.
+00:00:23,350 --> 00:00:26,080
+has a local licensing specialist with
 
 12
-00:00:23,160 --> 00:00:24,420
-Each institution has a
+00:00:26,080 --> 00:00:26,880
+deep knowledge
 
 13
-00:00:24,460 --> 00:00:26,030
-local account contact,
+00:00:26,880 --> 00:00:29,540
+of Microsoft Enrolment for Education
 
 14
-00:00:26,070 --> 00:00:28,000
-backed by Microsoft licensing
+00:00:29,540 --> 00:00:33,000
+Solutions, or EES. The education team
 
 15
-00:00:28,040 --> 00:00:29,960
-and contract specialists,
+00:00:33,000 --> 00:00:34,320
+combines sector
 
 16
-00:00:30,000 --> 00:00:31,770
-national solution experts,
+00:00:34,320 --> 00:00:36,420
+leadership and dedicated account
 
 17
-00:00:31,810 --> 00:00:33,730
-and direct escalation pathways
+00:00:36,420 --> 00:00:38,510
+management, backed by Microsoft
 
 18
-00:00:33,770 --> 00:00:34,960
-into Microsoft.
+00:00:38,510 --> 00:00:41,040
+operations, contract specialists,
 
 19
-00:00:35,000 --> 00:00:36,700
-That team supports the
+00:00:41,040 --> 00:00:43,490
+national solution experts, and direct
 
 20
-00:00:36,740 --> 00:00:38,960
-full agreement lifecycle.
+00:00:43,490 --> 00:00:46,140
+escalation pathways into Microsoft.
 
 21
-00:00:39,000 --> 00:00:42,010
-It coordinates quotes, orders, enrolments,
+00:00:46,140 --> 00:00:48,000
+Together, they support
 
 22
-00:00:42,050 --> 00:00:43,960
-amendments and renewals.
+00:00:48,000 --> 00:00:51,470
+the full agreement lifecycle, quotes,
 
 23
-00:00:44,000 --> 00:00:45,960
-It interprets licensing requirements,
+00:00:51,470 --> 00:00:54,630
+orders, enrolments, amendments, renewals,
 
 24
-00:00:46,000 --> 00:00:49,100
-provides education-specific guidance,
+00:00:54,630 --> 00:00:55,280
+licensing
 
 25
-00:00:49,160 --> 00:00:50,280
-reviews consumption and
+00:00:55,280 --> 00:00:57,860
+interpretation, consumption reviews,
 
 26
-00:00:50,320 --> 00:00:51,540
-licensing positions,
+00:00:57,860 --> 00:01:00,480
+renewal modelling, and customer advocacy
 
 27
-00:00:51,580 --> 00:00:52,960
-models renewal scenarios,
+00:01:00,480 --> 00:01:01,200
+when issues
 
 28
-00:00:53,000 --> 00:00:54,850
-and advocates for customers
+00:01:01,200 --> 00:01:04,660
+require escalation. Commercial options
 
 29
-00:00:54,890 --> 00:00:56,960
-when licensing, entitlement
+00:01:04,660 --> 00:01:07,360
+remain flexible. Institutions with mature
 
 30
-00:00:57,000 --> 00:00:59,960
-or operational issues need escalation.
+00:01:07,360 --> 00:01:07,760
+internal
 
 31
-00:01:00,000 --> 00:01:02,960
-The level of support remains flexible.
+00:01:07,760 --> 00:01:09,670
+capability can choose streamlined
 
 32
-00:01:03,000 --> 00:01:04,700
-Institutions with strong
+00:01:09,670 --> 00:01:12,850
+licensing administration. Those seeking
 
 33
-00:01:04,740 --> 00:01:06,010
-internal capability
+00:01:12,850 --> 00:01:13,920
+more support can
 
 34
-00:01:06,050 --> 00:01:08,780
-can focus on core licensing administration
+00:01:13,920 --> 00:01:16,240
+add consulting, governance, and
 
 35
-00:01:08,820 --> 00:01:10,100
-and enquiries.
+00:01:16,240 --> 00:01:18,290
+specialist engagement for complex
 
 36
-00:01:10,160 --> 00:01:11,340
-Those wanting deeper
+00:01:18,290 --> 00:01:19,920
+scenarios, compliance
 
 37
-00:01:11,380 --> 00:01:13,030
-support can add reviews,
+00:01:19,920 --> 00:01:22,850
+across stakeholder groups and technology
 
 38
-00:01:13,070 --> 00:01:16,100
-planning, roadmap briefings, governance
+00:01:22,850 --> 00:01:25,651
+domains, and cost optimisation. Every
 
 39
-00:01:16,140 --> 00:01:18,030
-and specialist engagement
+00:01:25,651 --> 00:01:26,160
+CAUDIT
 
 40
-00:01:18,070 --> 00:01:19,960
-as priorities change.
+00:01:26,160 --> 00:01:27,120
+member receives
 
 41
-00:01:20,000 --> 00:01:22,850
-MyD3 provides a secure central view
+00:01:27,120 --> 00:01:29,780
+access to MyD3 at no added cost,
 
 42
-00:01:22,890 --> 00:01:24,960
-of agreements, software
+00:01:29,780 --> 00:01:33,110
+providing a secure, centralised view of
 
 43
-00:01:25,000 --> 00:01:26,150
-and cloud reporting,
+00:01:33,110 --> 00:01:34,960
+agreements, quotes,
 
 44
-00:01:26,190 --> 00:01:29,990
-quotes, orders, assets, support cases
+00:01:34,960 --> 00:01:37,510
+orders, assets, support cases, and
 
 45
-00:01:30,030 --> 00:01:32,100
-and lifecycle information.
+00:01:37,510 --> 00:01:41,260
+software lifecycle information. The value
 
 46
-00:01:32,160 --> 00:01:35,010
-Optional Premier Support adds accountable
+00:01:41,260 --> 00:01:42,320
+extends
 
 47
-00:01:35,050 --> 00:01:37,950
-incident ownership across Microsoft cloud
+00:01:42,320 --> 00:01:44,810
+beyond the agreement. Premier support
 
 48
-00:01:37,990 --> 00:01:40,030
-and on-premises technology,
+00:01:44,810 --> 00:01:47,440
+provides accountable incident ownership
 
 49
-00:01:40,070 --> 00:01:40,960
-using a pre-purchased pool of hours
+00:01:47,440 --> 00:01:48,560
+across Microsoft
 
 50
-00:01:41,000 --> 00:01:42,690
-and escalation to Microsoft
+00:01:48,560 --> 00:01:51,610
+cloud and on-premises technology using a
 
 51
-00:01:42,730 --> 00:01:44,960
-when product intervention is required.
+00:01:51,610 --> 00:01:54,640
+pre-purchased pool of hours and Microsoft
 
 52
-00:01:45,000 --> 00:01:47,860
-Around Azure, separately scoped services
+00:01:54,640 --> 00:01:57,260
+escalation when product intervention is
 
 53
-00:01:47,900 --> 00:01:49,960
-can provide platform support,
+00:01:57,260 --> 00:01:59,567
+required. It offers a predictable,
 
 54
-00:01:50,000 --> 00:01:51,210
-priority incident
+00:01:59,567 --> 00:02:00,720
+cost-controlled
 
 55
-00:01:51,250 --> 00:01:53,170
-handling, cost visibility,
+00:02:00,720 --> 00:02:01,360
+alternative
 
 56
-00:01:53,380 --> 00:01:55,970
-right-sizing, governance, monitoring
+00:02:01,360 --> 00:02:05,180
+to Microsoft Unified Support. Data#3 also
 
 57
-00:01:56,010 --> 00:01:58,100
-and managed operations.
+00:02:05,180 --> 00:02:07,820
+brings proven Azure capability. As
 
 58
-00:01:58,150 --> 00:01:59,260
-The same relationship
+00:02:07,820 --> 00:02:09,520
+Australia's largest
 
 59
-00:01:59,300 --> 00:02:00,860
-can connect institutions
+00:02:09,520 --> 00:02:12,100
+Microsoft partner and one of Australia's
 
 60
-00:02:00,900 --> 00:02:02,310
-with expertise across
+00:02:12,100 --> 00:02:14,610
+first Azure expert managed service
 
 61
-00:02:02,350 --> 00:02:03,960
-modern work, security,
+00:02:14,610 --> 00:02:16,080
+providers, Data#3 has
 
 62
-00:02:04,000 --> 00:02:06,960
-data and artificial intelligence,
+00:02:16,080 --> 00:02:18,060
+been independently audited against
 
 63
-00:02:07,000 --> 00:02:08,960
-applications and automation.
+00:02:18,060 --> 00:02:20,360
+Microsoft's highest standards for managed
 
 64
-00:02:09,000 --> 00:02:10,410
-Engagement can take
+00:02:20,360 --> 00:02:21,440
+Azure services.
 
 65
-00:02:10,450 --> 00:02:12,210
-the form of consulting,
+00:02:22,160 --> 00:02:24,707
+Backed by more than 2,000 Microsoft
 
 66
-00:02:12,250 --> 00:02:14,540
-packaged services, projects
+00:02:24,707 --> 00:02:25,980
+certifications,
 
 67
-00:02:14,580 --> 00:02:16,960
-or ongoing managed services.
+00:02:25,980 --> 00:02:28,250
+deep local expertise, and active
 
 68
-00:02:17,000 --> 00:02:19,110
-Each is scoped and purchased separately
+00:02:28,250 --> 00:02:29,120
+involvement in
 
 69
-00:02:19,150 --> 00:02:21,100
-from the Microsoft agreement.
+00:02:29,120 --> 00:02:31,505
+Microsoft Global Partner Advisory
 
 70
-00:02:21,160 --> 00:02:24,100
-University priorities change over time.
+00:02:31,505 --> 00:02:32,220
+Councils,
 
 71
-00:02:24,140 --> 00:02:26,520
-Licensing optimisation may lead
+00:02:32,220 --> 00:02:34,220
+it helps universities shape cloud
 
 72
-00:02:26,560 --> 00:02:29,030
-to cloud adoption, security uplift,
+00:02:34,220 --> 00:02:35,680
+strategy, establish
 
 73
-00:02:29,070 --> 00:02:30,410
-responsible artificial
+00:02:35,680 --> 00:02:38,570
+secure Azure landing zones, migrate and
 
 74
-00:02:30,450 --> 00:02:31,970
-intelligence adoption
+00:02:38,570 --> 00:02:41,520
+modernize workloads, optimize cost and
 
 75
-00:02:32,010 --> 00:02:33,960
-or broader transformation.
+00:02:41,520 --> 00:02:42,800
+performance, and
 
 76
-00:02:34,000 --> 00:02:36,860
-Data#3 helps bring the right expertise
+00:02:42,800 --> 00:02:45,980
+operate Azure with the right controls.
 
 77
-00:02:36,900 --> 00:02:40,100
-into the relationship at the right time.
+00:02:45,980 --> 00:02:48,640
+Broader capability spans modern work,
 
 78
-00:02:40,150 --> 00:02:41,990
-The next agreement cycle begins
+00:02:48,640 --> 00:02:50,240
+security, data and
 
 79
-00:02:42,030 --> 00:02:44,560
-by confirming scope and requirements,
+00:02:50,240 --> 00:02:53,440
+artificial intelligence, applications,
 
 80
-00:02:44,600 --> 00:02:46,220
-validating licensing and
+00:02:53,440 --> 00:02:56,100
+and automation. Universities can engage
 
 81
-00:02:46,260 --> 00:02:48,030
-enrolment information,
+00:02:56,100 --> 00:02:57,040
+Data#3 through
 
 82
-00:02:48,070 --> 00:02:49,990
-completing documentation,
+00:02:57,040 --> 00:03:00,450
+consulting, packaged services, projects,
 
 83
-00:02:50,030 --> 00:02:51,960
-preparing onboarding and handover,
+00:03:00,450 --> 00:03:03,440
+or ongoing managed services, each scoped
 
 84
-00:02:52,000 --> 00:02:53,700
-then verifying licences
+00:03:03,440 --> 00:03:04,000
+separately
 
 85
-00:02:53,740 --> 00:02:56,100
-and beginning ongoing support.
+00:03:04,000 --> 00:03:06,660
+from the Microsoft agreement. Artificial
 
 86
-00:02:56,843 --> 00:02:58,652
-Your Microsoft investment.
+00:03:06,660 --> 00:03:09,100
+intelligence has moved quickly from
 
 87
-00:02:58,963 --> 00:02:59,861
-Your way.
+00:03:09,100 --> 00:03:09,680
+exploration
 
 88
-00:03:00,343 --> 00:03:01,969
-Backed by Data#3.
+00:03:09,680 --> 00:03:12,790
+to execution. Universities want practical
+
+89
+00:03:12,790 --> 00:03:15,360
+ways to improve efficiency, reduce
+
+90
+00:03:15,360 --> 00:03:16,640
+administration,
+
+91
+00:03:16,640 --> 00:03:19,360
+support staff and researchers, enhance
+
+92
+00:03:19,360 --> 00:03:22,080
+student services, and differentiate in a
+
+93
+00:03:22,080 --> 00:03:22,720
+competitive
+
+94
+00:03:22,720 --> 00:03:25,830
+sector. Responsible adoption requires
+
+95
+00:03:25,830 --> 00:03:29,460
+clear use cases, data readiness, security,
+
+96
+00:03:29,460 --> 00:03:30,480
+governance,
+
+97
+00:03:30,480 --> 00:03:32,560
+change management, training, and
+
+98
+00:03:32,560 --> 00:03:35,880
+measurable outcomes. Data#3 was named
+
+99
+00:03:35,880 --> 00:03:37,680
+Microsoft Australia
+
+100
+00:03:37,680 --> 00:03:40,900
+Partner of the Year in 2025 and Australia
+
+101
+00:03:40,900 --> 00:03:42,970
+and New Zealand Modern Work Partner of
+
+102
+00:03:42,970 --> 00:03:44,800
+the Year in 2024.
+
+103
+00:03:45,440 --> 00:03:47,150
+It holds the Copilot advanced
+
+104
+00:03:47,150 --> 00:03:50,090
+specialisation, contributes to Microsoft
+
+105
+00:03:50,090 --> 00:03:51,520
+Advisory Initiatives
+
+106
+00:03:51,520 --> 00:03:54,070
+and global generative AI research, and
+
+107
+00:03:54,070 --> 00:03:56,960
+has delivered more than 200 Copilot
+
+108
+00:03:56,960 --> 00:03:57,760
+projects
+
+109
+00:03:57,760 --> 00:04:00,210
+and the nation's highest number of Copilot
+
+110
+00:04:00,210 --> 00:04:02,880
+workshops, engaging thousands of users.
+
+111
+00:04:03,680 --> 00:04:07,500
+Through Microsoft 365 Copilot readiness,
+
+112
+00:04:07,500 --> 00:04:10,010
+implementation, training, and adoption
+
+113
+00:04:10,010 --> 00:04:11,040
+services,
+
+114
+00:04:11,040 --> 00:04:13,660
+Data#3 helps institutions prepare their
+
+115
+00:04:13,660 --> 00:04:16,320
+environment, build staff confidence,
+
+116
+00:04:16,320 --> 00:04:17,680
+establish responsible
+
+117
+00:04:17,680 --> 00:04:20,160
+governance and Centre of Excellence
+
+118
+00:04:20,160 --> 00:04:23,050
+models, and scale AI purposefully across
+
+119
+00:04:23,050 --> 00:04:23,920
+academic,
+
+120
+00:04:23,920 --> 00:04:26,480
+research, and professional services teams.
+
+121
+00:04:26,480 --> 00:04:30,080
+For Wave One universities, agreements
+
+122
+00:04:30,080 --> 00:04:30,320
+must
+
+123
+00:04:30,320 --> 00:04:34,370
+be executed by the 30th of November, 2026.
+
+124
+00:04:34,370 --> 00:04:37,440
+Data#3 is ready to confirm requirements,
+
+125
+00:04:37,440 --> 00:04:39,900
+resolve questions, coordinate the right
+
+126
+00:04:39,900 --> 00:04:42,480
+resources, and keep the process moving.
+
+127
+00:04:43,120 --> 00:04:45,490
+The goal is not simply to sign on time.
+
+128
+00:04:45,490 --> 00:04:48,240
+It is to secure the right licensing
+
+129
+00:04:48,240 --> 00:04:48,960
+position,
+
+130
+00:04:48,960 --> 00:04:51,680
+the right support model, and a clear path
+
+131
+00:04:51,680 --> 00:04:55,840
+to value across Microsoft 365, Azure,
+
+132
+00:04:55,840 --> 00:04:58,360
+security, Copilot, and the broader
+
+133
+00:04:58,360 --> 00:05:01,590
+Microsoft ecosystem. Contact the team
+
+134
+00:05:01,590 --> 00:05:03,520
+today. Email
+
+135
+00:05:03,520 --> 00:05:09,160
+caudit@data3.com. A specialist will meet
+
+136
+00:05:09,160 --> 00:05:11,280
+with you to discuss your requirements.
+
+137
+00:05:11,280 --> 00:05:14,480
+Your Microsoft investment. Your way.
+
+138
+00:05:14,480 --> 00:05:15,080
+Backed
+
+139
+00:05:15,080 --> 00:05:15,680
+by Data#3.

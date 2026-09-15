@@ -7,14 +7,20 @@ const sources = [
   ["B06", "Accountable incident support", "Headset engineer", true],
   ["B07", "Licensing guidance", "Shared laptop review", true],
   ["B08", "Design workshop", "Printed design materials — held in reserve", false],
+  ["B09_AI_GOVERNANCE", "AI governance in practice", "University leadership and technology governance", true],
+  ["B10_AI_READINESS", "Copilot readiness workshop", "Practical adoption planning with university stakeholders", true],
+  ["B11_AZURE_MIGRATION", "Azure cloud journey", "Landing-zone, migration and modernisation visual", true],
+  ["B12_UNIVERSITY_WORK", "University work in context", "Everyday academic and professional-services activity", true],
+  ["B13_AI_OPERATIONS_RESERVE", "AI operations concept", "Alternative concept — held in reserve", false],
+  ["B14_AI_ADOPTION", "AI adoption planning", "Cross-functional adoption and value workshop", true],
 ] as const;
 
 export default function CAUDITSourceGallery() {
   return (
     <section className="caudit-section caudit-source-section" id="received-footage">
       <div className="caudit-section-heading">
-        <div><span className="caudit-kicker">All eight supplied clips</span><h2>The human detail.</h2></div>
-        <p>Six selected for the final cut; two retained as alternatives. Numbers follow the received attachment order, not the original prompt order. Full-frame browser copies retain source provenance; source audio is omitted.</p>
+        <div><span className="caudit-kicker">Fourteen supplied clips</span><h2>The human detail.</h2></div>
+        <p>Eleven selected across the production; three retained as alternatives. Full-frame browser copies retain source provenance and omit native source audio.</p>
       </div>
       <div className="caudit-source-grid">
         {sources.map(([id, title, description, used]) => (

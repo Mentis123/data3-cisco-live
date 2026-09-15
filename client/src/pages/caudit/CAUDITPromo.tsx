@@ -24,7 +24,7 @@ export default function CAUDITPromo() {
           <Data3Name />
           <span className="caudit-promo-edition">CAUDIT 2026</span>
         </div>
-        <span className="caudit-promo-status">Final film · 03:05</span>
+        <span className="caudit-promo-status">Director's cut · 05:20</span>
       </header>
 
       <section className="caudit-promo-stage" aria-label="CAUDIT 2026 video">
@@ -35,10 +35,10 @@ export default function CAUDITPromo() {
           poster="/caudit/P01_COVER_SLIDE.png"
           aria-label="Delivering the Digital Future in Education"
         >
-          <source src="/caudit/CAUDIT_2026_LSP_FINAL.mp4?v=20260912-sync2" type="video/mp4" />
+          <source src="/caudit/CAUDIT_2026_LSP_FINAL.mp4?v=20260915-directors-cut" type="video/mp4" />
           <track
             kind="captions"
-            src="/caudit/CAUDIT_2026_LSP_FINAL.vtt?v=20260912-sync2"
+            src="/caudit/CAUDIT_2026_LSP_FINAL.vtt?v=20260915-directors-cut"
             srcLang="en"
             label="English"
           />
@@ -50,10 +50,10 @@ export default function CAUDITPromo() {
         <span>CAUDIT 2026 · Microsoft licensing services</span>
         <h1 id="caudit-promo-title">Delivering the Digital Future in Education</h1>
         <p>
-          A three-minute look at how Data<sup>#</sup>3 can help CAUDIT members maximise the value of their Microsoft investment—from agreement and licensing support to connected cloud, security, data, and AI capability.
+          A cinematic look at how Data<sup>#</sup>3 helps CAUDIT members make clear Microsoft agreement choices, execute with confidence and build continuing value across licensing, support, Azure, security, data and AI.
         </p>
         <p>
-          Created for IT, commercial and procurement leaders at CAUDIT member institutions. A cinematic introduction to the people, support and connected capabilities behind the relationship.
+          Created for IT, commercial and procurement leaders at CAUDIT member institutions. Meet the education team, see the support model in action and explore a practical path from agreement execution to responsible AI adoption.
         </p>
         <p className="caudit-promo-disclosure">Illustrative AI-generated footage, with supplied presentation artwork and narration. Optional and separately scoped services are identified in the film.</p>
         <a className="caudit-promo-download" href="/caudit/CAUDIT_2026_LSP_FINAL.mp4" download>Download the final film · MP4</a>

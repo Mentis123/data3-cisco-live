@@ -57,7 +57,7 @@ Return a concise checklist that can be compared against the locked master voiceo
     group: "NotebookLM",
     title: "Locked final-film coverage brief",
     purpose: "Defines the information payload for the final cinematic edit; the narration remains the approved continuous master.",
-    duration: "3:05 film · 3:02 narration",
+    duration: "5:20 film · 5:15.7 narration",
     input: "Editorial reference; do not ask NotebookLM to render the final video",
     prompt: `Build one connected executive narrative for senior university IT, commercial and procurement leaders in Australia and New Zealand around:
 1. Microsoft licensing as the starting point of the Data#3 relationship.
@@ -224,7 +224,7 @@ Use @Image1 as the exact first frame. Preserve exactly three distinct support pa
 12.0–16.0s: All three patterns balance around the campus as warm human light grows subtly in the learning spaces. End on a stable frame suitable for a brief cutaway to the approved C3 human-payoff still.
 
 No text, pricing, diagrams, contracts, logos, new people, duplicated paths, guarantees, excessive motion, camera roll or watermark. Generate no audio.`],
-    ["sd-p08-close", "P08 — Agreement cycle and clean close", "14-second source · final closes at 03:05", "@Image1 = C4_ENDFRAME.png · Generate Audio OFF", "A clean source field for the agreement-cycle labels and approved closing logo, composited in post.", `Generate one continuous 14-second 16:9 720p image-to-video shot from @Image1.
+    ["sd-p08-close", "P08 — Agreement cycle and clean close", "14-second source · final closes at 05:20", "@Image1 = C4_ENDFRAME.png · Generate Audio OFF", "A clean source field for the agreement-cycle labels and approved closing logo, composited in post.", `Generate one continuous 14-second 16:9 720p image-to-video shot from @Image1.
 
 Use @Image1 as the exact first frame. Preserve the empty centre and lower-centre area, the navy field and restrained cyan-teal edge light. Do not add any lettering or branding.
 
@@ -272,34 +272,42 @@ Avoid vocals, retro parody, aggressive EDM drops, horror tension and anthemic co
 
 Target duration: 24 to 30 seconds. Approximately 110 to 118 BPM. Include clear edit points near 0:04, 0:12, 0:18 and 0:23. End with one clean sustained hopeful chord that can hold under the final brand frame.`,
     secondaryLabel: "Mix lock",
-    secondaryText: "Forward Momentum + Horizon Open remain the locked sources. Horizon enters at 00:30.88 with a long fade; Forward fades out from 00:38 to 00:46.70. Music is reduced and speech-ducked, with smooth dips around incident ownership, the dark transition and closing words. Horizon resolves at the 03:05 finish.",
+    secondaryText: "Forward Momentum + Horizon Open remain the locked sources. Forward carries the first half; Horizon enters beneath it around 02:25 with a long crossfade and resolves at the 05:20 finish. Both beds are loudness-normalised well below the narration and speech-ducked throughout.",
   },
   {
     id: "vo-master",
     group: "ElevenLabs",
     title: "Locked master voiceover — single copy block",
     purpose: "The complete source-grounded narration in one uninterrupted block for a single long ElevenLabs generation.",
-    duration: "Supplied 03:02 male master read including deliberate pauses",
-    input: "ElevenLabs Text to Speech · Ninja Sensei male voice · speed 0.94 · stability 0.55 · similarity 0.75 · supplied master v3",
-    prompt: `Every Microsoft agreement starts with a set of choices. For a university, the value comes from making those choices clearly and having the right support around them.
+    duration: "Supplied 05:15.7 male master read including deliberate pauses",
+    input: "ElevenLabs Text to Speech · Ninja Sensei male voice · speed 0.94 · stability 0.55 · similarity 0.75 · supplied master v4",
+    prompt: `Every Microsoft agreement starts with choices. For a university, value comes from making those choices clearly, with the right support from the beginning.
 
-Data three brings more than thirty years of education experience, long-standing engagement with CAUDIT members, and national coverage across Australia, Fiji and the Pacific. Each institution has a local account contact, backed by Microsoft licensing and contract specialists, national solution experts, and direct escalation pathways into Microsoft.
+Data three brings more than thirty years of education experience, long-standing engagement with CAUDIT members, and coverage across Australia, Fiji, and the Pacific. Every institution has a local licensing specialist with deep knowledge of Microsoft Enrolment for Education Solutions, or E E S. The education team combines sector leadership and dedicated account management, backed by Microsoft operations, contract specialists, national solution experts, and direct escalation pathways into Microsoft.
 
-That team supports the full agreement lifecycle. It coordinates quotes, orders, enrolments, amendments and renewals. It interprets licensing requirements, provides education-specific guidance, reviews consumption and licensing positions, models renewal scenarios, and advocates for customers when licensing, entitlement or operational issues need escalation.
+Together, they support the full agreement lifecycle: quotes, orders, enrolments, amendments, renewals, licensing interpretation, consumption reviews, renewal modelling, and customer advocacy when issues require escalation.
 
-The level of support remains flexible. Institutions with strong internal capability can focus on core licensing administration and enquiries. Those wanting deeper support can add reviews, planning, roadmap briefings, governance and specialist engagement as priorities change.
+Commercial options remain flexible. Institutions with mature internal capability can choose streamlined licensing administration. Those seeking more support can add consulting, governance, and specialist engagement for complex scenarios, compliance across stakeholder groups and technology domains, and cost optimisation.
 
-My D three provides a secure central view of agreements, software and cloud reporting, quotes, orders, assets, support cases and lifecycle information.
+Every CAUDIT member receives access to My D three at no added cost, providing a secure, centralised view of agreements, quotes, orders, assets, support cases, and software lifecycle information.
 
-Optional Premier Support adds accountable incident ownership across Microsoft cloud and on-premises technology, using a pre-purchased pool of hours and escalation to Microsoft when product intervention is required.
+The value extends beyond the agreement. Premier Support provides accountable incident ownership across Microsoft cloud and on-premises technology, using a pre-purchased pool of hours and Microsoft escalation when product intervention is required. It offers a predictable, cost-controlled alternative to Microsoft Unified Support.
 
-Around Azure, separately scoped services can provide platform support, priority incident handling, cost visibility, right-sizing, governance, monitoring and managed operations.
+Data three also brings proven Azure capability. As Australia’s largest Microsoft partner, and one of Australia’s first Azure Expert Managed Service Providers, Data three has been independently audited against Microsoft’s highest standards for managed Azure services. Backed by more than two thousand Microsoft certifications, deep local expertise, and active involvement in Microsoft global Partner Advisory Councils, it helps universities shape cloud strategy, establish secure Azure landing zones, migrate and modernise workloads, optimise cost and performance, and operate Azure with the right controls.
 
-The same relationship can connect institutions with expertise across modern work, security, data and artificial intelligence, applications and automation. Engagement can take the form of consulting, packaged services, projects or ongoing managed services. Each is scoped and purchased separately from the Microsoft agreement.
+Broader capability spans modern work, security, data and artificial intelligence, applications, and automation. Universities can engage Data three through consulting, packaged services, projects, or ongoing managed services, each scoped separately from the Microsoft agreement.
 
-University priorities change over time. Licensing optimisation may lead to cloud adoption, security uplift, responsible artificial intelligence adoption or broader transformation. Data three helps bring the right expertise into the relationship at the right time.
+Artificial intelligence has moved quickly from exploration to execution. Universities want practical ways to improve efficiency, reduce administration, support staff and researchers, enhance student services, and differentiate in a competitive sector. Responsible adoption requires clear use cases, data readiness, security, governance, change management, training, and measurable outcomes.
 
-The next agreement cycle begins by confirming scope and requirements, validating licensing and enrolment information, completing documentation, preparing onboarding and handover, then verifying licences and beginning ongoing support.
+Data three was named Microsoft Australia Partner of the Year in twenty twenty-five, and Australia and New Zealand Modern Work Partner of the Year in twenty twenty-four. It holds the Copilot Advanced Specialisation, contributes to Microsoft advisory initiatives and global generative A I research, and has delivered more than two hundred Copilot projects and the nation’s highest number of Copilot workshops, engaging thousands of users.
+
+Through Microsoft three sixty-five Copilot readiness, implementation, training, and adoption services, Data three helps institutions prepare their environment, build staff confidence, establish responsible governance and Centre of Excellence models, and scale A I purposefully across academic, research, and professional-services teams.
+
+For Wave One universities, agreements must be executed by the thirtieth of November, twenty twenty-six. Data three is ready to confirm requirements, resolve questions, coordinate the right resources, and keep the process moving.
+
+The goal is not simply to sign on time. It is to secure the right licensing position, the right support model, and a clear path to value across Microsoft three sixty-five, Azure, Security, Copilot, and the broader Microsoft ecosystem.
+
+Contact the team today. Email C A U D I T at data three dot com. A specialist will meet with you to discuss your requirements.
 
 Your Microsoft investment. Your way. Backed by Data three.`,
     secondaryLabel: "Pronunciation and edit lock",
@@ -309,7 +317,7 @@ Your Microsoft investment. Your way. Backed by Data three.`,
     id: "grok-b01-adviser",
     group: "Grok Imagine",
     title: "B01 — Local adviser review",
-    purpose: "A human-scale cutaway for the local account contact and national capability passage.",
+    purpose: "A human-scale cutaway for the local licensing specialist and national capability passage.",
     duration: "6–8 seconds · final 3–5 seconds",
     input: "Text-to-image first, then image-to-video · 16:9 landscape · extra-wide 24 mm composition",
     prompt: `Recommended path: Text-to-image first, then image-to-video. Generate a clean 16:9 landscape still in Quality mode, validate the composition, then animate only the motion prompt in Quality mode. Keep the final shot extra wide with a medium-distance subject, generous negative space on the right for Arial editorial labels, and no tight close-up.
@@ -443,17 +451,17 @@ export const productionSteps = [
   "Hold the real cover slide perfectly still, then use P01 to enter its abstract ribbon world.",
   "Generate each Seedance scene in narrative order and add every approved frame or cut to this Bible as it lands.",
   "Keep the middle source-grounded: licensing lifecycle, education experience, flexible support, MyD3, Premier Support, Azure and wider Microsoft capability.",
-  "Intercut six supplied human and operational B-roll clips with the existing cinematic footage; use three brief, designed information beats where the detail benefits from a diagram.",
+  "Intercut the strongest eleven supplied human and operational clips with the original cinematic footage; reserve the abstract AI-operations concept and two weaker originals.",
   "Run NotebookLM only as a coverage checker against the approved deck and locked master script.",
   "Generate the entire ElevenLabs narration as one file; split it only during the final edit.",
-  "Use Forward Momentum and Horizon Open as the two locked music sources; join them into the 3:05 film with a quieter bed, speech-driven ducking and smooth editorial dips.",
+  "Use Forward Momentum and Horizon Open as the two locked music sources; extend them through the 5:20 film with a long crossfade, a much quieter bed and speech-driven ducking.",
   "Mix external narration and music over clean picture; Seedance native audio remains off unless a shot-specific effects stem is deliberately requested.",
   "Use concise, precisely placed Arial labels in post where they clarify the footage; keep generated imagery free of lettering, preserve supplied cover typography, and deliver subtitles as a separate SRT file.",
   "Run narrative, commercial, visual, audio, accessibility and technical QA, then export the review and final masters.",
 ];
 
 export const qualityGates = [
-  { title: "Narrative", items: ["Final film runs 3:05; supplied narration remains intact", "Approved information is covered without slide-by-slide narration", "Licensing begins the relationship and connected capability expands it"] },
+  { title: "Narrative", items: ["Final film runs 5:20; the supplied 5:15.7 narration remains intact", "Approved information is covered without turning the film into slideware", "Licensing begins the relationship; Azure and responsible AI adoption expand the value story"] },
   { title: "Commercial", items: ["Core and separately scoped capability are distinct", "No pricing, terms, guardrails or guarantees", "Sustained, flexible and standing are access patterns, not inclusions"] },
   { title: "Visual", items: ["The source cover stays pixel-sharp", "Arial labels are concise, positioned precisely and legible on phone-sized playback", "Generated footage contains no invented lettering or logos", "People, architecture and key props stay stable", "Each shot has one action and one controlled camera move"] },
   { title: "Audio", items: ["One long ElevenLabs male master read", "Forward Momentum and Horizon Open are the locked music sources", "Narration remains clearly dominant over the music bed", "Data three and My D three are pronounced correctly", "The final mix is stereo, limited and free of clipping"] },

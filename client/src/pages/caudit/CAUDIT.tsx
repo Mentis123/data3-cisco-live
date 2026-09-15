@@ -144,21 +144,22 @@ export default function CAUDIT() {
         <div className="caudit-hero-copy">
           <span className="caudit-eyebrow"><Sparkles aria-hidden="true" /> Refined production workspace</span>
           <h1>Signal through<br /><em>the noise.</em></h1>
-          <p>The 3:05 final film: cinematic footage, six human and operational cutaways, precise Arial messaging, word-aligned captions, one continuous narration and a voice-first mix.</p>
-          <div className="caudit-release-links"><a href="/caudit">Watch the final film →</a><a href="/caudit/archive">Video archive · all three versions →</a><a href="/caudit/CAUDIT_2026_EDIT_NOTES.md" download>Final edit notes ↓</a></div>
+          <p>The 5:20 director's cut: cinematic footage, real team and capability evidence, expanded Azure and AI adoption chapters, precise Arial messaging, word-aligned captions and a voice-first mix.</p>
+          <div className="caudit-release-links"><a href="/caudit">Watch the final film →</a><a href="/caudit/archive">Video archive · all four versions →</a><a href="/caudit/CAUDIT_2026_EDIT_NOTES.md" download>Final edit notes ↓</a></div>
         </div>
         <div className="caudit-storyline" aria-label="Film structure">
           <div><span>00:00</span><strong>Real title slide</strong><p>The credible fake-out</p></div>
           <div><span>00:12</span><strong>Education relationship</strong><p>Experience and accountability</p></div>
-          <div><span>00:36</span><strong>Licensing lifecycle</strong><p>One connected narrative</p></div>
-          <div><span>01:59</span><strong>Connected capability</strong><p>The relationship expands</p></div>
-          <div><span>02:40</span><strong>Agreement cycle</strong><p>Five steps, then back to the deck</p></div>
+          <div><span>00:46</span><strong>Licensing lifecycle</strong><p>From choice to renewal</p></div>
+          <div><span>02:05</span><strong>Azure capability</strong><p>Landing zones to operations</p></div>
+          <div><span>03:04</span><strong>AI adoption</strong><p>From exploration to execution</p></div>
+          <div><span>04:26</span><strong>Wave One</strong><p>Deadline, value and action</p></div>
         </div>
       </section>
 
       <section className="caudit-section caudit-release-note">
         <span className="caudit-kicker">Final production lock</span>
-        <p>28 timeline segments · 24 fps · forward-only footage · 88 word-aligned caption cues · three short information beats · one intentional dark transition · final dissolve back to the untouched cover slide. The eight original cinematic sources remain below, alongside all eight supplied B-roll clips.</p>
+        <p>39 timeline segments · 24 fps · forward-only footage · 134 word-aligned caption cues · five concise information beats · restrained dissolves and dark chapter beats · final return to the untouched cover slide. The original cinematic sources remain below alongside all fourteen supplied B-roll clips.</p>
         <p><strong>Voiceover copy:</strong> the ElevenLabs block remains one continuous, copy-ready read. “Data three” and “My D three” are pronunciation instructions only; visible final labels and captions use Data#3 and MyD3.</p>
         <a href="#vo-master" onClick={() => { setActiveGroup("All"); setQuery(""); }}>Jump to the single voiceover block ↓</a>
       </section>
@@ -206,9 +207,9 @@ export default function CAUDIT() {
       </section>
 
       <footer className="caudit-footer">
-          <div><Data3Name /><p>Supplied cover artwork and illustrative AI-generated imagery. Editorial Arial labels are composited in post; optional captions are supplied separately as SRT and WebVTT.</p><a href="/caudit/archive">Video archive · original, review and final →</a></div>
+          <div><Data3Name /><p>Supplied cover and team artwork with illustrative AI-generated imagery. Editorial Arial labels are composited in post; optional captions are supplied separately as SRT and WebVTT.</p><a href="/caudit/archive">Video archive · original, reviews and director's cut →</a></div>
         <div><h2>Research sources</h2>{researchLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}<ExternalLink aria-hidden="true" /></a>)}</div>
-        <p className="caudit-updated">Final cinematic edit · 12 September 2026 · Australian English · Production workspace v5.0</p>
+        <p className="caudit-updated">Director's cut · 15 September 2026 · Australian English · Production workspace v6.0</p>
       </footer>
     </main>
   );
