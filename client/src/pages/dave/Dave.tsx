@@ -44,6 +44,9 @@ export default function Dave() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<DaveScene | null>(null);
   const [autoRotate, setAutoRotate] = useState(false);
+  // Deterministic QA captures compare the full 512×512 frame with the source
+  // crops, so the visitor control must not be painted over the sculpture.
+  const [qaMode] = useState(() => new URLSearchParams(window.location.search).get("qa") === "1");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -112,7 +115,7 @@ export default function Dave() {
         aria-label="An interactive mirrored cube with one aluminium-glass seven-filament figure-eight sculpture reflecting its recursively repeated mirror images above a dark checkerboard floor. Drag or swipe in any direction to rotate the view. Use a two-finger drag to slide the view left, right, up, or down; pinch or scroll to zoom."
         title="Drag/swipe to rotate · Two-finger drag to slide · Scroll/pinch to zoom"
       />
-      <button
+      {!qaMode && <button
         type="button"
         className="dave-auto-rotate"
         role="switch"
@@ -127,7 +130,7 @@ export default function Dave() {
       >
         <span className="dave-auto-rotate__indicator" aria-hidden="true" />
         Auto rotate
-      </button>
+      </button>}
       <p className="dave-description">
         A mirrored cube with one aluminium-glass seven-filament figure-eight sculpture reflecting its recursively repeated mirror images above a dark checkerboard floor. Drag or swipe to rotate; use a two-finger drag to slide the view; scroll or pinch to zoom.
       </p>

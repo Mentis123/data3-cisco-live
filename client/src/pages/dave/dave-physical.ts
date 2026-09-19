@@ -7,7 +7,20 @@ const REFLECTION_CURVE_SEGMENTS = 96;
 const DEEP_REFLECTION_CURVE_SEGMENTS = 20;
 const FULL_GEOMETRY_BOUNCES = 4;
 const ENERGY_CONVERGENCE_BOUNCES = 12;
-const OUTER_STRAND_COUNT = 6;
+/** Seven filaments side by side across a flat band, not a round hex bundle. */
+const RIBBON_STRANDS = 7;
+const RIBBON_WIDTH = 0.3;
+const STRAND_RADIUS = 0.024;
+/**
+ * Half-twists of the band around one lap of the figure-eight. Odd makes the
+ * band one-sided (a Möbius band). Zero, one, and two half-twists score within
+ * 1% of each other against the source anchors, so the twist is not
+ * identifiable from the video; one half-twist is the selected hypothesis.
+ */
+const RIBBON_HALF_TWISTS = 1;
+/** Radiance ceiling: far above the bloom threshold and display range, well
+ *  below the 65504 half-float limit that a 0.052-roughness GGX peak reaches. */
+const RADIANCE_CEILING = 48;
 const REFLECTION_LAYER = 2;
 const STRIPE_PATH_REPEATS = 5;
 const STRIPE_TRAVEL_PER_TURN = 1.25;
@@ -173,25 +186,52 @@ class GeronoBraidCurve extends THREE.Curve<THREE.Vector3> {
   }
 }
 
-function strandCurve(
+/**
+ * Ribbon filaments. Strand k sits at offset (k/(n-1) - 1/2)·width from the
+ * centreline along the band's width direction; that direction starts in the
+ * lemniscate's own plane and turns by halfTwists·π over one lap. With an odd
+ * count the band is one-sided: strand +o continues as strand −o, so paired
+ * strands are built as one closed curve of two laps.
+ */
+function ribbonStrandCurves(
   centerline: GeronoBraidCurve,
   frames: ReturnType<GeronoBraidCurve["computeFrenetFrames"]>,
-  strandIndex: number,
 ) {
-  const points: THREE.Vector3[] = [];
-  const phase = (strandIndex / OUTER_STRAND_COUNT) * TAU;
-  const ringRadius = 0.1;
+  // Width direction at u = 0: perpendicular to the tangent, inside the
+  // curve's eX–eY plane (the plane the figure-eight is drawn in).
+  const tangent0 = frames.tangents[0];
+  const inPlane = new THREE.Vector3(0, 1, 0)
+    .addScaledVector(tangent0, -tangent0.y)
+    .normalize();
+  const roll0 = Math.atan2(inPlane.dot(frames.binormals[0]), inPlane.dot(frames.normals[0]));
+  const twist = RIBBON_HALF_TWISTS * Math.PI;
 
-  for (let index = 0; index < CURVE_SEGMENTS; index += 1) {
-    const progress = index / CURVE_SEGMENTS;
-    const point = centerline.getPoint(progress);
-    const twist = phase + progress * TAU;
-    point.addScaledVector(frames.normals[index], Math.cos(twist) * ringRadius);
-    point.addScaledVector(frames.binormals[index], Math.sin(twist) * ringRadius);
-    points.push(point);
+  const lapPoints = (offset: number, lap: number) => {
+    const points: THREE.Vector3[] = [];
+    for (let index = 0; index < CURVE_SEGMENTS; index += 1) {
+      const progress = index / CURVE_SEGMENTS;
+      const theta = roll0 + (lap + progress) * twist;
+      const point = centerline.getPoint(progress);
+      point.addScaledVector(frames.normals[index], Math.cos(theta) * offset);
+      point.addScaledVector(frames.binormals[index], Math.sin(theta) * offset);
+      points.push(point);
+    }
+    return points;
+  };
+
+  const curves: Array<{ curve: THREE.Curve<THREE.Vector3>; laps: number }> = [];
+  const flips = RIBBON_HALF_TWISTS % 2 === 1;
+  const half = (RIBBON_STRANDS - 1) / 2;
+  for (let k = 0; k < RIBBON_STRANDS; k += 1) {
+    const offset = ((k / (RIBBON_STRANDS - 1)) - 0.5) * RIBBON_WIDTH;
+    if (flips && k > half) continue; // covered by its partner's second lap
+    const laps = flips && k !== half ? 2 : 1;
+    const points = laps === 2
+      ? [...lapPoints(offset, 0), ...lapPoints(offset, 1)]
+      : lapPoints(offset, 0);
+    curves.push({ curve: new THREE.CatmullRomCurve3(points, true, "centripetal", 0.5), laps });
   }
-
-  return new THREE.CatmullRomCurve3(points, true, "centripetal", 0.5);
+  return curves;
 }
 
 function strandMaterial(
@@ -200,9 +240,9 @@ function strandMaterial(
   stripePhase: { value: number },
 ) {
   const accent = new THREE.Color(accentValue);
-  const glassTint = new THREE.Color("#b9c2c4").lerp(accent, 0.045);
+  const glassTint = new THREE.Color("#3d474b").lerp(accent, 0.06);
   const attenuationTint = new THREE.Color("#c8d0cf").lerp(accent, 0.12);
-  const stripeOffset = strandIndex / (OUTER_STRAND_COUNT + 1);
+  const stripeOffset = strandIndex / RIBBON_STRANDS;
   const material = new THREE.MeshPhysicalMaterial({
     color: glassTint,
     emissive: 0x000000,
@@ -255,6 +295,19 @@ function strandMaterial(
         ].join("\n"),
       )
       .replace(
+        "#include <lights_fragment_maps>",
+        `#include <lights_fragment_maps>
+          // The recursive cube environment is a live half-float render target.
+          // A single non-finite texel in it (or in its mipmaps) would spread
+          // through bloom to the whole frame, so every sample is sanitised.
+          if (any(isnan(radiance)) || any(isinf(radiance))) radiance = vec3(0.0);
+          if (any(isnan(iblIrradiance)) || any(isinf(iblIrradiance))) iblIrradiance = vec3(0.0);
+          #ifdef USE_CLEARCOAT
+          if (any(isnan(clearcoatRadiance)) || any(isinf(clearcoatRadiance))) clearcoatRadiance = vec3(0.0);
+          #endif
+        `,
+      )
+      .replace(
         "#include <opaque_fragment>",
         `
           // A narrow longitudinal reflection lane rolls around each glass
@@ -291,6 +344,12 @@ function strandMaterial(
           );
           outgoingLight += daveStripeColour * daveStripe * 0.18;
           outgoingLight += vec3(0.76, 0.86, 0.89) * daveFresnel * 0.045;
+          // A 0.052-roughness GGX lobe peaks near the half-float limit. Cap
+          // radiance far above anything the display or bloom can use, so the
+          // recursive cube capture and its mipmaps can never overflow to
+          // infinity and poison the glass that samples them.
+          outgoingLight = min(outgoingLight, vec3(${RADIANCE_CEILING.toFixed(1)}));
+          if (any(isnan(outgoingLight))) outgoingLight = vec3(0.0);
           #include <opaque_fragment>
         `,
       );
@@ -334,12 +393,12 @@ export function createPhysicalBraid(): PhysicalBraid {
     "#639578",
   ];
 
-  accents.forEach((accent, index) => {
-    const curve = index === 0 ? centerline : strandCurve(centerline, frames, index - 1);
+  ribbonStrandCurves(centerline, frames).forEach(({ curve, laps }, index) => {
+    const accent = accents[index % accents.length];
     const physicalGeometry = new THREE.TubeGeometry(
       curve,
-      CURVE_SEGMENTS,
-      0.05,
+      CURVE_SEGMENTS * laps,
+      STRAND_RADIUS,
       12,
       true,
     );
@@ -347,8 +406,8 @@ export function createPhysicalBraid(): PhysicalBraid {
     // This LOD follows the identical analytic curve and tube radius.
     const reflectionGeometry = new THREE.TubeGeometry(
       curve,
-      REFLECTION_CURVE_SEGMENTS,
-      0.05,
+      REFLECTION_CURVE_SEGMENTS * laps,
+      STRAND_RADIUS,
       6,
       true,
     );

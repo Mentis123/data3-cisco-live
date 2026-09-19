@@ -25,6 +25,8 @@ function shaderFixture() {
       "  vec3 geometryNormal = vec3(0.0, 0.0, 1.0);",
       "  vec3 geometryViewDir = vec3(0.0, 0.0, 1.0);",
       "  vec3 outgoingLight = vec3(0.0);",
+      "  vec3 radiance = vec3(0.0); vec3 iblIrradiance = vec3(0.0);",
+      "  #include <lights_fragment_maps>",
       "  #include <opaque_fragment>",
       "}",
     ].join("\n"),
@@ -34,6 +36,14 @@ function shaderFixture() {
 const braid = createPhysicalBraid();
 const directMesh = braid.group.children[0];
 const directMaterial = directMesh.material;
+
+// Seven filaments across one flat band with one half-twist: the three outer
+// pairs each close as a single two-lap curve, the centre strand closes alone,
+// so the band is one-sided and only four tubes exist.
+assert(braid.group.children.length === 4, "A one-half-twist seven-strand band must be four closed tubes.");
+const centreVertexCount = braid.group.children[3].geometry.getAttribute("position").count;
+const pairVertexCount = braid.group.children[0].geometry.getAttribute("position").count;
+assert(pairVertexCount > centreVertexCount * 1.9, "Paired strands must run two laps of the figure-eight.");
 
 assert(
   directMaterial.metalness === ALUMINIUM_GLASS_OPTICS.metalness,
@@ -60,6 +70,17 @@ assert(
 assert(
   directShader.fragmentShader.includes("float daveFresnel"),
   "Direct glass shader is missing its view-dependent spectral response.",
+);
+// Radiance ceiling + non-finite guards: a 0.052-roughness GGX lobe peaks
+// near the half-float limit, and one non-finite texel in the recursive cube
+// capture blacked out the whole frame at four of the nine source anchors.
+assert(
+  directShader.fragmentShader.includes("outgoingLight = min(outgoingLight, vec3(48.0))"),
+  "Glass shader must cap radiance below the half-float limit.",
+);
+assert(
+  directShader.fragmentShader.includes("isnan(radiance)") && directShader.fragmentShader.includes("isnan(iblIrradiance)"),
+  "Glass shader must sanitise its environment samples.",
 );
 
 braid.setStripePhase(1.375);
