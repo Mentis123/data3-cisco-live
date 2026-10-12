@@ -90,14 +90,44 @@ const TEAM_LABEL: Record<string, string> = { not_joined: "not joined", reading: 
 function MicrosoftMark() {
   return <div className="dr-partner" aria-label="Microsoft"><svg viewBox="0 0 23 23" width="20" height="20" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="#f25022" /><rect x="12" y="1" width="10" height="10" fill="#7fba00" /><rect x="1" y="12" width="10" height="10" fill="#00a4ef" /><rect x="12" y="12" width="10" height="10" fill="#ffb900" /></svg><span>Microsoft</span></div>;
 }
-function Frame({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  return <main className={`dr-shell ${wide ? "dr-wide" : ""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div><MicrosoftMark /></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
+function Frame({ children, wide = false, className = "" }: { children: ReactNode; wide?: boolean; className?: string }) {
+  return <main className={`dr-shell ${wide ? "dr-wide" : ""} ${className}`.trim()}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div><MicrosoftMark /></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
 }
 function ErrorText({ message }: { message: string }) { return message ? <p className="dr-error"><AlertTriangle size={18} />{message}</p> : null; }
 function Status({ tone, label }: { tone: string; label: string }) { return <span className={`dr-live dr-live--${tone}`}><i />{label}</span>; }
 
+/** Live telemetry feel: each meter drifts gently around its true value and keeps a short history for a sparkline.
+ *  Bounded values (0 or 100) keep their printed number fixed; only the trace breathes. Honours reduced-motion. */
+function useTelemetry(meters: Meters) {
+  const metersRef = useRef(meters); metersRef.current = meters;
+  const [frame, setFrame] = useState<{ live: Meters; hist: Record<string, number[]> }>(() => ({ live: meters, hist: {} }));
+  useEffect(() => {
+    const still = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let n = 0; const hist: Record<string, number[]> = {};
+    const id = setInterval(() => {
+      n += 1; const t = n * 0.7; const live: Meters = {};
+      for (const [k, base] of Object.entries(metersRef.current)) {
+        const seed = Array.from(k).reduce((a, c) => a + c.charCodeAt(0), 0);
+        const amp = still ? 0 : base <= 0 || base >= 100 ? 0.45 : 1;
+        const v = base + amp * (0.6 * Math.sin(t * 1.3 + seed) + 0.4 * Math.sin(t * 3.1 + seed * 0.37));
+        live[k] = Math.max(0, Math.min(100, v));
+        const h = hist[k] ?? (hist[k] = []); h.push(live[k]); if (h.length > 40) h.shift();
+      }
+      setFrame({ live, hist: { ...hist } });
+    }, 700);
+    return () => clearInterval(id);
+  }, []);
+  return frame;
+}
+function Spark({ points }: { points: number[] }) {
+  if (points.length < 2) return <svg className="spark" viewBox="0 0 60 16" preserveAspectRatio="none" aria-hidden="true" />;
+  const min = Math.min(...points), max = Math.max(...points), range = Math.max(2, max - min), mid = (max + min) / 2;
+  const d = points.map((v, i) => `${(i / (points.length - 1)) * 60},${8 - ((v - mid) / range) * 12}`).join(" ");
+  return <svg className="spark" viewBox="0 0 60 16" preserveAspectRatio="none" aria-hidden="true"><polyline points={d} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" /></svg>;
+}
 function MetersPanel({ meters, keys, flash }: { meters: Meters; keys: MeterKey[]; flash?: string[] }) {
-  return <div className="dr-meters">{keys.map((m) => { const v = meters[m.id] ?? 0; const tone = meterTone(m.good, v); return <div className={`dr-meter dr-meter--${tone} ${flash?.includes(m.id) ? "flash" : ""}`} key={m.id}><div className="top"><span>{m.name}</span><strong>{v}{m.id === "cover" ? "%" : ""}</strong></div><span className="bar"><i style={{ width: `${v}%` }} /></span></div>; })}</div>;
+  const { live, hist } = useTelemetry(meters);
+  return <div className="dr-meters">{keys.map((m) => { const base = meters[m.id] ?? 0; const v = live[m.id] ?? base; const fixed = base <= 0 || base >= 100; const tone = meterTone(m.good, base); return <div className={`dr-meter dr-meter--${tone} ${flash?.includes(m.id) ? "flash" : ""}`} key={m.id}><div className="top"><span>{m.name}</span><Spark points={hist[m.id] ?? []} /><strong>{fixed ? base : v.toFixed(1)}{m.id === "cover" ? "%" : ""}</strong></div><span className="bar"><i style={{ width: `${v}%` }} /></span></div>; })}</div>;
 }
 function PathPanel({ path, stages }: { path: string[]; stages: Stage[] }) {
   return <div className="dr-chain">{stages.map((s, i) => { const status = path[i] ?? "secure"; return <div className={`dr-stage dr-stage--${STAGE_CLASS[status] ?? "ok"}`} key={s.id}><span className="node" /><span className="name">{s.name}<small>{s.sub}</small></span><span className="pill">{STAGE_PILL[status] ?? status}</span></div>; })}</div>;
@@ -139,15 +169,19 @@ function Landing({ presetCode }: { presetCode?: string }) {
   }
   function openDisplay() { try { localStorage.setItem(`decision-room-display:${sessionId}`, displayToken); } catch { /* ignore */ } navigate(`/decision-room/console/${sessionId}?displayToken=${encodeURIComponent(displayToken)}`); }
 
-  return <Frame>
-    <section className="dr-hero"><span className="dr-kicker">LIVE TABLETOP INSTRUMENT</span><h1>Make the room’s decisions visible.</h1><p>One phone per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed.</p></section>
-    <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
-    <section className="dr-card dr-form">
-      {mode === "join" && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Give your table a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label><label>Team name<input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder="e.g. The Night Shift" maxLength={40} autoComplete="off" /></label><button className="dr-primary" disabled={busy || !joinCode || !teamCode} onClick={join}>Join room <ArrowRight /></button></>}
-      {mode === "facilitate" && <><h2>Create a live room</h2><p className="dr-hint">Adam only. One room per session; never reuse the morning room for the afternoon.</p><label>Facilitator key<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} autoComplete="off" /></label><label>Tables in the room<input type="number" min={2} max={50} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} /></label><button className="dr-primary" disabled={busy || !adminKey} onClick={create}>Create room <ArrowRight /></button></>}
-      {mode === "display" && <><h2>Open a presenter console</h2><p className="dr-hint">Normally you open the console from the facilitator page with one click. This is the recovery path.</p><label>Session ID<input value={sessionId} onChange={(e) => setSessionId(e.target.value)} /></label><label>Display token<input type="password" value={displayToken} onChange={(e) => setDisplayToken(e.target.value)} /></label><button className="dr-primary" disabled={!sessionId || !displayToken} onClick={openDisplay}>Open console <Monitor /></button></>}
-      <ErrorText message={error} />
-    </section>
+  return <Frame className="dr-landing dr-one">
+    <div className="dr-landing-grid">
+      <section className="dr-hero"><span className="dr-kicker">LIVE TABLETOP INSTRUMENT</span><h1>Make the room’s decisions visible.</h1><p>One phone per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed.</p></section>
+      <div className="dr-landing-side">
+        <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
+        <section className="dr-card dr-form">
+          {mode === "join" && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Give your table a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label><label>Team name<input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder="e.g. The Night Shift" maxLength={40} autoComplete="off" /></label><button className="dr-primary" disabled={busy || !joinCode || !teamCode} onClick={join}>Join room <ArrowRight /></button></>}
+          {mode === "facilitate" && <><h2>Create a live room</h2><p className="dr-hint">Adam only. One room per session; never reuse the morning room for the afternoon.</p><label>Facilitator key<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} autoComplete="off" /></label><label>Tables in the room<input type="number" min={2} max={50} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} /></label><button className="dr-primary" disabled={busy || !adminKey} onClick={create}>Create room <ArrowRight /></button></>}
+          {mode === "display" && <><h2>Open a presenter console</h2><p className="dr-hint">Normally you open the console from the facilitator page with one click. This is the recovery path.</p><label>Session ID<input value={sessionId} onChange={(e) => setSessionId(e.target.value)} /></label><label>Display token<input type="password" value={displayToken} onChange={(e) => setDisplayToken(e.target.value)} /></label><button className="dr-primary" disabled={!sessionId || !displayToken} onClick={openDisplay}>Open console <Monitor /></button></>}
+          <ErrorText message={error} />
+        </section>
+      </div>
+    </div>
   </Frame>;
 }
 
@@ -197,41 +231,26 @@ function Participant({ code }: { code: string }) {
   const canLock = Boolean(optionKey) && Boolean(confidence) && state === "open";
   const changedMeters = results?.consequence ? Object.keys(results.consequence.meters) : [];
 
-  return <Frame>
-    <div className="dr-session-head">
-      <div><span className="dr-kicker">{data.team.displayName.toUpperCase()}{round ? ` · ${round.seat.toUpperCase()}` : ""}</span><h1 className="dr-h1-small">{round ? round.title : data.organisation.name}</h1>{round ? <p className="dr-when">{round.when}</p> : <p className="dr-when">{data.organisation.tagline}</p>}</div>
-      <div className="dr-head-right">{state === "open" ? <span className={`dr-mini-clock ${clock.over ? "over" : clock.low ? "low" : ""}`}>{clock.label}</span> : null}<Status tone={connection} label={connection} /></div>
-    </div>
-
-    {connection === "offline" ? <div className="dr-banner dr-banner--warn">No connection. Your last saved response is safe — use the printed lock card and hand it to Adam. The exercise continues.</div> : null}
-
-    <section className="dr-card dr-dash">
-      <div className="dr-panel-head"><span>Riverbend · attack path</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : state === "launched" ? "something is moving" : round?.when ?? ""}</span></div>
-      <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><MetersPanel meters={dashboard.meters} keys={dashboard.meterKeys} flash={changedMeters} /></div></div>
-    </section>
-
-    {state === "lobby" && <section className="dr-card dr-wait"><Radio className="dr-wait-icon" /><h2>Monitoring mode</h2><p>{data.organisation.estate}</p><p className="dr-hint">Read the printed brief. Agree who speaks for the table. Adam will open the first round.</p></section>}
-    {state === "launched" && <section className="dr-card dr-wait"><Zap className="dr-wait-icon" /><h2>Something tripped a faint signal in the SOC.</h2><p>Nothing is confirmed. Stand by for triage.</p></section>}
-    {state === "ended" && <section className="dr-card dr-wait"><h2>The room has closed.</h2><p>Thank you. Take one control to test, an owner and a date back with you.</p></section>}
-
-    {round && (state === "open" || state === "closed" || state === "published") && <>
-      <section className="dr-card"><div className="dr-panel-head"><span>Incoming</span></div><FeedPanel feed={round.feed} />
-        <div className="dr-situation">{round.situation.map((line, i) => <p key={i}><b>{String(i + 1).padStart(2, "0")}</b>{line}</p>)}</div>
+  const inRound = Boolean(round) && (state === "open" || state === "closed" || state === "published");
+  const briefCard = round && inRound
+    ? <section className="dr-card dr-brief" key={`brief-${round.roundNo}`}><div className="dr-panel-head"><span>Incoming</span></div><FeedPanel feed={round.feed} />
+        <div className="dr-situation">{round.situation.map((line, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 0.14}s` }}><b>{String(i + 1).padStart(2, "0")}</b>{line}</p>)}</div>
         <h2 className="dr-task">{round.prompt}</h2>
       </section>
-
-      {state === "published" && results ? <section className="dr-card dr-reveal">
+    : state === "lobby" ? <section className="dr-card dr-wait"><Radio className="dr-wait-icon" /><h2>Monitoring mode</h2><p>{data.organisation.estate}</p><p className="dr-hint">Read the printed brief. Agree who speaks for the table. Adam will open the first round.</p></section>
+    : state === "launched" ? <section className="dr-card dr-wait"><Zap className="dr-wait-icon" /><h2>Something tripped a faint signal in the SOC.</h2><p>Nothing is confirmed. Stand by for triage.</p></section>
+    : state === "ended" ? <section className="dr-card dr-wait"><h2>The room has closed.</h2><p>Thank you. Take one control to test, an owner and a date back with you.</p></section>
+    : null;
+  const actCard = !round || !inRound ? null
+    : state === "published" && results ? <section className="dr-card dr-reveal" key={`reveal-${round.roundNo}`}>
         <div className="dr-panel-head"><span>Where the room landed</span><span className="dr-chain-note">{results.locked} tables locked</span></div>
         <SplitBars split={results} options={round.options} />
         {results.confidence.median !== null ? <p className="dr-hint">Confidence median {results.confidence.median}, range {results.confidence.low}–{results.confidence.high}.</p> : null}
         {results.consequence ? <div className="dr-conseq"><span className="tag">Your call · {decision?.optionKey}</span><strong>{results.consequence.you}</strong><p>{results.consequence.body}</p><div className="dr-changes">{results.consequence.changes.map((ch) => <span className={`chg chg--${ch.d}`} key={ch.t}>{ch.t}</span>)}</div></div> : <p className="dr-hint">Your table did not lock a call this round, so there is no consequence to show.</p>}
-      </section> : null}
-
-      {state === "closed" && !results ? <section className="dr-card dr-wait"><Square className="dr-wait-icon" /><h2>Round closed.</h2><p>Richard is walking the options on the screen. Your call{locked ? ` was ${decision?.optionKey}` : " was not locked"}.</p></section> : null}
-
-      {state === "open" && locked ? <section className="dr-card dr-locked-card"><h2><LockKeyhole /> Locked: {decision?.optionKey}</h2>{decision?.rationale ? <p>“{decision.rationale}”</p> : null}<p className="dr-hint">Confidence {decision?.confidence} of 5. Keep talking — the reveal will not wait for perfect certainty. Ask Adam if this must change.</p></section> : null}
-
-      {state === "open" && !locked ? <section className="dr-card dr-form dr-vote">
+      </section>
+    : state === "closed" ? <section className="dr-card dr-wait"><Square className="dr-wait-icon" /><h2>Round closed.</h2><p>Richard is walking the options on the screen. Your call{locked ? ` was ${decision?.optionKey}` : " was not locked"}.</p></section>
+    : locked ? <section className="dr-card dr-locked-card"><h2><LockKeyhole /> Locked: {decision?.optionKey}</h2>{decision?.rationale ? <p>“{decision.rationale}”</p> : null}<p className="dr-hint">Confidence {decision?.confidence} of 5. Keep talking — the reveal will not wait for perfect certainty. Ask Adam if this must change.</p></section>
+    : <section className="dr-card dr-form dr-vote">
         <div className="dr-options">{round.options.map((o) => <button key={o.key} className={optionKey === o.key ? "selected" : ""} aria-pressed={optionKey === o.key} disabled={saving} onClick={() => { setOptionKey(o.key); setDirty(true); }}><b>{o.key}</b><span>{o.label}</span></button>)}</div>
         <label>Because… (one sentence)<textarea value={rationale} maxLength={240} disabled={saving} onChange={(e) => { setRationale(e.target.value); setDirty(true); }} placeholder="The reason we would defend out loud." /><span className="dr-counter">{rationale.length}/240</span></label>
         <span className="dr-label">Confidence</span>
@@ -240,8 +259,26 @@ function Participant({ code }: { code: string }) {
         <ErrorText message={saveError} />
         {confirming ? <div className="dr-banner"><p>Lock <b>{optionKey}</b>? It’s final unless Adam reopens your table.</p><div className="dr-actions"><button className="dr-primary" disabled={saving} onClick={() => save(true)}>{saving ? "Locking…" : "Yes, lock it"}</button><button onClick={() => setConfirming(false)}>Keep talking</button></div></div>
           : <div className="dr-actions"><button disabled={saving || !optionKey} onClick={() => save(false)}>{saving ? "Saving…" : "Save draft"}</button><button className="dr-primary" disabled={!canLock || saving} onClick={() => setConfirming(true)}>Lock response <LockKeyhole /></button></div>}
-      </section> : null}
-    </>}
+      </section>;
+
+  return <Frame className="dr-table dr-one">
+    <div className="dr-session-head">
+      <div><span className="dr-kicker">{data.team.displayName.toUpperCase()}{round ? ` · ${round.seat.toUpperCase()}` : ""}</span><h1 className="dr-h1-small">{round ? round.title : data.organisation.name}</h1>{round ? <p className="dr-when">{round.when}</p> : <p className="dr-when">{data.organisation.tagline}</p>}</div>
+      <div className="dr-head-right">{state === "open" ? <span className={`dr-mini-clock ${clock.over ? "over" : clock.low ? "low" : ""}`}>{clock.label}</span> : null}<Status tone={connection} label={connection} /></div>
+    </div>
+
+    {connection === "offline" ? <div className="dr-banner dr-banner--warn">No connection. Your last saved response is safe — use the printed lock card and hand it to Adam. The exercise continues.</div> : null}
+
+    <div className="dr-table-grid">
+      <section className="dr-card dr-dash">
+        <div className="dr-panel-head"><span>Riverbend · attack path</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : state === "launched" ? "something is moving" : round?.when ?? ""}</span></div>
+        <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><MetersPanel meters={dashboard.meters} keys={dashboard.meterKeys} flash={changedMeters} /></div></div>
+      </section>
+      <div className="dr-table-work">
+        <div className={`dr-slot dr-slot--brief ${actCard ? "" : "dr-slot--span"}`.trim()}>{briefCard}</div>
+        {actCard ? <div className="dr-slot dr-slot--act">{actCard}</div> : null}
+      </div>
+    </div>
 
     <p className="dr-switch">Wrong table? <button onClick={() => { try { localStorage.removeItem(`decision-room-team:${code}`); } catch { /* ignore */ } navigate(`/decision-room/join/${code}`); }}>Rejoin</button></p>
   </Frame>;
@@ -322,13 +359,13 @@ function Admin({ id }: { id: string }) {
     { label: session.activeRound >= session.roundCount ? "Final round" : `Next · round ${session.activeRound + 1}`, action: "advance", enabled: session.status === "live" && session.activeRound < session.roundCount, icon: <ArrowRight />, primary: state === "published" && session.activeRound < session.roundCount },
   ];
 
-  return <Frame wide>
+  return <Frame wide className="dr-admin dr-one">
     <section className="dr-admin-head"><div><span className="dr-kicker">FACILITATOR CONTROLS · NOT FOR PROJECTION</span><h1 className="dr-h1-small">Room <span className="dr-join-code">{session.joinCode}</span></h1><p className="dr-when">{round ? `${round.seat} · ${round.title}` : state} · {state === "open" ? `clock ${clock.label}` : state}</p></div><div className="dr-qr"><QRCodeSVG value={joinUrl} size={118} bgColor="#ffffff" fgColor="#000025" /><button onClick={() => navigator.clipboard?.writeText(joinUrl)}><Copy />Copy join link</button></div></section>
 
     <section className="dr-card"><div className="dr-panel-head"><span>Run the room, in order</span><Status tone={stale(lastUpdated, now)} label={stale(lastUpdated, now)} /></div>
       <div className="dr-steps">{steps.map((s, i) => <button key={s.action} className={s.primary ? "dr-primary" : ""} disabled={busy || !s.enabled} onClick={() => act({ action: s.action })}><b>{i + 1}</b>{s.icon}{s.label}</button>)}</div>
-      <p className="dr-hint">Flow per round: tables lock → <b>Close round</b> → Richard walks the option slide → <b>Show the split</b> → discuss → <b>Next</b>. The timer is advisory; nothing closes on its own.</p>
-      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div>
+      <div className="dr-run-foot"><p className="dr-hint">Flow per round: tables lock → <b>Close round</b> → Richard walks the option slide → <b>Show the split</b> → discuss → <b>Next</b>. The timer is advisory; nothing closes on its own.</p>
+      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div></div>
       <ErrorText message={actionError} />
     </section>
 
