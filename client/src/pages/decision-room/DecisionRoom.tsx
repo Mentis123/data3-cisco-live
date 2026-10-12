@@ -147,6 +147,22 @@ function Landing({ presetCode }: { presetCode?: string }) {
   const [mode, setMode] = useState<"join" | "facilitate" | "display">("join");
   const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
   const [joinCode, setJoinCode] = useState(presetCode || ""); const [teamCode, setTeamCode] = useState(""); const [teamName, setTeamName] = useState("");
+  const [tables, setTables] = useState<{ teamCode: string; displayName: string; taken: boolean }[] | null>(null);
+  const [tablesError, setTablesError] = useState("");
+  // Live table picker: once a room code is typed (or arrives from the QR), show which tables are free and which are taken.
+  useEffect(() => {
+    if (mode !== "join" || joinCode.trim().length < 6) { setTables(null); setTablesError(""); return; }
+    let alive = true;
+    const load = async () => {
+      try { const data = await request<{ tables: { teamCode: string; displayName: string; taken: boolean }[] }>(`${API}/rooms/${encodeURIComponent(joinCode.trim())}/tables`); if (alive) { setTables(data.tables); setTablesError(""); } }
+      catch (e) { if (alive) { setTables(null); setTablesError((e as Error).message); } }
+    };
+    const first = setTimeout(load, 250); const id = setInterval(load, POLL_MS);
+    return () => { alive = false; clearTimeout(first); clearInterval(id); };
+  }, [joinCode, mode]);
+  const picked = tables?.find((t) => t.teamCode === teamCode) ?? null;
+  const pickedTaken = Boolean(picked?.taken);
+  const freeCount = tables ? tables.filter((t) => !t.taken).length : 0;
   const [adminKey, setAdminKey] = useState(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } });
   const [tableCount, setTableCount] = useState(8);
   const [sessionId, setSessionId] = useState(""); const [displayToken, setDisplayToken] = useState("");
@@ -175,7 +191,10 @@ function Landing({ presetCode }: { presetCode?: string }) {
       <div className="dr-landing-side">
         <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
         <section className="dr-card dr-form">
-          {mode === "join" && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Give your table a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label><label>Team name<input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder="e.g. The Night Shift" maxLength={40} autoComplete="off" /></label><button className="dr-primary" disabled={busy || !joinCode || !teamCode} onClick={join}>Join room <ArrowRight /></button></>}
+          {mode === "join" && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Pick a free table and give it a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label>{tables ? <div className="dr-tablepick"><span className="dr-label">Pick your table</span><div className="dr-tablegrid" role="group" aria-label="Tables in this room">{tables.map((t) => { const named = t.displayName !== `Table ${t.teamCode}`; return <button type="button" key={t.teamCode} className={`dr-tablechip ${t.taken ? "taken" : "free"} ${teamCode === t.teamCode ? "selected" : ""}`} aria-pressed={teamCode === t.teamCode} aria-label={`Table ${t.teamCode}, ${t.taken ? `taken${named ? ` by ${t.displayName}` : ""}` : "free"}`} onClick={() => { setTeamCode(t.teamCode); if (t.taken) setTeamName(""); }}><b>{t.teamCode}</b><small>{t.taken ? (named ? t.displayName : "taken") : "free"}</small></button>; })}</div><p className="dr-tablelegend"><span className="free">free</span><span className="taken">taken</span><span>{freeCount} of {tables.length} free</span></p></div>
+            : <><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label>{tablesError && joinCode.trim().length >= 6 ? <p className="dr-hint">{/not found/i.test(tablesError) ? "No room with that code yet. Check the code on the big screen." : tablesError}</p> : null}</>}
+          {pickedTaken && picked ? <div className="dr-banner dr-banner--warn">Table {picked.teamCode} is already joined{picked.displayName !== `Table ${picked.teamCode}` ? <> as <b>{picked.displayName}</b></> : null}. Only continue if this is your table: the other phone is signed out and this one picks up where it left off.</div> : null}
+          <label>Team name<input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder={pickedTaken && picked ? `${picked.displayName} (keep)` : "e.g. The Night Shift"} maxLength={40} autoComplete="off" /></label><button className="dr-primary" disabled={busy || !joinCode || !teamCode} onClick={join}>{pickedTaken ? "Rejoin this table" : "Join room"} <ArrowRight /></button></>}
           {mode === "facilitate" && <><h2>Create a live room</h2><p className="dr-hint">Adam only. One room per session; never reuse the morning room for the afternoon.</p><label>Facilitator key<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} autoComplete="off" /></label><label>Tables in the room<input type="number" min={2} max={50} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} /></label><button className="dr-primary" disabled={busy || !adminKey} onClick={create}>Create room <ArrowRight /></button></>}
           {mode === "display" && <><h2>Open a presenter console</h2><p className="dr-hint">Normally you open the console from the facilitator page with one click. This is the recovery path.</p><label>Session ID<input value={sessionId} onChange={(e) => setSessionId(e.target.value)} /></label><label>Display token<input type="password" value={displayToken} onChange={(e) => setDisplayToken(e.target.value)} /></label><button className="dr-primary" disabled={!sessionId || !displayToken} onClick={openDisplay}>Open console <Monitor /></button></>}
           <ErrorText message={error} />

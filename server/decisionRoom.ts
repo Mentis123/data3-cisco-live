@@ -266,6 +266,17 @@ export function registerDecisionRoomRoutes(app: Express) {
     res.status(201).json({ sessionId, joinCode, displayToken });
   } catch (e) { fail(e, res, next); } });
 
+  // Public, by room code: which tables are free and which are already joined, so a phone picks its own table.
+  app.get("/api/decision-room/rooms/:code/tables", async (req, res, next) => { try {
+    if (rejectMissingDatabase(res)) return;
+    const session = await findSession(req.params.code);
+    if (!session || session.joinCode !== req.params.code.toUpperCase()) { res.status(404).json({ message: "Room not found" }); return; }
+    if (session.status === "ended") { res.status(409).json({ message: "This room has ended" }); return; }
+    const tables = (await getTeams(session.id)).map((t) => ({ teamCode: t.teamCode, displayName: t.displayName, taken: Boolean(t.tokenHash) }));
+    tables.sort((a, b) => (Number(a.teamCode) - Number(b.teamCode)) || a.teamCode.localeCompare(b.teamCode));
+    res.json({ joinCode: session.joinCode, tables });
+  } catch (e) { fail(e, res, next); } });
+
   app.post("/api/decision-room/join", async (req, res, next) => { try {
     if (rejectMissingDatabase(res)) return;
     const input = joinSchema.parse(req.body ?? {});
