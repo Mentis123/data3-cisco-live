@@ -149,3 +149,6 @@
 /* Wordmark: "Data#3", the # superscripted, nothing else changes size or face. */
 .dr-brand .dr-mark{width:auto;min-width:0;padding:0 14px;letter-spacing:-.01em;white-space:nowrap}
 .dr-mark sup{font-size:.6em;line-height:0;position:relative;top:-.35em;vertical-align:baseline;color:#fff;margin:0 1px;transform:none}
+/* The form's primary button was outside the flex rule set, so its icon wrapped under the label. */
+.dr-form>.dr-primary{display:flex;align-items:center;justify-content:center;gap:9px;min-height:52px;font-size:17px}
+.dr-form>.dr-primary svg{width:18px}
