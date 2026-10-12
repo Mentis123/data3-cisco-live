@@ -17,7 +17,7 @@ The same app, same buttons and same paths also run on **`https://d3smbmxdr.verce
 
 ## What the room sees and what you say
 
-> "One phone per table. Go to **data3-cisco-live.vercel.app/decision-room**, tap **Join a table**, type the room code on the screen, your table number, and give your team a name. You're now watching Riverbend's systems. Nothing is wrong yet."
+> "One phone per table. Go to **data3-cisco-live.vercel.app/decision-room**, scan the QR on the screen (or tap **Join a table** and type the room code), tap your table number — green means free — and give your team a name. You're now watching Riverbend's systems. Nothing is wrong yet."
 
 Each table's phone shows the Riverbend attack path and six live meters. In the lobby everything is green: monitoring mode.
 
