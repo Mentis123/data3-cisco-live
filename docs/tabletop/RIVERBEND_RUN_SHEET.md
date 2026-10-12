@@ -15,7 +15,7 @@ Standalone Crisis Room (Richard's companion, no login): `https://data3-cisco-liv
 
 ## What the room sees and what you say
 
-> "One phone per table. Go to **data3-cisco-live.vercel.app/decision-room**, tap **Join a table**, type the room code on the screen and your table number. You're now watching Riverbend's systems. Nothing is wrong yet."
+> "One phone per table. Go to **data3-cisco-live.vercel.app/decision-room**, tap **Join a table**, type the room code on the screen, your table number, and give your team a name. You're now watching Riverbend's systems. Nothing is wrong yet."
 
 Each table's phone shows the Riverbend attack path and six live meters. In the lobby everything is green: monitoring mode.
 
@@ -39,7 +39,7 @@ While tables are debating, scan "This round's responses" on your control page an
 
 ## If something goes wrong
 
-- **A table's phone dies or they want a second device**: they just join again with the same table number. The old phone is logged out, the new one picks up the draft.
+- **A table's phone dies or they want a second device**: they just join again with the same table number (the team name is kept). The old phone is logged out, the new one picks up the draft.
 - **A table locked the wrong answer and begs**: press **Reopen** next to that table (only possible before you show the split).
 - **Wi-Fi dies**: say "paper from here". Tables use the printed lock card, you take a show of hands for the split, the projector keeps its last screen. Nothing else changes.
 - **You lose your control tab**: open `/decision-room` → **Facilitate** → the key is remembered → create nothing; instead use the browser back button or re-open `/decision-room/admin/<session id>` from history. If truly lost, the console's URL still works and you can run the room from paper.

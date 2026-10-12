@@ -44,7 +44,8 @@ console.log("\n3. Tables join");
 const j1 = await call("POST", "/join", { body: { joinCode, teamCode: "1" } });
 check("table 1 joins", j1.status === 200, j1.body);
 const t1 = { "x-team-token": j1.body.teamToken };
-const j2 = await call("POST", "/join", { body: { joinCode, teamCode: "2" } });
+const j2 = await call("POST", "/join", { body: { joinCode, teamCode: "2", teamName: "=The Night Shift <b>" } });
+check("a team can name itself on join (sanitised)", j2.body.displayName === "=The Night Shift b", j2.body);
 const t2 = { "x-team-token": j2.body.teamToken };
 check("unknown table refused", (await call("POST", "/join", { body: { joinCode, teamCode: "9" } })).status === 404);
 check("unknown room refused", (await call("POST", "/join", { body: { joinCode: "ZZZZZZ", teamCode: "1" } })).status === 404);
@@ -94,6 +95,7 @@ const forged = await call("GET", `/sessions/${joinCode}/participant`, { headers:
 check("forged token is 401", forged.status === 401);
 let con = await call("GET", `/sessions/${sessionId}/console?displayToken=${encodeURIComponent(displayToken)}`);
 check("console counts two locked", con.body.counts.locked === 2 && con.body.counts.total === 4, con.body.counts);
+check("the team name shows on the console tiles", con.body.teams.some((t) => t.displayName === "=The Night Shift b"), con.body.teams);
 check("console shows no split before publish", con.body.results === null);
 check("console payload never names rank, score or winner", !/\b(rank|score|winner|fastest|points)\b/i.test(JSON.stringify(con.body)));
 check("console payload carries no rationales before publish", !JSON.stringify(con.body).includes("logs win"));
@@ -146,6 +148,7 @@ check("table 1 (unbounded then governance evidence) loses cover", p1r5.body.dash
 console.log("\n10. Export, end, reset");
 const exported = await call("GET", `/sessions/${sessionId}/export`, { headers: KEY });
 check("export is CSV with six rounds of rows", exported.status === 200 && String(exported.body).split("\r\n").length >= 13);
+check("CSV guards against formula injection", String(exported.body).includes("\"'=The Night Shift b\""));
 check("export is facilitator-only", (await call("GET", `/sessions/${sessionId}/export`)).status === 401);
 check("end the room", (await act(sessionId, { action: "end" })).status === 200);
 check("tables cannot join an ended room", (await call("POST", "/join", { body: { joinCode, teamCode: "3" } })).status === 409);

@@ -229,12 +229,14 @@ function fail(e: unknown, res: Response, next: (e: unknown) => void) {
 }
 
 function csvCell(value: unknown) {
-  const text = value == null ? "" : String(value);
+  let text = value == null ? "" : String(value);
+  // A rationale or team name starting with = + - @ would run as a formula when the CSV opens in Excel.
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return `"${text.replace(/"/g, '""')}"`;
 }
 
 const createSchema = z.object({ name: z.string().trim().min(2).max(80).default("When the agent attacks"), tableCount: z.number().int().min(2).max(50).default(8), variant: z.string().optional() });
-const joinSchema = z.object({ joinCode: z.string().trim().min(4).max(8), teamCode: z.string().trim().min(1).max(12) });
+const joinSchema = z.object({ joinCode: z.string().trim().min(4).max(8), teamCode: z.string().trim().min(1).max(12), teamName: z.string().trim().max(40).optional() });
 const decisionSchema = z.object({ roundNo: z.number().int().min(1).max(ROUND_COUNT), optionKey: z.enum(["A", "B", "C", "D"]), rationale: z.string().trim().max(240).default(""), confidence: z.number().int().min(1).max(5).nullable().optional(), lock: z.boolean().default(false) });
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("launch") }), z.object({ action: z.literal("start") }), z.object({ action: z.literal("close") }),
@@ -271,10 +273,13 @@ export function registerDecisionRoomRoutes(app: Express) {
     // A rejoin (dead phone, second device) issues a fresh token; the previous device is asked to rejoin.
     const teamToken = token(), hash = sha(teamToken);
     const state: TeamState = team.state === "not_joined" ? "reading" : team.state;
-    if (db) await db.execute(sql`UPDATE workshop_teams SET token_hash=${hash},state=${state},last_seen_at=now() WHERE id=${team.id}::uuid`);
-    else { team.tokenHash = hash; team.state = state; team.lastSeenAt = new Date().toISOString(); }
+    // A table names itself on first join ("The Night Shift"); a rejoin keeps the name unless a new one is given.
+    const cleanName = (input.teamName ?? "").replace(/[\u0000-\u001f\u007f<>]/g, "").trim().slice(0, 40);
+    const displayName = cleanName || team.displayName;
+    if (db) await db.execute(sql`UPDATE workshop_teams SET token_hash=${hash},state=${state},display_name=${displayName},last_seen_at=now() WHERE id=${team.id}::uuid`);
+    else { team.tokenHash = hash; team.state = state; team.displayName = displayName; team.lastSeenAt = new Date().toISOString(); }
     await bump(session.id);
-    res.json({ teamToken, sessionId: session.id, joinCode: session.joinCode, displayName: team.displayName });
+    res.json({ teamToken, sessionId: session.id, joinCode: session.joinCode, displayName });
   } catch (e) { fail(e, res, next); } });
 
   app.get("/api/decision-room/sessions/:identifier/participant", async (req, res, next) => { try {
