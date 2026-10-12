@@ -145,3 +145,7 @@
 .dr-wide .dr-quote{padding:14px 18px}
 .dr-wide .dr-console-footer{margin-top:16px;padding-top:12px}
 .dr-wide footer:not(.dr-console-footer){display:none}
+
+/* Wordmark: "Data#3", the # superscripted, nothing else changes size or face. */
+.dr-brand .dr-mark{width:auto;min-width:0;padding:0 14px;letter-spacing:-.01em;white-space:nowrap}
+.dr-mark sup{font-size:.6em;line-height:0;position:relative;top:-.35em;vertical-align:baseline;color:#fff;margin:0 1px;transform:none}

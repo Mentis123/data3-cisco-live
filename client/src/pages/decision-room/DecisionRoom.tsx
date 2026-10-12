@@ -87,7 +87,7 @@ const TEAM_LABEL: Record<string, string> = { not_joined: "not joined", reading: 
 /* -------------------------------------------------------------- building blocks */
 
 function Frame({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  return <main className={`dr-shell ${wide ? "dr-wide" : ""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">D<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
+  return <main className={`dr-shell ${wide ? "dr-wide" : ""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
 }
 function ErrorText({ message }: { message: string }) { return message ? <p className="dr-error"><AlertTriangle size={18} />{message}</p> : null; }
 function Status({ tone, label }: { tone: string; label: string }) { return <span className={`dr-live dr-live--${tone}`}><i />{label}</span>; }
