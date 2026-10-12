@@ -8,6 +8,8 @@
  * advance order.
  */
 process.env.DECISION_ROOM_ADMIN_KEY = "rehearsal-facilitator-key-0123456789";
+// A second key under another name, padded: it must open the room too (the names never shadow each other).
+process.env.WORKSHOP_FACILITATOR_SECRET = "  workshop-secret-0123456789  ";
 delete process.env.DATABASE_URL;
 delete process.env.VERCEL;
 
@@ -32,6 +34,7 @@ const act = (id, body) => call("POST", `/sessions/${id}/actions`, { body, header
 console.log("\n1. Facilitator authentication");
 check("create without a key is 401", (await call("POST", "/sessions", { body: {} })).status === 401);
 check("create with the wrong key is 401", (await call("POST", "/sessions", { body: {}, headers: { "x-admin-key": "nope" } })).status === 401);
+check("a key set under WORKSHOP_FACILITATOR_SECRET also opens the room, whitespace ignored", (await call("POST", "/sessions", { body: {}, headers: { "x-admin-key": "workshop-secret-0123456789" } })).status === 201);
 
 console.log("\n2. Create the room");
 const created = await call("POST", "/sessions", { body: { tableCount: 4 }, headers: KEY });

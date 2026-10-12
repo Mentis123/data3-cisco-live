@@ -6,9 +6,11 @@ The live room instrument for **When the agent attacks**. One URL for everything:
 
 Standalone Crisis Room (Richard's companion, no login): `https://data3-cisco-live.vercel.app/crisis-room`
 
+The same app, same buttons and same paths also run on **`https://d3smbmxdr.vercel.app/decision-room`** (and `/crisis-room`). Use whichever domain is printed on the slide; a room created on one domain lives only on that domain.
+
 ## Before the session (10 minutes, once)
 
-1. Vercel → `data3-cisco-live` → Settings → Environment Variables. Confirm `WORKSHOP_FACILITATOR_SECRET` exists and **Production** is ticked. Its value is your **facilitator key**. (The app also accepts `DECISION_ROOM_ADMIN_KEY` if you'd rather name it that.)
+1. Vercel → `data3-cisco-live` → Settings → Environment Variables. Confirm `WORKSHOP_FACILITATOR_SECRET` exists and **Production** is ticked. Its value is your **facilitator key**. (Any of `WORKSHOP_FACILITATOR_SECRET`, `DECISION_ROOM_ADMIN_KEY` or `ADMIN_KEY` opens the room; if an older one is still set under another name, both work.)
 2. On your laptop: open `/decision-room` → **Facilitate** → facilitator key → tables in the room → **Create room**. You land on your control page. Note the **room code** (six characters).
 3. On your control page, click **Open console (projector)**. Drag that window to the projector. It needs no login — it carries its own display token in the link.
 4. Print the room code large, or just read it off the console; the join QR is on your control page.

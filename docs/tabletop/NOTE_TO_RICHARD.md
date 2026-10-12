@@ -8,6 +8,8 @@ Rich — here's what Adam and I have done with the deck, the Crisis Room and the
 
 **`https://data3-cisco-live.vercel.app/crisis-room`** — your Crisis Room, exactly as you exported it, hosted on the same domain as a standalone fallback.
 
+Both also run at **`https://d3smbmxdr.vercel.app/decision-room`** and `/crisis-room`, with the Microsoft mark alongside Data#3 in the header.
+
 ## How the 90 minutes run
 
 Your deck, unchanged in content. Six rounds: Triage, then Injects 1–5. Teams of 2–3, lots of tables.

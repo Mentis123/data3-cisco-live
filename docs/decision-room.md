@@ -6,7 +6,7 @@ Operator instructions live in [`docs/tabletop/RIVERBEND_RUN_SHEET.md`](tabletop/
 
 ## Production configuration
 
-- **Facilitator key**: `DECISION_ROOM_ADMIN_KEY`, else `WORKSHOP_FACILITATOR_SECRET`, else the legacy `ADMIN_KEY`. Set one dedicated variable in Vercel (Production) and redeploy; env vars are snapshotted at build time.
+- **Facilitator key**: any of `WORKSHOP_FACILITATOR_SECRET`, `DECISION_ROOM_ADMIN_KEY` or the legacy `ADMIN_KEY`. If more than one is set, each of them opens the room (they never shadow one another), and surrounding whitespace is ignored. Set it in Vercel (Production) and redeploy; env vars are snapshotted at build time. A rejected key is logged with the *names* of the variables the function received, never their values.
 - `DATABASE_URL` or a `POSTGRES_URL*` variant: Neon connection for rooms, tables, decisions and the event ledger. On Vercel the API refuses to run in memory.
 
 The API creates the four `workshop_*` tables on first use and relaxes the September three-round constraints in place (`ALTER TABLE … DROP CONSTRAINT IF EXISTS`), so the production tables carry over without a destructive migration. `migrations/20260906090000_decision_room.sql` remains the recorded baseline.
