@@ -258,6 +258,7 @@ function Terminal({ launch, launchedAt, now }: { launch: Launch; launchedAt: str
 function Console({ id }: { id: string }) {
   const displayToken = useMemo(() => { const q = new URLSearchParams(location.search).get("displayToken"); if (q) return q; try { return localStorage.getItem(`decision-room-display:${id}`) || ""; } catch { return ""; } }, [id]);
   const { data, error, lastUpdated } = usePoll<ConsoleData>(`${API}/sessions/${id}/console?displayToken=${encodeURIComponent(displayToken)}`);
+  const joinUrl = data ? `${location.origin}/decision-room/join/${data.session.joinCode}` : "";
   const now = useNow();
   if (!data) return <Frame wide><section className="dr-card"><h2>Opening presenter console…</h2><ErrorText message={error} /><p className="dr-hint">If this stays here, run the round from the printed pack. The exercise does not depend on this screen.</p></section></Frame>;
   const { session, round, counts, results } = data;
@@ -273,7 +274,7 @@ function Console({ id }: { id: string }) {
 
     {(state === "lobby" || state === "launched") && <section className="dr-console-grid">
       <div className="dr-card"><div className="dr-panel-head"><span>The adversary</span></div><div className="dr-profile">{data.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>mirrors {p.mirrors}</em></div>)}</div><p className="dr-hint">Fictional and narrative only. No tools, no code, no exploit steps — this exists to show how cheap and modular these choices have become.</p></div>
-      <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><Radio /><p>{data.organisation.tagline}</p><p className="dr-hint">Join at <strong>{location.host}/decision-room</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
+      <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><div className="dr-standby-qr" aria-label="QR code to join this room"><QRCodeSVG value={joinUrl} size={224} bgColor="#ffffff" fgColor="#000025" level="M" /></div><p>{data.organisation.tagline}</p><p className="dr-hint">Scan, or go to <strong>{location.host}/decision-room</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
     </section>}
 
     {(state === "open" || state === "closed" || state === "published" || state === "ended") && <>

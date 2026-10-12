@@ -155,3 +155,5 @@
 .dr-partner{margin-left:auto;display:flex;align-items:center;gap:9px;color:#fff;font-size:19px;font-weight:600;letter-spacing:-.01em;font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;white-space:nowrap}
 .dr-partner svg{flex:none}
 @media(max-width:480px){.dr-partner{font-size:16px;gap:7px}.dr-partner svg{width:17px;height:17px}}
+.dr-standby-qr{display:inline-block;background:#fff;padding:12px;border-radius:14px;margin:0 0 18px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.dr-standby .dr-standby-qr svg{width:224px;height:224px;margin:0;color:inherit}
