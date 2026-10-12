@@ -1,29 +1,46 @@
-# Decision Room
+# Decision Room — Riverbend edition
 
-The live tabletop instrument is mounted at `/decision-room` and supports the Enterprise (Project Atlas) and Government (Civic Assist) scenarios.
+The live tabletop instrument for **When the agent attacks** (Richard's deck, 27 slides) is mounted at `/decision-room`. One scenario — Riverbend Water & Energy — six rounds: Triage, then Injects 1–5. Tables vote A–D on one phone, write one sentence, pick a confidence and lock. The projected console shows who has locked and, when Adam chooses, where the room landed.
+
+Operator instructions live in [`docs/tabletop/RIVERBEND_RUN_SHEET.md`](tabletop/RIVERBEND_RUN_SHEET.md). Richard's standalone companion is served at `/crisis-room`.
 
 ## Production configuration
 
-- `DECISION_ROOM_ADMIN_KEY`: facilitator password. If omitted, the app uses the existing `ADMIN_KEY`.
-- `DATABASE_URL` or an existing supported `POSTGRES_URL` variant: Neon/Postgres connection used for rooms, teams, decisions and the event ledger.
+- **Facilitator key**: `DECISION_ROOM_ADMIN_KEY`, else `WORKSHOP_FACILITATOR_SECRET`, else the legacy `ADMIN_KEY`. Set one dedicated variable in Vercel (Production) and redeploy; env vars are snapshotted at build time.
+- `DATABASE_URL` or a `POSTGRES_URL*` variant: Neon connection for rooms, tables, decisions and the event ledger. On Vercel the API refuses to run in memory.
 
-The API creates its four workshop tables on first use if they do not exist. The same schema is recorded in `migrations/20260906090000_decision_room.sql` for controlled migrations.
+The API creates the four `workshop_*` tables on first use and relaxes the September three-round constraints in place (`ALTER TABLE … DROP CONSTRAINT IF EXISTS`), so the production tables carry over without a destructive migration. `migrations/20260906090000_decision_room.sql` remains the recorded baseline.
 
-## Run-of-show
+## Round flow (as agreed on the 12 October call)
 
-1. Adam opens `/decision-room`, selects **Facilitate**, chooses the audience and table count, and creates the room.
-2. Put the facilitator view on Adam's device. Open its **presenter console** in the screen-shared window.
-3. Attendees scan the QR code, enter their table number and wait in the lobby.
-4. Adam starts the room. Each table chooses an action, records the trade-off it accepts and names evidence that would reverse its call.
-5. Adam may publish the room pattern and select strong reasoning for the screen. This is a sense-making view, not a leaderboard.
-6. Adam advances the reveal twice. Previous responses remain in the decision ledger; future facts are never sent to participant devices early.
-7. Richard, as Security Counsel, reflects on the reasoning: authority, containment scope, continuity, evidence and restart conditions. He does not score winners.
-8. Export the CSV after the exercise, then end the room. Use **Reset** only when intentionally clearing every response and table login in that room.
+```
+lobby ──launch──▶ launched ──start──▶ round 1 open ──close──▶ closed ──publish──▶ published ──advance──▶ round 2 open … round 6 ──end──▶ ended
+```
 
-## Access model
+Inside a round: tables lock → **Close round** → Richard walks the option slide (best move last) → **Show the split** → discuss → **Next**.
 
-- Facilitator calls require the facilitator key.
-- The presenter console uses a separate, room-scoped display token.
-- Each table receives a random token at join; only its hash is stored.
-- A table cannot edit after locking unless Adam reopens it.
-- Vercel production refuses in-memory operation when the database connection is missing.
+## What each surface shows
+
+| Surface | Before start | Round open | Closed | Published |
+|---|---|---|---|---|
+| Phone (one per table) | Riverbend dashboard, all secure, "monitoring mode" | Feed, situation, A–D, rationale, confidence, lock | "Round closed. Richard is walking the options." | The split, **that table's** consequence, meters moved |
+| Console (projector) | Adversary profile; after **Launch**, the dramatised run | Timer, joined/drafting/locked, table tiles, the four option labels | "Round closed" | A/B/C/D bars, confidence range, up to two unattributed rationales |
+| Admin (Adam) | Five numbered buttons in flow order, QR, console link | Live responses with rationales; reopen; put on screen | — | — |
+
+## Boundaries
+
+- Facilitator routes require the key (timing-safe compare). The console uses a room-scoped display token carried in its link. Each table holds a random token; only its hash is stored. A table can rejoin (dead phone, second device); the old token is retired.
+- Round copy is served only for the open round. **Consequences, meters and the split are returned only after publish.** Verdict labels and the "best move" never leave the deck. Verified by grepping the built bundle: no situation, consequence or verdict text ships in it.
+- No rank, score, lock time or winner anywhere in any payload (asserted by the test).
+- Ending the room stops every table token. Reset clears every response and table login.
+
+## Tests
+
+```bash
+npm run test:decision-room      # in-process, in-memory store, 94 assertions across all six rounds
+node scripts/decision-room-screenshots.mjs <outdir>   # against a dev server on :5199, screenshots every state
+```
+
+## Content
+
+`server/decisionRoomContent.ts` holds the six rounds in the deck's wording and option order, the per-option consequences ported from the Crisis Room (with variants that depend on a table's earlier choices — e.g. a table that watched the OT gateway in Inject 1 rides out the isolation in Inject 3), the live-state meters, and the launch script. Edit the deck and this file together.
