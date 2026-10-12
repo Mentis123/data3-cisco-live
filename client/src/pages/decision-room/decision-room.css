@@ -152,3 +152,6 @@
 /* The form's primary button was outside the flex rule set, so its icon wrapped under the label. */
 .dr-form>.dr-primary{display:flex;align-items:center;justify-content:center;gap:9px;min-height:52px;font-size:17px}
 .dr-form>.dr-primary svg{width:18px}
+.dr-partner{margin-left:auto;display:flex;align-items:center;gap:9px;color:#fff;font-size:19px;font-weight:600;letter-spacing:-.01em;font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;white-space:nowrap}
+.dr-partner svg{flex:none}
+@media(max-width:480px){.dr-partner{font-size:16px;gap:7px}.dr-partner svg{width:17px;height:17px}}

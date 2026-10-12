@@ -7,9 +7,10 @@
  * the round → Richard walks the option slide → Adam publishes the split → the
  * room discusses. Consequences and meters are only revealed on publish.
  *
- * Facilitator key: DECISION_ROOM_ADMIN_KEY, else WORKSHOP_FACILITATOR_SECRET,
- * else the legacy ADMIN_KEY. The console uses a room-scoped display token.
- * Each table holds a random token; only its hash is stored.
+ * Facilitator key: any of DECISION_ROOM_ADMIN_KEY, WORKSHOP_FACILITATOR_SECRET
+ * or the legacy ADMIN_KEY opens the room, so a key set under one name is never
+ * shadowed by an older one under another. The console uses a room-scoped
+ * display token. Each table holds a random token; only its hash is stored.
  */
 
 import type { Express, Request, Response } from "express";
@@ -61,18 +62,22 @@ function matchesHash(value: string, expectedHash: string) {
   const a = Buffer.from(sha(value), "hex"); const b = Buffer.from(expectedHash, "hex");
   return a.length === b.length && timingSafeEqual(a, b);
 }
-function facilitatorSecret() {
-  return (
-    process.env.DECISION_ROOM_ADMIN_KEY ||
-    process.env.WORKSHOP_FACILITATOR_SECRET ||
-    process.env.ADMIN_KEY ||
-    (process.env.NODE_ENV === "development" ? "decision-room-local" : "")
-  );
+const FACILITATOR_KEY_NAMES = ["DECISION_ROOM_ADMIN_KEY", "WORKSHOP_FACILITATOR_SECRET", "ADMIN_KEY"] as const;
+/** Names of the facilitator-key variables that carry a value in this deployment (never the values). */
+function configuredKeyNames() {
+  return FACILITATOR_KEY_NAMES.filter((name) => (process.env[name] ?? "").trim());
+}
+/** Every configured facilitator key, trimmed; the local default only when nothing is configured in development. */
+function facilitatorSecrets() {
+  const keys = configuredKeyNames().map((name) => (process.env[name] ?? "").trim());
+  if (keys.length === 0 && process.env.NODE_ENV === "development") keys.push("decision-room-local");
+  return keys;
 }
 function ensureAdmin(req: Request, res: Response) {
-  const expected = facilitatorSecret();
-  const provided = String(req.headers["x-admin-key"] ?? "");
-  if (!expected || !provided || !safeEqualPlain(provided, expected)) {
+  const provided = String(req.headers["x-admin-key"] ?? "").trim();
+  if (!provided || !facilitatorSecrets().some((key) => safeEqualPlain(provided, key))) {
+    // Logged so an operator can see which variable names the function actually received.
+    console.warn(`[decision-room] facilitator key rejected; configured: ${configuredKeyNames().join(", ") || "none"}`);
     res.status(401).json({ message: "Facilitator access required" });
     return false;
   }

@@ -86,8 +86,12 @@ const TEAM_LABEL: Record<string, string> = { not_joined: "not joined", reading: 
 
 /* -------------------------------------------------------------- building blocks */
 
+/** Microsoft four-square mark with wordmark, white on the dark shell. */
+function MicrosoftMark() {
+  return <div className="dr-partner" aria-label="Microsoft"><svg viewBox="0 0 23 23" width="20" height="20" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="#f25022" /><rect x="12" y="1" width="10" height="10" fill="#7fba00" /><rect x="1" y="12" width="10" height="10" fill="#00a4ef" /><rect x="12" y="12" width="10" height="10" fill="#ffb900" /></svg><span>Microsoft</span></div>;
+}
 function Frame({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  return <main className={`dr-shell ${wide ? "dr-wide" : ""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
+  return <main className={`dr-shell ${wide ? "dr-wide" : ""}`}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div><MicrosoftMark /></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
 }
 function ErrorText({ message }: { message: string }) { return message ? <p className="dr-error"><AlertTriangle size={18} />{message}</p> : null; }
 function Status({ tone, label }: { tone: string; label: string }) { return <span className={`dr-live dr-live--${tone}`}><i />{label}</span>; }
