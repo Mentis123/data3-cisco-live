@@ -17,7 +17,8 @@
     "db:migrate:announced": "tsx scripts/apply-announced-migration.ts",
     "seed:trivia": "tsx server/scripts/seedTriviaItems.ts",
     "build:client": "vite build",
-    "vercel-build": "npm run build:client"
+    "vercel-build": "npm run build:client",
+    "test:decision-room": "tsx scripts/decision-room-flow-test.mjs"
   },
   "dependencies": {
     "@azure/identity": "^4.5.0",
