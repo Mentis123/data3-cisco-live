@@ -412,10 +412,7 @@ export default function IncidentChallengeV03({
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
         {phase === "launch" && !archiveMode && (
-          <div className="incident-header-titles">
-            <p className="incident-header-event">Cisco Live 2026</p>
-            <p className="incident-header-challenge">AI incident challenge</p>
-          </div>
+          <p className="incident-header-title">Cisco Live 2026 · AI incident challenge</p>
         )}
         {phase === "launch" ? (archiveMode ? (
           <div className="incident-header-actions">
