@@ -411,7 +411,12 @@ export default function IncidentChallengeV03({
         <a className="incident-brand" href="/" aria-label="Data#3 home">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        {phase === "launch" && !archiveMode && <p className="incident-header-event">Cisco Live 2026 · AI incident challenge</p>}
+        {phase === "launch" && !archiveMode && (
+          <div className="incident-header-titles">
+            <p className="incident-header-event">Cisco Live 2026</p>
+            <p className="incident-header-challenge">AI incident challenge</p>
+          </div>
+        )}
         {phase === "launch" ? (archiveMode ? (
           <div className="incident-header-actions">
             {archiveMode ? (
@@ -450,8 +455,9 @@ export default function IncidentChallengeV03({
                     return (
                       <li key={candidate.id} className={record ? "is-attempted" : undefined}>
                         {record && <span className="incident-tile-status">{completed ? <Check aria-hidden="true" /> : <X aria-hidden="true" />}</span>}
+                        <small className="incident-tile-category">{candidate.eyebrow}</small>
                         <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
-                        <small>{record ? completed ? "Completed" : "Abandoned" : candidate.eyebrow}</small>
+                        {record && <small className="incident-tile-outcome">{completed ? "Completed" : "Abandoned"}</small>}
                       </li>
                     );
                   })}
@@ -848,6 +854,13 @@ export default function IncidentChallengeV03({
             </div>
           </section>
         </main>
+      )}
+      {!archiveMode && (phase === "launch" || phase === "result") && (
+        <footer className="incident-footer">
+          <p><strong>Data<sup>#</sup>3</strong> · Delivering the Digital Future</p>
+          <a href="https://www.data3.com" target="_blank" rel="noopener noreferrer">www.data3.com</a>
+          <p className="incident-footer-credit">© 2026 Data<sup>#</sup>3. Experience Vibe Coded by our resident <a href="https://www.linkedin.com/in/adam-aka-mentis" target="_blank" rel="noopener noreferrer">Tech Wizard</a>.</p>
+        </footer>
       )}
     </div>
   );
