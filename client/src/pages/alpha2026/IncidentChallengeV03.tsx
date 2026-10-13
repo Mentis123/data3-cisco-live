@@ -474,6 +474,16 @@ export default function IncidentChallengeV03({
                 </button>
               )}
             </section>
+            {!archiveMode && (
+                <button
+                  className="incident-primary"
+                  type="button"
+                  onClick={() => startIncident()}
+                  disabled={attemptedCount === incidentSet.length}
+                >
+                  {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
+                </button>
+            )}
           </section>
 
           <aside className="incident-launch__action" aria-labelledby="incident-assignment-title">
@@ -496,14 +506,7 @@ export default function IncidentChallengeV03({
               <>
                 <p className="incident-kicker">{attemptedCount === incidentSet.length ? "Series attempted" : "Assignment ready"}</p>
                 <h2 id="incident-assignment-title">{attemptedCount === incidentSet.length ? "All incidents attempted." : "Your incident is locked."}</h2>
-                <button
-                  className="incident-primary"
-                  type="button"
-                  onClick={() => startIncident()}
-                  disabled={attemptedCount === incidentSet.length}
-                >
-                  {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
-                </button>
+
                 <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
               </>
             )}
