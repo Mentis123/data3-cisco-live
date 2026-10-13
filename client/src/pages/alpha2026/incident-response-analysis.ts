@@ -150,9 +150,6 @@ export function scoreBandFor(score: number) {
 }
 
 
-// Portraits are fictional characters illustrating response styles, not player identities.
-export const profilePortraitFor = (key: ResponseArchetypeKey) => `/images/response-profiles/${key}.webp`;
-
 export function profileRouteFor(key: ResponseArchetypeKey): string {
   const labels = key.split("-").map((style) => responseStyleLabels[style as ResponseStyle].toLowerCase());
   if (labels.length === 1) {

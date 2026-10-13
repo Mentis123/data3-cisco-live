@@ -481,3 +481,12 @@
 .incident-footer a:hover { color: #00ffff; }
 .incident-footer a:focus-visible { outline: 2px solid #00ffff; outline-offset: 3px; }
 .incident-footer .incident-footer-credit { margin: 12px 0 0; color: #a1aab9; font-size: .7rem; }
+
+.incident-character-card img { display: block; opacity: 1; visibility: visible; }
+@media (max-width: 480px) { .incident-character-card img { width: min(100%, 240px); height: auto; aspect-ratio: 1; align-self: center; } }
+.incident-result-share { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 20px 0; }
+.incident-result-share .incident-primary { margin: 0; }
+.incident-result-share svg { width: 18px; height: 18px; flex-shrink: 0; }
+.incident-result-share p { grid-column: 1 / -1; margin: 0; color: var(--incident-pale); font-size: .8rem; line-height: 1.5; }
+.incident-result-share textarea { grid-column: 1 / -1; width: 100%; min-height: 130px; padding: 12px; border: 1px solid #78dcff66; border-radius: 12px; background: #000025; color: #fff; font: inherit; font-size: .85rem; }
+@media (max-width: 480px) { .incident-result-share { grid-template-columns: minmax(0, 1fr); } }
