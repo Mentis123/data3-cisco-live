@@ -10,6 +10,7 @@
 process.env.DECISION_ROOM_ADMIN_KEY = "rehearsal-facilitator-key-0123456789";
 // A second key under another name, padded: it must open the room too (the names never shadow each other).
 process.env.WORKSHOP_FACILITATOR_SECRET = "  workshop-secret-0123456789  ";
+process.env.DECISION_ROOM_ONLINE_SECONDS = "2"; // so the "quiet phone" path is testable in seconds
 delete process.env.DATABASE_URL;
 delete process.env.VERCEL;
 
@@ -56,10 +57,64 @@ check("table picker never leaks tokens", !JSON.stringify(pick.body).includes("to
 check("table picker 404s on an unknown room", (await call("GET", "/rooms/ZZZZZZ/tables")).status === 404);
 check("unknown table refused", (await call("POST", "/join", { body: { joinCode, teamCode: "9" } })).status === 404);
 check("unknown room refused", (await call("POST", "/join", { body: { joinCode: "ZZZZZZ", teamCode: "1" } })).status === 404);
-const rejoin = await call("POST", "/join", { body: { joinCode, teamCode: "1" } });
-check("a dead phone can rejoin its table", rejoin.status === 200);
-check("the old token is retired on rejoin", (await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 })).status === 401);
-t1["x-team-token"] = rejoin.body.teamToken;
+console.log("\n3b. Handover: a second device asks, the device at the table decides");
+const asks = async (name, headers = {}, teamCode = "1") => call("POST", "/join", { body: { joinCode, teamCode, ...(name ? { teamName: name } : {}) }, headers });
+const statusOf = async (tok) => (await call("GET", `/sessions/${joinCode}/handover`, { headers: { "x-team-token": tok } })).body.status;
+const popupOf = async (h) => (await call("GET", `/sessions/${joinCode}/participant`, { headers: h })).body.handover;
+const answer = (h, decision, requestId) => call("POST", `/sessions/${joinCode}/handover`, { body: { decision, requestId }, headers: h });
+const ask1 = await asks("Night Owls");
+check("joining an active, occupied table asks instead of taking over", ask1.status === 202 && ask1.body.pending === true, ask1.body);
+check("the asking device is not in yet", (await call("GET", `/sessions/${joinCode}/participant`, { headers: { "x-team-token": ask1.body.teamToken } })).status === 401);
+let pop = await popupOf(t1);
+check("the device at the table sees the request with an id", pop?.name === "Night Owls" && typeof pop?.requestId === "string", pop);
+check("the asking device sees pending", (await statusOf(ask1.body.teamToken)) === "pending");
+check("a second device cannot jump the queue while a request is live", (await asks("Interloper")).status === 409);
+check("the facilitator sees the live request", (await call("GET", `/sessions/${sessionId}/admin`, { headers: KEY })).body.teams.some((t) => t.handover));
+check("approve needs the id of the request on screen", (await answer(t1, "approve", "0000000000000000")).status === 409);
+check("the device at the table declines", (await answer(t1, "decline", pop.requestId)).status === 200);
+check("the asking device sees declined", (await statusOf(ask1.body.teamToken)) === "declined");
+let hp = await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
+check("after a decline the table is unchanged and the pop-up is gone", hp.status === 200 && hp.body.handover === null && hp.body.team.displayName === "Table 1");
+check("a stranger cannot answer for the table", (await answer(t2, "approve", pop.requestId)).status === 409);
+const askC = await asks();
+check("a cancelled request disappears everywhere", (await call("DELETE", `/sessions/${joinCode}/handover`, { headers: { "x-team-token": askC.body.teamToken } })).status === 200 && (await popupOf(t1)) === null && !(await call("GET", `/sessions/${sessionId}/admin`, { headers: KEY })).body.teams.some((t) => t.handover));
+const ask2 = await asks("Night Owls");
+pop = await popupOf(t1);
+check("the device at the table approves the request it was shown", (await answer(t1, "approve", pop.requestId)).status === 200);
+check("the asking device sees approved", (await statusOf(ask2.body.teamToken)) === "approved");
+check("the old device is signed out", (await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 })).status === 401);
+t1["x-team-token"] = ask2.body.teamToken;
+hp = await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
+check("the new device is in, renamed as asked", hp.status === 200 && hp.body.team.displayName === "Night Owls");
+const own = await asks(null, t1);
+check("a device rejoining its own table is not asked to approve itself", own.status === 200, own.body);
+t1["x-team-token"] = own.body.teamToken;
+const ask4 = await asks();
+const t1Id = (await call("GET", `/sessions/${sessionId}/admin`, { headers: KEY })).body.teams.find((t) => t.handover)?.id;
+check("the facilitator approves a live request", (await act(sessionId, { action: "handover", teamId: t1Id })).status === 200 && (await statusOf(ask4.body.teamToken)) === "approved");
+t1["x-team-token"] = ask4.body.teamToken;
+await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
+// Moving between tables through an approved handover frees the table being left.
+const j3 = await asks("Table Three", {}, "3"); const t3 = { "x-team-token": j3.body.teamToken };
+const j4 = await asks("Table Four", {}, "4"); const t4 = { "x-team-token": j4.body.teamToken };
+await call("GET", `/sessions/${joinCode}/participant`, { headers: t4 });
+const move = await asks(null, t3, "4");
+const movePop = await popupOf(t4);
+check("moving to an occupied table also asks", move.status === 202 && Boolean(movePop?.requestId));
+await answer(t4, "approve", movePop.requestId);
+const afterMove = (await call("GET", `/rooms/${joinCode}/tables`)).body.tables;
+check("the table a device moves away from is freed", afterMove.find((t) => t.teamCode === "3")?.taken === false && afterMove.find((t) => t.teamCode === "4")?.taken === true, afterMove);
+await new Promise((r) => setTimeout(r, 2300));
+const dead = await asks();
+check("a quiet device (closed, asleep, dead) does not block its table", dead.status === 200 && Boolean(dead.body.teamToken), dead.body);
+check("the quiet device's token is retired", (await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 })).status === 401);
+t1["x-team-token"] = dead.body.teamToken;
+await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
+const ask5 = await asks();
+await new Promise((r) => setTimeout(r, 2300));
+check("a device that goes quiet mid-request hands over by itself", (await statusOf(ask5.body.teamToken)) === "approved");
+t1["x-team-token"] = ask5.body.teamToken;
+await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
 
 console.log("\n4. Lobby and launch");
 let p = await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 });
