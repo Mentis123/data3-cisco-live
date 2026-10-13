@@ -60,9 +60,9 @@ const runawayAgentIncident: IncidentDefinition = {
         },
         {
           id: "R1-C",
-          action: "Scale the service to absorb the retries.",
+          action: "Add more compute to absorb the retries.",
           consequence:
-            "Customers recover briefly. But more capacity feeds the storm and masks its cause.",
+            "Customers recover briefly. But the extra compute feeds the storm and masks its cause.",
           signals: ["Service restored", "Cause obscured"],
           effects: { service: 16, containment: -8, evidence: -2, governance: 1 },
           points: 14,
