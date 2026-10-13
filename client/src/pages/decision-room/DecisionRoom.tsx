@@ -131,9 +131,11 @@ function Spark({ points }: { points: number[] }) {
   const d = points.map((v, i) => `${(i / (points.length - 1)) * 60},${8 - ((v - mid) / range) * 12}`).join(" ");
   return <svg className="spark" viewBox="0 0 60 16" preserveAspectRatio="none" aria-hidden="true"><polyline points={d} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" /></svg>;
 }
-function MetersPanel({ meters, keys, flash }: { meters: Meters; keys: MeterKey[]; flash?: string[] }) {
+/** `standby` meters have nothing to measure yet (no incident in the lobby): shown neutral, not as a red alarm. */
+function MetersPanel({ meters, keys, flash, standby }: { meters: Meters; keys: MeterKey[]; flash?: string[]; standby?: string[] }) {
   const { live, hist } = useTelemetry(meters);
-  return <div className="dr-meters">{keys.map((m) => { const base = meters[m.id] ?? 0; const v = live[m.id] ?? base; const fixed = base <= 0 || base >= 100; const tone = meterTone(m.good, base); return <div className={`dr-meter dr-meter--${tone} ${flash?.includes(m.id) ? "flash" : ""}`} key={m.id}><div className="top"><span>{m.name}</span><Spark points={hist[m.id] ?? []} /><strong>{fixed ? base : v.toFixed(1)}{m.id === "cover" ? "%" : ""}</strong></div><span className="bar"><i style={{ width: `${v}%` }} /></span></div>; })}</div>;
+  return <div className="dr-meters">{keys.map((m) => { const base = meters[m.id] ?? 0; const v = live[m.id] ?? base; const fixed = base <= 0 || base >= 100; const tone = meterTone(m.good, base); if (standby?.includes(m.id)) return <div className="dr-meter dr-meter--idle" key={m.id} title="Rises as your table boxes the attacker in. Nothing to contain until the incident starts."><div className="top"><span>{m.name}</span><strong>standby</strong></div><span className="bar"><i style={{ width: 0 }} /></span></div>;
+    return <div className={`dr-meter dr-meter--${tone} ${flash?.includes(m.id) ? "flash" : ""}`} key={m.id} title={m.id === "containment" ? "How much of the attacker your table has boxed in. It starts low because the attacker is already inside; good calls push it up." : undefined}><div className="top"><span>{m.name}</span><Spark points={hist[m.id] ?? []} /><strong>{fixed ? base : v.toFixed(1)}{m.id === "cover" ? "%" : ""}</strong></div><span className="bar"><i style={{ width: `${v}%` }} /></span></div>; })}</div>;
 }
 function PathPanel({ path, stages }: { path: string[]; stages: Stage[] }) {
   return <div className="dr-chain">{stages.map((s, i) => { const status = path[i] ?? "secure"; return <div className={`dr-stage dr-stage--${STAGE_CLASS[status] ?? "ok"}`} key={s.id}><span className="node" /><span className="name">{s.name}<small>{s.sub}</small></span><span className="pill">{STAGE_PILL[status] ?? status}</span></div>; })}</div>;
@@ -338,7 +340,7 @@ function Participant({ code }: { code: string }) {
     <div className="dr-table-grid">
       <section className="dr-card dr-dash">
         <div className="dr-panel-head"><span>Riverbend · attack path</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : state === "launched" ? "something is moving" : round?.when ?? ""}</span></div>
-        <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><MetersPanel meters={dashboard.meters} keys={dashboard.meterKeys} flash={changedMeters} /></div></div>
+        <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><MetersPanel meters={dashboard.meters} keys={dashboard.meterKeys} flash={changedMeters} standby={state === "lobby" ? ["containment"] : undefined} /></div></div>
       </section>
       <div className="dr-table-work">
         <div className={`dr-slot dr-slot--brief ${actCard ? "" : "dr-slot--span"}`.trim()}>{briefCard}</div>
