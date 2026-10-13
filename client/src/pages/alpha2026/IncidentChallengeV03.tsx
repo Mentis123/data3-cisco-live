@@ -38,8 +38,6 @@ import {
 import "./incident-challenge-v03.css";
 
 const profileEntries = Object.entries(responseArchetypes) as Array<[ResponseArchetypeKey, (typeof responseArchetypes)[ResponseArchetypeKey]]>;
-const profileNames = profileEntries.map(([, { title }]) => title);
-const profileCount = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"][profileNames.length] ?? String(profileNames.length);
 
 type ActivePhase = "briefing" | "decision" | "consequence";
 type Phase = "launch" | ActivePhase | "abandon" | "result";
@@ -409,10 +407,11 @@ export default function IncidentChallengeV03({
         </>}
       </dialog>
       <div className="incident-grid" aria-hidden="true" />
-      <header className="incident-header">
+      <header className={`incident-header ${phase === "launch" && !archiveMode ? "incident-header--launch" : ""}`}>
         <a className="incident-brand" href="/" aria-label="Data#3 home">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
+        {phase === "launch" && !archiveMode && <p className="incident-header-event">Cisco Live 2026 · AI incident challenge</p>}
         {phase === "launch" ? (archiveMode ? (
           <div className="incident-header-actions">
             {archiveMode ? (
@@ -432,9 +431,9 @@ export default function IncidentChallengeV03({
       {phase === "launch" && (
         <main className="incident-launch">
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
-            <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "AI incident challenge"}</p>
+            {archiveMode && <p className="incident-kicker">Cisco Live 2026 · {versionLabel} archive</p>}
             <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "How would you handle an AI incident?"}</h1>
-            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : <>Five decisions. {profileCount} possible profiles.<span className="incident-lead-question">Which one are you?</span></>}</p>
+            {archiveMode && <p className="incident-lead">Fast choices. Real trade-offs. Consequences that follow.</p>}
             <div className="incident-facts" aria-label="Challenge details">
               <span><strong>{incidentSet.length}</strong> incidents</span>
               <span><strong>5</strong> decisions each</span>
@@ -443,17 +442,14 @@ export default function IncidentChallengeV03({
 
             {!archiveMode && (
               <div className="incident-launch-tiles">
-                <h2 id="incident-assignment-title" className="incident-tiles-title">The incidents you could face</h2>
+                <h2 id="incident-assignment-title" className="incident-tiles-title">The incidents you could face:</h2>
                 <ol className="incident-tiles">
                   {incidentSet.map((candidate) => {
                     const record = playHistory[candidate.id];
                     const completed = Boolean(record && record.bestScore > 0);
                     return (
                       <li key={candidate.id} className={record ? "is-attempted" : undefined}>
-                        <span>
-                          {Number(candidate.number)}.
-                          {record && (completed ? <Check aria-hidden="true" /> : <X aria-hidden="true" />)}
-                        </span>
+                        {record && <span className="incident-tile-status">{completed ? <Check aria-hidden="true" /> : <X aria-hidden="true" />}</span>}
                         <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
                         <small>{record ? completed ? "Completed" : "Abandoned" : candidate.eyebrow}</small>
                       </li>
