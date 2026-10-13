@@ -127,6 +127,18 @@
 .incident-launch__action > p:not(.incident-kicker) { margin: 16px 0 0; color: rgba(238, 238, 238, 0.78); font-size: 1rem; line-height: 1.5; }
 .incident-launch__action .incident-theme { margin-top: 9px !important; color: var(--incident-pale) !important; font-size: 0.8rem !important; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
 .incident-no-perfect { border-top: 1px solid rgba(120, 220, 255, 0.14); padding-top: 14px; color: var(--incident-pale) !important; font-weight: 700; }
+.incident-launch__action h2.incident-tiles-title { margin: 0 0 14px; color: var(--incident-aqua); font-size: 0.72rem; font-weight: 900; letter-spacing: 0.14em; line-height: 1.3; text-transform: uppercase; }
+.incident-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 20px; padding: 0; list-style: none; }
+.incident-tiles li { display: flex; min-height: 112px; flex-direction: column; gap: 6px; border: 1px solid rgba(120, 220, 255, 0.2); border-radius: 14px; background: rgba(0, 0, 37, 0.46); padding: 14px; }
+.incident-tiles span { color: var(--incident-aqua); font-size: 0.8rem; font-weight: 900; }
+.incident-tiles strong { color: #fff; font-size: 1.12rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.12; }
+.incident-tiles small { margin-top: auto; color: var(--incident-pale); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.incident-tiles span { display: flex; align-items: center; justify-content: space-between; }
+.incident-tiles span svg { width: 18px; height: 18px; }
+.incident-tiles li.is-attempted { border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); filter: grayscale(1); opacity: 0.5; }
+.incident-tiles li.is-attempted span,
+.incident-tiles li.is-attempted small { color: rgba(238, 238, 238, 0.7); }
+.incident-tiles li.is-attempted strong { color: rgba(238, 238, 238, 0.75); text-decoration: line-through; text-decoration-thickness: 2px; }
 
 .incident-primary,
 .incident-secondary { display: inline-flex; width: 100%; min-height: 52px; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--incident-blue); border-radius: 999px; padding: 0 18px; font: inherit; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; cursor: pointer; }
@@ -425,3 +437,6 @@
 
 .incident-profile-explorer { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid #78dcff33; }
 .incident-profile-explorer h2 { margin: 0; font-size: 1.4rem; }
+
+.incident-launch-tiles { margin-top: 24px; }
+.incident-launch-tiles .incident-tiles-title { font-size: 1.2rem; color: #fff; }

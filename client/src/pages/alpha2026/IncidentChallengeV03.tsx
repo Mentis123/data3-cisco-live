@@ -413,6 +413,36 @@ export default function IncidentChallengeV03({
               <span><Clock3 aria-hidden="true" /> Under two minutes</span>
             </div>
 
+            {!archiveMode && (
+              <div className="incident-launch-tiles">
+                <h2 id="incident-assignment-title" className="incident-tiles-title">The incidents you could face</h2>
+                <ol className="incident-tiles">
+                  {incidentSet.map((candidate) => {
+                    const record = playHistory[candidate.id];
+                    const completed = Boolean(record && record.bestScore > 0);
+                    return (
+                      <li key={candidate.id} className={record ? "is-attempted" : undefined}>
+                        <span>
+                          {Number(candidate.number)}.
+                          {record && (completed ? <Check aria-hidden="true" /> : <X aria-hidden="true" />)}
+                        </span>
+                        <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
+                        <small>{record ? completed ? "Completed" : "Abandoned" : candidate.eyebrow}</small>
+                      </li>
+                    );
+                  })}
+                </ol>
+                <button
+                  className="incident-primary"
+                  type="button"
+                  onClick={() => startIncident()}
+                  disabled={attemptedCount === incidentSet.length}
+                >
+                  {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
+                </button>
+              </div>
+            )}
+
             <section className={`incident-series ${archiveMode ? "" : "incident-series--blind"}`} aria-labelledby="incident-series-title">
               {archiveMode ? (
                 <>
@@ -474,19 +504,10 @@ export default function IncidentChallengeV03({
                 </button>
               )}
             </section>
-            {!archiveMode && (
-                <button
-                  className="incident-primary"
-                  type="button"
-                  onClick={() => startIncident()}
-                  disabled={attemptedCount === incidentSet.length}
-                >
-                  {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
-                </button>
-            )}
+
           </section>
 
-          <aside className="incident-launch__action" aria-labelledby="incident-assignment-title">
+          <aside className="incident-launch__action" aria-label={archiveMode ? "Incident briefing" : "Move to mobile"}>
             {archiveMode ? (
               <>
                 <p className="incident-kicker">Incident {incident.number} · {playHistory[incident.id] ? "Replay" : "Next up"}</p>
@@ -504,10 +525,7 @@ export default function IncidentChallengeV03({
               </>
             ) : (
               <>
-                <p className="incident-kicker">{attemptedCount === incidentSet.length ? "Series attempted" : "Assignment ready"}</p>
-                <h2 id="incident-assignment-title">{attemptedCount === incidentSet.length ? "All incidents attempted." : "Your incident is locked."}</h2>
 
-                <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
               </>
             )}
 
