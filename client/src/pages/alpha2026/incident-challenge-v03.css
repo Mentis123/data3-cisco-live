@@ -201,6 +201,12 @@
 .incident-takeaway strong { color: var(--incident-pale); font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; }
 .incident-consequence__actions { display: grid; gap: 10px; margin-top: 22px; }
 .incident-consequence__actions .incident-primary { margin-top: 0; }
+.incident-rogue > p:not(.incident-kicker) { margin: 18px 0 0; color: rgba(238, 238, 238, 0.82); font-size: 1.05rem; line-height: 1.5; }
+.incident-rogue .incident-rogue__message { max-width: 620px; border: 1px solid rgba(255, 92, 92, 0.45); border-radius: 18px 18px 18px 4px; background: rgba(255, 60, 60, 0.1); padding: 16px 18px; color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; }
+.incident-rogue__prize { display: flex; gap: 14px; align-items: flex-start; margin-top: 22px; border-left: 3px solid #ffc94d; background: rgba(255, 201, 77, 0.1); padding: 15px 17px; }
+.incident-rogue__prize svg { width: 28px; height: 28px; flex: none; color: #ffc94d; }
+.incident-rogue__prize p { margin: 0; color: rgba(238, 238, 238, 0.86); font-size: 1rem; line-height: 1.45; }
+.incident-rogue__prize strong { display: block; color: #fff; }
 
 .incident-result { display: grid; gap: 18px; padding-top: 26px; }
 .incident-result__summary,
