@@ -3,7 +3,7 @@
  *
  * Four views on one route family:
  *   /decision-room                     landing: join a table / facilitate / open console
- *   /decision-room/session/:code       one phone per table: dashboard, vote A–D, lock
+ *   /decision-room/session/:code       one device per table: dashboard, vote A–D, lock
  *   /decision-room/console/:id         the projector: launch, timer, who's locked, the split
  *   /decision-room/admin/:id           Adam's private controls
  *
@@ -163,7 +163,7 @@ function Landing({ presetCode }: { presetCode?: string }) {
   const picked = tables?.find((t) => t.teamCode === teamCode) ?? null;
   const pickedTaken = Boolean(picked?.taken);
   const freeCount = tables ? tables.filter((t) => !t.taken).length : 0;
-  // Waiting for the phone already at the table to approve a handover.
+  // Waiting for the device already signed in as the table to approve a handover.
   const [waiting, setWaiting] = useState<{ code: string; table: string; token: string; status: string } | null>(null);
   useEffect(() => {
     if (!waiting || waiting.status === "declined" || waiting.status === "superseded") return;
@@ -188,7 +188,7 @@ function Landing({ presetCode }: { presetCode?: string }) {
   async function join() {
     setBusy(true); setError("");
     const code = joinCode.trim().toUpperCase();
-    // A phone that already holds a table here (its own, or one it is leaving) says so, so it is never asked to approve itself.
+    // A device that already holds a table here (its own, or one it is leaving) says so, so it is never asked to approve itself.
     let previous = ""; try { previous = localStorage.getItem(`decision-room-prev:${code}`) || localStorage.getItem(`decision-room-team:${code}`) || ""; } catch { /* ignore */ }
     try {
       const data = await request<{ teamToken: string; joinCode: string; pending?: boolean }>(`${API}/join`, json({ joinCode, teamCode, teamName: teamName.trim() || undefined }, previous ? { "x-team-token": previous } : {}));
@@ -209,19 +209,19 @@ function Landing({ presetCode }: { presetCode?: string }) {
 
   return <Frame className="dr-landing dr-one">
     <div className="dr-landing-grid">
-      <section className="dr-hero"><span className="dr-kicker">LIVE TABLETOP INSTRUMENT</span><h1>Make the room’s decisions visible.</h1><p>One phone per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed.</p></section>
+      <section className="dr-hero"><span className="dr-kicker">LIVE TABLETOP INSTRUMENT</span><h1>Make the room’s decisions visible.</h1><p>One device per table — a laptop or a phone. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed.</p></section>
       <div className="dr-landing-side">
         <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
         <section className="dr-card dr-form">
           {mode === "join" && waiting && <div className="dr-handover-wait" aria-live="polite"><h2>Asking Table {waiting.table}…</h2>
-            {waiting.status === "pending" ? <><p>The phone already at Table {waiting.table} now has a pop-up asking it to hand over. As soon as it taps <b>Approve</b>, you are in.</p><p className="dr-hint"><span className="dr-pulse" />Waiting for approval. If that phone has been switched off, you get in by yourself within half a minute.</p></>
-              : waiting.status === "expired" ? <><p>No answer from that phone yet.</p><p className="dr-hint"><span className="dr-pulse" />Ask Adam to approve the handover from his screen. This page carries on by itself.</p></>
-              : waiting.status === "declined" ? <p>The phone at Table {waiting.table} declined the handover. If that is not right, ask Adam.</p>
-              : <p>Another phone asked for this table after you, so this request was replaced.</p>}
+            {waiting.status === "pending" ? <><p>The device already signed in as Table {waiting.table} now shows a pop-up asking it to hand over. As soon as someone there selects <b>Approve</b>, you are in.</p><p className="dr-hint"><span className="dr-pulse" />Waiting for approval. If that device has been closed or switched off, you get in by yourself within half a minute.</p></>
+              : waiting.status === "expired" ? <><p>No answer from that device yet.</p><p className="dr-hint"><span className="dr-pulse" />Ask Adam to approve the handover from his screen. This page carries on by itself.</p></>
+              : waiting.status === "declined" ? <p>The device signed in as Table {waiting.table} declined the handover. If that is not right, ask Adam.</p>
+              : <p>Another device asked for this table after you, so this request was replaced.</p>}
             <div className="dr-actions"><button onClick={() => setWaiting(null)}>{waiting.status === "pending" || waiting.status === "expired" ? "Cancel" : "Back"}</button></div></div>}
           {mode === "join" && !waiting && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Pick a free table and give it a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label>{tables ? <div className="dr-tablepick"><span className="dr-label">Pick your table</span><div className="dr-tablegrid" role="group" aria-label="Tables in this room">{tables.map((t) => { const named = t.displayName !== `Table ${t.teamCode}`; return <button type="button" key={t.teamCode} className={`dr-tablechip ${t.taken ? "taken" : "free"} ${teamCode === t.teamCode ? "selected" : ""}`} aria-pressed={teamCode === t.teamCode} aria-label={`Table ${t.teamCode}, ${t.taken ? `taken${named ? ` by ${t.displayName}` : ""}` : "free"}`} onClick={() => { setTeamCode(t.teamCode); if (t.taken) setTeamName(""); }}><b>{t.teamCode}</b><small>{t.taken ? (named ? t.displayName : "taken") : "free"}</small></button>; })}</div><p className="dr-tablelegend"><span className="free">free</span><span className="taken">taken</span><span>{freeCount} of {tables.length} free</span></p></div>
             : <><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label>{tablesError && joinCode.trim().length >= 6 ? <p className="dr-hint">{/not found/i.test(tablesError) ? "No room with that code yet. Check the code on the big screen." : tablesError}</p> : null}</>}
-          {pickedTaken && picked ? <div className="dr-banner dr-banner--warn">Table {picked.teamCode} is already joined{picked.displayName !== `Table ${picked.teamCode}` ? <> as <b>{picked.displayName}</b></> : null}. If this is your table, we will ask that phone to approve the handover. If it has been switched off, you get straight in.</div> : null}
+          {pickedTaken && picked ? <div className="dr-banner dr-banner--warn">Table {picked.teamCode} is already joined{picked.displayName !== `Table ${picked.teamCode}` ? <> as <b>{picked.displayName}</b></> : null}. If this is your table, we will ask that device to approve the handover. If it has been closed or switched off, you get straight in.</div> : null}
           <label>Team name<input value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder={pickedTaken && picked ? `${picked.displayName} (keep)` : "e.g. The Night Shift"} maxLength={40} autoComplete="off" /></label><button className="dr-primary" disabled={busy || !joinCode || !teamCode} onClick={join}>{pickedTaken ? "Ask to take over" : "Join room"} <ArrowRight /></button></>}
           {mode === "facilitate" && <><h2>Create a live room</h2><p className="dr-hint">Adam only. One room per session; never reuse the morning room for the afternoon.</p><label>Facilitator key<input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} autoComplete="off" /></label><label>Tables in the room<input type="number" min={2} max={50} value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} /></label><button className="dr-primary" disabled={busy || !adminKey} onClick={create}>Create room <ArrowRight /></button></>}
           {mode === "display" && <><h2>Open a presenter console</h2><p className="dr-hint">Normally you open the console from the facilitator page with one click. This is the recovery path.</p><label>Session ID<input value={sessionId} onChange={(e) => setSessionId(e.target.value)} /></label><label>Display token<input type="password" value={displayToken} onChange={(e) => setDisplayToken(e.target.value)} /></label><button className="dr-primary" disabled={!sessionId || !displayToken} onClick={openDisplay}>Open console <Monitor /></button></>}
@@ -279,7 +279,7 @@ function Participant({ code }: { code: string }) {
   }
 
   if (!token) return null;
-  if (handedOver) return <Frame className="dr-one"><section className="dr-card dr-wait"><Check className="dr-wait-icon" /><h2>Table handed over.</h2><p>This phone is signed out. The other phone carries on with your table and everything you have saved.</p><div className="dr-actions" style={{ justifyContent: "center" }}><button onClick={() => navigate(`/decision-room/join/${code}`)}>Join a different table</button></div></section></Frame>;
+  if (handedOver) return <Frame className="dr-one"><section className="dr-card dr-wait"><Check className="dr-wait-icon" /><h2>Table handed over.</h2><p>This device is signed out. The other device carries on with your table and everything you have saved.</p><div className="dr-actions" style={{ justifyContent: "center" }}><button onClick={() => navigate(`/decision-room/join/${code}`)}>Join a different table</button></div></section></Frame>;
   if (!data) return <Frame><section className="dr-card"><h2>Connecting to Riverbend…</h2><ErrorText message={error} /></section></Frame>;
 
   const { session, round, decision, dashboard, results } = data;
@@ -343,8 +343,8 @@ function Participant({ code }: { code: string }) {
 
     {data.handover ? (() => { const left = Math.max(0, Math.ceil(data.handover.expiresInSeconds - (now - new Date(data.handover.requestedAt).getTime()) / 1000)); return <div className="dr-modal" role="alertdialog" aria-modal="true" aria-labelledby="dr-handover-title"><div className="dr-modal-card">
       <span className="dr-kicker">HANDOVER REQUEST</span>
-      <h2 id="dr-handover-title">Another phone wants to take over {data.team.displayName}.</h2>
-      <p>Approve if your table is moving to that phone: this phone signs out and that one carries on with your answers{data.handover.name ? <>, renaming the table <b>{data.handover.name}</b></> : null}.</p>
+      <h2 id="dr-handover-title">Another device wants to take over {data.team.displayName}.</h2>
+      <p>Approve if your table is moving to that device: this one signs out and that one carries on with your answers{data.handover.name ? <>, renaming the table <b>{data.handover.name}</b></> : null}.</p>
       <p>Decline if you do not recognise it. You stay as you are.</p>
       <ErrorText message={saveError} />
       <div className="dr-actions"><button disabled={responding} onClick={() => respond("decline")}>Decline</button><button className="dr-primary" disabled={responding} onClick={() => respond("approve")}>{responding ? "…" : "Approve handover"}</button></div>
@@ -441,7 +441,7 @@ function Admin({ id }: { id: string }) {
     <section className="dr-metrics"><div className="dr-metric"><small>Not joined</small><strong>{counts.notJoined}</strong></div><div className="dr-metric"><small>Drafting</small><strong>{counts.joined}</strong></div><div className="dr-metric accent"><small>Locked</small><strong>{counts.locked}</strong></div><div className="dr-metric"><small>On screen</small><strong>{featured}<em>/2</em></strong></div></section>
 
     <section className="dr-admin-grid">
-      <div className="dr-card"><h2>Tables</h2>{data.teams.map((t) => <div className="dr-admin-row" key={t.id}><span><strong>{t.displayName}</strong><small className={t.handover ? "dr-flag" : ""}>{t.handover ? "handover requested" : TEAM_LABEL[t.state] ?? t.state}</small></span>{t.handover ? <button className="dr-primary" onClick={() => confirm(`Hand ${t.displayName} to the phone that is asking? The current phone is signed out.`) && act({ action: "handover", teamId: t.id })} disabled={busy}>Approve handover</button> : null}{t.state === "locked" && state !== "published" ? <button onClick={() => confirm(`Reopen ${t.displayName}? Their lock is cleared.`) && act({ action: "reopen", teamId: t.id })} disabled={busy}>Reopen</button> : null}</div>)}</div>
+      <div className="dr-card"><h2>Tables</h2>{data.teams.map((t) => <div className="dr-admin-row" key={t.id}><span><strong>{t.displayName}</strong><small className={t.handover ? "dr-flag" : ""}>{t.handover ? "handover requested" : TEAM_LABEL[t.state] ?? t.state}</small></span>{t.handover ? <button className="dr-primary" onClick={() => confirm(`Hand ${t.displayName} to the device that is asking? The current device is signed out.`) && act({ action: "handover", teamId: t.id })} disabled={busy}>Approve handover</button> : null}{t.state === "locked" && state !== "published" ? <button onClick={() => confirm(`Reopen ${t.displayName}? Their lock is cleared.`) && act({ action: "reopen", teamId: t.id })} disabled={busy}>Reopen</button> : null}</div>)}</div>
       <div className="dr-card"><h2>This round’s responses</h2><p className="dr-hint">Private to you until you show the split. Pick up to two rationales for the screen.</p>{(data.decisions ?? []).length === 0 ? <p>No responses yet.</p> : (data.decisions ?? []).map((d) => <div className="dr-response" key={d.id}><strong><b className="dr-key">{d.optionKey ?? "–"}</b> {d.table} · {d.isLocked ? "locked" : "draft"} · confidence {d.confidence ?? "–"}</strong><p>{d.rationale || <em>no rationale</em>}</p>{d.rationale ? <button onClick={() => act({ action: "feature", decisionId: d.id, featured: !d.isFeatured })} disabled={busy || (!d.isFeatured && featured >= 2)}>{d.isFeatured ? "Remove from screen" : "Put on screen"}</button> : null}</div>)}</div>
     </section>
     <ErrorText message={error} />

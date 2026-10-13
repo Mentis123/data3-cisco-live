@@ -17,9 +17,9 @@ The same app, same buttons and same paths also run on **`https://d3smbmxdr.verce
 
 ## What the room sees and what you say
 
-> "One phone per table. Go to **data3-cisco-live.vercel.app/decision-room**, scan the QR on the screen (or tap **Join a table** and type the room code), tap your table number — green means free — and give your team a name. You're now watching Riverbend's systems. Nothing is wrong yet."
+> "One device per table — a laptop or a phone. Go to **data3-cisco-live.vercel.app/decision-room**, scan the QR on the screen (or tap **Join a table** and type the room code), tap your table number — green means free — and give your team a name. You're now watching Riverbend's systems. Nothing is wrong yet."
 
-Each table's phone shows the Riverbend attack path and six live meters. In the lobby everything is green: monitoring mode.
+Each table's device shows the Riverbend attack path and six live meters. In the lobby everything is green: monitoring mode.
 
 ## The five buttons, in order
 
@@ -27,11 +27,11 @@ Your control page has five numbered buttons. Use them left to right.
 
 | # | Button | What happens | When |
 |---|---|---|---|
-| 1 | **Launch the attack** | Projector plays the dramatised attacker run (about 30 seconds). Phones show "something tripped a faint signal". | After slide 9 (Riverbend), before slide 10. |
-| 2 | **Start · open triage** | Round 1 opens on every phone with the situation and A–D. Four-minute clock starts on the projector. | When you put slide 10 up. |
-| 3 | **Close round** | Phones stop accepting votes. Projector says "round closed". Nothing is shown yet. | When the clock runs out or every table is locked. |
-| 4 | **Show the split** | Projector shows the A/B/C/D bars, confidence range and up to two rationales you picked. Each phone shows its own consequence and its meters move. | **After** Richard has walked the option slide and revealed the best move. |
-| 5 | **Next · round N** | Opens the next round. Phones reset. Clock restarts. | When discussion is done and the next situation slide is up. |
+| 1 | **Launch the attack** | Projector plays the dramatised attacker run (about 30 seconds). Table screens show "something tripped a faint signal". | After slide 9 (Riverbend), before slide 10. |
+| 2 | **Start · open triage** | Round 1 opens on every table's screen with the situation and A–D. Four-minute clock starts on the projector. | When you put slide 10 up. |
+| 3 | **Close round** | Table screens stop accepting votes. Projector says "round closed". Nothing is shown yet. | When the clock runs out or every table is locked. |
+| 4 | **Show the split** | Projector shows the A/B/C/D bars, confidence range and up to two rationales you picked. Each table's screen shows its own consequence and its meters move. | **After** Richard has walked the option slide and revealed the best move. |
+| 5 | **Next · round N** | Opens the next round. Table screens reset. Clock restarts. | When discussion is done and the next situation slide is up. |
 
 Then back to 3 for each of the six rounds: Triage, Inject 1, 2, 3, 4, 5.
 
@@ -41,7 +41,7 @@ While tables are debating, scan "This round's responses" on your control page an
 
 ## If something goes wrong
 
-- **A table's phone dies or they want a second device**: they just join again with the same table number (the team name is kept). The old phone is logged out, the new one picks up the draft.
+- **A table wants to move to another device** (laptop battery, swapping to a phone): they pick their table again on the new device. If the old device is still open it gets a pop-up to **Approve** the handover; if it is closed or dead, the new device gets straight in within about 20 seconds. If nobody answers, your Tables list shows **Approve handover**.
 - **A table locked the wrong answer and begs**: press **Reopen** next to that table (only possible before you show the split).
 - **Wi-Fi dies**: say "paper from here". Tables use the printed lock card, you take a show of hands for the split, the projector keeps its last screen. Nothing else changes.
 - **You lose your control tab**: open `/decision-room` → **Facilitate** → the key is remembered → create nothing; instead use the browser back button or re-open `/decision-room/admin/<session id>` from history. If truly lost, the console's URL still works and you can run the room from paper.
@@ -53,4 +53,4 @@ While tables are debating, scan "This round's responses" on your control page an
 
 ## What never happens
 
-No scores, no ranking, no winner, no table named on the projector. The best move lives on Richard's slide and is never sent to a phone. Consequences and meters only move after you show the split.
+No scores, no ranking, no winner, no table named on the projector. The best move lives on Richard's slide and is never sent to a table's device. Consequences and meters only move after you show the split.
