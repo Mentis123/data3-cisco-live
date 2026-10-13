@@ -467,13 +467,20 @@ export default function IncidentChallengeV03({
               <>
                 <h2 id="incident-assignment-title" className="incident-tiles-title">The incidents you could face</h2>
                 <ol className="incident-tiles">
-                  {incidentSet.map((candidate) => (
-                    <li key={candidate.id} className={playHistory[candidate.id] ? "is-attempted" : undefined}>
-                      <span>{Number(candidate.number)}.</span>
-                      <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
-                      <small>{candidate.eyebrow}</small>
-                    </li>
-                  ))}
+                  {incidentSet.map((candidate) => {
+                    const record = playHistory[candidate.id];
+                    const completed = Boolean(record && record.bestScore > 0);
+                    return (
+                      <li key={candidate.id} className={record ? "is-attempted" : undefined}>
+                        <span>
+                          {Number(candidate.number)}.
+                          {record && (completed ? <Check aria-hidden="true" /> : <X aria-hidden="true" />)}
+                        </span>
+                        <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
+                        <small>{record ? completed ? "Completed" : "Abandoned" : candidate.eyebrow}</small>
+                      </li>
+                    );
+                  })}
                 </ol>
                 <button
                   className="incident-primary"
