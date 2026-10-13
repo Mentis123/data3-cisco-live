@@ -468,9 +468,7 @@
 .incident-page--live .incident-tiles li.is-attempted strong { padding-right: 20px; }
 .incident-page--live .incident-launch-tiles .incident-primary { margin-top: 8px; }
 
-.incident-header-titles { display: grid; flex: 1; min-width: 0; gap: 6px; padding: 7px 0; }
-.incident-header-titles .incident-header-event { text-align: right; font-size: clamp(.65rem, 2.5vw, .95rem); letter-spacing: .04em; }
-.incident-header-challenge { margin: 0; color: var(--incident-aqua); font-size: clamp(.8rem, 3.3vw, 1.6rem); font-weight: 900; letter-spacing: .015em; line-height: 1.15; text-align: center; text-transform: uppercase; }
+.incident-header-title { flex: 1; min-width: 0; margin: 0; color: var(--incident-aqua); font-size: clamp(.6rem, 2.4vw, 1.5rem); font-weight: 900; letter-spacing: .015em; line-height: 1.25; text-align: center; text-transform: uppercase; }
 .incident-page--live .incident-tiles li { justify-content: center; align-items: center; padding-top: 25px; padding-bottom: 14px; }
 .incident-page--live .incident-tiles .incident-tile-category { position: absolute; top: 8px; left: 10px; margin: 0; text-align: left; font-size: .56rem; }
 .incident-page--live .incident-tiles strong { width: 100%; text-align: center; }
