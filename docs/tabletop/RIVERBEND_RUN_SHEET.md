@@ -41,7 +41,7 @@ While tables are debating, scan "This round's responses" on your control page an
 
 ## If something goes wrong
 
-- **A table wants to move to another device** (laptop battery, swapping to a phone): they pick their table again on the new device. If the old device is still open it gets a pop-up to **Approve** the handover; if it is closed or dead, the new device gets straight in within about 20 seconds. If nobody answers, your Tables list shows **Approve handover**.
+- **A table wants to move to another device** (laptop battery, swapping to a phone): they pick their table again on the new device. If the old device is still open it gets a pop-up to **Approve** the handover; if it is closed, asleep or dead, the new device gets straight in within about a minute and a half. While a device is waiting, your Tables list shows **Approve handover** if you want to speed it up.
 - **A table locked the wrong answer and begs**: press **Reopen** next to that table (only possible before you show the split).
 - **Wi-Fi dies**: say "paper from here". Tables use the printed lock card, you take a show of hands for the split, the projector keeps its last screen. Nothing else changes.
 - **You lose your control tab**: open `/decision-room` → **Facilitate** → the key is remembered → create nothing; instead use the browser back button or re-open `/decision-room/admin/<session id>` from history. If truly lost, the console's URL still works and you can run the room from paper.

@@ -39,7 +39,7 @@ type Session = {
   activeRound: number; resultsVisible: boolean; revision: number; displayTokenHash: string;
   roundStartedAt: string | null; roundClosedAt: string | null; launchedAt: string | null;
 };
-type Team = { id: string; sessionId: string; teamCode: string; displayName: string; tokenHash: string | null; state: TeamState; lastSeenAt: string | null; pendingHash: string | null; pendingName: string | null; pendingAt: string | null; pendingState: string | null };
+type Team = { id: string; sessionId: string; teamCode: string; displayName: string; tokenHash: string | null; state: TeamState; lastSeenAt: string | null; pendingHash: string | null; pendingName: string | null; pendingAt: string | null; pendingState: string | null; pendingPolledAt: string | null; pendingReleaseId: string | null; pendingReleaseHash: string | null };
 type Decision = { id: string; sessionId: string; teamId: string; roundNo: number; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean; updatedAt: string };
 
 const MAX_FEATURED = 2;
@@ -105,7 +105,7 @@ async function ensureTables() {
     await db.execute(sql`ALTER TABLE workshop_sessions DROP CONSTRAINT IF EXISTS workshop_sessions_active_round_check`);
     await db.execute(sql`CREATE TABLE IF NOT EXISTS workshop_teams (id uuid PRIMARY KEY, session_id uuid NOT NULL REFERENCES workshop_sessions(id) ON DELETE CASCADE, team_code varchar(12) NOT NULL, display_name text NOT NULL, token_hash text, state varchar(16) NOT NULL DEFAULT 'not_joined', last_seen_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(session_id, team_code))`);
     // Handover requests: a second phone asking to take over an occupied table waits for the first phone to approve.
-    await db.execute(sql`ALTER TABLE workshop_teams ADD COLUMN IF NOT EXISTS pending_token_hash text, ADD COLUMN IF NOT EXISTS pending_name text, ADD COLUMN IF NOT EXISTS pending_at timestamptz, ADD COLUMN IF NOT EXISTS pending_state varchar(12)`);
+    await db.execute(sql`ALTER TABLE workshop_teams ADD COLUMN IF NOT EXISTS pending_token_hash text, ADD COLUMN IF NOT EXISTS pending_name text, ADD COLUMN IF NOT EXISTS pending_at timestamptz, ADD COLUMN IF NOT EXISTS pending_state varchar(12), ADD COLUMN IF NOT EXISTS pending_polled_at timestamptz, ADD COLUMN IF NOT EXISTS pending_release_id uuid, ADD COLUMN IF NOT EXISTS pending_release_hash text`);
     await db.execute(sql`CREATE TABLE IF NOT EXISTS workshop_decisions (id uuid PRIMARY KEY, session_id uuid NOT NULL REFERENCES workshop_sessions(id) ON DELETE CASCADE, team_id uuid NOT NULL REFERENCES workshop_teams(id) ON DELETE CASCADE, round_no integer NOT NULL, option_key varchar(4), action text NOT NULL DEFAULT '', accepted_tradeoff text NOT NULL DEFAULT '', reversal_evidence text NOT NULL DEFAULT '', confidence integer, is_locked boolean NOT NULL DEFAULT false, is_featured boolean NOT NULL DEFAULT false, locked_at timestamptz, updated_at timestamptz NOT NULL DEFAULT now(), UNIQUE(team_id, round_no))`);
     await db.execute(sql`ALTER TABLE workshop_decisions DROP CONSTRAINT IF EXISTS workshop_decisions_round_no_check`);
     await db.execute(sql`CREATE TABLE IF NOT EXISTS workshop_events (id uuid PRIMARY KEY, session_id uuid NOT NULL REFERENCES workshop_sessions(id) ON DELETE CASCADE, event_type text NOT NULL, payload jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now())`);
@@ -117,7 +117,7 @@ function mapSession(r: any): Session {
   return { id: r.id, joinCode: r.join_code, name: r.name, variant: r.variant, status: r.status, activeRound: r.active_round, resultsVisible: r.results_visible, revision: r.revision, displayTokenHash: r.display_token_hash, roundStartedAt: r.round_started_at, roundClosedAt: r.round_closed_at ?? null, launchedAt: r.launched_at ?? null };
 }
 function mapTeam(r: any): Team {
-  return { id: r.id, sessionId: r.session_id, teamCode: r.team_code, displayName: r.display_name, tokenHash: r.token_hash, state: r.state, lastSeenAt: r.last_seen_at, pendingHash: r.pending_token_hash ?? null, pendingName: r.pending_name ?? null, pendingAt: r.pending_at ?? null, pendingState: r.pending_state ?? null };
+  return { id: r.id, sessionId: r.session_id, teamCode: r.team_code, displayName: r.display_name, tokenHash: r.token_hash, state: r.state, lastSeenAt: r.last_seen_at, pendingHash: r.pending_token_hash ?? null, pendingName: r.pending_name ?? null, pendingAt: r.pending_at ?? null, pendingState: r.pending_state ?? null, pendingPolledAt: r.pending_polled_at ?? null, pendingReleaseId: r.pending_release_id ?? null, pendingReleaseHash: r.pending_release_hash ?? null };
 }
 function mapDecision(r: any): Decision {
   return { id: r.id, sessionId: r.session_id, teamId: r.team_id, roundNo: r.round_no, optionKey: r.option_key, rationale: r.action, confidence: r.confidence, isLocked: r.is_locked, isFeatured: r.is_featured, updatedAt: r.updated_at };
@@ -151,38 +151,55 @@ async function setTeamState(team: Team, state: TeamState) {
 }
 
 /* ------------------------------------------------------------ handover
- * A phone that joins a table another phone already holds does not take it over
- * silently. If the holding phone is active (seen in the last ONLINE seconds) the
- * new phone files a request and waits; the holding phone gets a pop-up to approve
- * or decline. If the holding phone has gone quiet (dead battery, closed browser)
- * the new phone gets straight in, so a table is never locked out. Adam can also
- * approve a request from his page. Requests stop showing on the phone after
- * HANDOVER seconds; Adam can still approve them.
+ * A device that joins a table another device already holds does not take it
+ * over silently. If the holding device is active (polled within ONLINE seconds;
+ * 90 by default because browsers throttle background tabs to about one timer a
+ * minute) the new device files a request and waits; the holding device gets a
+ * pop-up to approve or decline that exact request. If the holding device has gone
+ * quiet the new device gets straight in, so a table is never locked out. Adam can
+ * approve from his page. A request only counts while the asking device is still
+ * polling for it (WAITER seconds), so an abandoned or cancelled request can never
+ * be approved into a device that has gone. One live request per table at a time.
  */
-const onlineMs = () => (Number(process.env.DECISION_ROOM_ONLINE_SECONDS) || 20) * 1000;
+const onlineMs = () => (Number(process.env.DECISION_ROOM_ONLINE_SECONDS) || 90) * 1000;
+const waiterMs = () => (Number(process.env.DECISION_ROOM_WAITER_SECONDS) || 15) * 1000;
 const handoverSeconds = () => Number(process.env.DECISION_ROOM_HANDOVER_SECONDS) || 60;
 const ageMs = (at: string | null) => (at ? Date.now() - new Date(at).getTime() : Infinity);
 const isOnline = (team: Team) => Boolean(team.tokenHash) && ageMs(team.lastSeenAt) < onlineMs();
+const requestIdOf = (team: Team) => (team.pendingHash ? team.pendingHash.slice(0, 16) : null);
+/** A pending request whose asking device is still polling for an answer. */
+const isLive = (team: Team) => team.pendingState === "pending" && Boolean(team.pendingHash) && ageMs(team.pendingPolledAt ?? team.pendingAt) < waiterMs();
 function pendingStatus(team: Team) {
   if (!team.pendingState) return null;
+  if (team.pendingState === "pending" && !isLive(team)) return "abandoned";
   if (team.pendingState === "pending" && ageMs(team.pendingAt) > handoverSeconds() * 1000) return "expired";
   return team.pendingState;
 }
-async function setPending(team: Team, hash: string | null, name: string | null, state: string | null) {
-  const at = state === "pending" ? new Date().toISOString() : team.pendingAt;
-  if (db) await db.execute(sql`UPDATE workshop_teams SET pending_token_hash=${hash},pending_name=${name},pending_at=${at ? new Date(at) : null},pending_state=${state} WHERE id=${team.id}::uuid`);
-  Object.assign(team, { pendingHash: hash, pendingName: name, pendingAt: at, pendingState: state });
+const CLEAR_PENDING = { pendingHash: null, pendingName: null, pendingAt: null, pendingState: null, pendingPolledAt: null, pendingReleaseId: null, pendingReleaseHash: null };
+async function openRequest(team: Team, hash: string, name: string | null, release: Team | null) {
+  const now = new Date();
+  if (db) await db.execute(sql`UPDATE workshop_teams SET pending_token_hash=${hash},pending_name=${name},pending_at=${now},pending_polled_at=${now},pending_state='pending',pending_release_id=${release ? release.id : null},pending_release_hash=${release ? release.tokenHash : null} WHERE id=${team.id}::uuid`);
+  Object.assign(team, { pendingHash: hash, pendingName: name, pendingAt: now.toISOString(), pendingPolledAt: now.toISOString(), pendingState: "pending", pendingReleaseId: release?.id ?? null, pendingReleaseHash: release?.tokenHash ?? null });
 }
-/** Moves the table to the requesting phone. Guarded so two approvals cannot both apply. */
-async function completeHandover(team: Team) {
-  if (team.pendingState !== "pending" || !team.pendingHash) return false;
+async function closeRequest(team: Team, state: "declined" | null) {
+  const hash = team.pendingHash;
+  if (db) await db.execute(sql`UPDATE workshop_teams SET pending_state=${state},pending_token_hash=${state ? hash : null},pending_name=${state ? team.pendingName : null},pending_at=${state ? (team.pendingAt ? new Date(team.pendingAt) : null) : null},pending_polled_at=NULL,pending_release_id=NULL,pending_release_hash=NULL WHERE id=${team.id}::uuid AND pending_token_hash=${hash}`);
+  if (state) Object.assign(team, { pendingState: state, pendingPolledAt: null, pendingReleaseId: null, pendingReleaseHash: null });
+  else Object.assign(team, CLEAR_PENDING);
+}
+/** Moves the table to the asking device, only if `expectedHash` is still the open request; frees the table that device is leaving. */
+async function completeHandover(team: Team, teams: Team[], expectedHash: string | null) {
+  if (!expectedHash || !isLive(team) || team.pendingHash !== expectedHash) return false;
   const name = team.pendingName || team.displayName;
   const state: TeamState = team.state === "not_joined" ? "reading" : team.state;
+  const releaseId = team.pendingReleaseId, releaseHash = team.pendingReleaseHash;
   if (db) {
-    const done = rows<any>(await db.execute(sql`UPDATE workshop_teams SET token_hash=pending_token_hash,display_name=${name},state=${state},last_seen_at=now(),pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL WHERE id=${team.id}::uuid AND pending_state='pending' RETURNING id`));
+    const done = rows<any>(await db.execute(sql`UPDATE workshop_teams SET token_hash=pending_token_hash,display_name=${name},state=${state},last_seen_at=now(),pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL,pending_polled_at=NULL,pending_release_id=NULL,pending_release_hash=NULL WHERE id=${team.id}::uuid AND pending_state='pending' AND pending_token_hash=${expectedHash} RETURNING id`));
     if (!done.length) return false;
+    if (releaseId && releaseHash) await db.execute(sql`UPDATE workshop_teams SET token_hash=NULL,state='not_joined' WHERE id=${releaseId}::uuid AND token_hash=${releaseHash}`);
   }
-  Object.assign(team, { tokenHash: team.pendingHash, displayName: name, state, lastSeenAt: new Date().toISOString(), pendingHash: null, pendingName: null, pendingAt: null, pendingState: null });
+  Object.assign(team, { tokenHash: expectedHash, displayName: name, state, lastSeenAt: new Date().toISOString(), ...CLEAR_PENDING });
+  if (!db && releaseId) { const left = teams.find((t) => t.id === releaseId && t.tokenHash === releaseHash); if (left) Object.assign(left, { tokenHash: null, state: "not_joined" }); }
   return true;
 }
 
@@ -241,7 +258,7 @@ function participantPayload(session: Session, team: Team, decisions: Decision[])
   return {
     session: sessionPayload(session),
     team: { id: team.id, displayName: team.displayName, state: team.state },
-    handover: pendingStatus(team) === "pending" ? { name: team.pendingName, requestedAt: team.pendingAt, expiresInSeconds: handoverSeconds() } : null,
+    handover: pendingStatus(team) === "pending" ? { requestId: requestIdOf(team), name: team.pendingName, requestedAt: team.pendingAt, expiresInSeconds: handoverSeconds() } : null,
     organisation: ORGANISATION,
     round: showRound && round ? publicRound(round) : null,
     decision: decision ? { id: decision.id, optionKey: decision.optionKey, rationale: decision.rationale, confidence: decision.confidence, isLocked: decision.isLocked } : null,
@@ -261,7 +278,7 @@ function consolePayload(session: Session, teams: Team[], decisions: Decision[]) 
     launch: LAUNCH,
     round: showRound && round ? publicRound(round) : null,
     counts: { ...counts, total: teams.length },
-    teams: teams.map((t) => ({ id: t.id, displayName: t.displayName, state: t.state, handover: t.pendingState === "pending" })),
+    teams: teams.map((t) => ({ id: t.id, displayName: t.displayName, state: t.state, handover: isLive(t) })),
     results: state === "published" ? splitFor(decisions, session.activeRound) : null,
     initialMeters: INITIAL_METERS,
   };
@@ -282,7 +299,7 @@ function csvCell(value: unknown) {
 const createSchema = z.object({ name: z.string().trim().min(2).max(80).default("When the agent attacks"), tableCount: z.number().int().min(2).max(50).default(8), variant: z.string().optional() });
 const joinSchema = z.object({ joinCode: z.string().trim().min(4).max(8), teamCode: z.string().trim().min(1).max(12), teamName: z.string().trim().max(40).optional() });
 const decisionSchema = z.object({ roundNo: z.number().int().min(1).max(ROUND_COUNT), optionKey: z.enum(["A", "B", "C", "D"]), rationale: z.string().trim().max(240).default(""), confidence: z.number().int().min(1).max(5).nullable().optional(), lock: z.boolean().default(false) });
-const handoverSchema = z.object({ decision: z.enum(["approve", "decline"]) });
+const handoverSchema = z.object({ decision: z.enum(["approve", "decline"]), requestId: z.string().min(8).max(64) });
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("launch") }), z.object({ action: z.literal("start") }), z.object({ action: z.literal("close") }),
   z.object({ action: z.literal("publish") }), z.object({ action: z.literal("advance") }), z.object({ action: z.literal("end") }), z.object({ action: z.literal("reset") }),
@@ -300,7 +317,7 @@ export function registerDecisionRoomRoutes(app: Express) {
       for (let i = 1; i <= input.tableCount; i++) await db.execute(sql`INSERT INTO workshop_teams(id,session_id,team_code,display_name) VALUES(${randomUUID()}::uuid,${sessionId}::uuid,${String(i)},${`Table ${i}`})`);
     } else {
       memory.sessions.set(sessionId, session);
-      for (let i = 1; i <= input.tableCount; i++) { const id = randomUUID(); memory.teams.set(id, { id, sessionId, teamCode: String(i), displayName: `Table ${i}`, tokenHash: null, state: "not_joined", lastSeenAt: null, pendingHash: null, pendingName: null, pendingAt: null, pendingState: null }); }
+      for (let i = 1; i <= input.tableCount; i++) { const id = randomUUID(); memory.teams.set(id, { id, sessionId, teamCode: String(i), displayName: `Table ${i}`, tokenHash: null, state: "not_joined", lastSeenAt: null, pendingHash: null, pendingName: null, pendingAt: null, pendingState: null, pendingPolledAt: null, pendingReleaseId: null, pendingReleaseHash: null }); }
     }
     await event(sessionId, "created", { tableCount: input.tableCount });
     res.status(201).json({ sessionId, joinCode, displayToken });
@@ -332,22 +349,23 @@ export function registerDecisionRoomRoutes(app: Express) {
     // The device may already hold a table in this room (its own table, or the one it is leaving).
     const current = teamOf(teams, req);
     if (team.tokenHash && isOnline(team) && current?.id !== team.id) {
-      // Another phone is active at this table: ask it first instead of signing it out.
-      await setPending(team, hash, cleanName || null, "pending");
+      // Another device is active at this table: ask it first instead of signing it out. One live request at a time.
+      if (isLive(team)) { res.status(409).json({ message: "Another device is already asking for this table. Try again in a moment." }); return; }
+      await openRequest(team, hash, cleanName || null, current);
       await event(session.id, "handover-requested", { teamId: team.id });
       await bump(session.id);
       res.status(202).json({ pending: true, teamToken, sessionId: session.id, joinCode: session.joinCode, displayName: team.displayName, expiresInSeconds: handoverSeconds() });
       return;
     }
-    // Free table, a quiet phone (dead or closed), or this device rejoining its own table: in straight away.
+    // Free table, a quiet device (closed, asleep, dead), or this device rejoining its own table: in straight away.
     if (current && current.id !== team.id) {
       if (db) await db.execute(sql`UPDATE workshop_teams SET token_hash=NULL,state='not_joined' WHERE id=${current.id}::uuid`);
       else { current.tokenHash = null; current.state = "not_joined"; }
     }
     const state: TeamState = team.state === "not_joined" ? "reading" : team.state;
     const displayName = cleanName || team.displayName;
-    if (db) await db.execute(sql`UPDATE workshop_teams SET token_hash=${hash},state=${state},display_name=${displayName},last_seen_at=now(),pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL WHERE id=${team.id}::uuid`);
-    else Object.assign(team, { tokenHash: hash, state, displayName, lastSeenAt: new Date().toISOString(), pendingHash: null, pendingName: null, pendingAt: null, pendingState: null });
+    if (db) await db.execute(sql`UPDATE workshop_teams SET token_hash=${hash},state=${state},display_name=${displayName},last_seen_at=now(),pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL,pending_polled_at=NULL,pending_release_id=NULL,pending_release_hash=NULL WHERE id=${team.id}::uuid`);
+    else Object.assign(team, { tokenHash: hash, state, displayName, lastSeenAt: new Date().toISOString(), ...CLEAR_PENDING });
     await bump(session.id);
     res.json({ teamToken, sessionId: session.id, joinCode: session.joinCode, displayName });
   } catch (e) { fail(e, res, next); } });
@@ -384,7 +402,7 @@ export function registerDecisionRoomRoutes(app: Express) {
     res.json({ saved: true, locked: input.lock });
   } catch (e) { fail(e, res, next); } });
 
-  // The waiting phone polls this with the token it was given: pending, declined, expired, approved or superseded.
+  // The waiting device polls this with the token it was given: pending, expired, declined, approved, abandoned or superseded.
   app.get("/api/decision-room/sessions/:identifier/handover", async (req, res, next) => { try {
     if (rejectMissingDatabase(res)) return;
     const session = await findSession(req.params.identifier);
@@ -396,25 +414,43 @@ export function registerDecisionRoomRoutes(app: Express) {
     if (holder) { res.json({ status: "approved", displayName: holder.displayName }); return; }
     const asked = teams.find((t) => t.pendingHash && matchesHash(provided, t.pendingHash));
     if (!asked) { res.json({ status: "superseded" }); return; }
-    // The phone being asked went quiet while the request was open: hand the table over rather than strand it.
-    if (asked.pendingState === "pending" && !isOnline(asked) && await completeHandover(asked)) {
-      await event(session.id, "handover", { teamId: asked.id, by: "timeout" }); await bump(session.id);
-      res.json({ status: "approved", displayName: asked.displayName }); return;
+    if (asked.pendingState === "pending" && isLive(asked)) {
+      // Still asking: keep the request alive.
+      const now = new Date();
+      if (db) await db.execute(sql`UPDATE workshop_teams SET pending_polled_at=${now} WHERE id=${asked.id}::uuid AND pending_token_hash=${asked.pendingHash}`);
+      asked.pendingPolledAt = now.toISOString();
+      // The device being asked went quiet while the request was open: hand the table over rather than strand it.
+      if (!isOnline(asked) && await completeHandover(asked, teams, asked.pendingHash)) {
+        await event(session.id, "handover", { teamId: asked.id, by: "timeout" }); await bump(session.id);
+        res.json({ status: "approved", displayName: asked.displayName }); return;
+      }
     }
     res.json({ status: pendingStatus(asked) });
   } catch (e) { fail(e, res, next); } });
 
-  // The phone holding the table answers the pop-up.
+  // The waiting device withdraws its request (Cancel).
+  app.delete("/api/decision-room/sessions/:identifier/handover", async (req, res, next) => { try {
+    if (rejectMissingDatabase(res)) return;
+    const session = await findSession(req.params.identifier);
+    if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const provided = String(req.headers["x-team-token"] ?? "");
+    const asked = provided ? (await getTeams(session.id)).find((t) => t.pendingHash && matchesHash(provided, t.pendingHash)) : null;
+    if (asked) { await closeRequest(asked, null); await bump(session.id); }
+    res.json({ ok: true });
+  } catch (e) { fail(e, res, next); } });
+
+  // The device holding the table answers the pop-up for one specific request.
   app.post("/api/decision-room/sessions/:identifier/handover", async (req, res, next) => { try {
     if (rejectMissingDatabase(res)) return;
     const input = handoverSchema.parse(req.body ?? {});
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
-    const team = teamOf(await getTeams(session.id), req);
+    const teams = await getTeams(session.id);
+    const team = teamOf(teams, req);
     if (!team) { res.status(401).json({ message: "Rejoin your table to continue" }); return; }
-    if (pendingStatus(team) !== "pending") { res.status(409).json({ message: "There is no handover request waiting" }); return; }
-    if (input.decision === "approve") { if (!(await completeHandover(team))) { res.status(409).json({ message: "That request has already been answered" }); return; } }
-    else await setPending(team, team.pendingHash, team.pendingName, "declined");
+    if (!isLive(team) || requestIdOf(team) !== input.requestId) { res.status(409).json({ message: "That request is no longer waiting" }); return; }
+    if (input.decision === "approve") { if (!(await completeHandover(team, teams, team.pendingHash))) { res.status(409).json({ message: "That request is no longer waiting" }); return; } }
+    else await closeRequest(team, "declined");
     await event(session.id, input.decision === "approve" ? "handover" : "handover-declined", { teamId: team.id, by: "table" });
     await bump(session.id);
     res.json({ ok: true, decision: input.decision });
@@ -473,7 +509,7 @@ export function registerDecisionRoomRoutes(app: Express) {
     } else if (input.action === "handover") {
       const team = teams.find((t) => t.id === input.teamId);
       if (!team) { res.status(404).json({ message: "Table not found" }); return; }
-      if (!(await completeHandover(team))) { res.status(409).json({ message: "There is no handover request waiting for that table" }); return; }
+      if (!(await completeHandover(team, teams, team.pendingHash))) { res.status(409).json({ message: "No device is waiting to take over that table any more" }); return; }
     } else if (input.action === "reopen") {
       if (state === "published") { res.status(409).json({ message: "The split is already on the screen for this round" }); return; }
       const team = teams.find((t) => t.id === input.teamId);
@@ -499,11 +535,11 @@ export function registerDecisionRoomRoutes(app: Express) {
       if (db) {
         await db.execute(sql`UPDATE workshop_sessions SET status=${status},active_round=${round},results_visible=${visible},round_started_at=${started ? new Date(started) : null},round_closed_at=${closed ? new Date(closed) : null},launched_at=${launched ? new Date(launched) : null},ended_at=${status === "ended" ? new Date() : null} WHERE id=${session.id}::uuid`);
         if (input.action === "advance") await db.execute(sql`UPDATE workshop_teams SET state='reading' WHERE session_id=${session.id}::uuid AND token_hash IS NOT NULL`);
-        if (input.action === "reset") { await db.execute(sql`DELETE FROM workshop_decisions WHERE session_id=${session.id}::uuid`); await db.execute(sql`UPDATE workshop_teams SET state='not_joined',token_hash=NULL,last_seen_at=NULL,pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL WHERE session_id=${session.id}::uuid`); }
+        if (input.action === "reset") { await db.execute(sql`DELETE FROM workshop_decisions WHERE session_id=${session.id}::uuid`); await db.execute(sql`UPDATE workshop_teams SET state='not_joined',token_hash=NULL,last_seen_at=NULL,pending_token_hash=NULL,pending_name=NULL,pending_at=NULL,pending_state=NULL,pending_polled_at=NULL,pending_release_id=NULL,pending_release_hash=NULL WHERE session_id=${session.id}::uuid`); }
       } else {
         Object.assign(session, { status, activeRound: round, resultsVisible: visible, roundStartedAt: started, roundClosedAt: closed, launchedAt: launched });
         if (input.action === "advance") for (const t of teams) if (t.tokenHash) t.state = "reading";
-        if (input.action === "reset") { for (const t of teams) Object.assign(t, { state: "not_joined", tokenHash: null, lastSeenAt: null, pendingHash: null, pendingName: null, pendingAt: null, pendingState: null }); for (const [id, d] of Array.from(memory.decisions.entries())) if (d.sessionId === session.id) memory.decisions.delete(id); }
+        if (input.action === "reset") { for (const t of teams) Object.assign(t, { state: "not_joined", tokenHash: null, lastSeenAt: null, ...CLEAR_PENDING }); for (const [id, d] of Array.from(memory.decisions.entries())) if (d.sessionId === session.id) memory.decisions.delete(id); }
       }
     }
     await event(session.id, input.action, input);

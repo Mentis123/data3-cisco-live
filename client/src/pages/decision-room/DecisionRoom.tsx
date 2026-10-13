@@ -30,7 +30,7 @@ type Stage = { id: string; name: string; sub: string };
 type Split = { locked: number; options: Record<string, number>; confidence: { low: number | null; high: number | null; median: number | null }; featured: { id: string; rationale: string; confidence: number | null }[] };
 type Consequence = { you: string; body: string; changes: { t: string; d: "up" | "down" | "flag" }[]; meters: Record<string, number> };
 type Decision = { id: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean };
-type ParticipantData = { session: SessionInfo; team: { id: string; displayName: string; state: string }; handover: { name: string | null; requestedAt: string; expiresInSeconds: number } | null; organisation: Organisation; round: Round | null; decision: Decision | null; dashboard: { meters: Meters; path: string[]; stages: Stage[]; meterKeys: MeterKey[] }; results: (Split & { consequence: Consequence | null }) | null };
+type ParticipantData = { session: SessionInfo; team: { id: string; displayName: string; state: string }; handover: { requestId: string; name: string | null; requestedAt: string; expiresInSeconds: number } | null; organisation: Organisation; round: Round | null; decision: Decision | null; dashboard: { meters: Meters; path: string[]; stages: Stage[]; meterKeys: MeterKey[] }; results: (Split & { consequence: Consequence | null }) | null };
 type Launch = { profile: { label: string; value: string; mirrors: string }[]; lines: { t: string; text: string; tone: string }[] };
 type ConsoleData = { session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: Split | null; initialMeters: Meters; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[] };
 
@@ -68,7 +68,13 @@ function usePoll<T>(url: string | null, headers?: Record<string, string>) {
     try { setData(await request<T>(url, { headers: headersRef.current })); setError(""); setLastUpdated(Date.now()); }
     catch (e) { setError((e as Error).message); }
   };
-  useEffect(() => { if (!url) return; void load(); const id = setInterval(() => void load(), POLL_MS); return () => clearInterval(id); }, [url]);
+  useEffect(() => {
+    if (!url) return; void load(); const id = setInterval(() => void load(), POLL_MS);
+    // A woken device or a tab brought back to the front checks in straight away rather than waiting for the next tick.
+    const wake = () => { if (document.visibilityState === "visible") void load(); };
+    document.addEventListener("visibilitychange", wake);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", wake); };
+  }, [url]);
   return { data, error, lastUpdated, refresh: load };
 }
 function stale(lastUpdated: number | null, now: number) {
@@ -166,7 +172,7 @@ function Landing({ presetCode }: { presetCode?: string }) {
   // Waiting for the device already signed in as the table to approve a handover.
   const [waiting, setWaiting] = useState<{ code: string; table: string; token: string; status: string } | null>(null);
   useEffect(() => {
-    if (!waiting || waiting.status === "declined" || waiting.status === "superseded") return;
+    if (!waiting || waiting.status === "declined" || waiting.status === "superseded" || waiting.status === "abandoned") return;
     let alive = true;
     const id = setInterval(async () => {
       try {
@@ -214,11 +220,12 @@ function Landing({ presetCode }: { presetCode?: string }) {
         <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
         <section className="dr-card dr-form">
           {mode === "join" && waiting && <div className="dr-handover-wait" aria-live="polite"><h2>Asking Table {waiting.table}…</h2>
-            {waiting.status === "pending" ? <><p>The device already signed in as Table {waiting.table} now shows a pop-up asking it to hand over. As soon as someone there selects <b>Approve</b>, you are in.</p><p className="dr-hint"><span className="dr-pulse" />Waiting for approval. If that device has been closed or switched off, you get in by yourself within half a minute.</p></>
+            {waiting.status === "pending" ? <><p>The device already signed in as Table {waiting.table} now shows a pop-up asking it to hand over. As soon as someone there selects <b>Approve</b>, you are in.</p><p className="dr-hint"><span className="dr-pulse" />Waiting for approval. If that device has been closed or switched off, you get in by yourself within about a minute and a half.</p></>
               : waiting.status === "expired" ? <><p>No answer from that device yet.</p><p className="dr-hint"><span className="dr-pulse" />Ask Adam to approve the handover from his screen. This page carries on by itself.</p></>
+              : waiting.status === "abandoned" ? <p>This request timed out. Pick your table again to ask once more.</p>
               : waiting.status === "declined" ? <p>The device signed in as Table {waiting.table} declined the handover. If that is not right, ask Adam.</p>
               : <p>Another device asked for this table after you, so this request was replaced.</p>}
-            <div className="dr-actions"><button onClick={() => setWaiting(null)}>{waiting.status === "pending" || waiting.status === "expired" ? "Cancel" : "Back"}</button></div></div>}
+            <div className="dr-actions"><button onClick={() => { if (waiting.status === "pending" || waiting.status === "expired") void fetch(`${API}/sessions/${waiting.code}/handover`, { method: "DELETE", headers: { "x-team-token": waiting.token }, keepalive: true }).catch(() => undefined); setWaiting(null); }}>{waiting.status === "pending" || waiting.status === "expired" ? "Cancel" : "Back"}</button></div></div>}
           {mode === "join" && !waiting && <><h2>Join your table</h2><p className="dr-hint">The room code is on the big screen. Pick a free table and give it a name — it is what the room will see.</p><label>Room code<input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} autoCapitalize="characters" autoCorrect="off" /></label>{tables ? <div className="dr-tablepick"><span className="dr-label">Pick your table</span><div className="dr-tablegrid" role="group" aria-label="Tables in this room">{tables.map((t) => { const named = t.displayName !== `Table ${t.teamCode}`; return <button type="button" key={t.teamCode} className={`dr-tablechip ${t.taken ? "taken" : "free"} ${teamCode === t.teamCode ? "selected" : ""}`} aria-pressed={teamCode === t.teamCode} aria-label={`Table ${t.teamCode}, ${t.taken ? `taken${named ? ` by ${t.displayName}` : ""}` : "free"}`} onClick={() => { setTeamCode(t.teamCode); if (t.taken) setTeamName(""); }}><b>{t.teamCode}</b><small>{t.taken ? (named ? t.displayName : "taken") : "free"}</small></button>; })}</div><p className="dr-tablelegend"><span className="free">free</span><span className="taken">taken</span><span>{freeCount} of {tables.length} free</span></p></div>
             : <><label>Table number<input value={teamCode} onChange={(e) => setTeamCode(e.target.value)} placeholder="1" maxLength={12} inputMode="numeric" /></label>{tablesError && joinCode.trim().length >= 6 ? <p className="dr-hint">{/not found/i.test(tablesError) ? "No room with that code yet. Check the code on the big screen." : tablesError}</p> : null}</>}
           {pickedTaken && picked ? <div className="dr-banner dr-banner--warn">Table {picked.teamCode} is already joined{picked.displayName !== `Table ${picked.teamCode}` ? <> as <b>{picked.displayName}</b></> : null}. If this is your table, we will ask that device to approve the handover. If it has been closed or switched off, you get straight in.</div> : null}
@@ -272,7 +279,7 @@ function Participant({ code }: { code: string }) {
   async function respond(decision: "approve" | "decline") {
     setResponding(true); setSaveError("");
     try {
-      await request(`${API}/sessions/${code}/handover`, json({ decision }, headers));
+      await request(`${API}/sessions/${code}/handover`, json({ decision, requestId: data?.handover?.requestId }, headers));
       if (decision === "approve") { try { localStorage.removeItem(`decision-room-team:${code}`); } catch { /* ignore */ } setHandedOver(true); }
       else await refresh();
     } catch (e) { setSaveError((e as Error).message); await refresh(); } finally { setResponding(false); }
