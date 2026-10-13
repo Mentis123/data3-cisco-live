@@ -496,3 +496,5 @@
 .incident-result-share p { grid-column: 1 / -1; margin: 0; color: var(--incident-pale); font-size: .8rem; line-height: 1.5; }
 .incident-result-share textarea { grid-column: 1 / -1; width: 100%; min-height: 130px; padding: 12px; border: 1px solid #78dcff66; border-radius: 12px; background: #000025; color: #fff; font: inherit; font-size: .85rem; }
 @media (max-width: 480px) { .incident-result-share { grid-template-columns: minmax(0, 1fr); } }
+
+.incident-skynet-portrait { display: block; width: min(280px, 100%); height: auto; aspect-ratio: 1; margin: 20px auto; border-radius: 20px; border: 1px solid #78dcff66; }
