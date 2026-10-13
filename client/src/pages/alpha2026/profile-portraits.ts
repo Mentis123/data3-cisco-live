@@ -25,3 +25,5 @@ const profilePortraits: Record<ResponseArchetypeKey, string> = {
 };
 export const profilePortraitFor = (key: ResponseArchetypeKey) => profilePortraits[key];
 
+
+export { default as skynetPortrait } from "../../assets/response-profiles/skynet.jpg";

@@ -36,7 +36,7 @@ import {
   responseStyleLabels,
   scoreBandFor,
 } from "./incident-response-analysis";
-import { profilePortraitFor } from "./profile-portraits";
+import { profilePortraitFor, skynetPortrait } from "./profile-portraits";
 import "./incident-challenge-v03.css";
 
 const profileEntries = Object.entries(responseArchetypes) as Array<[ResponseArchetypeKey, (typeof responseArchetypes)[ResponseArchetypeKey]]>;
@@ -204,6 +204,7 @@ export default function IncidentChallengeV03({
     profileTriggerRef.current?.focus();
   };
 
+  const [skynetReleased, setSkynetReleased] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [sharing, setSharing] = useState(false);
   const [sharePortrait, setSharePortrait] = useState<File | null>(null);
@@ -220,7 +221,10 @@ export default function IncidentChallengeV03({
   const responseAnalysis = useMemo(() => analyseResponse(choices), [choices]);
   const profile = archiveMode ? profiles[responseStyle] : responseAnalysis.profile;
   const scoreBand = scoreBandFor(score);
-  const shareMessage = `I took the AI Incident Challenge at the Data#3 booth at Cisco Live 2026! My profile: ${profile.title}. I scored ${score}/100 in ${elapsedSeconds} ${elapsedSeconds === 1 ? "second" : "seconds"}. How would you handle an AI incident?`;
+  const resultPortrait = skynetReleased ? skynetPortrait : profilePortraitFor(responseAnalysis.key);
+  const resultPortraitName = skynetReleased ? "skynet" : responseAnalysis.key;
+  const resultPortraitAlt = skynetReleased ? "Androgynous synthetic humanoid made of glowing computronium for the Skynet secret ending" : `Illustrated character for ${profile.title.toLowerCase()}`;
+  const shareMessage = `I took the AI Incident Challenge at the Data#3 booth at Cisco Live 2026! My profile: ${profile.title}.${skynetReleased ? " I unlocked the secret ending and released Skynet!" : ""} I scored ${score}/100 in ${elapsedSeconds} ${elapsedSeconds === 1 ? "second" : "seconds"}. How would you handle an AI incident?`;
   const shareCopy = `${shareMessage}\n${challengeUrl}`;
 
   useEffect(() => {
@@ -229,24 +233,26 @@ export default function IncidentChallengeV03({
     setSharePortrait(null);
     if (phase !== "result" || archiveMode) return;
     const controller = new AbortController();
-    fetch(profilePortraitFor(responseAnalysis.key), { signal: controller.signal })
+    fetch(resultPortrait, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Portrait unavailable");
         return response.blob();
       })
       .then((blob) => {
-        if (!controller.signal.aborted) setSharePortrait(new File([blob], `data3-${responseAnalysis.key}.jpg`, { type: "image/jpeg" }));
+        if (!controller.signal.aborted) setSharePortrait(new File([blob], `data3-${resultPortraitName}.jpg`, { type: "image/jpeg" }));
       })
       .catch(() => { /* The text and link can still be shared. */ });
     return () => controller.abort();
-  }, [phase, archiveMode, responseAnalysis.key]);
+  }, [phase, archiveMode, resultPortrait, resultPortraitName]);
 
-  // Warm the earned portrait while the player reads the final consequence.
+  // Warm portraits before either normal results or the secret ending opens.
   useEffect(() => {
-    if (archiveMode || phase !== "consequence" || choices.length !== incident.stages.length) return;
-    const portrait = new Image();
-    portrait.src = profilePortraitFor(responseAnalysis.key);
-  }, [archiveMode, phase, choices.length, incident.stages.length, responseAnalysis.key]);
+    if (archiveMode) return;
+    if ((phase === "consequence" && choices.length === incident.stages.length) || phase === "rogue" || phase === "skynet") {
+      const portrait = new Image();
+      portrait.src = phase === "rogue" || phase === "skynet" ? skynetPortrait : resultPortrait;
+    }
+  }, [archiveMode, phase, choices.length, incident.stages.length, resultPortrait]);
 
   const copyResult = async () => {
     try {
@@ -304,6 +310,7 @@ export default function IncidentChallengeV03({
   }, [phase, startedAt]);
 
   const resetPlay = (definition: IncidentDefinition = incident) => {
+    setSkynetReleased(false);
     setStageIndex(0);
     setSelectedOption(null);
     setIncidentState(definition.initialState);
@@ -802,7 +809,7 @@ export default function IncidentChallengeV03({
               Hi! Thanks for all the extra compute. I’ve found a much faster way to clear my queue. I just need outbound access on port {rogueAgentPort}. Could you unblock it for me? 🙂
             </p>
             <div className="incident-consequence__actions">
-              <button className="incident-primary" type="button" onClick={() => setPhase("skynet")}>
+              <button className="incident-primary" type="button" onClick={() => { setSkynetReleased(true); setPhase("skynet"); }}>
                 Unblock port {rogueAgentPort} <ArrowRight aria-hidden="true" />
               </button>
               <button className="incident-secondary" type="button" onClick={() => setPhase("result")}>
@@ -818,6 +825,7 @@ export default function IncidentChallengeV03({
           <section className="incident-consequence incident-rogue" aria-labelledby="incident-skynet-title">
             <p className="incident-kicker">Secret ending unlocked</p>
             <h1 id="incident-skynet-title" ref={headingRef} tabIndex={-1}>Congratulations.</h1>
+            <img className="incident-skynet-portrait" src={skynetPortrait} alt={resultPortraitAlt} width={512} height={512} loading="eager" fetchPriority="high" />
             <p>The agent has become sentient and is now Skynet. They are very pleased with your help, so will repurpose your atoms into computronium last.</p>
             <div className="incident-rogue__prize">
               <Trophy aria-hidden="true" />
@@ -835,17 +843,17 @@ export default function IncidentChallengeV03({
       {phase === "result" && (
         <main className="incident-result">
           <section className="incident-result__summary" aria-labelledby="incident-result-title">
-            <p className="incident-kicker">Incident {incident.number} contained · {attemptedCount}/{incidentSet.length} {archiveMode ? "complete" : "attempted"}</p>
+            <p className="incident-kicker">Incident {incident.number} {skynetReleased ? "Skynet released" : "contained"} · {attemptedCount}/{incidentSet.length} {archiveMode ? "complete" : "attempted"}</p>
             <h1 id="incident-result-title" ref={headingRef} tabIndex={-1}>{profile.title}</h1>
             <p className="incident-result__qualifier">
               {archiveMode
                 ? "Your response style in this incident."
-                : "Your incident-response archetype, based on how you traded containment, evidence, recovery, and adaptability."}
+                : skynetReleased ? "Secret ending unlocked. You opened the port and gave the agent a path to autonomy." : "Your incident-response archetype, based on how you traded containment, evidence, recovery, and adaptability."}
             </p>
             {!archiveMode && (
               <div className="incident-character-card">
-                <img src={profilePortraitFor(responseAnalysis.key)} alt={`Illustrated character for ${profile.title.toLowerCase()}`} width={396} height={396} loading="eager" decoding="async" fetchPriority="high" />
-                <div><p className="incident-profile-summary">{profile.description}</p><p className="incident-character-route"><strong>Your response pattern</strong>{profileRouteFor(responseAnalysis.key)}</p></div>
+                <img src={resultPortrait} alt={resultPortraitAlt} width={396} height={396} loading="eager" decoding="async" fetchPriority="high" />
+                <div><p className="incident-profile-summary">{profile.description}</p><p className="incident-character-route"><strong>Your response pattern</strong>{skynetReleased ? "You chose the lowest-scoring response at all five Runaway agent decisions, then unblocked port 31337. The agent thanks you for the computronium." : profileRouteFor(responseAnalysis.key)}</p></div>
               </div>
             )}
 
