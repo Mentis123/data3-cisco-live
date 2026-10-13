@@ -367,3 +367,17 @@
 .dr-tablelegend .free::before{background:#3fd08a}
 .dr-tablelegend .taken::before{border:1px dashed #9db0c5}
 .dr-form .dr-banner{margin:10px 0 0}
+/* handover: pop-up on the phone holding the table, waiting card on the asking phone */
+.dr-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(0,0,20,.74);backdrop-filter:blur(3px);animation:drfade .2s ease-out}
+.dr-modal-card{width:100%;max-width:460px;background:#071b3a;border:1px solid var(--aqua);border-radius:16px;padding:22px 24px;box-shadow:0 30px 90px rgba(0,0,0,.55);animation:drin .32s cubic-bezier(.2,.7,.2,1)}
+.dr-modal-card h2{font-size:22px!important;line-height:1.25;margin:4px 0 10px!important}
+.dr-modal-card p{margin:0 0 10px;font-size:15px;color:#c8d8e9}
+.dr-modal-card .dr-actions{margin-top:16px;display:flex;justify-content:flex-end;gap:10px}
+.dr-modal-card .dr-hint{margin:12px 0 0;font-size:12px}
+@keyframes drfade{from{opacity:0}}
+.dr-pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--aqua);margin-right:9px;vertical-align:middle;animation:drping 1.4s ease-out infinite}
+.dr-handover-wait h2{margin-bottom:12px!important}
+.dr-handover-wait p{margin:0 0 10px}
+.dr-handover-wait .dr-actions{justify-content:flex-start}
+.dr-admin-row small.dr-flag{color:#ffb200}
+.dr-admin-row button.dr-primary{margin-left:8px}
