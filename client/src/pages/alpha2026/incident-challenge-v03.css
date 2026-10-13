@@ -440,3 +440,19 @@
 
 .incident-launch-tiles { margin-top: 24px; }
 .incident-launch-tiles .incident-tiles-title { font-size: 1.2rem; color: #fff; }
+
+.incident-page--live .incident-header { min-height: 50px; }
+.incident-page--live .incident-launch { padding-top: 12px; }
+.incident-page--live .incident-launch__story { padding-top: 0; }
+.incident-page--live .incident-launch { grid-template-columns: minmax(0, 1fr); }
+.incident-lead-question { display: block; }
+.incident-page--live .incident-facts { flex-wrap: nowrap; gap: 6px; }
+.incident-page--live .incident-facts span { white-space: nowrap; padding: 0 9px; font-size: clamp(.55rem, 2.5vw, .7rem); gap: 4px; }
+.incident-page--live .incident-facts svg { width: 14px; height: 14px; flex-shrink: 0; }
+.incident-page--live .incident-facts strong { font-size: .8rem; }
+.incident-profile-dialog { touch-action: pan-y; }
+.incident-profile-navigation { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px 0; }
+.incident-profile-navigation button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #78dcff66; border-radius: 50%; background: #00aeff19; color: #fff; cursor: pointer; }
+.incident-profile-navigation button:focus-visible { outline: 2px solid #00ffff; outline-offset: 3px; }
+.incident-profile-navigation span { text-align: center; color: #78dcff; font-size: .85rem; }
+.incident-profile-navigation small { display: block; margin-top: 3px; font-size: .7rem; }

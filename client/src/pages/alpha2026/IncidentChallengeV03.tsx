@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   Check,
   CheckCircle2,
   Clock3,
@@ -171,6 +173,15 @@ export default function IncidentChallengeV03({
   const [previewKey, setPreviewKey] = useState<ResponseArchetypeKey | null>(null);
   const profileDialogRef = useRef<HTMLDialogElement>(null);
   const profileTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const profileSwipeRef = useRef<{ x: number; y: number } | null>(null);
+  const previewIndex = profileEntries.findIndex(([key]) => key === previewKey);
+  const stepProfile = (direction: number) => {
+    setPreviewKey((current) => {
+      const index = profileEntries.findIndex(([key]) => key === current);
+      return profileEntries[(index + direction + profileEntries.length) % profileEntries.length][0];
+    });
+    profileDialogRef.current?.scrollTo({ top: 0 });
+  };
   const previewProfile = previewKey ? responseArchetypes[previewKey] : null;
 
   useEffect(() => {
@@ -365,11 +376,28 @@ export default function IncidentChallengeV03({
   const stageContext = typeof stage?.context === "function" ? stage.context(incidentState) : stage?.context;
 
   return (
-    <div className="incident-page">
-      <dialog ref={profileDialogRef} className="incident-profile-dialog" aria-labelledby="profile-preview-title" aria-describedby="profile-preview-bio" onCancel={closeProfile} onClose={() => { setPreviewKey(null); profileTriggerRef.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeProfile(); } }}>
+    <div className={`incident-page ${archiveMode ? "" : "incident-page--live"}`}>
+      <dialog ref={profileDialogRef} className="incident-profile-dialog"
+        onTouchStart={(event) => { profileSwipeRef.current = event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null; }}
+        onTouchCancel={() => { profileSwipeRef.current = null; }}
+        onTouchEnd={(event) => {
+          const start = profileSwipeRef.current;
+          profileSwipeRef.current = null;
+          if (!start || !event.changedTouches.length) return;
+          const dx = event.changedTouches[0].clientX - start.x;
+          const dy = event.changedTouches[0].clientY - start.y;
+          if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) stepProfile(dx < 0 ? 1 : -1);
+        }}
+        onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); stepProfile(event.key === "ArrowRight" ? 1 : -1); } }}
+        aria-labelledby="profile-preview-title" aria-describedby="profile-preview-bio" onCancel={closeProfile} onClose={() => { setPreviewKey(null); profileTriggerRef.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeProfile(); } }}>
         {previewProfile && previewKey && <>
           <button type="button" className="incident-profile-close" aria-label="Close profile" onClick={closeProfile}><X aria-hidden="true" /></button>
           <img className="incident-profile-portrait" src={profilePortraitFor(previewKey)} alt={`Illustrated character for ${previewProfile.title.toLowerCase()}`} width={396} height={396} />
+          <nav className="incident-profile-navigation" aria-label="Browse profiles">
+            <button type="button" aria-label="Previous profile" onClick={() => stepProfile(-1)}><ChevronLeft aria-hidden="true" /></button>
+            <span aria-live="polite">{previewIndex + 1} / {profileEntries.length}<small>Swipe to explore</small></span>
+            <button type="button" aria-label="Next profile" onClick={() => stepProfile(1)}><ChevronRight aria-hidden="true" /></button>
+          </nav>
           <div className="incident-profile-dialog-copy">
             <p className="incident-kicker">Meet your response style</p>
             <h2 id="profile-preview-title">{previewProfile.title}</h2>
@@ -385,7 +413,7 @@ export default function IncidentChallengeV03({
         <a className="incident-brand" href="/" aria-label="Data#3 home">
           <img src="/Data3_Logo_Blue_Blue_Boxed-01.png" alt="Data#3" />
         </a>
-        {phase === "launch" ? (
+        {phase === "launch" ? (archiveMode ? (
           <div className="incident-header-actions">
             {archiveMode ? (
               <a className="incident-header-link" href="/2026alpha">Current · v0.4</a>
@@ -394,7 +422,7 @@ export default function IncidentChallengeV03({
             )}
             <span className="incident-status" aria-label={`Incident series, ${attemptedCount} of ${incidentSet.length} ${archiveMode ? "complete" : "attempted"}`}><span />{attemptedCount}/{incidentSet.length} {archiveMode ? "complete" : "attempted"}</span>
           </div>
-        ) : phase !== "abandon" && phase !== "result" ? (
+        ) : null) : phase !== "abandon" && phase !== "result" ? (
           <button className="incident-exit" type="button" onClick={requestExit}>
             <X aria-hidden="true" /> Exit challenge
           </button>
@@ -406,7 +434,7 @@ export default function IncidentChallengeV03({
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
             <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "AI incident challenge"}</p>
             <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "How would you handle an AI incident?"}</h1>
-            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : `Five decisions. ${profileCount} possible profiles. Which one are you?`}</p>
+            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : <>Five decisions. {profileCount} possible profiles.<span className="incident-lead-question">Which one are you?</span></>}</p>
             <div className="incident-facts" aria-label="Challenge details">
               <span><strong>{incidentSet.length}</strong> incidents</span>
               <span><strong>5</strong> decisions each</span>
@@ -474,7 +502,6 @@ export default function IncidentChallengeV03({
                 <>
                   <div className="incident-series__heading">
                     <h2 id="incident-series-title">Prototype selector</h2>
-                    <span>{attemptedCount} of {incidentSet.length} attempted</span>
                   </div>
                   <div className="incident-prototype-picker" aria-label="Temporary incident selector">
                     {incidentSet.map((candidate) => {
@@ -507,7 +534,7 @@ export default function IncidentChallengeV03({
 
           </section>
 
-          <aside className="incident-launch__action" aria-label={archiveMode ? "Incident briefing" : "Move to mobile"}>
+          {archiveMode && <aside className="incident-launch__action" aria-label={archiveMode ? "Incident briefing" : "Move to mobile"}>
             {archiveMode ? (
               <>
                 <p className="incident-kicker">Incident {incident.number} · {playHistory[incident.id] ? "Replay" : "Next up"}</p>
@@ -543,7 +570,7 @@ export default function IncidentChallengeV03({
               </span>
               <span><strong>Move to mobile</strong><small>Scan the live challenge</small></span>
             </a>
-          </aside>
+          </aside>}
 
             {!archiveMode && (
               <section className="incident-profile-explorer" aria-labelledby="incident-profiles-title">
@@ -559,9 +586,9 @@ export default function IncidentChallengeV03({
               </section>
             )}
 
-          <a className="incident-archive-link" href={archiveMode ? "/2026alpha/archive" : "/2026alpha/archive"}>
+          {archiveMode && <a className="incident-archive-link" href={archiveMode ? "/2026alpha/archive" : "/2026alpha/archive"}>
             {archiveMode ? "Return to the prototype archive" : "View earlier prototype versions"}
-          </a>
+          </a>}
         </main>
       )}
 
