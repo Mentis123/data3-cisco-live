@@ -148,3 +148,15 @@ export function scoreBandFor(score: number) {
   if (score >= 80) return "Sound decision quality";
   return "Risk-exposed decision quality";
 }
+
+
+// Portraits are fictional characters illustrating response styles, not player identities.
+export const profilePortraitFor = (key: ResponseArchetypeKey) => `/images/response-profiles/${key}.webp`;
+
+export function profileRouteFor(key: ResponseArchetypeKey): string {
+  const labels = key.split("-").map((style) => responseStyleLabels[style as ResponseStyle].toLowerCase());
+  if (labels.length === 1) {
+    return `Choose ${labels[0]} most often, at least two decisions ahead of your next strongest instinct.`;
+  }
+  return `Make ${labels[0]} and ${labels[1]} your two leading instincts, with no more than one decision between them. Ties follow the order you first chose each style.`;
+}
