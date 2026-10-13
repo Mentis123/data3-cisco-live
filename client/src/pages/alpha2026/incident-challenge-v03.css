@@ -83,7 +83,7 @@
 .incident-launch h1.incident-adventure-title { max-width: 850px; font-size: clamp(2.3rem, 10vw, 4.45rem); }
 .incident-lead { margin: 17px 0 0; color: rgba(238, 238, 238, 0.76); font-size: 1.05rem; line-height: 1.5; }
 .incident-profile-list { display: flex; max-width: 760px; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
-.incident-profile-list li { border: 1px solid rgba(120, 220, 255, 0.22); border-radius: 999px; background: rgba(0, 174, 255, 0.07); padding: 6px 11px; color: #fff; font-size: 0.74rem; font-style: italic; font-weight: 700; }
+.incident-profile-list button { border: 1px solid rgba(120, 220, 255, 0.22); border-radius: 999px; background: rgba(0, 174, 255, 0.07); padding: 8px 12px; min-height: 44px; cursor: pointer; font-family: inherit; color: #fff; font-size: 0.74rem; font-style: italic; font-weight: 700; }
 
 .incident-facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .incident-facts span { display: inline-flex; min-height: 40px; align-items: center; gap: 7px; border: 1px solid rgba(120, 220, 255, 0.18); border-radius: 999px; background: rgba(0, 174, 255, 0.07); padding: 0 12px; color: var(--incident-pale); font-size: 0.7rem; font-weight: 800; }
@@ -404,3 +404,24 @@
 @media (prefers-reduced-motion: reduce) {
   .incident-page *, .incident-page *::before, .incident-page *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+
+.incident-profile-list button:hover { background: rgba(0, 174, 255, 0.2); border-color: var(--incident-aqua); }
+.incident-profile-list button:focus-visible, .incident-profile-close:focus-visible { outline: 2px solid #00ffff; outline-offset: 4px; }
+.incident-profile-hint { margin: 10px 0 0; color: var(--incident-pale); font-size: .8rem; }
+.incident-profile-dialog { width: min(440px, calc(100vw - 32px)); max-height: calc(100svh - 32px); padding: 0; overflow: auto; border: 1px solid #78dcff66; border-radius: 22px; background: #000025; color: #eee; font: inherit; box-shadow: 0 24px 100px #0009; }
+.incident-profile-dialog::backdrop { background: #000025cc; backdrop-filter: blur(6px); }
+.incident-profile-portrait { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
+.incident-profile-close { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #78dcff66; border-radius: 50%; background: #000025dd; color: #fff; cursor: pointer; }
+.incident-profile-dialog-copy { padding: 24px; }
+.incident-profile-dialog-copy h2 { margin: 8px 0 16px; font-size: 1.8rem; line-height: 1.1; }
+.incident-profile-dialog-copy p { line-height: 1.55; }
+.incident-profile-dialog-copy p > strong, .incident-character-route > strong { display: block; margin-bottom: 4px; color: #78dcff; }
+.incident-character-card { display: flex; gap: 20px; align-items: center; margin: 24px 0; padding: 16px; border: 1px solid #78dcff33; border-radius: 20px; background: #00aeff0d; }
+.incident-character-card img { width: 140px; height: 140px; flex-shrink: 0; object-fit: cover; border-radius: 16px; }
+.incident-character-card .incident-profile-summary { margin: 0; }
+.incident-character-route { margin: 16px 0 0; font-size: .85rem; line-height: 1.55; color: #cbd7e2; }
+@media (max-width: 480px) { .incident-character-card { align-items: flex-start; flex-direction: column; } .incident-character-card img { width: 160px; height: 160px; } }
+
+.incident-profile-explorer { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid #78dcff33; }
+.incident-profile-explorer h2 { margin: 0; font-size: 1.4rem; }

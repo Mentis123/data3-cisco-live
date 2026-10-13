@@ -25,6 +25,9 @@ import {
   responseProfiles as liveResponseProfiles,
 } from "./incident-v04-data";
 import {
+  type ResponseArchetypeKey,
+  profilePortraitFor,
+  profileRouteFor,
   analyseResponse,
   responseArchetypes,
   responseStyleLabels,
@@ -32,10 +35,8 @@ import {
 } from "./incident-response-analysis";
 import "./incident-challenge-v03.css";
 
-const profileNames = Object.values(responseArchetypes).map(({ title }) => {
-  const name = title.replace(/^The /, "");
-  return name.charAt(0).toUpperCase() + name.slice(1);
-});
+const profileEntries = Object.entries(responseArchetypes) as Array<[ResponseArchetypeKey, (typeof responseArchetypes)[ResponseArchetypeKey]]>;
+const profileNames = profileEntries.map(([, { title }]) => title);
 const profileCount = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"][profileNames.length] ?? String(profileNames.length);
 
 type ActivePhase = "briefing" | "decision" | "consequence";
@@ -167,6 +168,26 @@ export default function IncidentChallengeV03({
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [resumePhase, setResumePhase] = useState<ActivePhase>("briefing");
+  const [previewKey, setPreviewKey] = useState<ResponseArchetypeKey | null>(null);
+  const profileDialogRef = useRef<HTMLDialogElement>(null);
+  const profileTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const previewProfile = previewKey ? responseArchetypes[previewKey] : null;
+
+  useEffect(() => {
+    const dialog = profileDialogRef.current;
+    if (!previewKey || !dialog) return;
+    if (!dialog.open) dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [previewKey]);
+
+  const closeProfile = () => {
+    profileDialogRef.current?.close();
+    setPreviewKey(null);
+    profileTriggerRef.current?.focus();
+  };
+
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
@@ -345,6 +366,20 @@ export default function IncidentChallengeV03({
 
   return (
     <div className="incident-page">
+      <dialog ref={profileDialogRef} className="incident-profile-dialog" aria-labelledby="profile-preview-title" aria-describedby="profile-preview-bio" onCancel={closeProfile} onClose={() => { setPreviewKey(null); profileTriggerRef.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeProfile(); } }}>
+        {previewProfile && previewKey && <>
+          <button type="button" className="incident-profile-close" aria-label="Close profile" onClick={closeProfile}><X aria-hidden="true" /></button>
+          <img className="incident-profile-portrait" src={profilePortraitFor(previewKey)} alt={`Illustrated character for ${previewProfile.title.toLowerCase()}`} width={396} height={396} />
+          <div className="incident-profile-dialog-copy">
+            <p className="incident-kicker">Meet your response style</p>
+            <h2 id="profile-preview-title">{previewProfile.title}</h2>
+            <p id="profile-preview-bio">{previewProfile.description}</p>
+            <p className="incident-character-route"><strong>How you get this profile</strong>{profileRouteFor(previewKey)}</p>
+            <p><strong>Your strength</strong>{previewProfile.strength}</p>
+            <p><strong>Your trade-off</strong>{previewProfile.tradeoff}</p>
+          </div>
+        </>}
+      </dialog>
       <div className="incident-grid" aria-hidden="true" />
       <header className="incident-header">
         <a className="incident-brand" href="/" aria-label="Data#3 home">
@@ -372,12 +407,6 @@ export default function IncidentChallengeV03({
             <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "AI incident challenge"}</p>
             <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "How would you handle an AI incident?"}</h1>
             <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : `Five decisions. ${profileCount} possible profiles. Which one are you?`}</p>
-            {!archiveMode && (
-              <ul className="incident-profile-list" aria-label="Possible response profiles">
-                {profileNames.map((name) => <li key={name}>{name}</li>)}
-              </ul>
-            )}
-
             <div className="incident-facts" aria-label="Challenge details">
               <span><strong>{incidentSet.length}</strong> incidents</span>
               <span><strong>5</strong> decisions each</span>
@@ -467,12 +496,6 @@ export default function IncidentChallengeV03({
               <>
                 <p className="incident-kicker">{attemptedCount === incidentSet.length ? "Series attempted" : "Assignment ready"}</p>
                 <h2 id="incident-assignment-title">{attemptedCount === incidentSet.length ? "All incidents attempted." : "Your incident is locked."}</h2>
-                <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
-                <aside className="incident-learning">
-                  <strong>What you will practise</strong>
-                  <p>Contain pressure, preserve evidence, restore service, apply a guardrail, and decide when automation can return.</p>
-                </aside>
-                <p className="incident-no-perfect">No consequence-free answer. Choose the response you can defend.</p>
                 <button
                   className="incident-primary"
                   type="button"
@@ -481,6 +504,7 @@ export default function IncidentChallengeV03({
                 >
                   {attemptedCount === incidentSet.length ? "All incidents attempted" : "Start incident"} <ArrowRight aria-hidden="true" />
                 </button>
+                <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
               </>
             )}
 
@@ -499,6 +523,20 @@ export default function IncidentChallengeV03({
               <span><strong>Move to mobile</strong><small>Scan the live challenge</small></span>
             </a>
           </aside>
+
+            {!archiveMode && (
+              <section className="incident-profile-explorer" aria-labelledby="incident-profiles-title">
+                <h2 id="incident-profiles-title">Meet the ten profiles</h2>
+                <p className="incident-profile-hint">Tap a profile to meet your incident-response character.</p>
+              <ul className="incident-profile-list" aria-label="Possible response profiles">
+                {profileEntries.map(([key, entry]) => (
+                  <li key={key}><button type="button" aria-haspopup="dialog" onClick={(event) => { profileTriggerRef.current = event.currentTarget; setPreviewKey(key); }}>
+                    {entry.title.replace(/^The /, "").replace(/^./, (letter) => letter.toUpperCase())}
+                  </button></li>
+                ))}
+              </ul>
+              </section>
+            )}
 
           <a className="incident-archive-link" href={archiveMode ? "/2026alpha/archive" : "/2026alpha/archive"}>
             {archiveMode ? "Return to the prototype archive" : "View earlier prototype versions"}
@@ -649,7 +687,12 @@ export default function IncidentChallengeV03({
                 ? "Your response style in this incident."
                 : "Your incident-response archetype, based on how you traded containment, evidence, recovery, and adaptability."}
             </p>
-            {!archiveMode && profile.description && <p className="incident-profile-summary">{profile.description}</p>}
+            {!archiveMode && (
+              <div className="incident-character-card">
+                <img src={profilePortraitFor(responseAnalysis.key)} alt={`Illustrated character for ${profile.title.toLowerCase()}`} width={396} height={396} />
+                <div><p className="incident-profile-summary">{profile.description}</p><p className="incident-character-route"><strong>Your response pattern</strong>{profileRouteFor(responseAnalysis.key)}</p></div>
+              </div>
+            )}
 
             <div className="incident-scoreline">
               <div><strong>{score}</strong><span>/ 100</span><small>{archiveMode ? "Decision quality" : scoreBand}</small></div>
