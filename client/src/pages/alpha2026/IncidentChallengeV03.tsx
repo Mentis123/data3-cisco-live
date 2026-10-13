@@ -465,14 +465,16 @@ export default function IncidentChallengeV03({
               </>
             ) : (
               <>
-                <p className="incident-kicker">{attemptedCount === incidentSet.length ? "Series attempted" : "Assignment ready"}</p>
-                <h2 id="incident-assignment-title">{attemptedCount === incidentSet.length ? "All incidents attempted." : "Your incident is locked."}</h2>
-                <p>{attemptedCount === incidentSet.length ? "You have played or abandoned all four prototype incidents." : "You will discover the situation when the clock starts. Make five decisions and defend the trade-offs."}</p>
-                <aside className="incident-learning">
-                  <strong>What you will practise</strong>
-                  <p>Contain pressure, preserve evidence, restore service, apply a guardrail, and decide when automation can return.</p>
-                </aside>
-                <p className="incident-no-perfect">No consequence-free answer. Choose the response you can defend.</p>
+                <h2 id="incident-assignment-title" className="incident-tiles-title">The incidents you could face</h2>
+                <ol className="incident-tiles">
+                  {incidentSet.map((candidate) => (
+                    <li key={candidate.id} className={playHistory[candidate.id] ? "is-attempted" : undefined}>
+                      <span>{Number(candidate.number)}.</span>
+                      <strong>{candidate.title.replace(/-/g, "\u2011")}</strong>
+                      <small>{candidate.eyebrow}</small>
+                    </li>
+                  ))}
+                </ol>
                 <button
                   className="incident-primary"
                   type="button"
