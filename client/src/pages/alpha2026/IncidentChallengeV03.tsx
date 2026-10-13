@@ -11,6 +11,8 @@ import {
   MessageSquareMore,
   RotateCcw,
   ScanLine,
+  Share2,
+  Copy,
   Trophy,
   UserRound,
   X,
@@ -28,13 +30,13 @@ import {
 } from "./incident-v04-data";
 import {
   type ResponseArchetypeKey,
-  profilePortraitFor,
   profileRouteFor,
   analyseResponse,
   responseArchetypes,
   responseStyleLabels,
   scoreBandFor,
 } from "./incident-response-analysis";
+import { profilePortraitFor } from "./profile-portraits";
 import "./incident-challenge-v03.css";
 
 const profileEntries = Object.entries(responseArchetypes) as Array<[ResponseArchetypeKey, (typeof responseArchetypes)[ResponseArchetypeKey]]>;
@@ -197,6 +199,10 @@ export default function IncidentChallengeV03({
     profileTriggerRef.current?.focus();
   };
 
+  const [shareStatus, setShareStatus] = useState("");
+  const [sharing, setSharing] = useState(false);
+  const [sharePortrait, setSharePortrait] = useState<File | null>(null);
+  const [manualCopy, setManualCopy] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
@@ -209,6 +215,61 @@ export default function IncidentChallengeV03({
   const responseAnalysis = useMemo(() => analyseResponse(choices), [choices]);
   const profile = archiveMode ? profiles[responseStyle] : responseAnalysis.profile;
   const scoreBand = scoreBandFor(score);
+  const shareMessage = `I took the AI Incident Challenge at the Data#3 booth at Cisco Live 2026! My profile: ${profile.title}. I scored ${score}/100 in ${elapsedSeconds} ${elapsedSeconds === 1 ? "second" : "seconds"}. How would you handle an AI incident?`;
+  const shareCopy = `${shareMessage}\n${challengeUrl}`;
+
+  useEffect(() => {
+    setShareStatus("");
+    setManualCopy(false);
+    setSharePortrait(null);
+    if (phase !== "result" || archiveMode) return;
+    const controller = new AbortController();
+    fetch(profilePortraitFor(responseAnalysis.key), { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Portrait unavailable");
+        return response.blob();
+      })
+      .then((blob) => {
+        if (!controller.signal.aborted) setSharePortrait(new File([blob], `data3-${responseAnalysis.key}.jpg`, { type: "image/jpeg" }));
+      })
+      .catch(() => { /* The text and link can still be shared. */ });
+    return () => controller.abort();
+  }, [phase, archiveMode, responseAnalysis.key]);
+
+  // Warm the earned portrait while the player reads the final consequence.
+  useEffect(() => {
+    if (archiveMode || phase !== "consequence" || choices.length !== incident.stages.length) return;
+    const portrait = new Image();
+    portrait.src = profilePortraitFor(responseAnalysis.key);
+  }, [archiveMode, phase, choices.length, incident.stages.length, responseAnalysis.key]);
+
+  const copyResult = async () => {
+    try {
+      await navigator.clipboard.writeText(shareCopy);
+      setShareStatus("Result copied. Paste it into your favourite social app.");
+      setManualCopy(false);
+    } catch {
+      setManualCopy(true);
+      setShareStatus("Select and copy your result below.");
+    }
+  };
+
+  const shareResult = async () => {
+    if (sharing) return;
+    if (!navigator.share) { await copyResult(); return; }
+    const data: ShareData = { title: "My Data#3 AI Incident Challenge result", text: shareMessage, url: challengeUrl };
+    if (sharePortrait && navigator.canShare?.({ files: [sharePortrait] })) data.files = [sharePortrait];
+    setSharing(true);
+    setShareStatus("");
+    try {
+      await navigator.share(data);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) setShareStatus("Sharing couldn’t open. Use Copy result to share it in your app.");
+    } finally {
+      setSharing(false);
+    }
+  };
+
 
   useEffect(() => {
     document.title = archiveMode
@@ -736,7 +797,7 @@ export default function IncidentChallengeV03({
             </p>
             {!archiveMode && (
               <div className="incident-character-card">
-                <img src={profilePortraitFor(responseAnalysis.key)} alt={`Illustrated character for ${profile.title.toLowerCase()}`} width={396} height={396} />
+                <img src={profilePortraitFor(responseAnalysis.key)} alt={`Illustrated character for ${profile.title.toLowerCase()}`} width={396} height={396} loading="eager" decoding="async" fetchPriority="high" />
                 <div><p className="incident-profile-summary">{profile.description}</p><p className="incident-character-route"><strong>Your response pattern</strong>{profileRouteFor(responseAnalysis.key)}</p></div>
               </div>
             )}
@@ -748,6 +809,15 @@ export default function IncidentChallengeV03({
                 <small>{archiveMode ? "Response time" : elapsedSeconds >= responseTargetSeconds ? "Target missed" : "Inside 2-minute target"}</small>
               </div>
             </div>
+
+            {!archiveMode && (
+              <div className="incident-result-share">
+                <button className="incident-primary" type="button" onClick={shareResult} disabled={sharing}><Share2 aria-hidden="true" />{sharing ? "Opening share options…" : "Share my result"}</button>
+                <button className="incident-secondary" type="button" onClick={copyResult}><Copy aria-hidden="true" />Copy result</button>
+                <p role="status" aria-live="polite">{shareStatus}</p>
+                {manualCopy && <textarea aria-label="Result to copy" readOnly value={shareCopy} onFocus={(event) => event.currentTarget.select()} />}
+              </div>
+            )}
 
             {!archiveMode && (
               <div className="incident-style-mix" aria-label="Your response pattern">
