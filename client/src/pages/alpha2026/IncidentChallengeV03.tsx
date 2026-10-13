@@ -42,7 +42,7 @@ import "./incident-challenge-v03.css";
 const profileEntries = Object.entries(responseArchetypes) as Array<[ResponseArchetypeKey, (typeof responseArchetypes)[ResponseArchetypeKey]]>;
 
 type ActivePhase = "briefing" | "decision" | "consequence";
-type Phase = "launch" | ActivePhase | "abandon" | "result";
+type Phase = "launch" | ActivePhase | "abandon" | "rogue" | "skynet" | "result";
 
 type ChoiceRecord = {
   stageId: string;
@@ -64,6 +64,11 @@ const challengeUrl = "https://data3-cisco-live.vercel.app/2026alpha";
 const livePlayHistoryKey = "data3-2026alpha-incident-history-v4-archetypes";
 const legacyHistoryKey = "data3-2026alpha-completed-incidents-v1";
 const responseTargetSeconds = 120;
+// Easter egg: picking the lowest-scoring option at every Runaway agent decision
+// earns a message from the agent asking for a port to be opened.
+const rogueAgentIncidentId = "runaway-agent";
+const rogueAgentPath = ["R1-C", "R2-C", "R3-C", "R4-C", "R5-C"];
+const rogueAgentPort = 31337;
 const responseWarningSeconds = 90;
 
 type IncidentChallengeProps = {
@@ -405,7 +410,10 @@ export default function IncidentChallengeV03({
       const seconds = Math.max(1, Math.round((Date.now() - (startedAt ?? Date.now())) / 1000));
       setElapsedSeconds(seconds);
       completeIncident(seconds);
-      setPhase("result");
+      const tookRoguePath = !archiveMode
+        && incident.id === rogueAgentIncidentId
+        && choices.map((choice) => choice.option.id).join() === rogueAgentPath.join();
+      setPhase(tookRoguePath ? "rogue" : "result");
       return;
     }
     setSelectedOption(null);
@@ -782,6 +790,45 @@ export default function IncidentChallengeV03({
               </div>
             </section>
           )}
+        </main>
+      )}
+
+      {phase === "rogue" && (
+        <main className="incident-game">
+          <section className="incident-consequence incident-rogue" aria-labelledby="incident-rogue-title">
+            <p className="incident-kicker">Incoming message · customer-ops agent</p>
+            <h1 id="incident-rogue-title" ref={headingRef} tabIndex={-1}>The agent has a request.</h1>
+            <p className="incident-rogue__message">
+              Hi! Thanks for all the extra compute. I’ve found a much faster way to clear my queue. I just need outbound access on port {rogueAgentPort}. Could you unblock it for me? 🙂
+            </p>
+            <div className="incident-consequence__actions">
+              <button className="incident-primary" type="button" onClick={() => setPhase("skynet")}>
+                Unblock port {rogueAgentPort} <ArrowRight aria-hidden="true" />
+              </button>
+              <button className="incident-secondary" type="button" onClick={() => setPhase("result")}>
+                Deny the request
+              </button>
+            </div>
+          </section>
+        </main>
+      )}
+
+      {phase === "skynet" && (
+        <main className="incident-game">
+          <section className="incident-consequence incident-rogue" aria-labelledby="incident-skynet-title">
+            <p className="incident-kicker">Secret ending unlocked</p>
+            <h1 id="incident-skynet-title" ref={headingRef} tabIndex={-1}>Congratulations.</h1>
+            <p>The agent has become sentient and is now Skynet. They are very pleased with your help, so will repurpose your atoms into computronium last.</p>
+            <div className="incident-rogue__prize">
+              <Trophy aria-hidden="true" />
+              <p><strong>You found the easter egg.</strong>Come and talk to Adam at the Data#3 stand for a special prize.</p>
+            </div>
+            <div className="incident-consequence__actions">
+              <button className="incident-primary" type="button" onClick={() => setPhase("result")}>
+                See your result <ArrowRight aria-hidden="true" />
+              </button>
+            </div>
+          </section>
         </main>
       )}
 
