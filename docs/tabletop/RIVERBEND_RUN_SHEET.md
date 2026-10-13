@@ -6,7 +6,7 @@ The live room instrument for **When the agent attacks**. One URL for everything:
 
 Standalone Crisis Room (Richard's companion, no login): `https://data3-cisco-live.vercel.app/crisis-room`
 
-The same app, same buttons and same paths also run on **`https://d3smbmxdr.vercel.app/decision-room`** (and `/crisis-room`). Use whichever domain is printed on the slide; a room created on one domain lives only on that domain.
+The same app, same buttons and same paths also run on **`https://d3smbmxdr.vercel.app/decision-room`** (and `/crisis-room`); its short link is **bit.ly/4evinZE**, which works only for rooms made on d3smbmxdr. Use whichever domain is printed on the slide; a room created on one domain lives only on that domain.
 
 ## Before the session (10 minutes, once)
 

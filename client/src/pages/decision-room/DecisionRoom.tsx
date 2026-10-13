@@ -35,6 +35,9 @@ type Launch = { profile: { label: string; value: string; mirrors: string }[]; li
 type ConsoleData = { session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: Split | null; initialMeters: Meters; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[] };
 
 const API = "/api/decision-room";
+/** What people type to reach the join page. The short link redirects to the d3smbmxdr domain, so it is only shown there. */
+const SHORT_JOIN: Record<string, string> = { "d3smbmxdr.vercel.app": "bit.ly/4evinZE" };
+const joinAddress = () => SHORT_JOIN[location.host] ?? `${location.host}/decision-room`;
 const POLL_MS = 5000;
 
 /* ---------------------------------------------------------------- helpers */
@@ -389,7 +392,7 @@ function Console({ id }: { id: string }) {
 
     {(state === "lobby" || state === "launched") && <section className="dr-console-grid">
       <div className="dr-card"><div className="dr-panel-head"><span>The adversary</span></div><div className="dr-profile">{data.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>mirrors {p.mirrors}</em></div>)}</div><p className="dr-hint">Fictional and narrative only. No tools, no code, no exploit steps — this exists to show how cheap and modular these choices have become.</p></div>
-      <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><div className="dr-standby-qr" aria-label="QR code to join this room"><QRCodeSVG value={joinUrl} size={224} bgColor="#ffffff" fgColor="#000025" level="M" /></div><p>{data.organisation.tagline}</p><p className="dr-hint">Scan, or go to <strong>{location.host}/decision-room</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
+      <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><div className="dr-standby-qr" aria-label="QR code to join this room"><QRCodeSVG value={joinUrl} size={224} bgColor="#ffffff" fgColor="#000025" level="M" /></div><p>{data.organisation.tagline}</p><p className="dr-hint">Scan, or go to <strong>{joinAddress()}</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
     </section>}
 
     {(state === "open" || state === "closed" || state === "published" || state === "ended") && <>
@@ -401,7 +404,7 @@ function Console({ id }: { id: string }) {
       </section> : state === "open" || state === "closed" ? <section className="dr-card"><div className="dr-panel-head"><span>{round?.prompt ?? "What is your priority?"}</span></div><div className="dr-option-list">{round?.options.map((o) => <div key={o.key}><b>{o.key}</b><span>{o.label}</span></div>)}</div><p className="dr-console-note">{state === "closed" ? "Round closed. Responses stay private until Adam shows the split." : "Tables are deciding. Responses stay private until the split is shown."}</p></section> : null}
     </>}
 
-    <footer className="dr-console-footer"><span>Join at <strong>{location.host}/decision-room</strong> · code <span className="dr-join-code">{session.joinCode}</span></span><Status tone={connection} label={connection === "live" ? "Live" : `Last updated ${lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—"}`} /></footer>
+    <footer className="dr-console-footer"><span>Join at <strong>{joinAddress()}</strong> · code <span className="dr-join-code">{session.joinCode}</span></span><Status tone={connection} label={connection === "live" ? "Live" : `Last updated ${lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—"}`} /></footer>
     <ErrorText message={error} />
   </Frame>;
 }
