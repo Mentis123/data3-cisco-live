@@ -26,10 +26,17 @@ import {
 } from "./incident-v04-data";
 import {
   analyseResponse,
+  responseArchetypes,
   responseStyleLabels,
   scoreBandFor,
 } from "./incident-response-analysis";
 import "./incident-challenge-v03.css";
+
+const profileNames = Object.values(responseArchetypes).map(({ title }) => {
+  const name = title.replace(/^The /, "");
+  return name.charAt(0).toUpperCase() + name.slice(1);
+});
+const profileCount = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"][profileNames.length] ?? String(profileNames.length);
 
 type ActivePhase = "briefing" | "decision" | "consequence";
 type Phase = "launch" | ActivePhase | "abandon" | "result";
@@ -176,12 +183,12 @@ export default function IncidentChallengeV03({
   useEffect(() => {
     document.title = archiveMode
       ? `${versionLabel} archive | Cisco Live 2026 | Data#3`
-      : "Choose your own adventure: AI incident trade-offs | Cisco Live 2026 | Data#3";
+      : "How would you handle an AI incident? | Cisco Live 2026 | Data#3";
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute(
       "content",
       archiveMode
         ? `Play the archived ${versionLabel} Cisco Live 2026 incident challenge.`
-        : "Choose your own AI incident adventure through four fast, connected trade-off challenges for Cisco Live 2026.",
+        : "How would you handle an AI incident? Five decisions, ten possible profiles. Which one are you? Cisco Live 2026.",
     );
   }, [archiveMode, versionLabel]);
 
@@ -363,8 +370,13 @@ export default function IncidentChallengeV03({
         <main className="incident-launch">
           <section className="incident-launch__story" aria-labelledby="incident-launch-title">
             <p className="incident-kicker">Cisco Live 2026 · {archiveMode ? `${versionLabel} archive` : "AI incident challenge"}</p>
-            <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "Choose your own adventure: AI incident trade-offs."}</h1>
-            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : "Five decisions. Three defensible options. Every choice has a trade-off."}</p>
+            <h1 id="incident-launch-title" className={archiveMode ? undefined : "incident-adventure-title"}>{archiveMode ? "Can you contain the incident?" : "How would you handle an AI incident?"}</h1>
+            <p className="incident-lead">{archiveMode ? "Fast choices. Real trade-offs. Consequences that follow." : `Five decisions. ${profileCount} possible profiles. Which one are you?`}</p>
+            {!archiveMode && (
+              <ul className="incident-profile-list" aria-label="Possible response profiles">
+                {profileNames.map((name) => <li key={name}>{name}</li>)}
+              </ul>
+            )}
 
             <div className="incident-facts" aria-label="Challenge details">
               <span><strong>{incidentSet.length}</strong> incidents</span>

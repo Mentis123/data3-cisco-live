@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Product | Data<sup>#</sup>3 Cisco Live 2026 booth activation |
-| Build | Choose your own adventure: AI incident trade-offs |
+| Build | How would you handle an AI incident? |
 | Content review | v0.4 |
 | Prepared | 30 August 2026 |
 | Audience | Enterprise and corporate technology professionals |
