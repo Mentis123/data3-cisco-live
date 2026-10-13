@@ -381,3 +381,5 @@
 .dr-handover-wait .dr-actions{justify-content:flex-start}
 .dr-admin-row small.dr-flag{color:#ffb200}
 .dr-admin-row button.dr-primary{margin-left:8px}
+.dr-meter--idle .top strong{color:#69819a;font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
+.dr-meter--idle .bar{background:repeating-linear-gradient(90deg,#0b1a33 0 6px,#000025 6px 12px)}

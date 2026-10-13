@@ -64,7 +64,7 @@ export const STAGES = [
 ] as const;
 
 export const METERS: { id: MeterKey; name: string; good: boolean }[] = [
-  { id: "containment", name: "Containment", good: true },
+  { id: "containment", name: "Attacker contained", good: true },
   { id: "service", name: "Service uptime", good: true },
   { id: "exposure", name: "Data exposure", good: false },
   { id: "otsafety", name: "OT safety", good: true },
