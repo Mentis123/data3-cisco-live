@@ -281,6 +281,8 @@ function consolePayload(session: Session, teams: Team[], decisions: Decision[]) 
     teams: teams.map((t) => ({ id: t.id, displayName: t.displayName, state: t.state, handover: isLive(t) })),
     results: state === "published" ? splitFor(decisions, session.activeRound) : null,
     initialMeters: INITIAL_METERS,
+    stages: STAGES,
+    meterKeys: METERS,
   };
 }
 /** Validation problems are the caller's fault: answer 400 with the first message, never a 500 with a stack. */
