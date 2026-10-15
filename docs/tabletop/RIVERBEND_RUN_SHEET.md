@@ -47,6 +47,10 @@ While tables are debating, scan "This round's responses" on your control page an
 - **You lose your control tab**: open `/decision-room` → **Facilitate** → the key is remembered → create nothing; instead use the browser back button or re-open `/decision-room/admin/<session id>` from history. If truly lost, the console's URL still works and you can run the room from paper.
 - **Projector loses the console**: open the link from your control page again; the display token is in the link.
 
+## The run clock
+
+The bar at the top of your control page maps the room against the 9:30–11:00 plan from Richard's notes. It shows time remaining, now, and the segment you are in. Green means on schedule or ahead (relax, let discussion breathe). Amber means 2–4 minutes behind (one comment per round, then Next). Red means 5 or more behind (2-minute option reviews; the planned cut is the table discussion on slide 25). It knows where you are from the buttons you press. When Richard moves to the debrief (slide 22), press **End room** so the clock moves to Debrief & close; Export CSV still works afterwards. Click the 9:30–11:00 label to change the start time for a rehearsal.
+
 ## After
 
 **Export CSV** (one row per table per round), then **End room**. Never **Reset** unless you want every response and every table login gone.

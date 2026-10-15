@@ -383,3 +383,23 @@
 .dr-admin-row button.dr-primary{margin-left:8px}
 .dr-meter--idle .top strong{color:#69819a;font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
 .dr-meter--idle .bar{background:repeating-linear-gradient(90deg,#0b1a33 0 6px,#000025 6px 12px)}
+/* run clock on the facilitator page */
+.dr-runclock{flex:none;margin:0 0 10px;padding:10px 14px 8px;border-radius:12px;background:#071b3a;border:1px solid #25466e;border-left:4px solid var(--rc,#3fd08a)}
+.dr-runclock--green{--rc:#3fd08a}.dr-runclock--amber{--rc:#ffb200}.dr-runclock--red{--rc:#ff5c6c}.dr-runclock--idle{--rc:#78dcff}
+.dr-runclock-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.dr-runclock-main small{display:block;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#9aa7b5}
+.dr-runclock-main strong{font-size:26px;font-variant-numeric:tabular-nums;color:var(--rc);line-height:1.1}
+.dr-runclock-main b{font-size:15px;color:#fff}
+.dr-runclock-main em{display:block;font-style:normal;font-size:11px;color:#69819a}
+.dr-runclock-light{width:14px;height:14px;border-radius:50%;background:var(--rc);box-shadow:0 0 0 4px color-mix(in srgb,var(--rc) 22%,transparent);animation:drping 2.2s ease-out infinite}
+.dr-runclock--red .dr-runclock-light{animation-duration:1s}
+.dr-runclock-advice{flex:1;min-width:220px;margin:0;font-size:14px;font-weight:700;color:var(--rc)}
+.dr-runclock-edit{margin-left:auto;font:inherit;font-size:12px;color:#9db0c5;background:none;border:1px solid #25466e;border-radius:7px;padding:4px 8px;cursor:pointer}
+.dr-runclock-edit input{margin-left:6px;font:inherit;color:#fff;background:#000025;border:1px solid #365778;border-radius:6px;padding:2px 4px}
+.dr-runclock-track{position:relative;height:18px;margin-top:8px;border-radius:5px;background:#000025;overflow:hidden}
+.dr-runclock-track .seg{position:absolute;top:0;bottom:0;border-right:1px solid #071b3a;background:rgba(0,174,255,.08);display:flex;align-items:center;overflow:hidden}
+.dr-runclock-track .seg.is-here{background:color-mix(in srgb,var(--rc) 30%,transparent)}
+.dr-runclock-track .seg i{font-style:normal;font-size:9px;letter-spacing:.04em;color:#9db0c5;white-space:nowrap;padding-left:4px}
+.dr-runclock-track .pos{position:absolute;top:0;bottom:0;width:3px;background:var(--rc)}
+.dr-runclock-track .now{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;box-shadow:0 0 6px #fff}
+@media(max-width:900px){.dr-runclock-main{gap:10px}.dr-runclock-advice{min-width:100%}}
