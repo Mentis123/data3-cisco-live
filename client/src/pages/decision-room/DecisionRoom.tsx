@@ -32,7 +32,7 @@ type Consequence = { you: string; body: string; changes: { t: string; d: "up" | 
 type Decision = { id: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean };
 type ParticipantData = { session: SessionInfo; team: { id: string; displayName: string; state: string }; handover: { requestId: string; name: string | null; requestedAt: string; expiresInSeconds: number } | null; organisation: Organisation; round: Round | null; decision: Decision | null; dashboard: { meters: Meters; path: string[]; stages: Stage[]; meterKeys: MeterKey[] }; results: (Split & { consequence: Consequence | null }) | null };
 type Launch = { profile: { label: string; value: string; mirrors: string }[]; lines: { t: string; text: string; tone: string }[] };
-type ConsoleData = { session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: Split | null; initialMeters: Meters; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[] };
+type ConsoleData = { session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: Split | null; initialMeters: Meters; stages: Stage[]; meterKeys: MeterKey[]; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[] };
 
 const API = "/api/decision-room";
 /** What people type to reach the join page. The short link redirects to the d3smbmxdr domain, so it is only shown there. */
@@ -373,6 +373,18 @@ function Terminal({ launch, launchedAt, now }: { launch: Launch; launchedAt: str
   return <div className="dr-term"><div className="bar"><i /><i /><i /><span>agent@riverbend — autonomous</span></div><div className="body">{launch.lines.slice(0, visible).map((l, i) => <div className={`ln ln--${l.tone}`} key={i}><span className="ts">[{l.t}]</span> {l.text}</div>)}{visible < launch.lines.length && launchedAt ? <div className="ln ln--cursor">▌</div> : null}</div></div>;
 }
 
+/** The projector's attack path during the launch: stages light up in step with the attacker terminal. */
+function launchPath(visible: number): string[] {
+  const p = ["secure", "secure", "secure", "secure", "secure", "secure", "secure"];
+  if (visible >= 1) p[0] = "compromised";
+  if (visible >= 2) p[1] = "compromised";
+  if (visible >= 4) { p[2] = "at risk"; p[3] = "at risk"; p[4] = "at risk"; p[5] = "at risk"; }
+  if (visible >= 5) p[2] = "compromised";
+  if (visible >= 6) p[4] = "compromised";
+  return p;
+}
+const LAUNCH_NOTES = ["", "foothold taken", "credentials harvested", "planning, no human in the loop", "target path mapped", "beacon running", "customer data staged", "a faint signal in the SOC"];
+
 function Console({ id }: { id: string }) {
   const displayToken = useMemo(() => { const q = new URLSearchParams(location.search).get("displayToken"); if (q) return q; try { return localStorage.getItem(`decision-room-display:${id}`) || ""; } catch { return ""; } }, [id]);
   const { data, error, lastUpdated } = usePoll<ConsoleData>(`${API}/sessions/${id}/console?displayToken=${encodeURIComponent(displayToken)}`);
@@ -390,10 +402,13 @@ function Console({ id }: { id: string }) {
       {state === "open" ? <div className={`dr-clock ${clock.over ? "over" : clock.low ? "low" : ""}`}><small>TABLE CLOCK</small><strong>{clock.label}</strong></div> : <div className="dr-clock muted"><small>ROUND</small><strong>{state === "lobby" || state === "launched" ? "—" : `${session.activeRound} / ${session.roundCount}`}</strong><em>{state === "closed" ? "closed" : state === "published" ? "the split" : state === "ended" ? "ended" : state}</em></div>}
     </section>
 
-    {(state === "lobby" || state === "launched") && <section className="dr-console-grid">
+    {(state === "lobby" || state === "launched") && (() => {
+      const visible = state === "launched" && session.launchedAt ? Math.min(data.launch.lines.length, Math.floor((now - new Date(session.launchedAt).getTime()) / 1400) + 1) : 0;
+      return <section className="dr-console-grid dr-console-grid--three">
       <div className="dr-card"><div className="dr-panel-head"><span>The adversary</span></div><div className="dr-profile">{data.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>mirrors {p.mirrors}</em></div>)}</div><p className="dr-hint">Fictional and narrative only. No tools, no code, no exploit steps — this exists to show how cheap and modular these choices have become.</p></div>
+      <div className={`dr-card dr-instruments ${state === "launched" ? "is-under-attack" : ""}`}><div className="dr-panel-head"><span>Riverbend · live systems</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : LAUNCH_NOTES[visible] ?? ""}</span></div><PathPanel path={state === "launched" ? launchPath(visible) : data.stages.map(() => "secure")} stages={data.stages} /><div className="dr-panel-head dr-instruments-meters"><span>Live state</span></div><MetersPanel meters={data.initialMeters} keys={data.meterKeys} standby={state === "lobby" ? ["containment"] : undefined} /></div>
       <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><div className="dr-standby-qr" aria-label="QR code to join this room"><QRCodeSVG value={joinUrl} size={224} bgColor="#ffffff" fgColor="#000025" level="M" /></div><p>{data.organisation.tagline}</p><p className="dr-hint">Scan, or go to <strong>{joinAddress()}</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
-    </section>}
+    </section>; })()}
 
     {(state === "open" || state === "closed" || state === "published" || state === "ended") && <>
       <section className="dr-metrics"><div className="dr-metric"><small>Joined</small><strong>{counts.joined + counts.locked}<em>/{counts.total}</em></strong></div><div className="dr-metric"><small>Drafting</small><strong>{counts.joined}</strong></div><div className="dr-metric accent"><small>Locked</small><strong>{counts.locked}</strong></div></section>

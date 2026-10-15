@@ -284,7 +284,7 @@
 .dr-landing-side{margin-top:0}
 }
 /* console on a low laptop screen */
-@media(max-height:840px) and (min-width:1000px){
+@media(max-height:900px) and (min-width:1000px){
 .dr-wide{padding-top:14px}
 .dr-wide .dr-brand{margin-bottom:12px}
 .dr-wide .dr-brand .dr-mark{height:40px;font-size:18px;padding:0 10px}
@@ -335,7 +335,7 @@
 /* fit fixes: meter values never clip; console launch and split fit a 768-high laptop */
 .dr-meter .top strong{flex:none;white-space:nowrap}
 .dr-table .dr-meter .spark{width:44px}
-@media(max-height:840px) and (min-width:1000px){
+@media(max-height:900px) and (min-width:1000px){
 .dr-wide .dr-team-grid--wide{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px;margin-bottom:10px}
 .dr-wide .dr-team{padding:7px 10px}
 .dr-wide .dr-team strong{font-size:14px}
@@ -403,3 +403,19 @@
 .dr-runclock-track .pos{position:absolute;top:0;bottom:0;width:3px;background:var(--rc)}
 .dr-runclock-track .now{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;box-shadow:0 0 6px #fff}
 @media(max-width:900px){.dr-runclock-main{gap:10px}.dr-runclock-advice{min-width:100%}}
+/* projector: live Riverbend instruments in the lobby and during the launch */
+.dr-console-grid--three{grid-template-columns:minmax(0,.95fr) minmax(0,1.1fr) minmax(0,1fr)}
+.dr-instruments .dr-stage{padding:5px 0}
+.dr-instruments .dr-stage .name{font-size:16px}
+.dr-instruments-meters{margin-top:14px}
+.dr-instruments .dr-meters{gap:8px 16px}
+.dr-instruments.is-under-attack{border-color:rgba(255,92,108,.45);box-shadow:0 0 0 1px rgba(255,92,108,.15),0 0 40px rgba(255,92,108,.12)}
+.dr-instruments.is-under-attack .dr-chain::before{background:repeating-linear-gradient(180deg,rgba(255,92,108,0) 0 7px,rgba(255,92,108,.7) 7px 11px,rgba(255,92,108,0) 11px 16px);background-size:100% 16px;animation-duration:.45s}
+.dr-instruments.is-under-attack .dr-chain-note{color:#ff8a96}
+.dr-console-grid--three .dr-standby-qr svg{width:200px;height:200px}
+.dr-console-grid--three .dr-profile strong{font-size:18px}
+@media(max-height:900px) and (min-width:1000px){.dr-instruments .dr-stage{padding:3px 0}.dr-instruments .dr-stage .name{font-size:14px}.dr-instruments .dr-stage .name small{display:none}.dr-console-grid--three .dr-standby-qr svg{width:150px;height:150px}.dr-console-grid--three .dr-standby p{font-size:15px}}
+@media(max-width:1200px){.dr-console-grid--three{grid-template-columns:1fr 1fr}.dr-console-grid--three>.dr-card:first-child{display:none}}
+.dr-meters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.dr-meter{min-width:0}
+.dr-instruments .dr-meter .spark{width:40px}
