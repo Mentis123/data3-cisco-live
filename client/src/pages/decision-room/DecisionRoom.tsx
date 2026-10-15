@@ -459,13 +459,18 @@ function plannedWindow(state: RoundState, round: number): { seg: Segment; from: 
   const seg = PLAN[1 + Math.min(Math.max(round, 1), 6)];
   return state === "open" ? { seg, from: seg.from, to: seg.from + SITUATION_MINUTES, part: "tables deciding" } : { seg, from: seg.from + SITUATION_MINUTES, to: seg.to, part: state === "closed" ? "option review" : "split and discussion" };
 }
-function RunClock({ state, round, now }: { state: RoundState; round: number; now: number }) {
+function RunClock({ state, round, now, launchedAt }: { state: RoundState; round: number; now: number; launchedAt: string | null }) {
   const [start, setStart] = useState(() => { try { return localStorage.getItem("decision-room-run-start") || "09:30"; } catch { return "09:30"; } });
   const [editing, setEditing] = useState(false);
   const [h, m] = start.split(":").map(Number);
   const t0 = new Date(now); t0.setHours(h || 9, m || 0, 0, 0);
-  const at = (min: number) => t0.getTime() + min * 60000;
-  const end = at(90);
+  const end = t0.getTime() + 90 * 60000;
+  // Once the attack is launched, everything after it is re-fitted between the real launch time and 11:00.
+  const LAUNCH_AT = PLAN[1].from;
+  const launched = launchedAt ? new Date(launchedAt).getTime() : null;
+  const fit = launched && launched < end ? (end - launched) / ((90 - LAUNCH_AT) * 60000) : 1;
+  const at = (min: number) => (launched && min >= LAUNCH_AT ? launched + (min - LAUNCH_AT) * fit * 60000 : t0.getTime() + min * 60000);
+  const roundMinutes = Math.round(8 * fit * 10) / 10;
   const win = plannedWindow(state, round);
   const elapsedMin = (now - t0.getTime()) / 60000;
   const before = now < t0.getTime();
@@ -474,16 +479,18 @@ function RunClock({ state, round, now }: { state: RoundState; round: number; now
   const lateMin = Math.round(drift);
   const over = now > end;
   const tone = before ? "idle" : over || lateMin >= 5 ? "red" : lateMin >= 2 ? "amber" : "green";
-  const inSlot = !before && drift === 0 ? Math.max(0, at(win.to) - now) : 0;
+  const inSlot = !before && drift <= 0 ? Math.max(0, at(win.to) - now) : 0;
   const advice = before ? `Starts at ${hhmm(t0)}. Open the room, test the console, breathe.`
     : over ? `Over by ${span(now - end)}. Thank the room and close now.`
     : lateMin >= 5 ? (win.seg.key === "open" || win.seg.key === "launch" ? `Push: ${lateMin} min behind. Move through the opening slides faster and launch.` : win.seg.key === "close" || round >= 5 ? `Push: ${lateMin} min behind. Cut the table discussion (slide 25) and go to the close.` : `Push: ${lateMin} min behind. Keep option reviews to 2 minutes and move on after one comment from the room.`)
     : lateMin >= 2 ? (win.seg.key === "open" ? `Tighten: ${lateMin} min behind. Shorten the landscape slides and get to Riverbend.` : `Tighten: ${lateMin} min behind. Take one comment per round, then Next.`)
     : drift < -1.5 ? `Relaxed: ${Math.round(-drift)} min ahead. Let the discussion breathe or take an extra question.`
     : win.seg.key === "close" ? (now < at(77) ? `On schedule. Protect (slide 24) by ${hhmm(new Date(at(74)))}, table discussion by ${hhmm(new Date(at(77)))}, close by ${hhmm(new Date(at(83)))}.` : now < at(83) ? `On schedule. Move to the close (slide 26) by ${hhmm(new Date(at(83)))}.` : `On the close. ${span(end - now)} to finish on time.`)
-    : `On schedule. ${span(inSlot)} left for ${win.seg.label.toLowerCase()}${win.part ? ` (${win.part})` : ""}.`;
-  const nowPct = Math.min(100, Math.max(0, (elapsedMin / 90) * 100));
-  const posPct = Math.min(100, (win.from / 90) * 100);
+    : `On schedule${fit < 0.97 ? ` (re-fitted to finish ${hhmm(new Date(end))}: about ${roundMinutes} min per round, ${Math.max(2, Math.round(SITUATION_MINUTES * fit * 2) / 2)} to decide)` : ""}. ${span(inSlot)} left for ${win.seg.label.toLowerCase()}${win.part ? ` (${win.part})` : ""}.`;
+  const pct = (t: number) => Math.min(100, Math.max(0, ((t - t0.getTime()) / (end - t0.getTime())) * 100));
+  const nowPct = pct(now);
+  const posPct = pct(at(win.from));
+  void elapsedMin;
   return <section className={`dr-runclock dr-runclock--${tone}`} aria-label="Run of show">
     <div className="dr-runclock-main">
       <span className="dr-runclock-light" aria-hidden="true" />
@@ -495,7 +502,7 @@ function RunClock({ state, round, now }: { state: RoundState; round: number; now
         : <button className="dr-runclock-edit" onClick={() => setEditing(true)} title="Change the start time (for rehearsals)">{hhmm(t0)}–{hhmm(new Date(end))}</button>}
     </div>
     <div className="dr-runclock-track" aria-hidden="true">
-      {PLAN.map((s) => <span key={s.key} className={`seg ${s.key === win.seg.key ? "is-here" : ""}`} style={{ left: `${(s.from / 90) * 100}%`, width: `${((s.to - s.from) / 90) * 100}%` }} title={`${s.label} ${hhmm(new Date(at(s.from)))}`}><i>{s.label}</i></span>)}
+      {PLAN.map((s) => <span key={s.key} className={`seg ${s.key === win.seg.key ? "is-here" : ""}`} style={{ left: `${pct(at(s.from))}%`, width: `${pct(at(s.to)) - pct(at(s.from))}%` }} title={`${s.label} ${hhmm(new Date(at(s.from)))}`}><i>{s.label}</i></span>)}
       <b className="pos" style={{ left: `${posPct}%` }} title="Where the room is" />
       {!before ? <b className="now" style={{ left: `${nowPct}%` }} title="Now" /> : null}
     </div>
@@ -534,7 +541,7 @@ function Admin({ id }: { id: string }) {
   return <Frame wide className="dr-admin dr-one">
     <section className="dr-admin-head"><div><span className="dr-kicker">FACILITATOR CONTROLS · NOT FOR PROJECTION</span><h1 className="dr-h1-small">Room <span className="dr-join-code">{session.joinCode}</span></h1><p className="dr-when">{round ? `${round.seat} · ${round.title}` : state} · {state === "open" ? `clock ${clock.label}` : state}</p></div><div className="dr-qr"><QRCodeSVG value={joinUrl} size={118} bgColor="#ffffff" fgColor="#000025" /><button onClick={() => navigator.clipboard?.writeText(joinUrl)}><Copy />Copy join link</button></div></section>
 
-    <RunClock state={state} round={session.activeRound} now={now} />
+    <RunClock state={state} round={session.activeRound} now={now} launchedAt={session.launchedAt} />
 
     <section className="dr-card"><div className="dr-panel-head"><span>Run the room, in order</span><Status tone={stale(lastUpdated, now)} label={stale(lastUpdated, now)} /></div>
       <div className="dr-steps">{steps.map((s, i) => <button key={s.action} className={s.primary ? "dr-primary" : ""} disabled={busy || !s.enabled} onClick={() => act({ action: s.action })}><b>{i + 1}</b>{s.icon}{s.label}</button>)}</div>
