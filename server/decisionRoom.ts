@@ -1,5 +1,5 @@
 /**
- * Decision Room API — Riverbend edition.
+ * Decision Room API.
  *
  * The live room instrument for "When the agent attacks" (Richard's deck). Six
  * rounds — Triage then Injects 1–5 — each voted A–D on one phone per table.
@@ -11,6 +11,10 @@
  * or the legacy ADMIN_KEY opens the room, so a key set under one name is never
  * shadowed by an older one under another. The console uses a room-scoped
  * display token. Each table holds a random token; only its hash is stored.
+ *
+ * Every room is pinned to the scenario revision it was created with (see
+ * scenarios.ts for the migration policy); every payload, report and export is
+ * resolved from that revision, never from a global.
  */
 
 import type { Express, Request, Response } from "express";
@@ -18,24 +22,14 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from "crypto";
 import { sql } from "drizzle-orm";
 import { z, ZodError } from "zod";
 import { db } from "./db.js";
-import {
-  INITIAL_METERS,
-  LAUNCH,
-  METERS,
-  ORGANISATION,
-  ROUND_COUNT,
-  STAGES,
-  consequenceFor,
-  metersFor,
-  publicRound,
-  roundContent,
-} from "./decisionRoomContent.js";
+import { consequenceFor, dashboardFor, factStates, publicRound, replay, resolveScenario, roundContent, roundCount, scenarioInfo, scenarioKeyForNewRoom } from "./decisionRoomScenarios.js";
+import type { Scenario } from "./decisionRoomTypes.js";
 
 type TeamState = "not_joined" | "reading" | "debating" | "locked";
 type RoundState = "lobby" | "launched" | "open" | "closed" | "published" | "ended";
 
 type Session = {
-  id: string; joinCode: string; name: string; variant: string; status: string;
+  id: string; joinCode: string; name: string; variant: string; scenario: string | null; status: string;
   activeRound: number; resultsVisible: boolean; revision: number; displayTokenHash: string;
   roundStartedAt: string | null; roundClosedAt: string | null; launchedAt: string | null;
 };
@@ -43,9 +37,9 @@ type Team = { id: string; sessionId: string; teamCode: string; displayName: stri
 type Decision = { id: string; sessionId: string; teamId: string; roundNo: number; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean; updatedAt: string };
 
 const MAX_FEATURED = 2;
-/** Richard's strongest answer per round, from the deck's speaker notes. Facilitator report only; never sent to a table. */
-const BEST_MOVE: Record<number, string> = { 1: "C", 2: "A", 3: "D", 4: "B", 5: "D", 6: "C" };
 const VARIANT = "riverbend";
+/** The most rounds any scenario has; the per-room count is checked against the room's own scenario. */
+const MAX_ROUNDS = 12;
 
 const memory = { sessions: new Map<string, Session>(), teams: new Map<string, Team>(), decisions: new Map<string, Decision>() };
 let tablesReady: Promise<void> | null = null;
@@ -103,6 +97,8 @@ async function ensureTables() {
     await db.execute(sql`ALTER TABLE workshop_sessions ADD COLUMN IF NOT EXISTS round_started_at timestamptz`);
     await db.execute(sql`ALTER TABLE workshop_sessions ADD COLUMN IF NOT EXISTS round_closed_at timestamptz`);
     await db.execute(sql`ALTER TABLE workshop_sessions ADD COLUMN IF NOT EXISTS launched_at timestamptz`);
+    // Scenario pinning: NULL means "created before pinning" and resolves to riverbend@1 (scenarios.ts).
+    await db.execute(sql`ALTER TABLE workshop_sessions ADD COLUMN IF NOT EXISTS scenario varchar(32)`);
     await db.execute(sql`ALTER TABLE workshop_sessions DROP CONSTRAINT IF EXISTS workshop_sessions_variant_check`);
     await db.execute(sql`ALTER TABLE workshop_sessions DROP CONSTRAINT IF EXISTS workshop_sessions_active_round_check`);
     await db.execute(sql`CREATE TABLE IF NOT EXISTS workshop_teams (id uuid PRIMARY KEY, session_id uuid NOT NULL REFERENCES workshop_sessions(id) ON DELETE CASCADE, team_code varchar(12) NOT NULL, display_name text NOT NULL, token_hash text, state varchar(16) NOT NULL DEFAULT 'not_joined', last_seen_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(session_id, team_code))`);
@@ -116,7 +112,7 @@ async function ensureTables() {
 }
 
 function mapSession(r: any): Session {
-  return { id: r.id, joinCode: r.join_code, name: r.name, variant: r.variant, status: r.status, activeRound: r.active_round, resultsVisible: r.results_visible, revision: r.revision, displayTokenHash: r.display_token_hash, roundStartedAt: r.round_started_at, roundClosedAt: r.round_closed_at ?? null, launchedAt: r.launched_at ?? null };
+  return { id: r.id, joinCode: r.join_code, name: r.name, variant: r.variant, scenario: r.scenario ?? null, status: r.status, activeRound: r.active_round, resultsVisible: r.results_visible, revision: r.revision, displayTokenHash: r.display_token_hash, roundStartedAt: r.round_started_at, roundClosedAt: r.round_closed_at ?? null, launchedAt: r.launched_at ?? null };
 }
 function mapTeam(r: any): Team {
   return { id: r.id, sessionId: r.session_id, teamCode: r.team_code, displayName: r.display_name, tokenHash: r.token_hash, state: r.state, lastSeenAt: r.last_seen_at, pendingHash: r.pending_token_hash ?? null, pendingName: r.pending_name ?? null, pendingAt: r.pending_at ?? null, pendingState: r.pending_state ?? null, pendingPolledAt: r.pending_polled_at ?? null, pendingReleaseId: r.pending_release_id ?? null, pendingReleaseHash: r.pending_release_hash ?? null };
@@ -238,53 +234,62 @@ function splitFor(decisions: Decision[], roundNo: number) {
     featured: current.filter((d) => d.isFeatured && d.rationale).map((d) => ({ id: d.id, rationale: d.rationale, confidence: d.confidence })),
   };
 }
-function sessionPayload(session: Session) {
-  const round = roundContent(session.activeRound);
+function sessionPayload(session: Session, scenario: Scenario) {
+  const round = roundContent(scenario, session.activeRound);
   return {
     id: session.id, joinCode: session.joinCode, name: session.name, status: session.status, revision: session.revision,
-    activeRound: session.activeRound, roundCount: ROUND_COUNT, roundState: roundState(session),
+    activeRound: session.activeRound, roundCount: roundCount(scenario), roundState: roundState(session),
     roundStartedAt: session.roundStartedAt, roundClosedAt: session.roundClosedAt, launchedAt: session.launchedAt,
     durationSeconds: round?.durationSeconds ?? 240,
   };
 }
-const SECURE_PATH = STAGES.map(() => "secure" as const);
+/** The scenario this room was created with. An unknown stored key is refused, never reinterpreted. */
+function scenarioOf(session: Session, res: Response): Scenario | null {
+  const scenario = resolveScenario(session.scenario);
+  if (!scenario) res.status(409).json({ message: `This room was created with scenario ${session.scenario}, which this build cannot run` });
+  return scenario;
+}
 
-function participantPayload(session: Session, team: Team, decisions: Decision[]) {
+function participantPayload(session: Session, scenario: Scenario, team: Team, decisions: Decision[]) {
   const state = roundState(session);
-  const round = roundContent(session.activeRound);
+  const round = roundContent(scenario, session.activeRound);
   const showRound = Boolean(round) && (state === "open" || state === "closed" || state === "published");
   const decision = decisions.find((d) => d.teamId === team.id && d.roundNo === session.activeRound) ?? null;
   const choices = publishedChoices(session, decisions, team.id);
-  const meters = metersFor(choices, session.activeRound);
-  const consequence = state === "published" && decision?.isLocked && decision.optionKey ? consequenceFor(session.activeRound, decision.optionKey, choices) : null;
+  const consequence = state === "published" && decision?.isLocked && decision.optionKey ? consequenceFor(scenario, session.activeRound, decision.optionKey, choices) : null;
   return {
-    session: sessionPayload(session),
+    scenario: scenarioInfo(scenario),
+    session: sessionPayload(session, scenario),
     team: { id: team.id, displayName: team.displayName, state: team.state },
     handover: pendingStatus(team) === "pending" ? { requestId: requestIdOf(team), name: team.pendingName, requestedAt: team.pendingAt, expiresInSeconds: handoverSeconds() } : null,
-    organisation: ORGANISATION,
-    round: showRound && round ? publicRound(round) : null,
+    organisation: scenario.organisation,
+    // Resolved for this table's history: earlier calls change the evidence it is shown.
+    round: showRound && round ? publicRound(scenario, round, choices) : null,
     decision: decision ? { id: decision.id, optionKey: decision.optionKey, rationale: decision.rationale, confidence: decision.confidence, isLocked: decision.isLocked } : null,
-    dashboard: { meters, path: showRound && round ? round.path : SECURE_PATH, stages: STAGES, meterKeys: METERS },
-    results: state === "published" ? { ...splitFor(decisions, session.activeRound), consequence } : null,
+    dashboard: dashboardFor(scenario, choices, session.activeRound, showRound ? round : null),
+    results: state === "published" && round ? { ...splitFor(decisions, session.activeRound), consequence, reveal: round.reveal ?? null } : null,
   };
 }
-function consolePayload(session: Session, teams: Team[], decisions: Decision[]) {
+function consolePayload(session: Session, scenario: Scenario, teams: Team[], decisions: Decision[]) {
   const state = roundState(session);
-  const round = roundContent(session.activeRound);
+  const round = roundContent(scenario, session.activeRound);
   const counts = { notJoined: 0, joined: 0, locked: 0 };
   for (const t of teams) { if (t.state === "not_joined") counts.notJoined++; else if (t.state === "locked") counts.locked++; else counts.joined++; }
   const showRound = Boolean(round) && (state === "open" || state === "closed" || state === "published");
+  const start = replay(scenario, new Map(), 0);
   return {
-    session: sessionPayload(session),
-    organisation: ORGANISATION,
-    launch: LAUNCH,
-    round: showRound && round ? publicRound(round) : null,
+    scenario: scenarioInfo(scenario),
+    session: sessionPayload(session, scenario),
+    organisation: scenario.organisation,
+    launch: scenario.launch,
+    // The room-wide view: the round as written, before any one table's history.
+    round: showRound && round ? publicRound(scenario, round) : null,
     counts: { ...counts, total: teams.length },
     teams: teams.map((t) => ({ id: t.id, displayName: t.displayName, state: t.state, handover: isLive(t) })),
-    results: state === "published" ? splitFor(decisions, session.activeRound) : null,
-    initialMeters: INITIAL_METERS,
-    stages: STAGES,
-    meterKeys: METERS,
+    results: state === "published" && round ? { ...splitFor(decisions, session.activeRound), reveal: round.reveal ?? null } : null,
+    stages: scenario.stages,
+    ...(scenario.meters ? { initialMeters: start.meters, meterKeys: scenario.meters } : {}),
+    ...(scenario.facts ? { initialFacts: factStates(scenario, start.facts) } : {}),
   };
 }
 /** Validation problems are the caller's fault: answer 400 with the first message, never a 500 with a stack. */
@@ -302,7 +307,7 @@ function csvCell(value: unknown) {
 
 const createSchema = z.object({ name: z.string().trim().min(2).max(80).default("When the agent attacks"), tableCount: z.number().int().min(2).max(50).default(8), variant: z.string().optional() });
 const joinSchema = z.object({ joinCode: z.string().trim().min(4).max(8), teamCode: z.string().trim().min(1).max(12), teamName: z.string().trim().max(40).optional() });
-const decisionSchema = z.object({ roundNo: z.number().int().min(1).max(ROUND_COUNT), optionKey: z.enum(["A", "B", "C", "D"]), rationale: z.string().trim().max(240).default(""), confidence: z.number().int().min(1).max(5).nullable().optional(), lock: z.boolean().default(false) });
+const decisionSchema = z.object({ roundNo: z.number().int().min(1).max(MAX_ROUNDS), optionKey: z.enum(["A", "B", "C", "D"]), rationale: z.string().trim().max(240).default(""), confidence: z.number().int().min(1).max(5).nullable().optional(), lock: z.boolean().default(false) });
 const handoverSchema = z.object({ decision: z.enum(["approve", "decline"]), requestId: z.string().min(8).max(64) });
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("launch") }), z.object({ action: z.literal("start") }), z.object({ action: z.literal("close") }), z.object({ action: z.literal("unclose") }),
@@ -316,16 +321,18 @@ export function registerDecisionRoomRoutes(app: Express) {
     const input = createSchema.parse(req.body ?? {}); await ensureTables();
     const sessionId = randomUUID(), joinCode = code(), displayToken = token();
     const variant = input.variant === "agent0" ? "agent0" : VARIANT;
-    const session: Session = { id: sessionId, joinCode, name: input.name, variant, status: "lobby", activeRound: 1, resultsVisible: false, revision: 1, displayTokenHash: sha(displayToken), roundStartedAt: null, roundClosedAt: null, launchedAt: null };
+    // Pinned for life: later content revisions never change what this room's choices meant.
+    const scenario = scenarioKeyForNewRoom(variant);
+    const session: Session = { id: sessionId, joinCode, name: input.name, variant, scenario, status: "lobby", activeRound: 1, resultsVisible: false, revision: 1, displayTokenHash: sha(displayToken), roundStartedAt: null, roundClosedAt: null, launchedAt: null };
     if (db) {
-      await db.execute(sql`INSERT INTO workshop_sessions(id,join_code,name,variant,display_token_hash) VALUES(${sessionId}::uuid,${joinCode},${input.name},${variant},${session.displayTokenHash})`);
+      await db.execute(sql`INSERT INTO workshop_sessions(id,join_code,name,variant,scenario,display_token_hash) VALUES(${sessionId}::uuid,${joinCode},${input.name},${variant},${scenario},${session.displayTokenHash})`);
       for (let i = 1; i <= input.tableCount; i++) await db.execute(sql`INSERT INTO workshop_teams(id,session_id,team_code,display_name) VALUES(${randomUUID()}::uuid,${sessionId}::uuid,${String(i)},${`Table ${i}`})`);
     } else {
       memory.sessions.set(sessionId, session);
       for (let i = 1; i <= input.tableCount; i++) { const id = randomUUID(); memory.teams.set(id, { id, sessionId, teamCode: String(i), displayName: `Table ${i}`, tokenHash: null, state: "not_joined", lastSeenAt: null, pendingHash: null, pendingName: null, pendingAt: null, pendingState: null, pendingPolledAt: null, pendingReleaseId: null, pendingReleaseHash: null }); }
     }
-    await event(sessionId, "created", { tableCount: input.tableCount });
-    res.status(201).json({ sessionId, joinCode, displayToken });
+    await event(sessionId, "created", { tableCount: input.tableCount, variant, scenario });
+    res.status(201).json({ sessionId, joinCode, displayToken, scenario });
   } catch (e) { fail(e, res, next); } });
 
   // Public, by room code: which tables are free and which are already joined, so a phone picks its own table.
@@ -381,9 +388,10 @@ export function registerDecisionRoomRoutes(app: Express) {
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
     const team = teamOf(await getTeams(session.id), req);
     if (!team) { res.status(401).json({ message: "Rejoin your table to continue" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
     if (db) await db.execute(sql`UPDATE workshop_teams SET last_seen_at=now() WHERE id=${team.id}::uuid`);
     else team.lastSeenAt = new Date().toISOString();
-    res.json(participantPayload(session, team, await getDecisions(session.id)));
+    res.json(participantPayload(session, scenario, team, await getDecisions(session.id)));
   } catch (e) { fail(e, res, next); } });
 
   app.put("/api/decision-room/sessions/:identifier/decision", async (req, res, next) => { try {
@@ -391,6 +399,8 @@ export function registerDecisionRoomRoutes(app: Express) {
     const input = decisionSchema.parse(req.body ?? {});
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
+    if (input.roundNo > roundCount(scenario)) { res.status(400).json({ message: "No such round in this room" }); return; }
     if (roundState(session) !== "open" || input.roundNo !== session.activeRound) { res.status(409).json({ message: "This round is not accepting responses" }); return; }
     const team = teamOf(await getTeams(session.id), req);
     if (!team) { res.status(401).json({ message: "Rejoin your table to continue" }); return; }
@@ -467,33 +477,43 @@ export function registerDecisionRoomRoutes(app: Express) {
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
     const displayToken = String(req.query.displayToken ?? "");
     if (!displayToken || !matchesHash(displayToken, session.displayTokenHash)) { res.status(401).json({ message: "Display access required" }); return; }
-    res.json(consolePayload(session, await getTeams(session.id), await getDecisions(session.id)));
+    const scenario = scenarioOf(session, res); if (!scenario) return;
+    res.json(consolePayload(session, scenario, await getTeams(session.id), await getDecisions(session.id)));
   } catch (e) { fail(e, res, next); } });
 
   app.get("/api/decision-room/sessions/:identifier/admin", async (req, res, next) => { try {
     if (!ensureAdmin(req, res) || rejectMissingDatabase(res)) return;
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
     const teams = await getTeams(session.id); const decisions = await getDecisions(session.id);
     const names = new Map(teams.map((t) => [t.id, t.displayName]));
+    const round = roundContent(scenario, session.activeRound);
     res.json({
-      ...consolePayload(session, teams, decisions),
+      ...consolePayload(session, scenario, teams, decisions),
+      // Facilitator only: the conditional guidance for the active round, the run plan and (V1) the deck's best move.
+      guidance: round?.guidance ?? null,
+      bestMove: scenario.bestMove?.[session.activeRound] ?? null,
+      runPlan: scenario.runPlan,
       decisions: decisions.filter((d) => d.roundNo === session.activeRound).map((d) => ({ id: d.id, teamId: d.teamId, table: names.get(d.teamId) ?? d.teamId, optionKey: d.optionKey, rationale: d.rationale, confidence: d.confidence, isLocked: d.isLocked, isFeatured: d.isFeatured })),
     });
   } catch (e) { fail(e, res, next); } });
 
 
-  // Facilitator-only after-action report: the whole room on one page. Room-level comparison with
-  // Richard's best move only; tables are shown as journeys, never marked right or wrong.
+  // Facilitator-only after-action report: the whole room on one page. V1 compares the room with
+  // Richard's best move; V2 shows his conditional guidance and never scores. Tables are shown as
+  // journeys, never marked right or wrong.
   app.get("/api/decision-room/sessions/:identifier/report", async (req, res, next) => { try {
     if (!ensureAdmin(req, res) || rejectMissingDatabase(res)) return;
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
     const teams = await getTeams(session.id); const decisions = await getDecisions(session.id);
     const names = new Map(teams.map((t) => [t.id, t.displayName]));
     const median = (v: number[]) => (v.length ? v[Math.floor(v.length / 2)] : null);
-    const rounds = Array.from({ length: ROUND_COUNT }, (_, i) => i + 1).map((roundNo) => {
-      const content = roundContent(roundNo)!;
+    const total = roundCount(scenario);
+    const rounds = Array.from({ length: total }, (_, i) => i + 1).map((roundNo) => {
+      const content = roundContent(scenario, roundNo)!;
       const locked = decisions.filter((d) => d.roundNo === roundNo && d.isLocked && d.optionKey);
       const counts = Object.fromEntries(["A", "B", "C", "D"].map((k) => [k, locked.filter((d) => d.optionKey === k).length]));
       const top = Math.max(0, ...Object.values(counts));
@@ -502,7 +522,7 @@ export function registerDecisionRoomRoutes(app: Express) {
       return {
         roundNo, seat: content.seat, title: content.title,
         options: content.options.map((o) => ({ key: o.key, label: o.label })),
-        locked: locked.length, counts, roomCall, best: BEST_MOVE[roundNo] ?? null,
+        locked: locked.length, counts, roomCall, best: scenario.bestMove?.[roundNo] ?? null, guidance: content.guidance ?? null,
         agreement: locked.length ? top / locked.length : null,
         confidence: { median: median(conf), low: conf[0] ?? null, high: conf.at(-1) ?? null },
         quotes: locked.filter((d) => d.rationale).map((d) => ({ table: names.get(d.teamId) ?? "", option: d.optionKey, confidence: d.confidence, rationale: d.rationale, featured: d.isFeatured })),
@@ -512,19 +532,28 @@ export function registerDecisionRoomRoutes(app: Express) {
       const choices = new Map<number, string>();
       for (const d of decisions) if (d.teamId === t.id && d.isLocked && d.optionKey) choices.set(d.roundNo, d.optionKey);
       const conf = decisions.filter((d) => d.teamId === t.id && d.isLocked && d.confidence !== null).map((d) => d.confidence as number);
-      return { name: t.displayName, choices: rounds.map((r) => choices.get(r.roundNo) ?? null), meters: metersFor(choices, ROUND_COUNT), confidence: conf.length ? Math.round((conf.reduce((a, b) => a + b, 0) / conf.length) * 10) / 10 : null };
+      const end = replay(scenario, choices, total);
+      return { name: t.displayName, choices: rounds.map((r) => choices.get(r.roundNo) ?? null), ...(scenario.meters ? { meters: end.meters } : {}), ...(scenario.facts ? { facts: factStates(scenario, end.facts) } : {}), confidence: conf.length ? Math.round((conf.reduce((a, b) => a + b, 0) / conf.length) * 10) / 10 : null };
     });
-    res.json({ room: { joinCode: session.joinCode, name: session.name, status: session.status, launchedAt: session.launchedAt }, rounds, tables, meterKeys: METERS, initialMeters: INITIAL_METERS, generatedAt: new Date().toISOString() });
+    const start = replay(scenario, new Map(), 0);
+    res.json({
+      scenario: scenarioInfo(scenario),
+      room: { joinCode: session.joinCode, name: session.name, status: session.status, launchedAt: session.launchedAt }, rounds, tables,
+      ...(scenario.meters ? { meterKeys: scenario.meters, initialMeters: start.meters } : {}),
+      ...(scenario.facts ? { initialFacts: factStates(scenario, start.facts) } : {}),
+      generatedAt: new Date().toISOString(),
+    });
   } catch (e) { fail(e, res, next); } });
 
   app.get("/api/decision-room/sessions/:identifier/export", async (req, res, next) => { try {
     if (!ensureAdmin(req, res) || rejectMissingDatabase(res)) return;
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
     const teams = await getTeams(session.id); const decisions = await getDecisions(session.id);
     const names = new Map(teams.map((t) => [t.id, t.displayName]));
-    const header = ["room", "round", "seat", "table", "option", "rationale", "confidence", "locked", "featured", "updated_at"];
-    const lines = [header.map(csvCell).join(","), ...decisions.map((d) => [session.joinCode, d.roundNo, roundContent(d.roundNo)?.seat ?? "", names.get(d.teamId) ?? d.teamId, d.optionKey, d.rationale, d.confidence, d.isLocked, d.isFeatured, d.updatedAt].map(csvCell).join(","))];
+    const header = ["room", "scenario", "round", "seat", "table", "option", "rationale", "confidence", "locked", "featured", "updated_at"];
+    const lines = [header.map(csvCell).join(","), ...decisions.map((d) => [session.joinCode, scenario.key, d.roundNo, roundContent(scenario, d.roundNo)?.seat ?? "", names.get(d.teamId) ?? d.teamId, d.optionKey, d.rationale, d.confidence, d.isLocked, d.isFeatured, d.updatedAt].map(csvCell).join(","))];
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="decision-room-${session.joinCode}.csv"`);
     res.send(`﻿${lines.join("\r\n")}`);
@@ -535,6 +564,7 @@ export function registerDecisionRoomRoutes(app: Express) {
     const input = actionSchema.parse(req.body ?? {});
     const session = await findSession(req.params.identifier);
     if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const scenario = scenarioOf(session, res); if (!scenario) return;
     const teams = await getTeams(session.id);
     const state = roundState(session);
 
@@ -569,7 +599,7 @@ export function registerDecisionRoomRoutes(app: Express) {
         case "publish": if (state !== "open" && state !== "closed") { res.status(409).json({ message: "No round to publish" }); return; } visible = true; closed = closed ?? now; break;
         case "advance":
           if (status !== "live") { res.status(409).json({ message: "Start the room first" }); return; }
-          if (round >= ROUND_COUNT) { res.status(409).json({ message: "This is the final round" }); return; }
+          if (round >= roundCount(scenario)) { res.status(409).json({ message: "This is the final round" }); return; }
           round += 1; visible = false; closed = null; started = now; break;
         case "end": status = "ended"; break;
         case "reset": status = "lobby"; round = 1; visible = false; started = null; closed = null; launched = null; break;

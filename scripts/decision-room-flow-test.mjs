@@ -224,6 +224,46 @@ check("old tokens are void after reset", (await call("GET", `/sessions/${joinCod
 const adminAfter = await call("GET", `/sessions/${sessionId}/admin`, { headers: KEY });
 check("reset returns to the lobby with nothing locked", adminAfter.body.session.roundState === "lobby" && adminAfter.body.counts.locked === 0 && adminAfter.body.session.activeRound === 1);
 
+console.log("\n11. Agent 0 rooms run the pinned Ironvale preview (non-production build)");
+check("V1 room above stayed on riverbend@1", created.body.scenario === "riverbend@1", created.body);
+const ag = await call("POST", "/sessions", { body: { tableCount: 3, name: "Agent 0", variant: "agent0" }, headers: KEY });
+check("Agent 0 room pinned to ironvale@0.1", ag.status === 201 && ag.body.scenario === "ironvale@0.1", ag.body);
+const agJoin = (teamCode) => call("POST", "/join", { body: { joinCode: ag.body.joinCode, teamCode } });
+const a1 = { "x-team-token": (await agJoin("1")).body.teamToken }, a2 = { "x-team-token": (await agJoin("2")).body.teamToken };
+const agAct = (body) => act(ag.body.sessionId, body);
+const agP = (h) => call("GET", `/sessions/${ag.body.joinCode}/participant`, { headers: h });
+let q = await agP(a1);
+check("named exercise states, no numeric meters", Array.isArray(q.body.dashboard.facts) && q.body.dashboard.facts.length > 0 && !q.body.dashboard.meters, q.body.dashboard);
+check("scenario branding is Ironvale", q.body.scenario?.family === "ironvale" && q.body.organisation.name.includes("Ironvale"));
+await agAct({ action: "launch" }); await agAct({ action: "start" });
+q = await agP(a1);
+check("triage briefing with three sourced evidence cards", q.body.round?.briefing?.evidence?.length === 3, q.body.round?.briefing);
+check("no guidance, reveal or consequence before publish", !/"guidance"|"reveal"|"consequence"|preferred/.test(JSON.stringify(q.body.round)) && q.body.results === null);
+const agConsole = await call("GET", `/sessions/${ag.body.sessionId}/console?displayToken=${encodeURIComponent(ag.body.displayToken)}`);
+check("projector gets no guidance", agConsole.status === 200 && !("guidance" in agConsole.body));
+const agAdmin = await call("GET", `/sessions/${ag.body.sessionId}/admin`, { headers: KEY });
+check("facilitator gets conditional guidance and the Ironvale run plan", Boolean(agAdmin.body.guidance?.preferred) && agAdmin.body.bestMove === null && agAdmin.body.runPlan?.segments?.length === 9);
+const agPicks = { 1: ["C", "B"], 2: ["A", "D"], 3: ["D", "B"], 4: ["B", "C"], 5: ["C", "A"], 6: ["A", "C"] };
+const briefs = {};
+for (let r = 1; r <= 6; r += 1) {
+  if (r > 1) check(`ironvale advance to round ${r}`, (await agAct({ action: "advance" })).status === 200);
+  const [b1, b2] = [await agP(a1), await agP(a2)];
+  briefs[r] = [JSON.stringify(b1.body.round?.briefing?.evidence), JSON.stringify(b2.body.round?.briefing?.evidence)];
+  await call("PUT", `/sessions/${ag.body.joinCode}/decision`, { body: { roundNo: r, optionKey: agPicks[r][0], rationale: `a1 r${r}`, confidence: 3, lock: true }, headers: a1 });
+  await call("PUT", `/sessions/${ag.body.joinCode}/decision`, { body: { roundNo: r, optionKey: agPicks[r][1], rationale: `a2 r${r}`, confidence: 4, lock: true }, headers: a2 });
+  await agAct({ action: "close" });
+  check(`ironvale round ${r} publish`, (await agAct({ action: "publish" })).status === 200);
+  const done = await agP(a1);
+  check(`ironvale round ${r}: consequence and reveal after publish`, Boolean(done.body.results?.consequence?.you) && Boolean(done.body.results?.reveal?.lesson), done.body.results);
+}
+check("earlier choices changed what the two tables were shown", [2, 3, 4, 5, 6].some((r) => briefs[r][0] !== briefs[r][1]));
+const end1 = await agP(a1), end2 = await agP(a2);
+check("the two tables finish in different named states", JSON.stringify(end1.body.dashboard.facts) !== JSON.stringify(end2.body.dashboard.facts));
+const agRep = await call("GET", `/sessions/${ag.body.sessionId}/report`, { headers: KEY });
+check("report: conditional guidance, no best move, named states per table", agRep.status === 200 && agRep.body.scenario?.brand?.reportMode === "conditional" && agRep.body.rounds.every((r) => r.best === null && r.guidance) && agRep.body.tables.every((t) => Array.isArray(t.facts) && !t.meters), agRep.body.rounds?.[0]);
+const agCsv = await call("GET", `/sessions/${ag.body.sessionId}/export`, { headers: KEY });
+check("CSV records the scenario revision on every row", String(agCsv.body).split("\r\n").slice(1).every((line) => line.includes("ironvale@0.1")));
+
 server.close();
 console.log(`\n${failures === 0 ? "ALL CHECKS PASSED" : `${failures} CHECK(S) FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

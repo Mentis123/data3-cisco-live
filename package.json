@@ -18,7 +18,8 @@
     "seed:trivia": "tsx server/scripts/seedTriviaItems.ts",
     "build:client": "vite build",
     "vercel-build": "npm run build:client",
-    "test:decision-room": "tsx scripts/decision-room-flow-test.mjs"
+    "test:decision-room": "tsx scripts/decision-room-flow-test.mjs",
+    "check:decision-room-scenarios": "node scripts/decision-room-scenario-check.mjs"
   },
   "dependencies": {
     "@azure/identity": "^4.5.0",

@@ -1,5 +1,5 @@
 /**
- * Decision Room — Riverbend edition.
+ * Decision Room — scenario-driven (Riverbend, Ironvale).
  *
  * Four views on one route family:
  *   /decision-room                     landing: join a table / facilitate / open console
@@ -16,6 +16,7 @@ import { useLocation } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
 import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, FileText, Printer, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
 import "./decision-room.css";
+import type { Briefing, Consequence, Dashboard, FactState, Guidance, Launch, MeterDef, PublicRound, Reveal, RunPlan, RunSegment, ScenarioInfo, Tone } from "../../../../server/decisionRoomTypes";
 import VersionHub, { EditionIntro, HomeFooter, editions, type Edition } from "./VersionHub";
 
 /* ------------------------------------------------------------------ types */
@@ -24,16 +25,14 @@ type RoundState = "lobby" | "launched" | "open" | "closed" | "published" | "ende
 type SessionInfo = { id: string; joinCode: string; name: string; status: string; revision: number; activeRound: number; roundCount: number; roundState: RoundState; roundStartedAt: string | null; roundClosedAt: string | null; launchedAt: string | null; durationSeconds: number };
 type Organisation = { name: string; tagline: string; estate: string; holds: string; reach: string; objective: string };
 type Feed = { kind: string; who: string; text: string };
-type Round = { roundNo: number; id: string; seat: string; when: string; title: string; prompt: string; situation: string[]; feed: Feed[]; options: { key: string; label: string }[]; path: string[]; durationSeconds: number };
+type Round = PublicRound;
 type Meters = Record<string, number>;
-type MeterKey = { id: string; name: string; good: boolean };
+type MeterKey = MeterDef;
 type Stage = { id: string; name: string; sub: string };
 type Split = { locked: number; options: Record<string, number>; confidence: { low: number | null; high: number | null; median: number | null }; featured: { id: string; rationale: string; confidence: number | null }[] };
-type Consequence = { you: string; body: string; changes: { t: string; d: "up" | "down" | "flag" }[]; meters: Record<string, number> };
 type Decision = { id: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean };
-type ParticipantData = { session: SessionInfo; team: { id: string; displayName: string; state: string }; handover: { requestId: string; name: string | null; requestedAt: string; expiresInSeconds: number } | null; organisation: Organisation; round: Round | null; decision: Decision | null; dashboard: { meters: Meters; path: string[]; stages: Stage[]; meterKeys: MeterKey[] }; results: (Split & { consequence: Consequence | null }) | null };
-type Launch = { profile: { label: string; value: string; mirrors: string }[]; lines: { t: string; text: string; tone: string }[] };
-type ConsoleData = { session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: Split | null; initialMeters: Meters; stages: Stage[]; meterKeys: MeterKey[]; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[] };
+type ParticipantData = { scenario: ScenarioInfo; session: SessionInfo; team: { id: string; displayName: string; state: string }; handover: { requestId: string; name: string | null; requestedAt: string; expiresInSeconds: number } | null; organisation: Organisation; round: Round | null; decision: Decision | null; dashboard: Dashboard; results: (Split & { consequence: Consequence | null; reveal: Reveal | null }) | null };
+type ConsoleData = { scenario: ScenarioInfo; session: SessionInfo; organisation: Organisation; launch: Launch; round: Round | null; counts: { notJoined: number; joined: number; locked: number; total: number }; teams: { id: string; displayName: string; state: string; handover?: boolean }[]; results: (Split & { reveal: Reveal | null }) | null; stages: Stage[]; initialMeters?: Meters; meterKeys?: MeterKey[]; initialFacts?: FactState[]; decisions?: { id: string; teamId: string; table: string; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean }[]; guidance?: Guidance | null; runPlan?: RunPlan; bestMove?: string | null };
 
 const API = "/api/decision-room";
 /** What people type to reach the join page. The short link redirects to the d3smbmxdr domain, so it is only shown there. */
@@ -100,8 +99,8 @@ const TEAM_LABEL: Record<string, string> = { not_joined: "not joined", reading: 
 function MicrosoftMark() {
   return <div className="dr-partner" aria-label="Microsoft"><svg viewBox="0 0 23 23" width="20" height="20" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="#f25022" /><rect x="12" y="1" width="10" height="10" fill="#7fba00" /><rect x="1" y="12" width="10" height="10" fill="#00a4ef" /><rect x="12" y="12" width="10" height="10" fill="#ffb900" /></svg><span>Microsoft</span></div>;
 }
-function Frame({ children, wide = false, className = "" }: { children: ReactNode; wide?: boolean; className?: string }) {
-  return <main className={`dr-shell ${wide ? "dr-wide" : ""} ${className}`.trim()}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>WHEN THE AGENT ATTACKS · RIVERBEND</small></div><MicrosoftMark /></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
+function Frame({ children, wide = false, className = "", kicker }: { children: ReactNode; wide?: boolean; className?: string; kicker?: string }) {
+  return <main className={`dr-shell ${wide ? "dr-wide" : ""} ${className}`.trim()}><header className="dr-brand"><div className="dr-mark" aria-label="Data#3">Data<sup>#</sup>3</div><div><strong>DECISION ROOM</strong><small>{kicker || "LIVE TABLETOP"}</small></div><MicrosoftMark /></header>{children}<footer>Observe · govern · secure · no scores, no ranking</footer></main>;
 }
 function ErrorText({ message }: { message: string }) { return message ? <p className="dr-error"><AlertTriangle size={18} />{message}</p> : null; }
 function Status({ tone, label }: { tone: string; label: string }) { return <span className={`dr-live dr-live--${tone}`}><i />{label}</span>; }
@@ -140,6 +139,33 @@ function MetersPanel({ meters, keys, flash, standby }: { meters: Meters; keys: M
   const { live, hist } = useTelemetry(meters);
   return <div className="dr-meters">{keys.map((m) => { const base = meters[m.id] ?? 0; const v = live[m.id] ?? base; const fixed = base <= 0 || base >= 100; const tone = meterTone(m.good, base); if (standby?.includes(m.id)) return <div className="dr-meter dr-meter--idle" key={m.id} title="Rises as your table boxes the attacker in. Nothing to contain until the incident starts."><div className="top"><span>{m.name}</span><strong>standby</strong></div><span className="bar"><i style={{ width: 0 }} /></span></div>;
     return <div className={`dr-meter dr-meter--${tone} ${flash?.includes(m.id) ? "flash" : ""}`} key={m.id} title={m.id === "containment" ? "How much of the attacker your table has boxed in. It starts low because the attacker is already inside; good calls push it up." : undefined}><div className="top"><span>{m.name}</span><Spark points={hist[m.id] ?? []} /><strong>{fixed ? base : v.toFixed(1)}{m.id === "cover" ? "%" : ""}</strong></div><span className="bar"><i style={{ width: `${v}%` }} /></span></div>; })}</div>;
+}
+/** Named states for scenarios without a score: each fact shows its current value as a toned chip. `note` labels the model as an exercise. */
+function FactsPanel({ facts, note }: { facts: FactState[]; note?: string }) {
+  return <div className="dr-facts">{facts.map((f) => <div className="dr-fact" key={f.id}><span>{f.name}</span><b className={`dr-fchip dr-fchip--${f.tone}`}>{f.label}</b></div>)}{note ? <p className="dr-fact-note"><b>Exercise model</b>{note}</p> : null}</div>;
+}
+/** Either named states or numeric meters, whichever the scenario supplies. */
+function StatePanel({ facts, meters, keys, note, flash, standby }: { facts?: FactState[]; meters?: Meters; keys?: MeterKey[]; note?: string; flash?: string[]; standby?: string[] }) {
+  return facts ? <FactsPanel facts={facts} note={note} /> : meters && keys ? <MetersPanel meters={meters} keys={keys} flash={flash} standby={standby} /> : null;
+}
+const KIND_LABEL = { evidence: "Evidence", interpretation: "AI interpretation" } as const;
+/** The decision briefing: role, what changed, three sourced evidence cards, the gap, the stakes. Never marks an option as recommended. */
+function BriefingCard({ b }: { b: Omit<Briefing, "variants"> }) {
+  return <div className="dr-briefing">
+    <p className="dr-b-role"><b>{b.role}</b><span>{b.horizon}</span></p>
+    <div className="dr-b-block"><h3>What changed</h3><p>{b.changed}</p></div>
+    <div className="dr-evidence">{b.evidence.map((e, i) => <article className={`dr-ev dr-ev--${e.kind}`} key={i}><header><span className={`dr-ev-kind dr-ev-kind--${e.kind}`}>{KIND_LABEL[e.kind]}</span><span className={`dr-ev-cert dr-ev-cert--${e.certainty}`}>{e.certainty}</span></header><strong>{e.source}</strong><small>{e.at} · {e.scope}</small><p>{e.observation}</p><p className="dr-ev-so"><b>So what</b>{e.implication}</p></article>)}</div>
+    <div className="dr-b-block dr-b-unknown"><h3>Still uncertain</h3><p>{b.unknown}</p></div>
+    <div className="dr-b-block"><h3>Stakes</h3><p>{b.stakes}</p></div>
+    {b.parallel ? <p className="dr-b-parallel"><b>Assumed in parallel</b>{b.parallel}</p> : null}
+    {b.controls.length ? <details className="dr-b-more"><summary>Controls in play</summary><ul>{b.controls.map((c, i) => <li key={i}><b>{c.product}</b> → {c.capability} · <em>{c.limit}</em> · {c.owner}</li>)}</ul></details> : null}
+    {b.glossary?.length ? <details className="dr-b-more"><summary>Glossary</summary><dl>{b.glossary.map((g) => <div key={g.term}><dt>{g.term}</dt><dd>{g.meaning}</dd></div>)}</dl></details> : null}
+    <small className="dr-synth">Synthetic exercise material</small>
+  </div>;
+}
+/** Shown only after publish: where the control stopped, the lesson, and the table questions. */
+function RevealBlock({ reveal }: { reveal: Reveal }) {
+  return <div className="dr-revealblock"><div><span className="tag">Control boundary</span><p>{reveal.boundary}</p></div><div><span className="tag">Lesson</span><p>{reveal.lesson}</p></div>{reveal.questions.length ? <div><span className="tag">For the table</span><ul>{reveal.questions.map((q, i) => <li key={i}>{q}</li>)}</ul></div> : null}</div>;
 }
 function PathPanel({ path, stages }: { path: string[]; stages: Stage[] }) {
   return <div className="dr-chain">{stages.map((s, i) => { const status = path[i] ?? "secure"; return <div className={`dr-stage dr-stage--${STAGE_CLASS[status] ?? "ok"}`} key={s.id}><span className="node" /><span className="name">{s.name}<small>{s.sub}</small></span><span className="pill">{STAGE_PILL[status] ?? status}</span></div>; })}</div>;
@@ -294,25 +320,26 @@ function Participant({ code }: { code: string }) {
 
   if (!token) return null;
   if (handedOver) return <Frame className="dr-one"><section className="dr-card dr-wait"><Check className="dr-wait-icon" /><h2>Table handed over.</h2><p>This device is signed out. The other device carries on with your table and everything you have saved.</p><div className="dr-actions" style={{ justifyContent: "center" }}><button onClick={() => navigate(`/decision-room/join/${code}`)}>Join a different table</button></div></section></Frame>;
-  if (!data) return <Frame><section className="dr-card"><h2>Connecting to Riverbend…</h2><ErrorText message={error} /></section></Frame>;
+  if (!data) return <Frame><section className="dr-card"><h2>Connecting…</h2><ErrorText message={error} /></section></Frame>;
 
   const { session, round, decision, dashboard, results } = data;
+  const brand = data.scenario.brand;
   const state = session.roundState;
   const locked = Boolean(decision?.isLocked);
   const clock = countdown(session.roundStartedAt, session.durationSeconds, now);
   const connection = stale(lastUpdated, now);
   const canLock = Boolean(optionKey) && Boolean(confidence) && state === "open";
-  const changedMeters = results?.consequence ? Object.keys(results.consequence.meters) : [];
+  const changedMeters = results?.consequence?.meters ? Object.keys(results.consequence.meters) : [];
 
   const inRound = Boolean(round) && (state === "open" || state === "closed" || state === "published");
   const briefCard = round && inRound
-    ? <section className="dr-card dr-brief" key={`brief-${round.roundNo}`}><div className="dr-panel-head"><span>Incoming</span></div><FeedPanel feed={round.feed} />
-        <div className="dr-situation">{round.situation.map((line, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 0.14}s` }}><b>{String(i + 1).padStart(2, "0")}</b>{line}</p>)}</div>
+    ? <section className="dr-card dr-brief" key={`brief-${round.roundNo}`}>{round.briefing ? <BriefingCard b={round.briefing} /> : <><div className="dr-panel-head"><span>Incoming</span></div><FeedPanel feed={round.feed} />
+        <div className="dr-situation">{round.situation.map((line, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 0.14}s` }}><b>{String(i + 1).padStart(2, "0")}</b>{line}</p>)}</div></>}
         <h2 className="dr-task">{round.prompt}</h2>
       </section>
-    : state === "lobby" ? <section className="dr-card dr-wait"><Radio className="dr-wait-icon" /><h2>Monitoring mode</h2><p>{data.organisation.estate}</p><p className="dr-hint">Read the printed brief. Agree who speaks for the table. Adam will open the first round.</p></section>
-    : state === "launched" ? <section className="dr-card dr-wait"><Zap className="dr-wait-icon" /><h2>Something tripped a faint signal in the SOC.</h2><p>Nothing is confirmed. Stand by for triage.</p></section>
-    : state === "ended" ? <section className="dr-card dr-wait"><h2>The room has closed.</h2><p>Thank you. Take one control to test, an owner and a date back with you.</p></section>
+    : state === "lobby" ? <section className="dr-card dr-wait"><Radio className="dr-wait-icon" /><h2>{brand.lobby.title}</h2><p>{data.organisation.estate}</p><p className="dr-hint">{brand.lobby.hint}</p></section>
+    : state === "launched" ? <section className="dr-card dr-wait"><Zap className="dr-wait-icon" /><h2>{brand.launched.title}</h2><p>{brand.launched.body}</p></section>
+    : state === "ended" ? <section className="dr-card dr-wait"><h2>{brand.ended.title}</h2><p>{brand.ended.body}</p></section>
     : null;
   const actCard = !round || !inRound ? null
     : state === "published" && results ? <section className="dr-card dr-reveal" key={`reveal-${round.roundNo}`}>
@@ -320,11 +347,12 @@ function Participant({ code }: { code: string }) {
         <SplitBars split={results} options={round.options} />
         {results.confidence.median !== null ? <p className="dr-hint">Confidence median {results.confidence.median}, range {results.confidence.low}–{results.confidence.high}.</p> : null}
         {results.consequence ? <div className="dr-conseq"><span className="tag">Your call · {decision?.optionKey}</span><strong>{results.consequence.you}</strong><p>{results.consequence.body}</p><div className="dr-changes">{results.consequence.changes.map((ch) => <span className={`chg chg--${ch.d}`} key={ch.t}>{ch.t}</span>)}</div></div> : <p className="dr-hint">Your table did not lock a call this round, so there is no consequence to show.</p>}
+        {results.reveal ? <RevealBlock reveal={results.reveal} /> : null}
       </section>
     : state === "closed" ? <section className="dr-card dr-wait"><Square className="dr-wait-icon" /><h2>Round closed.</h2><p>Richard is walking the options on the screen. Your call{locked ? ` was ${decision?.optionKey}` : " was not locked"}.</p></section>
     : locked ? <section className="dr-card dr-locked-card"><h2><LockKeyhole /> Locked: {decision?.optionKey}</h2>{decision?.rationale ? <p>“{decision.rationale}”</p> : null}<p className="dr-hint">Confidence {decision?.confidence} of 5. Keep talking — the reveal will not wait for perfect certainty. Ask Adam if this must change.</p></section>
     : <section className="dr-card dr-form dr-vote">
-        <div className="dr-options">{round.options.map((o) => <button key={o.key} className={optionKey === o.key ? "selected" : ""} aria-pressed={optionKey === o.key} disabled={saving} onClick={() => { setOptionKey(o.key); setDirty(true); }}><b>{o.key}</b><span>{o.label}</span></button>)}</div>
+        <div className="dr-options">{round.options.map((o) => <button key={o.key} className={optionKey === o.key ? "selected" : ""} aria-pressed={optionKey === o.key} disabled={saving} onClick={() => { setOptionKey(o.key); setDirty(true); }}><b>{o.key}</b><span>{o.label}{o.cost ? <small className="dr-opt-cost">{o.cost}</small> : null}</span></button>)}</div>
         <label>Because… (one sentence)<textarea value={rationale} maxLength={240} disabled={saving} onChange={(e) => { setRationale(e.target.value); setDirty(true); }} placeholder="The reason we would defend out loud." /><span className="dr-counter">{rationale.length}/240</span></label>
         <span className="dr-label">Confidence</span>
         <div className="dr-scale" role="group" aria-label="Confidence from 1 to 5">{[1, 2, 3, 4, 5].map((v) => <button key={v} type="button" aria-pressed={confidence === v} disabled={saving} onClick={() => { setConfidence(v); setDirty(true); }}>{v}</button>)}</div>
@@ -334,7 +362,7 @@ function Participant({ code }: { code: string }) {
           : <div className="dr-actions"><button disabled={saving || !optionKey} onClick={() => save(false)}>{saving ? "Saving…" : "Save draft"}</button><button className="dr-primary" disabled={!canLock || saving} onClick={() => setConfirming(true)}>Lock response <LockKeyhole /></button></div>}
       </section>;
 
-  return <Frame className="dr-table dr-one">
+  return <Frame className="dr-table dr-one" kicker={brand.kicker}>
     <div className="dr-session-head">
       <div><span className="dr-kicker">{data.team.displayName.toUpperCase()}{round ? ` · ${round.seat.toUpperCase()}` : ""}</span><h1 className="dr-h1-small">{round ? round.title : data.organisation.name}</h1>{round ? <p className="dr-when">{round.when}</p> : <p className="dr-when">{data.organisation.tagline}</p>}</div>
       <div className="dr-head-right">{state === "open" ? <span className={`dr-mini-clock ${clock.over ? "over" : clock.low ? "low" : ""}`}>{clock.label}</span> : null}<Status tone={connection} label={connection} /></div>
@@ -344,8 +372,8 @@ function Participant({ code }: { code: string }) {
 
     <div className="dr-table-grid">
       <section className="dr-card dr-dash">
-        <div className="dr-panel-head"><span>Riverbend · attack path</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : state === "launched" ? "something is moving" : round?.when ?? ""}</span></div>
-        <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><MetersPanel meters={dashboard.meters} keys={dashboard.meterKeys} flash={changedMeters} standby={state === "lobby" ? ["containment"] : undefined} /></div></div>
+        <div className="dr-panel-head"><span>{brand.pathTitle}</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : state === "launched" ? "something is moving" : round?.when ?? ""}</span></div>
+        <div className="dr-dash-grid"><PathPanel path={dashboard.path} stages={dashboard.stages} /><div><div className="dr-panel-head"><span>Live state</span></div><StatePanel facts={dashboard.facts} meters={dashboard.meters} keys={dashboard.meterKeys} note={brand.simulationNote} flash={changedMeters} standby={state === "lobby" ? ["containment"] : undefined} /></div></div>
       </section>
       <div className="dr-table-work">
         <div className={`dr-slot dr-slot--brief ${actCard ? "" : "dr-slot--span"}`.trim()}>{briefCard}</div>
@@ -372,20 +400,8 @@ function Participant({ code }: { code: string }) {
 function Terminal({ launch, launchedAt, now }: { launch: Launch; launchedAt: string | null; now: number }) {
   const elapsed = launchedAt ? (now - new Date(launchedAt).getTime()) / 1000 : 0;
   const visible = launchedAt ? Math.min(launch.lines.length, Math.floor(elapsed / 1.4) + 1) : 0;
-  return <div className="dr-term"><div className="bar"><i /><i /><i /><span>agent@riverbend — autonomous</span></div><div className="body">{launch.lines.slice(0, visible).map((l, i) => <div className={`ln ln--${l.tone}`} key={i}><span className="ts">[{l.t}]</span> {l.text}</div>)}{visible < launch.lines.length && launchedAt ? <div className="ln ln--cursor">▌</div> : null}</div></div>;
+  return <div className="dr-term"><div className="bar"><i /><i /><i /><span>{launch.terminal}</span></div><div className="body">{launch.lines.slice(0, visible).map((l, i) => <div className={`ln ln--${l.tone}`} key={i}><span className="ts">[{l.t}]</span> {l.text}</div>)}{visible < launch.lines.length && launchedAt ? <div className="ln ln--cursor">▌</div> : null}</div></div>;
 }
-
-/** The projector's attack path during the launch: stages light up in step with the attacker terminal. */
-function launchPath(visible: number): string[] {
-  const p = ["secure", "secure", "secure", "secure", "secure", "secure", "secure"];
-  if (visible >= 1) p[0] = "compromised";
-  if (visible >= 2) p[1] = "compromised";
-  if (visible >= 4) { p[2] = "at risk"; p[3] = "at risk"; p[4] = "at risk"; p[5] = "at risk"; }
-  if (visible >= 5) p[2] = "compromised";
-  if (visible >= 6) p[4] = "compromised";
-  return p;
-}
-const LAUNCH_NOTES = ["", "foothold taken", "credentials harvested", "planning, no human in the loop", "target path mapped", "beacon running", "customer data staged", "a faint signal in the SOC"];
 
 function Console({ id }: { id: string }) {
   const displayToken = useMemo(() => { const q = new URLSearchParams(location.search).get("displayToken"); if (q) return q; try { return localStorage.getItem(`decision-room-display:${id}`) || ""; } catch { return ""; } }, [id]);
@@ -394,31 +410,34 @@ function Console({ id }: { id: string }) {
   const now = useNow();
   if (!data) return <Frame wide><section className="dr-card"><h2>Opening presenter console…</h2><ErrorText message={error} /><p className="dr-hint">If this stays here, run the round from the printed pack. The exercise does not depend on this screen.</p></section></Frame>;
   const { session, round, counts, results } = data;
+  const brand = data.scenario.brand;
   const state = session.roundState;
   const clock = countdown(session.roundStartedAt, session.durationSeconds, now);
   const connection = stale(lastUpdated, now);
 
-  return <Frame wide>
+  return <Frame wide kicker={brand.kicker}>
     <section className="dr-console-head">
-      <div><span className="dr-kicker">{data.organisation.name.toUpperCase()}{round ? ` · ${round.seat.toUpperCase()} · ${round.when.toUpperCase()}` : ""}</span><h1>{state === "lobby" ? "All systems nominal." : state === "launched" ? "Machine speed." : round ? round.title : "Decision Room"}</h1></div>
+      <div><span className="dr-kicker">{data.organisation.name.toUpperCase()}{round ? ` · ${round.seat.toUpperCase()} · ${round.when.toUpperCase()}` : ""}</span><h1>{state === "lobby" ? brand.consoleLobby : state === "launched" ? brand.consoleLaunched : round ? round.title : "Decision Room"}</h1></div>
       {state === "open" ? <div className={`dr-clock ${clock.over ? "over" : clock.low ? "low" : ""}`}><small>TABLE CLOCK</small><strong>{clock.label}</strong></div> : <div className="dr-clock muted"><small>ROUND</small><strong>{state === "lobby" || state === "launched" ? "—" : `${session.activeRound} / ${session.roundCount}`}</strong><em>{state === "closed" ? "closed" : state === "published" ? "the split" : state === "ended" ? "ended" : state}</em></div>}
     </section>
 
     {(state === "lobby" || state === "launched") && (() => {
       const visible = state === "launched" && session.launchedAt ? Math.min(data.launch.lines.length, Math.floor((now - new Date(session.launchedAt).getTime()) / 1400) + 1) : 0;
+      const step = data.launch.steps[Math.min(visible, data.launch.steps.length - 1)];
       return <section className="dr-console-grid dr-console-grid--three">
-      <div className="dr-card"><div className="dr-panel-head"><span>The adversary</span></div><div className="dr-profile">{data.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>mirrors {p.mirrors}</em></div>)}</div><p className="dr-hint">Fictional and narrative only. No tools, no code, no exploit steps — this exists to show how cheap and modular these choices have become.</p></div>
-      <div className={`dr-card dr-instruments ${state === "launched" ? "is-under-attack" : ""}`}><div className="dr-panel-head"><span>Riverbend · live systems</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : LAUNCH_NOTES[visible] ?? ""}</span></div><PathPanel path={state === "launched" ? launchPath(visible) : data.stages.map(() => "secure")} stages={data.stages} /><div className="dr-panel-head dr-instruments-meters"><span>Live state</span></div><MetersPanel meters={data.initialMeters} keys={data.meterKeys} standby={state === "lobby" ? ["containment"] : undefined} /></div>
+      <div className="dr-card"><div className="dr-panel-head"><span>{data.launch.profileTitle}</span></div><div className="dr-profile">{data.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>{`${data.launch.notePrefix} ${p.note}`}</em></div>)}</div><p className="dr-hint">{data.launch.profileHint}</p></div>
+      <div className={`dr-card dr-instruments ${state === "launched" ? "is-under-attack" : ""}`}><div className="dr-panel-head"><span>{brand.short} · live systems</span><span className="dr-chain-note">{state === "lobby" ? "all systems nominal" : step?.note ?? ""}</span></div><PathPanel path={state === "launched" && step ? step.path : data.stages.map(() => "secure")} stages={data.stages} /><div className="dr-panel-head dr-instruments-meters"><span>Live state</span></div><StatePanel facts={data.initialFacts} meters={data.initialMeters} keys={data.meterKeys} note={brand.simulationNote} standby={state === "lobby" ? ["containment"] : undefined} /></div>
       <div className="dr-card"><div className="dr-panel-head"><span>{state === "lobby" ? "Standing by" : "T-0 · the operation runs"}</span></div>{state === "launched" ? <Terminal launch={data.launch} launchedAt={session.launchedAt} now={now} /> : <div className="dr-standby"><div className="dr-standby-qr" aria-label="QR code to join this room"><QRCodeSVG value={joinUrl} size={224} bgColor="#ffffff" fgColor="#000025" level="M" /></div><p>{data.organisation.tagline}</p><p className="dr-hint">Scan, or go to <strong>{joinAddress()}</strong> · room code <span className="dr-join-code">{session.joinCode}</span></p></div>}</div>
     </section>; })()}
 
     {(state === "open" || state === "closed" || state === "published" || state === "ended") && <>
       <section className="dr-metrics"><div className="dr-metric"><small>Joined</small><strong>{counts.joined + counts.locked}<em>/{counts.total}</em></strong></div><div className="dr-metric"><small>Drafting</small><strong>{counts.joined}</strong></div><div className="dr-metric accent"><small>Locked</small><strong>{counts.locked}</strong></div></section>
       <div className="dr-team-grid dr-team-grid--wide">{data.teams.map((t) => <div className={`dr-team ${t.state}`} key={t.id}><strong>{t.displayName}</strong><small>{TEAM_LABEL[t.state] ?? t.state}</small></div>)}</div>
-      {state === "published" && results ? <section className="dr-results-wide">
+      {state === "published" && results ? <><section className="dr-results-wide">
         <div className="dr-card"><div className="dr-panel-head"><span>Where the room landed</span><span className="dr-chain-note">{results.locked} of {counts.total} tables</span></div><SplitBars split={results} options={round?.options} />{results.confidence.median !== null ? <p className="dr-confidence">Confidence median <strong>{results.confidence.median}</strong> · range <strong>{results.confidence.low}–{results.confidence.high}</strong></p> : null}</div>
         {results.featured.length ? <div className="dr-quotes">{results.featured.map((f) => <blockquote className="dr-quote" key={f.id}><span>From the room</span><strong>{f.rationale}</strong><small>confidence {f.confidence ?? "–"}</small></blockquote>)}</div> : null}
-      </section> : state === "open" || state === "closed" ? <section className="dr-card"><div className="dr-panel-head"><span>{round?.prompt ?? "What is your priority?"}</span></div><div className="dr-option-list">{round?.options.map((o) => <div key={o.key}><b>{o.key}</b><span>{o.label}</span></div>)}</div><p className="dr-console-note">{state === "closed" ? "Round closed. Responses stay private until Adam shows the split." : "Tables are deciding. Responses stay private until the split is shown."}</p></section> : null}
+      </section>{results.reveal ? <section className="dr-card dr-reveal-wide"><div className="dr-panel-head"><span>What the control could and could not do</span></div><RevealBlock reveal={results.reveal} /></section> : null}</> : state === "open" || state === "closed" ? <section className="dr-card"><div className="dr-panel-head"><span>{round?.prompt ?? "What is your priority?"}</span></div>{round?.briefing ? <div className="dr-proj-split"><div className="dr-proj-sit"><div className="dr-proj-lines">{round.situation.map((line, i) => <p key={i}><b>{String(i + 1).padStart(2, "0")}</b>{line}</p>)}</div><div className="dr-proj-ev">{round.briefing.evidence.map((e, i) => <div key={i}><small>{KIND_LABEL[e.kind]} · {e.at}</small><strong>{e.source}</strong><span>{e.observation}</span></div>)}</div><small className="dr-synth">Synthetic exercise material</small></div><div className="dr-option-list">{round.options.map((o) => <div key={o.key}><b>{o.key}</b><span>{o.label}{o.cost ? <small className="dr-opt-cost">{o.cost}</small> : null}</span></div>)}</div></div>
+        : <div className="dr-option-list">{round?.options.map((o) => <div key={o.key}><b>{o.key}</b><span>{o.label}{o.cost ? <small className="dr-opt-cost">{o.cost}</small> : null}</span></div>)}</div>}<p className="dr-console-note">{state === "closed" ? "Round closed. Responses stay private until Adam shows the split." : "Tables are deciding. Responses stay private until the split is shown."}</p></section> : null}
     </>}
 
     <footer className="dr-console-footer"><span>Join at <strong>{joinAddress()}</strong> · code <span className="dr-join-code">{session.joinCode}</span></span><Status tone={connection} label={connection === "live" ? "Live" : `Last updated ${lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—"}`} /></footer>
@@ -433,47 +452,35 @@ function Console({ id }: { id: string }) {
  * deck notes (9:30–11:00 by default, editable for rehearsals). Position comes from
  * the room state, so the clock knows which segment you are in without extra taps.
  */
-type Segment = { key: string; label: string; from: number; to: number; slides: string };
-// Minutes from the start. Deck timings, with Inject 5's overlap with the debrief normalised.
-const PLAN: Segment[] = [
-  { key: "open", label: "Opening", from: 0, to: 17, slides: "slides 1–8" },
-  { key: "launch", label: "Riverbend · launch", from: 17, to: 18, slides: "slide 9" },
-  { key: "r1", label: "Triage", from: 18, to: 25, slides: "slides 10–11" },
-  { key: "r2", label: "Inject 1", from: 25, to: 33, slides: "slides 12–13" },
-  { key: "r3", label: "Inject 2", from: 33, to: 41, slides: "slides 14–15" },
-  { key: "r4", label: "Inject 3", from: 41, to: 50, slides: "slides 16–17" },
-  { key: "r5", label: "Inject 4", from: 50, to: 59, slides: "slides 18–19" },
-  { key: "r6", label: "Inject 5", from: 59, to: 68, slides: "slides 20–21" },
-  { key: "close", label: "Debrief & close", from: 68, to: 90, slides: "slides 22–27" },
-];
-const SITUATION_MINUTES = 4; // each round: 4 minutes to decide, then Richard's option review and discussion
+type Segment = RunSegment;
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const hhmm = (d: Date) => `${d.getHours() % 12 || 12}:${pad2(d.getMinutes())}`;
 function span(ms: number) {
   const s = Math.max(0, Math.round(ms / 1000)); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
   return h ? `${h}:${pad2(m)}:${pad2(r)}` : `${m}:${pad2(r)}`;
 }
-/** The planned window for where the room actually is. */
-function plannedWindow(state: RoundState, round: number): { seg: Segment; from: number; to: number; part: string } {
-  if (state === "lobby") return { seg: PLAN[0], from: PLAN[0].from, to: PLAN[0].to, part: "" };
-  if (state === "launched") return { seg: PLAN[1], from: PLAN[1].from, to: PLAN[1].to, part: "" };
-  if (state === "ended") return { seg: PLAN[8], from: PLAN[8].from, to: PLAN[8].to, part: "" };
-  const seg = PLAN[1 + Math.min(Math.max(round, 1), 6)];
-  return state === "open" ? { seg, from: seg.from, to: seg.from + SITUATION_MINUTES, part: "tables deciding" } : { seg, from: seg.from + SITUATION_MINUTES, to: seg.to, part: state === "closed" ? "option review" : "split and discussion" };
+/** The planned window for where the room actually is. The plan is the scenario's own: opening, launch, one segment per round, then the close. */
+function plannedWindow(plan: RunPlan, state: RoundState, round: number): { seg: Segment; from: number; to: number; part: string } {
+  const S = plan.segments; const last = S[S.length - 1];
+  if (state === "lobby") return { seg: S[0], from: S[0].from, to: S[0].to, part: "" };
+  if (state === "launched") return { seg: S[1], from: S[1].from, to: S[1].to, part: "" };
+  if (state === "ended") return { seg: last, from: last.from, to: last.to, part: "" };
+  const seg = S[1 + Math.min(Math.max(round, 1), S.length - 3)];
+  return state === "open" ? { seg, from: seg.from, to: seg.from + plan.decideMinutes, part: "tables deciding" } : { seg, from: seg.from + plan.decideMinutes, to: seg.to, part: state === "closed" ? "option review" : "split and discussion" };
 }
-function RunClock({ state, round, now, launchedAt }: { state: RoundState; round: number; now: number; launchedAt: string | null }) {
+function RunClock({ plan, state, round, now, launchedAt }: { plan: RunPlan; state: RoundState; round: number; now: number; launchedAt: string | null }) {
   const [start, setStart] = useState(() => { try { return localStorage.getItem("decision-room-run-start") || "09:30"; } catch { return "09:30"; } });
   const [editing, setEditing] = useState(false);
   const [h, m] = start.split(":").map(Number);
   const t0 = new Date(now); t0.setHours(h || 9, m || 0, 0, 0);
-  const end = t0.getTime() + 90 * 60000;
+  const end = t0.getTime() + plan.totalMinutes * 60000;
   // Once the attack is launched, everything after it is re-fitted between the real launch time and 11:00.
-  const LAUNCH_AT = PLAN[1].from;
+  const LAUNCH_AT = plan.segments[1].from;
   const launched = launchedAt ? new Date(launchedAt).getTime() : null;
-  const fit = launched && launched < end ? (end - launched) / ((90 - LAUNCH_AT) * 60000) : 1;
+  const fit = launched && launched < end ? (end - launched) / ((plan.totalMinutes - LAUNCH_AT) * 60000) : 1;
   const at = (min: number) => (launched && min >= LAUNCH_AT ? launched + (min - LAUNCH_AT) * fit * 60000 : t0.getTime() + min * 60000);
-  const roundMinutes = Math.round(8 * fit * 10) / 10;
-  const win = plannedWindow(state, round);
+  const roundMinutes = Math.round((plan.segments[2].to - plan.segments[2].from) * fit * 10) / 10;
+  const win = plannedWindow(plan, state, round);
   const elapsedMin = (now - t0.getTime()) / 60000;
   const before = now < t0.getTime();
   // Positive = behind plan, negative = ahead.
@@ -482,13 +489,14 @@ function RunClock({ state, round, now, launchedAt }: { state: RoundState; round:
   const over = now > end;
   const tone = before ? "idle" : over || lateMin >= 5 ? "red" : lateMin >= 2 ? "amber" : "green";
   const inSlot = !before && drift <= 0 ? Math.max(0, at(win.to) - now) : 0;
+  const A = plan.advice; const closing = win.seg.key === "close"; const opening = win.seg.key === "open" || win.seg.key === "launch";
   const advice = before ? `Starts at ${hhmm(t0)}. Open the room, test the console, breathe.`
     : over ? `Over by ${span(now - end)}. Thank the room and close now.`
-    : lateMin >= 5 ? (win.seg.key === "open" || win.seg.key === "launch" ? `Push: ${lateMin} min behind. Move through the opening slides faster and launch.` : win.seg.key === "close" || round >= 5 ? `Push: ${lateMin} min behind. Cut the table discussion (slide 25) and go to the close.` : `Push: ${lateMin} min behind. Keep option reviews to 2 minutes and move on after one comment from the room.`)
-    : lateMin >= 2 ? (win.seg.key === "open" ? `Tighten: ${lateMin} min behind. Shorten the landscape slides and get to Riverbend.` : `Tighten: ${lateMin} min behind. Take one comment per round, then Next.`)
+    : lateMin >= 5 ? `Push: ${lateMin} min behind. ${opening ? A.openingBehind : closing || round >= 5 ? A.closingBehind : A.roundBehind}`
+    : lateMin >= 2 ? `Tighten: ${lateMin} min behind. ${win.seg.key === "open" ? A.openingTighten : A.roundTighten}`
     : drift < -1.5 ? `Relaxed: ${Math.round(-drift)} min ahead. Let the discussion breathe or take an extra question.`
-    : win.seg.key === "close" ? (now < at(77) ? `On schedule. Protect (slide 24) by ${hhmm(new Date(at(74)))}, table discussion by ${hhmm(new Date(at(77)))}, close by ${hhmm(new Date(at(83)))}.` : now < at(83) ? `On schedule. Move to the close (slide 26) by ${hhmm(new Date(at(83)))}.` : `On the close. ${span(end - now)} to finish on time.`)
-    : `On schedule${fit < 0.97 ? ` (re-fitted to finish ${hhmm(new Date(end))}: about ${roundMinutes} min per round, ${Math.max(2, Math.round(SITUATION_MINUTES * fit * 2) / 2)} to decide)` : ""}. ${span(inSlot)} left for ${win.seg.label.toLowerCase()}${win.part ? ` (${win.part})` : ""}.`;
+    : closing ? (() => { const m = (plan.closeMilestones ?? [{ until: win.to - 7, text: `On schedule. Move to the close by {${win.to - 7}}.` }]).find((x) => now < at(x.until)); return m ? m.text.replace(/\{(\d+)\}/g, (_, n) => hhmm(new Date(at(Number(n))))) : `On the close. ${span(end - now)} to finish on time.`; })()
+    : `On schedule${fit < 0.97 ? ` (re-fitted to finish ${hhmm(new Date(end))}: about ${roundMinutes} min per round, ${Math.max(2, Math.round(plan.decideMinutes * fit * 2) / 2)} to decide)` : ""}. ${span(inSlot)} left for ${win.seg.label.toLowerCase()}${win.part ? ` (${win.part})` : ""}.`;
   const pct = (t: number) => Math.min(100, Math.max(0, ((t - t0.getTime()) / (end - t0.getTime())) * 100));
   const nowPct = pct(now);
   const posPct = pct(at(win.from));
@@ -504,7 +512,7 @@ function RunClock({ state, round, now, launchedAt }: { state: RoundState; round:
         : <button className="dr-runclock-edit" onClick={() => setEditing(true)} title="Change the start time (for rehearsals)">{hhmm(t0)}–{hhmm(new Date(end))}</button>}
     </div>
     <div className="dr-runclock-track" aria-hidden="true">
-      {PLAN.map((s) => <span key={s.key} className={`seg ${s.key === win.seg.key ? "is-here" : ""}`} style={{ left: `${pct(at(s.from))}%`, width: `${pct(at(s.to)) - pct(at(s.from))}%` }} title={`${s.label} ${hhmm(new Date(at(s.from)))}`}><i>{s.label}</i></span>)}
+      {plan.segments.map((s) => <span key={s.key} className={`seg ${s.key === win.seg.key ? "is-here" : ""}`} style={{ left: `${pct(at(s.from))}%`, width: `${pct(at(s.to)) - pct(at(s.from))}%` }} title={`${s.label} ${hhmm(new Date(at(s.from)))}`}><i>{s.label}</i></span>)}
       <b className="pos" style={{ left: `${posPct}%` }} title="Where the room is" />
       {!before ? <b className="now" style={{ left: `${nowPct}%` }} title="Now" /> : null}
     </div>
@@ -540,10 +548,10 @@ function Admin({ id }: { id: string }) {
     { label: session.activeRound >= session.roundCount ? "Final round" : `Next · round ${session.activeRound + 1}`, action: "advance", enabled: session.status === "live" && session.activeRound < session.roundCount, icon: <ArrowRight />, primary: state === "published" && session.activeRound < session.roundCount },
   ];
 
-  return <Frame wide className="dr-admin dr-one">
+  return <Frame wide className="dr-admin dr-one" kicker={data.scenario.brand.kicker}>
     <section className="dr-admin-head"><div><span className="dr-kicker">FACILITATOR CONTROLS · NOT FOR PROJECTION</span><h1 className="dr-h1-small">Room <span className="dr-join-code">{session.joinCode}</span></h1><p className="dr-when">{round ? `${round.seat} · ${round.title}` : state} · {state === "open" ? `clock ${clock.label}` : state}</p></div><div className="dr-qr"><QRCodeSVG value={joinUrl} size={118} bgColor="#ffffff" fgColor="#000025" /><button onClick={() => navigator.clipboard?.writeText(joinUrl)}><Copy />Copy join link</button></div></section>
 
-    <RunClock state={state} round={session.activeRound} now={now} launchedAt={session.launchedAt} />
+    {data.runPlan ? <RunClock plan={data.runPlan} state={state} round={session.activeRound} now={now} launchedAt={session.launchedAt} /> : null}
 
     <section className="dr-card"><div className="dr-panel-head"><span>Run the room, in order</span><Status tone={stale(lastUpdated, now)} label={stale(lastUpdated, now)} /></div>
       <div className="dr-steps">{steps.map((s, i) => <button key={s.action} className={s.primary ? "dr-primary" : ""} disabled={busy || !s.enabled} onClick={() => act({ action: s.action })}><b>{i + 1}</b>{s.icon}{s.label}</button>)}</div>
@@ -554,21 +562,31 @@ function Admin({ id }: { id: string }) {
 
     <section className="dr-metrics"><div className="dr-metric"><small>Not joined</small><strong>{counts.notJoined}</strong></div><div className="dr-metric"><small>Drafting</small><strong>{counts.joined}</strong></div><div className="dr-metric accent"><small>Locked</small><strong>{counts.locked}</strong></div><div className="dr-metric"><small>On screen</small><strong>{featured}<em>/2</em></strong></div></section>
 
-    <section className="dr-admin-grid">
+    <section className={`dr-admin-grid${data.guidance ? " has-guidance" : ""}`}>
       <div className="dr-card"><h2>Tables</h2>{data.teams.map((t) => <div className="dr-admin-row" key={t.id}><span><strong>{t.displayName}</strong><small className={t.handover ? "dr-flag" : ""}>{t.handover ? "handover requested" : TEAM_LABEL[t.state] ?? t.state}</small></span>{t.handover ? <button className="dr-primary" onClick={() => confirm(`Hand ${t.displayName} to the device that is asking? The current device is signed out.`) && act({ action: "handover", teamId: t.id })} disabled={busy}>Approve handover</button> : null}{t.state === "locked" && state !== "published" ? <button onClick={() => confirm(`Reopen ${t.displayName}? Their lock is cleared.`) && act({ action: "reopen", teamId: t.id })} disabled={busy}>Reopen</button> : null}</div>)}</div>
+      {data.guidance ? <GuidanceCard g={data.guidance} /> : null}
       <div className="dr-card"><h2>This round’s responses</h2><p className="dr-hint">Private to you until you show the split. Pick up to two rationales for the screen.</p>{(data.decisions ?? []).length === 0 ? <p>No responses yet.</p> : (data.decisions ?? []).map((d) => <div className="dr-response" key={d.id}><strong><b className="dr-key">{d.optionKey ?? "–"}</b> {d.table} · {d.isLocked ? "locked" : "draft"} · confidence {d.confidence ?? "–"}</strong><p>{d.rationale || <em>no rationale</em>}</p>{d.rationale ? <button onClick={() => act({ action: "feature", decisionId: d.id, featured: !d.isFeatured })} disabled={busy || (!d.isFeatured && featured >= 2)}>{d.isFeatured ? "Remove from screen" : "Put on screen"}</button> : null}</div>)}</div>
     </section>
     <ErrorText message={error} />
   </Frame>;
 }
 
+/** Facilitator-only. A conditional preference with its conditions, the alternative and what would change it. Never rendered on a table device or the projector. */
+function GuidanceCard({ g }: { g: Guidance }) {
+  return <div className="dr-card dr-guidance"><h2>Facilitator guidance</h2><p className="dr-guide-warn">Not for projection — conditional preference, not an answer key</p>
+    <p><b>Preferred: {g.preferred}</b> — {g.conditions}</p><p><b>Alternative.</b> {g.alternative}</p><p><b>Would change it.</b> {g.changeEvidence}</p>
+    {g.notes.length ? <ul>{g.notes.map((n, i) => <li key={i}>{n}</li>)}</ul> : null}</div>;
+}
+
 /* ---------------------------------------------------------------- report */
 
+type ReportRound = { roundNo: number; seat: string; title: string; options: { key: string; label: string }[]; locked: number; counts: Record<string, number>; roomCall: string[]; best: string | null; guidance: Guidance | null; agreement: number | null; confidence: { median: number | null; low: number | null; high: number | null }; quotes: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[] };
 type ReportData = {
+  scenario: ScenarioInfo;
   room: { joinCode: string; name: string; status: string; launchedAt: string | null };
-  rounds: { roundNo: number; seat: string; title: string; options: { key: string; label: string }[]; locked: number; counts: Record<string, number>; roomCall: string[]; best: string | null; agreement: number | null; confidence: { median: number | null; low: number | null; high: number | null }; quotes: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[] }[];
-  tables: { name: string; choices: (string | null)[]; meters: Meters; confidence: number | null }[];
-  meterKeys: MeterKey[]; initialMeters: Meters; generatedAt: string;
+  rounds: ReportRound[];
+  tables: { name: string; choices: (string | null)[]; meters?: Meters; facts?: FactState[]; confidence: number | null }[];
+  meterKeys?: MeterKey[]; initialMeters?: Meters; initialFacts?: FactState[]; generatedAt: string;
 };
 
 /** One-page after-action report for the facilitator: print or save as PDF. */
@@ -577,21 +595,26 @@ function Report({ id }: { id: string }) {
   const [data, setData] = useState<ReportData | null>(null); const [error, setError] = useState("");
   useEffect(() => { request<ReportData>(`${API}/sessions/${id}/report`, { headers: { "x-admin-key": key } }).then(setData).catch((e) => setError((e as Error).message)); }, [id, key]);
   if (!data) return <Frame wide><section className="dr-card"><h2>Preparing the report…</h2><ErrorText message={error || (!key ? "Open this from your facilitator page so the key is available." : "")} /></section></Frame>;
+  const brand = data.scenario.brand;
+  const conditional = brand.reportMode === "conditional";
   const played = data.rounds.filter((r) => r.locked > 0);
   const matched = played.filter((r) => r.best && r.roomCall.includes(r.best)).length;
   const divided = [...played].filter((r) => r.locked >= 2 && r.agreement !== null).sort((a, b) => (a.agreement ?? 1) - (b.agreement ?? 1))[0];
   const aligned = [...played].filter((r) => r.agreement !== null).sort((a, b) => (b.agreement ?? 0) - (a.agreement ?? 0))[0];
   const medians = played.map((r) => r.confidence.median);
-  const pick = (r: ReportData["rounds"][number]) => r.quotes.find((q) => q.featured) ?? [...r.quotes].sort((a, b) => b.rationale.length - a.rationale.length)[0];
-  const showMeters = data.meterKeys.filter((m) => ["containment", "service", "exposure", "otsafety", "trust", "cover"].includes(m.id));
+  const pick = (r: ReportRound) => r.quotes.find((q) => q.featured) ?? [...r.quotes].sort((a, b) => b.rationale.length - a.rationale.length)[0];
+  const showMeters = (data.meterKeys ?? []).filter((m) => ["containment", "service", "exposure", "otsafety", "trust", "cover"].includes(m.id));
+  const factCols = data.tables.find((t) => t.facts?.length)?.facts ?? [];
+  const useFacts = factCols.length > 0;
   const date = new Date(data.room.launchedAt ?? data.generatedAt);
-  return <Frame wide className="dr-report">
+  return <Frame wide className="dr-report" kicker={brand.kicker}>
     <section className="dr-report-head">
-      <div><span className="dr-kicker">AFTER-ACTION REPORT · ROOM {data.room.joinCode} · {date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span><h1>When the agent attacked Riverbend</h1><p>{data.tables.length} tables · {played.length} of {data.rounds.length} rounds decided · Richard’s best move is from the deck; tables are shown as journeys, never ranked.</p></div>
+      <div><span className="dr-kicker">AFTER-ACTION REPORT · ROOM {data.room.joinCode} · {date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span><h1>{brand.reportTitle}</h1><p>{data.tables.length} tables · {played.length} of {data.rounds.length} rounds decided · {conditional ? "facilitator guidance is conditional, not an answer key; tables are shown as journeys, never ranked." : "Richard’s best move is from the deck; tables are shown as journeys, never ranked."}</p></div>
       <button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button>
     </section>
     <section className="dr-report-tiles">
-      <div><small>Room matched the best move</small><strong>{matched}<em>/{played.length}</em></strong><span>rounds where the room’s most common call was Richard’s</span></div>
+      {conditional ? <div><small>Rounds decided</small><strong>{played.length}<em>/{data.rounds.length}</em></strong><span>rounds with at least one locked call</span></div>
+        : <div><small>Room matched the best move</small><strong>{matched}<em>/{played.length}</em></strong><span>rounds where the room’s most common call was Richard’s</span></div>}
       <div><small>Most divided</small><strong>{divided ? divided.seat.split(" · ")[0] : "—"}</strong><span>{divided ? `${Object.entries(divided.counts).filter(([, n]) => n).map(([k, n]) => `${k} ${n}`).join(" · ")}` : "not enough locks"}</span></div>
       <div><small>Most aligned</small><strong>{aligned ? aligned.seat.split(" · ")[0] : "—"}</strong><span>{aligned && aligned.agreement !== null ? `${Math.round(aligned.agreement * 100)}% on ${aligned.roomCall.join(" / ")}` : ""}</span></div>
       <div><small>Confidence by round</small><strong className="dr-report-trend">{medians.map((m, i) => <b key={i} style={{ height: `${((m ?? 0) / 5) * 100}%` }} title={`Round ${i + 1}: ${m ?? "–"}`} />)}</strong><span>median {medians.map((m) => m ?? "–").join(" → ")}</span></div>
@@ -599,16 +622,19 @@ function Report({ id }: { id: string }) {
     <section className="dr-report-rounds">
       {data.rounds.map((r) => { const q = pick(r); const max = Math.max(1, ...Object.values(r.counts)); return <article key={r.roundNo} className={r.locked ? "" : "is-empty"}>
         <header><small>{r.seat}</small><strong>{r.title}</strong></header>
-        <div className="dr-report-split">{r.options.map((o) => <div key={o.key} className={`${r.best === o.key ? "is-best" : ""} ${r.roomCall.includes(o.key) ? "is-call" : ""}`} title={o.label}><b>{o.key}</b><span><i style={{ width: `${(r.counts[o.key] / max) * 100}%` }} /></span><em>{r.counts[o.key] || ""}</em></div>)}</div>
-        <p className="dr-report-verdict">{!r.locked ? "No locked calls." : r.best && r.roomCall.includes(r.best) ? `Room landed on Richard’s ${r.best}.` : `Room went ${r.roomCall.join("/")}; Richard’s best was ${r.best}.`} {r.confidence.median !== null ? `Confidence ${r.confidence.median} (${r.confidence.low}–${r.confidence.high}).` : ""}</p>
+        <div className="dr-report-split">{r.options.map((o) => <div key={o.key} className={`${!conditional && r.best === o.key ? "is-best" : ""} ${r.roomCall.includes(o.key) ? "is-call" : ""}`} title={o.label}><b>{o.key}</b><span><i style={{ width: `${(r.counts[o.key] / max) * 100}%` }} /></span><em>{r.counts[o.key] || ""}</em></div>)}</div>
+        <p className="dr-report-verdict">{!r.locked ? "No locked calls." : conditional ? `Room went ${r.roomCall.join("/")}.` : r.best && r.roomCall.includes(r.best) ? `Room landed on Richard’s ${r.best}.` : `Room went ${r.roomCall.join("/")}; Richard’s best was ${r.best}.`} {r.confidence.median !== null ? `Confidence ${r.confidence.median} (${r.confidence.low}–${r.confidence.high}).` : ""}</p>
+        {conditional && r.guidance ? <p className="dr-report-guide"><b>Rich’s conditional preference: {r.guidance.preferred}</b> — {r.guidance.conditions}</p> : null}
         {q ? <blockquote>“{q.rationale}”<cite>{q.table} · {q.option}</cite></blockquote> : null}
       </article>; })}
     </section>
     <section className="dr-report-tables">
-      <table><thead><tr><th>Table</th>{data.rounds.map((r) => <th key={r.roundNo}>{r.seat.split(" · ")[0].replace("Inject", "Inj")}</th>)}<th>Conf.</th>{showMeters.map((m) => <th key={m.id}>{m.name}</th>)}</tr></thead>
-        <tbody>{data.tables.map((t) => <tr key={t.name}><td>{t.name}</td>{t.choices.map((c, i) => <td key={i}><span className="dr-report-chip">{c ?? "·"}</span></td>)}<td>{t.confidence ?? "–"}</td>{showMeters.map((m) => { const v = t.meters[m.id] ?? 0; return <td key={m.id} className={`dr-report-meter dr-meter--${meterTone(m.good, v)}`}><span><i style={{ width: `${v}%` }} /></span>{v}</td>; })}</tr>)}</tbody></table>
-      <p className="dr-hint">Where each table’s Riverbend finished after replaying its six calls through the Crisis Room consequences. Started at: {showMeters.map((m) => `${m.name} ${data.initialMeters[m.id]}`).join(" · ")}.</p>
+      <table><thead><tr><th>Table</th>{data.rounds.map((r) => <th key={r.roundNo}>{r.seat.split(" · ")[0].replace("Inject", "Inj")}</th>)}<th>Conf.</th>{useFacts ? factCols.map((f) => <th key={f.id}>{f.name}</th>) : showMeters.map((m) => <th key={m.id}>{m.name}</th>)}</tr></thead>
+        <tbody>{data.tables.map((t) => <tr key={t.name}><td>{t.name}</td>{t.choices.map((c, i) => <td key={i}><span className="dr-report-chip">{c ?? "·"}</span></td>)}<td>{t.confidence ?? "–"}</td>{useFacts ? factCols.map((c) => { const f = t.facts?.find((x) => x.id === c.id); return <td key={c.id}>{f ? <b className={`dr-fchip dr-fchip--${f.tone}`}>{f.label}</b> : "–"}</td>; }) : showMeters.map((m) => { const v = t.meters?.[m.id] ?? 0; return <td key={m.id} className={`dr-report-meter dr-meter--${meterTone(m.good, v)}`}><span><i style={{ width: `${v}%` }} /></span>{v}</td>; })}</tr>)}</tbody></table>
+      <p className="dr-hint">{brand.reportNote} Started at: {useFacts ? (data.initialFacts ?? []).map((f) => `${f.name} ${f.label}`).join(" · ") : showMeters.map((m) => `${m.name} ${data.initialMeters?.[m.id]}`).join(" · ")}.</p>
     </section>
+    {conditional ? <section className="dr-report-gaps"><h2>Gap register</h2><p>What was missing? Who owns the improvement? Fill in during the debrief.</p>
+      <table><thead><tr><th>Round</th><th>Gap</th><th>Impact</th><th>Owner</th><th>Next action</th><th>Date</th></tr></thead><tbody>{Array.from({ length: 6 }, (_, i) => <tr key={i}><td>{data.rounds[i] ? data.rounds[i].seat.split(" · ")[0] : ""}</td><td /><td /><td /><td /><td /></tr>)}</tbody></table></section> : null}
   </Frame>;
 }
 

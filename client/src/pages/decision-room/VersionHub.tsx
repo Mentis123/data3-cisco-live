@@ -12,11 +12,11 @@ export const editions = {
     tags: ["Cyber leadership", "Critical infrastructure", "Six rounds"],
   },
   "agent-0": {
-    number: "02", title: "Agent 0", label: "Next edition", status: "In development",
-    image: "/decision-room-art/agent-0.webp", imageAlt: "An autonomous AI core connected to critical infrastructure inside a glowing containment ring",
-    line: "When the agent acts, who takes control?",
-    description: "The next chapter of the tabletop. Richer briefings, a new incident story and lessons from the first customer run are taking shape here.",
-    tags: ["Agentic AI", "Team decisions", "Evolving edition"],
+    number: "02", title: "Agent 0", label: "Next edition", status: "Preview",
+    image: "/decision-room-art/agent-0.webp", imageAlt: "An autonomous AI maintenance agent connected to mining operations inside a glowing containment ring",
+    line: "The mine keeps moving. Who decides what stops?",
+    description: "Ironvale Mining runs a maintenance agent across its operations. Six decisions, from the SOC to the board, on what the agent may touch while the mine keeps moving.",
+    tags: ["Agentic AI", "Mining operations", "Six decisions"],
   },
 } as const;
 
@@ -49,8 +49,8 @@ export default function VersionHub() {
     </section>
     <div className="vh-section-label"><span><i />SELECT YOUR EXPERIENCE</span><small>02 EDITIONS <ArrowDown size={13} /></small></div>
     <section className="vh-editions" aria-label="Tabletop versions">
-      {(Object.keys(editions) as Edition[]).map((id) => { const e = editions[id]; return <a key={id} className={`vh-tile vh-tile--${id}`} href={`/decision-room/${id}`} aria-label={`Open V${e.number === "01" ? "1" : "2"}: ${e.title}`}>
-        <div className="vh-art"><img src={e.image} alt={e.imageAlt} width="1200" height="800" fetchPriority="high" /><div className="vh-art-scan" aria-hidden="true" /><div className="vh-tile-top"><span className="vh-version">V{e.number === "01" ? "1" : "2"} <i /> {e.label}</span><span className="vh-status"><i />{e.status}</span></div><span className="vh-art-caption" aria-hidden="true">RIVERBEND / {id === "agent-0" ? "AUTONOMOUS SYSTEMS" : "WATER & ENERGY"}</span></div>
+      {(Object.keys(editions) as Edition[]).map((id) => { const e = editions[id]; return <a key={id} className={`vh-tile vh-tile--${id}`} href={`/decision-room/${id}`} target="_blank" rel="noopener noreferrer" aria-label={`Open V${e.number === "01" ? "1" : "2"}: ${e.title}, opens in a new tab`}>
+        <div className="vh-art"><img src={e.image} alt={e.imageAlt} width="1200" height="800" fetchPriority="high" /><div className="vh-art-scan" aria-hidden="true" /><div className="vh-tile-top"><span className="vh-version">V{e.number === "01" ? "1" : "2"} <i /> {e.label}</span><span className="vh-status"><i />{e.status}</span></div><span className="vh-art-caption" aria-hidden="true">{id === "agent-0" ? "IRONVALE / MINING OPERATIONS" : "RIVERBEND / WATER & ENERGY"}</span></div>
         <div className="vh-tile-copy"><div className="vh-title-row"><h2>{e.title}</h2><span className="vh-open"><ArrowRight size={23} /></span></div><p className="vh-tagline">{e.line}</p><p className="vh-description">{e.description}</p><div className="vh-tags">{e.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><div className="vh-tile-bottom"><span>Enter {e.title}</span><span>EXP / {e.number} <ArrowRight size={15} /></span></div></div>
       </a>; })}
     </section>
@@ -74,7 +74,7 @@ export function EditionIntro({ edition }: { edition: Edition }) {
     <div className="vh-eyebrow">V{e.number === "01" ? "1" : "2"} / {e.label} <span className="vh-status"><i />{e.status}</span></div>
     <img className="vh-edition-art" src={e.image} alt="" width="1200" height="800" />
     <h1>{e.title}</h1><p className="vh-edition-line">{e.line}</p>
-    <p>{edition === "agent-0" ? "Agent 0 currently uses the original six Riverbend rounds. Clearer briefings and a new incident story are coming next." : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
+    <p>{edition === "agent-0" ? "Set at Ironvale Mining, where a maintenance agent works across the operation. Six rounds, from the SOC to the board, each with a sourced briefing. This edition is in review: until it is approved, live customer rooms run the original six rounds." : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
     <div className="vh-tags">{e.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
   </section>;
 }

@@ -6,54 +6,19 @@
  * in the deck's order. The narrative consequence each table sees after its round
  * is published is ported from the Riverbend Crisis Room companion.
  *
+ * Exported as the pinned `riverbend@1` scenario (see types.ts and scenarios.ts).
  * Everything here is served from the API, and only for the round that is open.
  * Consequences are returned only once the facilitator publishes a round, so no
  * device can read ahead and nothing hints at the "best move" before Richard
  * reveals it on the slide.
  */
 
-export type MeterKey = "containment" | "service" | "exposure" | "otsafety" | "trust" | "standing" | "cover";
-export type StageStatus = "secure" | "watched" | "at risk" | "compromised" | "contained" | "blind" | "safe state";
+import type { MeterDef, OptionKey, RoundContent, Scenario, Stage, StageStatus } from "./decisionRoomTypes.js";
 
+export type MeterKey = "containment" | "service" | "exposure" | "otsafety" | "trust" | "standing" | "cover";
 export type Meters = Record<MeterKey, number>;
 
-export type Consequence = {
-  you: string;
-  body: string;
-  changes: { t: string; d: "up" | "down" | "flag" }[];
-  meters: Partial<Record<MeterKey, number>>;
-};
-
-/** A prior-choice condition: this table chose `option` in `round` (1-based). */
-export type Condition = { round: number; option: string } | { round: number; anyOf: string[] };
-
-export type OptionContent = {
-  key: "A" | "B" | "C" | "D";
-  label: string;
-  consequence: Consequence;
-  /** Alternative outcomes when an earlier choice by the same table applies. First match wins. */
-  variants?: { when: Condition; consequence: Consequence }[];
-};
-
-export type FeedMessage = { kind: "alert" | "soc" | "exec" | "legal" | "press" | "ot"; who: string; text: string };
-
-export type RoundContent = {
-  roundNo: number;
-  id: string;
-  seat: string;
-  when: string;
-  title: string;
-  prompt: string;
-  situation: string[];
-  feed: FeedMessage[];
-  options: OptionContent[];
-  /** Attack-path statuses, in STAGES order, as the round opens. */
-  path: StageStatus[];
-  /** Deck timing for the table debate, in seconds. */
-  durationSeconds: number;
-};
-
-export const STAGES = [
+const STAGES: Stage[] = [
   { id: "foothold", name: "Foothold", sub: "Customer-assist AI agent" },
   { id: "creds", name: "Credentials", sub: "API keys & cloud secrets" },
   { id: "store", name: "Object store", sub: "Backups & infra state" },
@@ -61,9 +26,9 @@ export const STAGES = [
   { id: "data", name: "Billing & CRM", sub: "Customer PII, payments" },
   { id: "gateway", name: "OT gateway", sub: "SCADA / IIoT bridge" },
   { id: "control", name: "Control systems", sub: "Water & grid control" },
-] as const;
+];
 
-export const METERS: { id: MeterKey; name: string; good: boolean }[] = [
+const METERS: MeterDef[] = [
   { id: "containment", name: "Attacker contained", good: true },
   { id: "service", name: "Service uptime", good: true },
   { id: "exposure", name: "Data exposure", good: false },
@@ -73,9 +38,9 @@ export const METERS: { id: MeterKey; name: string; good: boolean }[] = [
   { id: "cover", name: "Insurer cover", good: true },
 ];
 
-export const INITIAL_METERS: Meters = { containment: 8, service: 100, exposure: 0, otsafety: 92, trust: 68, standing: 100, cover: 100 };
+const INITIAL_METERS: Meters = { containment: 8, service: 100, exposure: 0, otsafety: 92, trust: 68, standing: 100, cover: 100 };
 
-export const ORGANISATION = {
+const ORGANISATION = {
   name: "Riverbend Water & Energy",
   tagline: "State-owned water and energy utility · 1.4 million customers · critical infrastructure under SOCI",
   estate: "A customer-assist AI agent, M365 Copilot across staff, an AI SOC triage assistant, and a third-party AI chatbot wired into the CRM.",
@@ -85,26 +50,31 @@ export const ORGANISATION = {
 };
 
 /** The opener Adam plays on the projector before triage: one launch, fixed to the scenario. */
-export const LAUNCH = {
-  profile: [
-    { label: "Objective", value: "Encrypt, exfiltrate, extort", mirrors: "JADEPUFFER" },
-    { label: "Entry point", value: "Exposed AI agent", mirrors: "Langflow RCE" },
-    { label: "Autonomy", value: "Fully autonomous", mirrors: "JADEPUFFER" },
-  ],
-  lines: [
-    { t: "t+0.0s", text: "foothold · internet-facing customer-assist AI agent", tone: "plain" },
-    { t: "t+0.4s", text: "reading environment… API keys & cloud creds located", tone: "sys" },
-    { t: "t+2.0s", text: "self-planning next objectives… no human in the loop", tone: "sys" },
-    { t: "t+5.0s", text: "// target path: store → config → data → OT gateway", tone: "sys" },
-    { t: "t+8.0s", text: "object store reached · a 30-min beacon is now running", tone: "plain" },
-    { t: "t+9.5s", text: "[STAGED] customer PII located · encryption & extortion prepared", tone: "er" },
-    { t: "t+31s", text: "…but its first move tripped a faint signal in your SOC. The watch is yours.", tone: "sys" },
-  ],
-} as const;
+const LAUNCH_LINES = [
+  { t: "t+0.0s", text: "foothold · internet-facing customer-assist AI agent", tone: "plain" },
+  { t: "t+0.4s", text: "reading environment… API keys & cloud creds located", tone: "sys" },
+  { t: "t+2.0s", text: "self-planning next objectives… no human in the loop", tone: "sys" },
+  { t: "t+5.0s", text: "// target path: store → config → data → OT gateway", tone: "sys" },
+  { t: "t+8.0s", text: "object store reached · a 30-min beacon is now running", tone: "plain" },
+  { t: "t+9.5s", text: "[STAGED] customer PII located · encryption & extortion prepared", tone: "er" },
+  { t: "t+31s", text: "…but its first move tripped a faint signal in your SOC. The watch is yours.", tone: "sys" },
+] as const;
+
+/** The projector's attack path during the launch: stages light up in step with the attacker terminal. */
+function launchPath(visible: number): StageStatus[] {
+  const p: StageStatus[] = ["secure", "secure", "secure", "secure", "secure", "secure", "secure"];
+  if (visible >= 1) p[0] = "compromised";
+  if (visible >= 2) p[1] = "compromised";
+  if (visible >= 4) { p[2] = "at risk"; p[3] = "at risk"; p[4] = "at risk"; p[5] = "at risk"; }
+  if (visible >= 5) p[2] = "compromised";
+  if (visible >= 6) p[4] = "compromised";
+  return p;
+}
+const LAUNCH_NOTES = ["", "foothold taken", "credentials harvested", "planning, no human in the loop", "target path mapped", "beacon running", "customer data staged", "a faint signal in the SOC"];
 
 const c = (t: string, d: "up" | "down" | "flag") => ({ t, d });
 
-export const ROUNDS: RoundContent[] = [
+const ROUNDS: RoundContent[] = [
   {
     roundNo: 1,
     id: "triage",
@@ -535,56 +505,76 @@ export const ROUNDS: RoundContent[] = [
   },
 ];
 
-export const ROUND_COUNT = ROUNDS.length;
+/** Richard's strongest answer per round, from the deck's speaker notes. Facilitator report only; never sent to a table. */
+const BEST_MOVE: Record<number, OptionKey> = { 1: "C", 2: "A", 3: "D", 4: "B", 5: "D", 6: "C" };
 
-export function roundContent(roundNo: number): RoundContent | null {
-  return ROUNDS.find((round) => round.roundNo === roundNo) ?? null;
-}
-
-function conditionHolds(condition: Condition, choices: Map<number, string>) {
-  const chosen = choices.get(condition.round);
-  if (!chosen) return false;
-  return "option" in condition ? chosen === condition.option : condition.anyOf.includes(chosen);
-}
-
-/** The consequence a table sees for its locked option, given its earlier locked choices. */
-export function consequenceFor(roundNo: number, optionKey: string, choices: Map<number, string>): Consequence | null {
-  const option = roundContent(roundNo)?.options.find((entry) => entry.key === optionKey);
-  if (!option) return null;
-  const variant = option.variants?.find((entry) => conditionHolds(entry.when, choices));
-  return variant?.consequence ?? option.consequence;
-}
-
-const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
-
-/** Replay a table's published choices onto the meters, in round order. */
-export function metersFor(choices: Map<number, string>, upToRound: number): Meters {
-  const meters: Meters = { ...INITIAL_METERS };
-  for (let roundNo = 1; roundNo <= upToRound; roundNo += 1) {
-    const chosen = choices.get(roundNo);
-    if (!chosen) continue;
-    const consequence = consequenceFor(roundNo, chosen, choices);
-    if (!consequence) continue;
-    for (const [key, delta] of Object.entries(consequence.meters) as [MeterKey, number][]) {
-      meters[key] = clamp(meters[key] + delta);
-    }
-  }
-  return meters;
-}
-
-/** Participant-safe shape of a round: no consequences, no verdict labels. */
-export function publicRound(round: RoundContent) {
-  return {
-    roundNo: round.roundNo,
-    id: round.id,
-    seat: round.seat,
-    when: round.when,
-    title: round.title,
-    prompt: round.prompt,
-    situation: round.situation,
-    feed: round.feed,
-    options: round.options.map((option) => ({ key: option.key, label: option.label })),
-    path: round.path,
-    durationSeconds: round.durationSeconds,
-  };
-}
+/**
+ * Riverbend, revision 1: the customer-tested V1 (CISO Basecamp) content, and the
+ * content every room created before scenario pinning ran — including the early
+ * Agent 0 placeholder rooms. Frozen: never change what a choice here means.
+ */
+export const RIVERBEND: Scenario = {
+  key: "riverbend@1",
+  family: "riverbend",
+  revision: "1",
+  status: "live",
+  brand: {
+    kicker: "WHEN THE AGENT ATTACKS · RIVERBEND",
+    short: "Riverbend",
+    reportTitle: "When the agent attacked Riverbend",
+    pathTitle: "Riverbend · attack path",
+    lobby: { title: "Monitoring mode", hint: "Read the printed brief. Agree who speaks for the table. Adam will open the first round." },
+    launched: { title: "Something tripped a faint signal in the SOC.", body: "Nothing is confirmed. Stand by for triage." },
+    ended: { title: "The room has closed.", body: "Thank you. Take one control to test, an owner and a date back with you." },
+    consoleLobby: "All systems nominal.",
+    consoleLaunched: "Machine speed.",
+    reportNote: "Where each table’s Riverbend finished after replaying its six calls through the Crisis Room consequences.",
+    reportMode: "best-move",
+  },
+  organisation: ORGANISATION,
+  launch: {
+    profileTitle: "The adversary",
+    notePrefix: "mirrors",
+    profile: [
+      { label: "Objective", value: "Encrypt, exfiltrate, extort", note: "JADEPUFFER" },
+      { label: "Entry point", value: "Exposed AI agent", note: "Langflow RCE" },
+      { label: "Autonomy", value: "Fully autonomous", note: "JADEPUFFER" },
+    ],
+    profileHint: "Fictional and narrative only. No tools, no code, no exploit steps — this exists to show how cheap and modular these choices have become.",
+    terminal: "agent@riverbend — autonomous",
+    lines: LAUNCH_LINES.map((line) => ({ ...line })),
+    steps: LAUNCH_NOTES.map((note, visible) => ({ note, path: launchPath(visible) })),
+  },
+  stages: STAGES,
+  meters: METERS,
+  initialMeters: INITIAL_METERS,
+  rounds: ROUNDS,
+  bestMove: BEST_MOVE,
+  runPlan: {
+    totalMinutes: 90,
+    decideMinutes: 4,
+    // Minutes from the start. Deck timings, with Inject 5's overlap with the debrief normalised.
+    segments: [
+      { key: "open", label: "Opening", from: 0, to: 17, slides: "slides 1–8" },
+      { key: "launch", label: "Riverbend · launch", from: 17, to: 18, slides: "slide 9" },
+      { key: "r1", label: "Triage", from: 18, to: 25, slides: "slides 10–11" },
+      { key: "r2", label: "Inject 1", from: 25, to: 33, slides: "slides 12–13" },
+      { key: "r3", label: "Inject 2", from: 33, to: 41, slides: "slides 14–15" },
+      { key: "r4", label: "Inject 3", from: 41, to: 50, slides: "slides 16–17" },
+      { key: "r5", label: "Inject 4", from: 50, to: 59, slides: "slides 18–19" },
+      { key: "r6", label: "Inject 5", from: 59, to: 68, slides: "slides 20–21" },
+      { key: "close", label: "Debrief & close", from: 68, to: 90, slides: "slides 22–27" },
+    ],
+    advice: {
+      openingBehind: "Move through the opening slides faster and launch.",
+      closingBehind: "Cut the table discussion (slide 25) and go to the close.",
+      roundBehind: "Keep option reviews to 2 minutes and move on after one comment from the room.",
+      openingTighten: "Shorten the landscape slides and get to Riverbend.",
+      roundTighten: "Take one comment per round, then Next.",
+    },
+    closeMilestones: [
+      { until: 77, text: "On schedule. Protect (slide 24) by {74}, table discussion by {77}, close by {83}." },
+      { until: 83, text: "On schedule. Move to the close (slide 26) by {83}." },
+    ],
+  },
+};
