@@ -16,6 +16,7 @@ import { useLocation } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
 import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, FileText, Printer, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
 import "./decision-room.css";
+import VersionHub, { EditionIntro, editions, type Edition } from "./VersionHub";
 
 /* ------------------------------------------------------------------ types */
 
@@ -153,7 +154,7 @@ function SplitBars({ split, options }: { split: Split; options?: { key: string; 
 
 /* --------------------------------------------------------------- landing */
 
-function Landing({ presetCode }: { presetCode?: string }) {
+function Landing({ presetCode, edition }: { presetCode?: string; edition?: Edition }) {
   const [, navigate] = useLocation();
   const [mode, setMode] = useState<"join" | "facilitate" | "display">("join");
   const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
@@ -211,16 +212,16 @@ function Landing({ presetCode }: { presetCode?: string }) {
   async function create() {
     setBusy(true); setError("");
     try {
-      const data = await request<{ sessionId: string; joinCode: string; displayToken: string }>(`${API}/sessions`, json({ tableCount }, { "x-admin-key": adminKey }));
+      const data = await request<{ sessionId: string; joinCode: string; displayToken: string }>(`${API}/sessions`, json({ tableCount, ...(edition ? { name: editions[edition].title, variant: edition === "agent-0" ? "agent0" : "riverbend" } : {}) }, { "x-admin-key": adminKey }));
       try { localStorage.setItem("decision-room-admin-key", adminKey); localStorage.setItem(`decision-room-display:${data.sessionId}`, data.displayToken); } catch { /* ignore */ }
       navigate(`/decision-room/admin/${data.sessionId}`);
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   function openDisplay() { try { localStorage.setItem(`decision-room-display:${sessionId}`, displayToken); } catch { /* ignore */ } navigate(`/decision-room/console/${sessionId}?displayToken=${encodeURIComponent(displayToken)}`); }
 
-  return <Frame className="dr-landing dr-one">
+  return <Frame className={`dr-landing dr-one${edition ? " dr-edition-landing" : ""}`}>
     <div className="dr-landing-grid">
-      <section className="dr-hero"><span className="dr-kicker">LIVE TABLETOP INSTRUMENT</span><h1>Make the room’s decisions visible.</h1><p>One device per table — a laptop or a phone. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed.</p></section>
+      {edition ? <EditionIntro edition={edition} /> : <section className="dr-hero"><a className="vh-back" href="/decision-room">← All experiences</a><span className="dr-kicker">JOIN A LIVE TABLETOP</span><h1>Make the room’s decisions visible.</h1><p>One device per table — a laptop or a phone. Enter your room code to join the experience your facilitator has opened.</p></section>}
       <div className="dr-landing-side">
         <nav className="dr-tabs" aria-label="Choose view"><button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}><Users />Join a table</button><button className={mode === "facilitate" ? "active" : ""} onClick={() => setMode("facilitate")}><ShieldCheck />Facilitate</button><button className={mode === "display" ? "active" : ""} onClick={() => setMode("display")}><Monitor />Open console</button></nav>
         <section className="dr-card dr-form">
@@ -613,10 +614,11 @@ function Report({ id }: { id: string }) {
 export default function DecisionRoom() {
   const [path] = useLocation();
   const parts = path.split("/").filter(Boolean);
+  if (parts[1] === "ciso-basecamp" || parts[1] === "agent-0") return <Landing key={parts[1]} edition={parts[1]} />;
   if (parts[1] === "join") return <Landing presetCode={parts[2]} />;
   if (parts[1] === "session" && parts[2]) return <Participant code={parts[2].toUpperCase()} />;
   if (parts[1] === "console" && parts[2]) return <Console id={parts[2]} />;
   if (parts[1] === "admin" && parts[2]) return <Admin id={parts[2]} />;
   if (parts[1] === "report" && parts[2]) return <Report id={parts[2]} />;
-  return <Landing />;
+  return <VersionHub />;
 }
