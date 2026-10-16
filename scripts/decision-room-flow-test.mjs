@@ -209,6 +209,9 @@ const p2end = await call("GET", `/sessions/${joinCode}/participant`, { headers: 
 check("table 2 (bounded agent, safe state) keeps insurer cover at 100", p2end.body.dashboard.meters.cover === 100, p2end.body.dashboard.meters);
 check("table 1 (unbounded then governance evidence) loses cover", p1r5.body.dashboard.meters.cover === 100 || p1r5.body.dashboard.meters.cover === 30, p1r5.body.dashboard.meters);
 
+const rep = await call("GET", `/sessions/${sessionId}/report`, { headers: KEY });
+check("after-action report covers six rounds and the tables", rep.status === 200 && rep.body.rounds.length === 6 && rep.body.tables.length >= 2 && rep.body.rounds[0].best === "C", rep.body?.rounds?.[0]);
+check("report is facilitator-only", (await call("GET", `/sessions/${sessionId}/report`)).status === 401);
 console.log("\n10. Export, end, reset");
 const exported = await call("GET", `/sessions/${sessionId}/export`, { headers: KEY });
 check("export is CSV with six rounds of rows", exported.status === 200 && String(exported.body).split("\r\n").length >= 13);
