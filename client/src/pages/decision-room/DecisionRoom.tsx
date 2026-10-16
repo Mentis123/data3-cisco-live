@@ -533,7 +533,7 @@ function Admin({ id }: { id: string }) {
   const steps: { label: string; action: string; enabled: boolean; primary?: boolean; icon: ReactNode }[] = [
     { label: "Launch the attack", action: "launch", enabled: state === "lobby", icon: <Zap /> },
     { label: state === "lobby" || state === "launched" ? "Start · open triage" : "Started", action: "start", enabled: state === "lobby" || state === "launched", icon: <Play />, primary: state === "launched" },
-    { label: "Close round", action: "close", enabled: state === "open", icon: <Square />, primary: state === "open" },
+    state === "closed" ? { label: "Reopen round", action: "unclose", enabled: true, icon: <RotateCcw /> } : { label: "Close round", action: "close", enabled: state === "open", icon: <Square />, primary: state === "open" },
     { label: "Show the split", action: "publish", enabled: state === "open" || state === "closed", icon: <Eye />, primary: state === "closed" },
     { label: session.activeRound >= session.roundCount ? "Final round" : `Next · round ${session.activeRound + 1}`, action: "advance", enabled: session.status === "live" && session.activeRound < session.roundCount, icon: <ArrowRight />, primary: state === "published" && session.activeRound < session.roundCount },
   ];
