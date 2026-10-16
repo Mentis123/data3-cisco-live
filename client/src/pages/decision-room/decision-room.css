@@ -463,3 +463,4 @@
 @page{size:A4 landscape;margin:8mm}
 @media print{.dr-report{padding:0!important;min-height:0}.dr-report-print{display:none}.dr-report .dr-brand{margin-bottom:6px}.dr-report-rounds article,.dr-report-tables,.dr-report-tiles>div{break-inside:avoid}.dr-shell.dr-report{background:#000025}}
 .dr-report-rounds header{display:block;background:transparent;border:0;padding:0;margin:0 0 4px}
+@media print{.dr-shell.dr-report{zoom:.78}}
