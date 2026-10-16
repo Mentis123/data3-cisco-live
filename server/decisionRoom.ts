@@ -43,6 +43,8 @@ type Team = { id: string; sessionId: string; teamCode: string; displayName: stri
 type Decision = { id: string; sessionId: string; teamId: string; roundNo: number; optionKey: string | null; rationale: string; confidence: number | null; isLocked: boolean; isFeatured: boolean; updatedAt: string };
 
 const MAX_FEATURED = 2;
+/** Richard's strongest answer per round, from the deck's speaker notes. Facilitator report only; never sent to a table. */
+const BEST_MOVE: Record<number, string> = { 1: "C", 2: "A", 3: "D", 4: "B", 5: "D", 6: "C" };
 const VARIANT = "riverbend";
 
 const memory = { sessions: new Map<string, Session>(), teams: new Map<string, Team>(), decisions: new Map<string, Decision>() };
@@ -477,6 +479,41 @@ export function registerDecisionRoomRoutes(app: Express) {
       ...consolePayload(session, teams, decisions),
       decisions: decisions.filter((d) => d.roundNo === session.activeRound).map((d) => ({ id: d.id, teamId: d.teamId, table: names.get(d.teamId) ?? d.teamId, optionKey: d.optionKey, rationale: d.rationale, confidence: d.confidence, isLocked: d.isLocked, isFeatured: d.isFeatured })),
     });
+  } catch (e) { fail(e, res, next); } });
+
+
+  // Facilitator-only after-action report: the whole room on one page. Room-level comparison with
+  // Richard's best move only; tables are shown as journeys, never marked right or wrong.
+  app.get("/api/decision-room/sessions/:identifier/report", async (req, res, next) => { try {
+    if (!ensureAdmin(req, res) || rejectMissingDatabase(res)) return;
+    const session = await findSession(req.params.identifier);
+    if (!session) { res.status(404).json({ message: "Room not found" }); return; }
+    const teams = await getTeams(session.id); const decisions = await getDecisions(session.id);
+    const names = new Map(teams.map((t) => [t.id, t.displayName]));
+    const median = (v: number[]) => (v.length ? v[Math.floor(v.length / 2)] : null);
+    const rounds = Array.from({ length: ROUND_COUNT }, (_, i) => i + 1).map((roundNo) => {
+      const content = roundContent(roundNo)!;
+      const locked = decisions.filter((d) => d.roundNo === roundNo && d.isLocked && d.optionKey);
+      const counts = Object.fromEntries(["A", "B", "C", "D"].map((k) => [k, locked.filter((d) => d.optionKey === k).length]));
+      const top = Math.max(0, ...Object.values(counts));
+      const roomCall = top ? Object.keys(counts).filter((k) => counts[k] === top) : [];
+      const conf = locked.map((d) => d.confidence).filter((v): v is number => v !== null).sort((a, b) => a - b);
+      return {
+        roundNo, seat: content.seat, title: content.title,
+        options: content.options.map((o) => ({ key: o.key, label: o.label })),
+        locked: locked.length, counts, roomCall, best: BEST_MOVE[roundNo] ?? null,
+        agreement: locked.length ? top / locked.length : null,
+        confidence: { median: median(conf), low: conf[0] ?? null, high: conf.at(-1) ?? null },
+        quotes: locked.filter((d) => d.rationale).map((d) => ({ table: names.get(d.teamId) ?? "", option: d.optionKey, confidence: d.confidence, rationale: d.rationale, featured: d.isFeatured })),
+      };
+    });
+    const tables = teams.filter((t) => t.tokenHash || decisions.some((d) => d.teamId === t.id)).map((t) => {
+      const choices = new Map<number, string>();
+      for (const d of decisions) if (d.teamId === t.id && d.isLocked && d.optionKey) choices.set(d.roundNo, d.optionKey);
+      const conf = decisions.filter((d) => d.teamId === t.id && d.isLocked && d.confidence !== null).map((d) => d.confidence as number);
+      return { name: t.displayName, choices: rounds.map((r) => choices.get(r.roundNo) ?? null), meters: metersFor(choices, ROUND_COUNT), confidence: conf.length ? Math.round((conf.reduce((a, b) => a + b, 0) / conf.length) * 10) / 10 : null };
+    });
+    res.json({ room: { joinCode: session.joinCode, name: session.name, status: session.status, launchedAt: session.launchedAt }, rounds, tables, meterKeys: METERS, initialMeters: INITIAL_METERS, generatedAt: new Date().toISOString() });
   } catch (e) { fail(e, res, next); } });
 
   app.get("/api/decision-room/sessions/:identifier/export", async (req, res, next) => { try {

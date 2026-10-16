@@ -14,7 +14,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
-import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, FileText, Printer, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
 import "./decision-room.css";
 
 /* ------------------------------------------------------------------ types */
@@ -546,7 +546,7 @@ function Admin({ id }: { id: string }) {
     <section className="dr-card"><div className="dr-panel-head"><span>Run the room, in order</span><Status tone={stale(lastUpdated, now)} label={stale(lastUpdated, now)} /></div>
       <div className="dr-steps">{steps.map((s, i) => <button key={s.action} className={s.primary ? "dr-primary" : ""} disabled={busy || !s.enabled} onClick={() => act({ action: s.action })}><b>{i + 1}</b>{s.icon}{s.label}</button>)}</div>
       <div className="dr-run-foot"><p className="dr-hint">Flow per round: tables lock → <b>Close round</b> → Richard walks the option slide → <b>Show the split</b> → discuss → <b>Next</b>. The timer is advisory; nothing closes on its own.</p>
-      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div></div>
+      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><a className="dr-button" target="_blank" rel="noreferrer" href={`/decision-room/report/${id}`}><FileText />After-action report</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div></div>
       <ErrorText message={actionError} />
     </section>
 
@@ -560,6 +560,56 @@ function Admin({ id }: { id: string }) {
   </Frame>;
 }
 
+/* ---------------------------------------------------------------- report */
+
+type ReportData = {
+  room: { joinCode: string; name: string; status: string; launchedAt: string | null };
+  rounds: { roundNo: number; seat: string; title: string; options: { key: string; label: string }[]; locked: number; counts: Record<string, number>; roomCall: string[]; best: string | null; agreement: number | null; confidence: { median: number | null; low: number | null; high: number | null }; quotes: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[] }[];
+  tables: { name: string; choices: (string | null)[]; meters: Meters; confidence: number | null }[];
+  meterKeys: MeterKey[]; initialMeters: Meters; generatedAt: string;
+};
+
+/** One-page after-action report for the facilitator: print or save as PDF. */
+function Report({ id }: { id: string }) {
+  const key = useMemo(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } }, []);
+  const [data, setData] = useState<ReportData | null>(null); const [error, setError] = useState("");
+  useEffect(() => { request<ReportData>(`${API}/sessions/${id}/report`, { headers: { "x-admin-key": key } }).then(setData).catch((e) => setError((e as Error).message)); }, [id, key]);
+  if (!data) return <Frame wide><section className="dr-card"><h2>Preparing the report…</h2><ErrorText message={error || (!key ? "Open this from your facilitator page so the key is available." : "")} /></section></Frame>;
+  const played = data.rounds.filter((r) => r.locked > 0);
+  const matched = played.filter((r) => r.best && r.roomCall.includes(r.best)).length;
+  const divided = [...played].filter((r) => r.locked >= 2 && r.agreement !== null).sort((a, b) => (a.agreement ?? 1) - (b.agreement ?? 1))[0];
+  const aligned = [...played].filter((r) => r.agreement !== null).sort((a, b) => (b.agreement ?? 0) - (a.agreement ?? 0))[0];
+  const medians = played.map((r) => r.confidence.median);
+  const pick = (r: ReportData["rounds"][number]) => r.quotes.find((q) => q.featured) ?? [...r.quotes].sort((a, b) => b.rationale.length - a.rationale.length)[0];
+  const showMeters = data.meterKeys.filter((m) => ["containment", "service", "exposure", "otsafety", "trust", "cover"].includes(m.id));
+  const date = new Date(data.room.launchedAt ?? data.generatedAt);
+  return <Frame wide className="dr-report">
+    <section className="dr-report-head">
+      <div><span className="dr-kicker">AFTER-ACTION REPORT · ROOM {data.room.joinCode} · {date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span><h1>When the agent attacked Riverbend</h1><p>{data.tables.length} tables · {played.length} of {data.rounds.length} rounds decided · Richard’s best move is from the deck; tables are shown as journeys, never ranked.</p></div>
+      <button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button>
+    </section>
+    <section className="dr-report-tiles">
+      <div><small>Room matched the best move</small><strong>{matched}<em>/{played.length}</em></strong><span>rounds where the room’s most common call was Richard’s</span></div>
+      <div><small>Most divided</small><strong>{divided ? divided.seat.split(" · ")[0] : "—"}</strong><span>{divided ? `${Object.entries(divided.counts).filter(([, n]) => n).map(([k, n]) => `${k} ${n}`).join(" · ")}` : "not enough locks"}</span></div>
+      <div><small>Most aligned</small><strong>{aligned ? aligned.seat.split(" · ")[0] : "—"}</strong><span>{aligned && aligned.agreement !== null ? `${Math.round(aligned.agreement * 100)}% on ${aligned.roomCall.join(" / ")}` : ""}</span></div>
+      <div><small>Confidence by round</small><strong className="dr-report-trend">{medians.map((m, i) => <b key={i} style={{ height: `${((m ?? 0) / 5) * 100}%` }} title={`Round ${i + 1}: ${m ?? "–"}`} />)}</strong><span>median {medians.map((m) => m ?? "–").join(" → ")}</span></div>
+    </section>
+    <section className="dr-report-rounds">
+      {data.rounds.map((r) => { const q = pick(r); const max = Math.max(1, ...Object.values(r.counts)); return <article key={r.roundNo} className={r.locked ? "" : "is-empty"}>
+        <header><small>{r.seat}</small><strong>{r.title}</strong></header>
+        <div className="dr-report-split">{r.options.map((o) => <div key={o.key} className={`${r.best === o.key ? "is-best" : ""} ${r.roomCall.includes(o.key) ? "is-call" : ""}`} title={o.label}><b>{o.key}</b><span><i style={{ width: `${(r.counts[o.key] / max) * 100}%` }} /></span><em>{r.counts[o.key] || ""}</em></div>)}</div>
+        <p className="dr-report-verdict">{!r.locked ? "No locked calls." : r.best && r.roomCall.includes(r.best) ? `Room landed on Richard’s ${r.best}.` : `Room went ${r.roomCall.join("/")}; Richard’s best was ${r.best}.`} {r.confidence.median !== null ? `Confidence ${r.confidence.median} (${r.confidence.low}–${r.confidence.high}).` : ""}</p>
+        {q ? <blockquote>“{q.rationale}”<cite>{q.table} · {q.option}</cite></blockquote> : null}
+      </article>; })}
+    </section>
+    <section className="dr-report-tables">
+      <table><thead><tr><th>Table</th>{data.rounds.map((r) => <th key={r.roundNo}>{r.seat.split(" · ")[0].replace("Inject", "Inj")}</th>)}<th>Conf.</th>{showMeters.map((m) => <th key={m.id}>{m.name}</th>)}</tr></thead>
+        <tbody>{data.tables.map((t) => <tr key={t.name}><td>{t.name}</td>{t.choices.map((c, i) => <td key={i}><span className="dr-report-chip">{c ?? "·"}</span></td>)}<td>{t.confidence ?? "–"}</td>{showMeters.map((m) => { const v = t.meters[m.id] ?? 0; return <td key={m.id} className={`dr-report-meter dr-meter--${meterTone(m.good, v)}`}><span><i style={{ width: `${v}%` }} /></span>{v}</td>; })}</tr>)}</tbody></table>
+      <p className="dr-hint">Where each table’s Riverbend finished after replaying its six calls through the Crisis Room consequences. Started at: {showMeters.map((m) => `${m.name} ${data.initialMeters[m.id]}`).join(" · ")}.</p>
+    </section>
+  </Frame>;
+}
+
 export default function DecisionRoom() {
   const [path] = useLocation();
   const parts = path.split("/").filter(Boolean);
@@ -567,5 +617,6 @@ export default function DecisionRoom() {
   if (parts[1] === "session" && parts[2]) return <Participant code={parts[2].toUpperCase()} />;
   if (parts[1] === "console" && parts[2]) return <Console id={parts[2]} />;
   if (parts[1] === "admin" && parts[2]) return <Admin id={parts[2]} />;
+  if (parts[1] === "report" && parts[2]) return <Report id={parts[2]} />;
   return <Landing />;
 }

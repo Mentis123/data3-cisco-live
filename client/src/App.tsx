@@ -332,6 +332,7 @@ function NewExperienceRouter() {
       <Route path="/decision-room/session/:code" component={DecisionRoom} />
       <Route path="/decision-room/console/:id" component={DecisionRoom} />
       <Route path="/decision-room/admin/:id" component={DecisionRoom} />
+      <Route path="/decision-room/report/:id" component={DecisionRoom} />
       <Route path="/dave" component={DaveRoute} />
       <Route path="/caudit/bible" component={CAUDITBible} />
       <Route path="/caudit/archive" component={CAUDITArchive} />
