@@ -15,8 +15,8 @@ export const editions = {
     number: "02", title: "Agent 0", label: "Next edition", status: "In development",
     image: "/decision-room-art/agent-0.webp", imageAlt: "An autonomous AI core connected to critical infrastructure inside a glowing containment ring",
     line: "When the agent acts, who takes control?",
-    description: "The next evolution of Riverbend. A Microsoft-focused response story, clearer injects and lessons from the first customer run are taking shape here.",
-    tags: ["Agentic AI", "Microsoft security", "Evolving edition"],
+    description: "The next chapter of the tabletop. Richer briefings, a new incident story and lessons from the first customer run are taking shape here.",
+    tags: ["Agentic AI", "Team decisions", "Evolving edition"],
   },
 } as const;
 
@@ -55,8 +55,16 @@ export default function VersionHub() {
       </a>; })}
     </section>
     <aside className="vh-brief"><ShieldCheck size={22} /><div><strong>One room. Every perspective.</strong><p>Join as a table, facilitate the session or put the unfolding story on the big screen. Your facilitator will tell you which edition to open.</p></div><a href="/decision-room/join">Have a room code? <ArrowRight size={17} /></a></aside>
-    <footer className="vh-footer"><span>Data<sup>#</sup>3 · Delivering the Digital Future</span><span>DISCUSS <i /> DECIDE <i /> SEE WHAT CHANGES</span><small>Artwork generated with AI</small></footer>
+    <HomeFooter />
   </main>;
+}
+
+/** Shared home-page credit, matching the Cisco Live attribution and link. */
+export function HomeFooter() {
+  return <footer className="vh-footer">
+    <div className="vh-footer-main"><span>Data<sup>#</sup>3 · Delivering the Digital Future</span><span className="vh-footer-motto">DISCUSS <i /> DECIDE <i /> SEE WHAT CHANGES</span><small>Artwork generated with AI</small></div>
+    <p className="vh-credit">© {new Date().getFullYear()} Data<sup>#</sup>3. Experience Vibe Coded by our resident <a href="https://www.linkedin.com/in/adam-aka-mentis" target="_blank" rel="noopener noreferrer">Tech Wizard</a>.</p>
+  </footer>;
 }
 
 export function EditionIntro({ edition }: { edition: Edition }) {
@@ -66,7 +74,7 @@ export function EditionIntro({ edition }: { edition: Edition }) {
     <div className="vh-eyebrow">V{e.number === "01" ? "1" : "2"} / {e.label} <span className="vh-status"><i />{e.status}</span></div>
     <img className="vh-edition-art" src={e.image} alt="" width="1200" height="800" />
     <h1>{e.title}</h1><p className="vh-edition-line">{e.line}</p>
-    <p>{edition === "agent-0" ? "Agent 0 starts with the original six Riverbend rounds. The Microsoft-focused rewrite and richer inject briefings are coming next." : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
+    <p>{edition === "agent-0" ? "Agent 0 currently uses the original six Riverbend rounds. Clearer briefings and a new incident story are coming next." : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
     <div className="vh-tags">{e.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
   </section>;
 }

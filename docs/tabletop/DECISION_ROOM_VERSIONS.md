@@ -29,6 +29,11 @@ Fallback: `Mentis123/data3-cisco-live` (Vite/wouter + Express).
 | Artwork | `public/decision-room-art/` | `client/public/decision-room-art/` |
 
 The hub and its CSS are identical in both repos. Preserve routing adapters and
+the shared `HomeFooter` credit on the hub and both edition home pages. Its
+wording and Tech Wizard link match the Cisco Live home page. Public edition
+copy leads with the story and decisions; product detail belongs naturally in
+the scenario evidence and optional context, with deeper facilitator notes.
+Preserve
 the Next.js base CSS reset; do not replace one whole implementation with the
 other. Add explicit routes in `client/src/App.tsx` for the fallback. Update the
 live site's `public/index-page.html` when adding or renaming routes.
