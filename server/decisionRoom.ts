@@ -303,7 +303,7 @@ const joinSchema = z.object({ joinCode: z.string().trim().min(4).max(8), teamCod
 const decisionSchema = z.object({ roundNo: z.number().int().min(1).max(ROUND_COUNT), optionKey: z.enum(["A", "B", "C", "D"]), rationale: z.string().trim().max(240).default(""), confidence: z.number().int().min(1).max(5).nullable().optional(), lock: z.boolean().default(false) });
 const handoverSchema = z.object({ decision: z.enum(["approve", "decline"]), requestId: z.string().min(8).max(64) });
 const actionSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("launch") }), z.object({ action: z.literal("start") }), z.object({ action: z.literal("close") }),
+  z.object({ action: z.literal("launch") }), z.object({ action: z.literal("start") }), z.object({ action: z.literal("close") }), z.object({ action: z.literal("unclose") }),
   z.object({ action: z.literal("publish") }), z.object({ action: z.literal("advance") }), z.object({ action: z.literal("end") }), z.object({ action: z.literal("reset") }),
   z.object({ action: z.literal("reopen"), teamId: z.string().uuid() }), z.object({ action: z.literal("handover"), teamId: z.string().uuid() }), z.object({ action: z.literal("feature"), decisionId: z.string().uuid(), featured: z.boolean() }),
 ]);
@@ -526,6 +526,8 @@ export function registerDecisionRoomRoutes(app: Express) {
         case "launch": if (status !== "lobby") { res.status(409).json({ message: "The room has already launched" }); return; } status = "launched"; launched = now; break;
         case "start": if (status === "live" || status === "ended") { res.status(409).json({ message: "The room is already running" }); return; } status = "live"; started = now; closed = null; visible = false; if (!launched) launched = now; break;
         case "close": if (state !== "open") { res.status(409).json({ message: "No open round to close" }); return; } closed = now; break;
+        // Closed too soon: reopen voting (only before the split is shown) with a fresh table clock.
+        case "unclose": if (state !== "closed") { res.status(409).json({ message: "Only a closed round can be reopened, and only before the split is shown" }); return; } closed = null; started = now; break;
         case "publish": if (state !== "open" && state !== "closed") { res.status(409).json({ message: "No round to publish" }); return; } visible = true; closed = closed ?? now; break;
         case "advance":
           if (status !== "live") { res.status(409).json({ message: "Start the room first" }); return; }

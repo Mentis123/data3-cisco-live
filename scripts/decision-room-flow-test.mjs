@@ -165,6 +165,8 @@ check("console payload carries no rationales before publish", !JSON.stringify(co
 console.log("\n8. Close → feature → publish → consequence");
 check("close the round", (await act(sessionId, { action: "close" })).status === 200);
 check("close twice is refused", (await act(sessionId, { action: "close" })).status === 409);
+check("a round closed too soon can be reopened", (await act(sessionId, { action: "unclose" })).status === 200 && (await call("GET", `/sessions/${joinCode}/participant`, { headers: t1 })).body.session.roundState === "open");
+check("close again after reopening", (await act(sessionId, { action: "close" })).status === 200);
 check("votes refused after close", (await call("PUT", `/sessions/${joinCode}/decision`, { body: { roundNo: 1, optionKey: "A", confidence: 2 }, headers: t2 })).status === 409);
 p = await call("GET", `/sessions/${joinCode}/participant`, { headers: t2 });
 check("closed: device shows closed state, no results", p.body.session.roundState === "closed" && p.body.results === null);
