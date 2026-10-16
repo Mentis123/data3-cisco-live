@@ -315,9 +315,10 @@ export function registerDecisionRoomRoutes(app: Express) {
     if (!ensureAdmin(req, res) || rejectMissingDatabase(res)) return;
     const input = createSchema.parse(req.body ?? {}); await ensureTables();
     const sessionId = randomUUID(), joinCode = code(), displayToken = token();
-    const session: Session = { id: sessionId, joinCode, name: input.name, variant: VARIANT, status: "lobby", activeRound: 1, resultsVisible: false, revision: 1, displayTokenHash: sha(displayToken), roundStartedAt: null, roundClosedAt: null, launchedAt: null };
+    const variant = input.variant === "agent0" ? "agent0" : VARIANT;
+    const session: Session = { id: sessionId, joinCode, name: input.name, variant, status: "lobby", activeRound: 1, resultsVisible: false, revision: 1, displayTokenHash: sha(displayToken), roundStartedAt: null, roundClosedAt: null, launchedAt: null };
     if (db) {
-      await db.execute(sql`INSERT INTO workshop_sessions(id,join_code,name,variant,display_token_hash) VALUES(${sessionId}::uuid,${joinCode},${input.name},${VARIANT},${session.displayTokenHash})`);
+      await db.execute(sql`INSERT INTO workshop_sessions(id,join_code,name,variant,display_token_hash) VALUES(${sessionId}::uuid,${joinCode},${input.name},${variant},${session.displayTokenHash})`);
       for (let i = 1; i <= input.tableCount; i++) await db.execute(sql`INSERT INTO workshop_teams(id,session_id,team_code,display_name) VALUES(${randomUUID()}::uuid,${sessionId}::uuid,${String(i)},${`Table ${i}`})`);
     } else {
       memory.sessions.set(sessionId, session);
