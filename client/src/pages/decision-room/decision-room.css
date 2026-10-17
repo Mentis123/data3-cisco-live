@@ -564,3 +564,6 @@
 .dr-review-options p{font-size:14px;color:#cfdcec;margin:6px 0}.dr-review-options ul{padding-left:18px;font-size:13.5px;color:#cfdcec;display:grid;gap:8px}
 @media(max-width:900px){.dr-review-cols{grid-template-columns:1fr}.dr-review-head{flex-direction:column}}
 @media print{.dr-review .dr-report-print{display:none}.dr-review-round,.dr-review-options article,.dr-review-grid .dr-card{break-inside:avoid}.dr-review details{display:block}.dr-review details>*{display:block}.dr-shell.dr-review{background:#000025}}
+/* The site-wide globals.css styles every <header> white with padding; inside the room a header is layout only. */
+.dr-shell header:not(.dr-brand){background:transparent;border:0;padding:0;justify-content:flex-start;align-items:baseline}
+.dr-review-round>header{display:block;margin:0 0 8px}
