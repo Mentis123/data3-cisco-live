@@ -67,14 +67,30 @@ export function HomeFooter() {
   </footer>;
 }
 
+/** Which scenario family a new room of each edition runs on this deployment (from the API, so the copy never overstates). */
+function useEditionFamily(edition: Edition) {
+  const [family, setFamily] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/decision-room/editions").then((r) => (r.ok ? r.json() : null)).then((d) => { if (alive) setFamily(d?.[edition]?.family ?? null); }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [edition]);
+  return family;
+}
+
 export function EditionIntro({ edition }: { edition: Edition }) {
   const e = editions[edition];
+  const family = useEditionFamily(edition);
+  const agent0 = family === "riverbend"
+    ? "Set at Ironvale Mining, where a maintenance agent works across the operation. The mining rounds are in review; until they are approved, rooms opened here run the original six rounds."
+    : "Set at Ironvale Mining, where a maintenance agent works across the operation. Six rounds, from the SOC to the board, each with a sourced briefing. A preview edition, in review with Rich and Scott.";
   return <section className={`vh-edition-intro vh-edition-intro--${edition}`}>
     <a className="vh-back" href="/decision-room"><ArrowLeft size={15} />All experiences</a>
     <div className="vh-eyebrow">V{e.number === "01" ? "1" : "2"} / {e.label} <span className="vh-status"><i />{e.status}</span></div>
     <img className="vh-edition-art" src={e.image} alt="" width="1200" height="800" />
     <h1>{e.title}</h1><p className="vh-edition-line">{e.line}</p>
-    <p>{edition === "agent-0" ? "Set at Ironvale Mining, where a maintenance agent works across the operation. Six rounds, from the SOC to the board, each with a sourced briefing. This edition is in review: until it is approved, live customer rooms run the original six rounds." : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
+    <p>{edition === "agent-0" ? agent0 : "One device per table. Six rounds, from the SOC floor to the boardroom. Vote A–D, say why, lock it — then see where the room landed."}</p>
     <div className="vh-tags">{e.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+    {edition === "agent-0" ? <a className="vh-back vh-review-link" href="/decision-room/agent-0/review">Facilitator review pack <ArrowRight size={15} /></a> : null}
   </section>;
 }

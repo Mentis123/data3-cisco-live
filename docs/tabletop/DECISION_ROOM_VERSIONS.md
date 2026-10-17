@@ -28,10 +28,19 @@ the URL, browser storage or a global constant.
   older one) are refused with a 409, never reinterpreted.
 - **New V1 rooms** (`variant=riverbend`) are pinned to `riverbend@1`.
 - **New Agent 0 rooms** (`variant=agent0`) are pinned to `ironvale@0.1` on
-  preview and local builds. On production (`VERCEL_ENV=production`) they stay
-  on `riverbend@1` until `DECISION_ROOM_AGENT0_SCENARIO` names the approved
-  Ironvale revision. Merging the code does not by itself release the mining
-  content to customer rooms.
+  preview and local builds. In production (`VERCEL_ENV=production`) they get
+  the revision the site releases in its release file, otherwise `riverbend@1`.
+  A `DECISION_ROOM_AGENT0_SCENARIO` environment variable overrides both.
+- **Current release:** the primary site releases `ironvale@0.1`
+  (`lib/decision-room/release.ts`), so new Agent 0 rooms on d3smbmxdr run the
+  mining preview. The fallback's `server/decisionRoomRelease.ts` is `null`, so
+  new Agent 0 rooms on data3-cisco-live stay on `riverbend@1`. The Agent 0
+  landing reads `GET /api/decision-room/editions` so its copy matches what a
+  new room runs.
+- **Review pack:** `/decision-room/agent-0/review` shows the whole Ironvale
+  revision (briefings, options, consequences, branches, preferences, reveals) on
+  one printable page. It is the answer key, so it needs the facilitator key
+  (`GET /api/decision-room/review/:family`) and is never linked from a table view.
 - **Changing content:** never edit a published revision in a way that changes
   what a choice meant. Copy it to a new key (for example `ironvale@1`), register
   it in `scenarios.ts`, and point new rooms at it.
@@ -52,6 +61,7 @@ Fallback: `Mentis123/data3-cisco-live` (Vite/wouter + Express).
 | Views | `app/decision-room/DecisionRoom.tsx` | `client/src/pages/decision-room/DecisionRoom.tsx` |
 | API | `lib/decision-room/api.ts` + Next request adapter | `server/decisionRoom.ts` |
 | Scenarios (mirrored) | `lib/decision-room/types.ts`, `scenarios.ts`, `content.ts`, `ironvale.ts` | `server/decisionRoomTypes.ts`, `decisionRoomScenarios.ts`, `decisionRoomContent.ts`, `decisionRoomIronvale.ts` |
+| Production release (per site, differs on purpose) | `lib/decision-room/release.ts` | `server/decisionRoomRelease.ts` |
 | Artwork | `public/decision-room-art/` | `client/public/decision-room-art/` |
 
 The hub and its CSS are identical in both repos. Preserve routing adapters and

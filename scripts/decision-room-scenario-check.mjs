@@ -17,6 +17,7 @@ import { join } from "node:path";
 const out = mkdtempSync(join(tmpdir(), "dr-scenarios-"));
 execFileSync(process.execPath, [join("node_modules", "typescript", "bin", "tsc"), "server/decisionRoomScenarios.ts", "--outDir", out, "--module", "commonjs", "--target", "es2022", "--skipLibCheck", "--esModuleInterop"], { stdio: "inherit" });
 writeFileSync(join(out, "package.json"), '{"type":"commonjs"}');
+const { AGENT0_PRODUCTION_RELEASE } = createRequire(import.meta.url)(join(out, "decisionRoomRelease.js"));
 const { SCENARIOS, consequenceFor, publicRound, replay, resolveScenario, scenarioKeyForNewRoom, LEGACY_SCENARIO_KEY } = createRequire(import.meta.url)(join(out, "decisionRoomScenarios.js"));
 
 let failures = 0;
@@ -44,8 +45,8 @@ check("new V1 rooms pin riverbend@1", scenarioKeyForNewRoom("riverbend") === "ri
 const env = { ...process.env };
 delete process.env.DECISION_ROOM_AGENT0_SCENARIO;
 process.env.VERCEL_ENV = "preview"; check("new Agent 0 rooms pin the Ironvale preview outside production", scenarioKeyForNewRoom("agent0") === "ironvale@0.1");
-process.env.VERCEL_ENV = "production"; check("new Agent 0 rooms stay on riverbend@1 in production by default", scenarioKeyForNewRoom("agent0") === "riverbend@1");
-process.env.DECISION_ROOM_AGENT0_SCENARIO = "ironvale@0.1"; check("production releases Ironvale only when it is named", scenarioKeyForNewRoom("agent0") === "ironvale@0.1");
+process.env.VERCEL_ENV = "production"; check(`new Agent 0 rooms in production follow this site's release (${AGENT0_PRODUCTION_RELEASE ?? "none, so riverbend@1"})`, scenarioKeyForNewRoom("agent0") === (AGENT0_PRODUCTION_RELEASE ?? "riverbend@1"));
+process.env.DECISION_ROOM_AGENT0_SCENARIO = "ironvale@0.1"; check("the environment variable overrides the site release", scenarioKeyForNewRoom("agent0") === "ironvale@0.1");
 process.env.DECISION_ROOM_AGENT0_SCENARIO = "ironvale@nope"; check("a misnamed release falls back to riverbend@1", scenarioKeyForNewRoom("agent0") === "riverbend@1");
 Object.assign(process.env, env); if (!env.VERCEL_ENV) delete process.env.VERCEL_ENV; if (!env.DECISION_ROOM_AGENT0_SCENARIO) delete process.env.DECISION_ROOM_AGENT0_SCENARIO;
 

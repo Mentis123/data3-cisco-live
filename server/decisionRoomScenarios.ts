@@ -8,12 +8,14 @@
  *     so it resolves to `riverbend@1` and keeps meaning exactly what it meant.
  *   - A stored key this build does not know is refused, never reinterpreted.
  *   - New V1 rooms get `riverbend@1`. New Agent 0 rooms get the Ironvale mining
- *     preview everywhere except production, where they stay on `riverbend@1` until
- *     DECISION_ROOM_AGENT0_SCENARIO names the approved Ironvale revision.
+ *     preview on preview and local builds. In production they get the revision this
+ *     site releases (release.ts), else `riverbend@1`; DECISION_ROOM_AGENT0_SCENARIO
+ *     overrides both.
  */
 
 import { RIVERBEND } from "./decisionRoomContent.js";
 import { IRONVALE } from "./decisionRoomIronvale.js";
+import { AGENT0_PRODUCTION_RELEASE } from "./decisionRoomRelease.js";
 import type { Condition, Consequence, Dashboard, FactState, PublicRound, RoundContent, Scenario, ScenarioInfo, StageStatus } from "./decisionRoomTypes.js";
 
 export const SCENARIOS: Record<string, Scenario> = { [RIVERBEND.key]: RIVERBEND, [IRONVALE.key]: IRONVALE };
@@ -25,14 +27,20 @@ export function scenarioKeyForNewRoom(variant: string) {
   if (variant !== "agent0") return RIVERBEND.key;
   const configured = (process.env.DECISION_ROOM_AGENT0_SCENARIO ?? "").trim();
   if (configured) return SCENARIOS[configured] ? configured : RIVERBEND.key;
-  // Preview content stays out of production rooms until it is approved and named explicitly.
-  return process.env.VERCEL_ENV === "production" ? RIVERBEND.key : IRONVALE.key;
+  // Preview content reaches production rooms only when this site releases it by name.
+  if (process.env.VERCEL_ENV !== "production") return IRONVALE.key;
+  return AGENT0_PRODUCTION_RELEASE && SCENARIOS[AGENT0_PRODUCTION_RELEASE] ? AGENT0_PRODUCTION_RELEASE : RIVERBEND.key;
 }
 
 /** The scenario a stored room runs; null when the stored key is unknown to this build. */
 export function resolveScenario(storedKey: string | null | undefined): Scenario | null {
   if (!storedKey) return SCENARIOS[LEGACY_SCENARIO_KEY];
   return SCENARIOS[storedKey] ?? null;
+}
+
+/** The newest registered revision of a scenario family (registry order), for the facilitator review pack. */
+export function latestOf(family: string): Scenario | null {
+  return Object.values(SCENARIOS).filter((scenario) => scenario.family === family).at(-1) ?? null;
 }
 
 export function scenarioInfo(scenario: Scenario): ScenarioInfo {

@@ -545,3 +545,22 @@
 .dr-report-gaps td{height:38px;border:1px solid #365778;padding:4px 6px}.dr-report-gaps td:first-child{width:12%;font-size:11px;color:#9aa7b5}
 @media(max-width:900px){.dr-report-gaps{overflow-x:auto}.dr-report-gaps table{min-width:640px}}
 @media(max-width:760px){.dr-proj-split,.dr-reveal-wide .dr-revealblock{grid-template-columns:1fr}.dr-fact{flex-wrap:wrap}}
+/* Facilitator review pack (/decision-room/agent-0/review): the whole edition on one scrolling, printable page. */
+.dr-review{display:flex;flex-direction:column;gap:18px}
+.dr-review-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.dr-review-head h1{margin:6px 0 8px;font-size:clamp(28px,3.4vw,46px);line-height:1.08}.dr-review-head p{margin:0 0 8px;color:#b9cbe0;max-width:80ch}
+.dr-review .dr-report-print{display:flex}
+.dr-review-status{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px!important}
+.dr-review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}.dr-review-grid .dr-card h2{margin-top:0;font-size:19px}.dr-review-grid .dr-card p{color:#cfdcec}
+.dr-review-asks,.dr-review-open,.dr-review-plan,.dr-review-facts{margin:0;padding-left:18px;display:grid;gap:8px;color:#cfdcec}.dr-review-asks b,.dr-review-plan b{display:inline-block;min-width:64px;margin-right:8px;color:#78dcff}
+.dr-review-plan{list-style:none;padding:0}.dr-review-plan small{display:block;color:#7f97b4;margin-left:72px}
+.dr-review-facts{list-style:none;padding:0}.dr-review-facts li{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.dr-review-facts b{width:100%;color:#fff}
+.dr-review-round header h2{margin:6px 0 4px;font-size:clamp(22px,2.4vw,32px)}.dr-review-round .dr-task{margin:0 0 16px}
+.dr-review-h{margin:14px 0 10px;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:#78dcff}
+.dr-review-cols{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}.dr-review-cols .dr-card{padding:18px;margin-bottom:14px}
+.dr-review-variants ul{margin:0;padding-left:18px;display:grid;gap:8px;color:#cfdcec;font-size:14px}
+.dr-review-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.dr-review-options article{border:1px solid rgba(0,174,255,.2);border-radius:12px;padding:14px;background:rgba(0,0,37,.35)}.dr-review-options article.is-preferred{border-color:rgba(127,186,0,.6)}
+.dr-review-options header{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:6px}.dr-review-options header strong{flex:1;min-width:0}
+.dr-review-options p{font-size:14px;color:#cfdcec;margin:6px 0}.dr-review-options ul{padding-left:18px;font-size:13.5px;color:#cfdcec;display:grid;gap:8px}
+@media(max-width:900px){.dr-review-cols{grid-template-columns:1fr}.dr-review-head{flex-direction:column}}
+@media print{.dr-review .dr-report-print{display:none}.dr-review-round,.dr-review-options article,.dr-review-grid .dr-card{break-inside:avoid}.dr-review details{display:block}.dr-review details>*{display:block}.dr-shell.dr-review{background:#000025}}

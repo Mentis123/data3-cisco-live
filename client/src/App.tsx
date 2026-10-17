@@ -329,6 +329,7 @@ function NewExperienceRouter() {
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />
       <Route path="/decision-room" component={DecisionRoom} />
       <Route path="/decision-room/ciso-basecamp" component={DecisionRoom} />
+      <Route path="/decision-room/agent-0/review" component={DecisionRoom} />
       <Route path="/decision-room/agent-0" component={DecisionRoom} />
       <Route path="/decision-room/join" component={DecisionRoom} />
       <Route path="/decision-room/join/:code" component={DecisionRoom} />

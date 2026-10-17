@@ -16,7 +16,7 @@ import { useLocation } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
 import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, FileText, Printer, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
 import "./decision-room.css";
-import type { Briefing, Consequence, Dashboard, FactState, Guidance, Launch, MeterDef, PublicRound, Reveal, RunPlan, RunSegment, ScenarioInfo, Tone } from "../../../../server/decisionRoomTypes";
+import type { Briefing, Condition, Consequence, Dashboard, FactState, Guidance, Launch, MeterDef, PublicRound, Reveal, RunPlan, RunSegment, Scenario, ScenarioInfo, Tone } from "../../../../server/decisionRoomTypes";
 import VersionHub, { EditionIntro, HomeFooter, editions, type Edition } from "./VersionHub";
 
 /* ------------------------------------------------------------------ types */
@@ -638,9 +638,82 @@ function Report({ id }: { id: string }) {
   </Frame>;
 }
 
+/* ----------------------------------------------------------- review pack
+ * Facilitator-only: the whole edition on one page for Rich and Scott to review —
+ * every briefing, option, consequence, branch, preference and reveal. It is the
+ * answer key, so it sits behind the facilitator key like the admin page.
+ */
+
+type ReviewData = { scenario: Scenario; info: ScenarioInfo; initialFacts: FactState[] | null; liveForAgent0: boolean };
+const DOCS = "https://github.com/Mentis123/data3-cisco-live/blob/main/docs/agent-0";
+const REVIEW_ASKS = [
+  { who: "Rich", ask: "The incident arc and decision pressure; four credible alternatives per round; the conditions behind each preference; 90-minute pacing." },
+  { who: "Scott", ask: "Each product supports the step it appears in; process before product; how gaps lead to an approved next conversation without a pitch." },
+  { who: "Together", ask: "Nominate a mining OT/site reviewer (plant map, caller verification, safe-state wording) and an identity specialist (principal types, token and secret treatment)." },
+];
+const OPEN_QUESTIONS = [
+  "Are the fictional specifics acceptable: the 12-hour manual-request fallback, and the response playbook last tested on 12 September?",
+  "Should data access stay “being assessed” when containment was only partial?",
+  "Is maintenance coordination the right business anchor, and the contractor broker the right route towards OT?",
+  "Which counterfactual should change each preference, and how should the report acknowledge reasonable alternatives?",
+  "Product naming for the customer’s tenant and release (for example the Purview DSPM experience), and Entra Agent ID availability.",
+];
+
+function describe(scenario: Scenario, c: Condition): string {
+  if ("all" in c) return c.all.map((x) => describe(scenario, x)).join(" and ");
+  if ("fact" in c) { const f = scenario.facts?.find((x) => x.id === c.fact); return `${f?.name ?? c.fact}: ${c.anyOf.map((v) => f?.values[v]?.label ?? v).join(" or ")}`; }
+  const seat = scenario.rounds.find((r) => r.roundNo === c.round)?.seat.split(" · ")[0] ?? `Round ${c.round}`;
+  return `${seat} chose ${"option" in c ? c.option : c.anyOf.join(" or ")}`;
+}
+
+function ReviewPack({ family }: { family: string }) {
+  const [key, setKey] = useState(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } });
+  const [draftKey, setDraftKey] = useState("");
+  const [data, setData] = useState<ReviewData | null>(null); const [error, setError] = useState("");
+  useEffect(() => { if (!key) return; setError(""); request<ReviewData>(`${API}/review/${family}`, { headers: { "x-admin-key": key } }).then(setData).catch((e) => setError((e as Error).message)); }, [key, family]);
+  if (!key || (!data && /facilitator access/i.test(error))) return <Frame><section className="dr-card dr-form"><a className="vh-back" href="/decision-room/agent-0">← Agent 0</a><h2>Agent 0 review pack</h2><p className="dr-hint">Facilitator key required. This page holds the preferences and every consequence, so it is never shown to tables.</p><label>Facilitator key<input type="password" value={draftKey} onChange={(e) => setDraftKey(e.target.value)} autoComplete="off" /></label><button className="dr-primary" disabled={!draftKey.trim()} onClick={() => { try { localStorage.setItem("decision-room-admin-key", draftKey.trim()); } catch { /* ignore */ } setKey(draftKey.trim()); }}>Open review pack</button><ErrorText message={error} /></section></Frame>;
+  if (!data) return <Frame wide><section className="dr-card"><h2>Opening the review pack…</h2><ErrorText message={error} /></section></Frame>;
+  const { scenario: s, info } = data;
+  return <Frame wide className="dr-review" kicker={s.brand.kicker}>
+    <section className="dr-review-head">
+      <div><span className="dr-kicker">FACILITATOR REVIEW PACK · NOT FOR PROJECTION · {info.key}</span><h1>{s.organisation.name}: the six decisions</h1>
+        <p>{s.organisation.tagline}</p>
+        <p className="dr-review-status"><b className={`dr-fchip dr-fchip--${info.status === "live" ? "good" : "warn"}`}>{info.status === "live" ? "Approved" : "Preview — not yet approved by Rich and Scott"}</b><b className={`dr-fchip dr-fchip--${data.liveForAgent0 ? "good" : "neutral"}`}>{data.liveForAgent0 ? "New Agent 0 rooms on this site run this content" : "New Agent 0 rooms on this site still run the original rounds"}</b></p></div>
+      <button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button>
+    </section>
+    <section className="dr-review-grid">
+      <div className="dr-card"><h2>What we are asking</h2><ul className="dr-review-asks">{REVIEW_ASKS.map((a) => <li key={a.who}><b>{a.who}</b>{a.ask}</li>)}</ul><p className="dr-hint">Design baseline: <a href={`${DOCS}/agent-0-mining-concept-v0.1.md`} target="_blank" rel="noopener noreferrer">concept v0.1</a> · <a href={`${DOCS}/agent-0-concept-review-brief.md`} target="_blank" rel="noopener noreferrer">review brief</a>. Every organisation, host and alert is synthetic.</p></div>
+      <div className="dr-card"><h2>The setting</h2><p>{s.organisation.estate}</p><p><b>Holds.</b> {s.organisation.holds}</p><p><b>Reach.</b> {s.organisation.reach}</p><p><b>Objective.</b> {s.organisation.objective}</p></div>
+      <div className="dr-card"><h2>{s.launch.profileTitle}</h2><div className="dr-profile">{s.launch.profile.map((p) => <div key={p.label}><small>{p.label}</small><strong>{p.value}</strong><em>{s.launch.notePrefix} {p.note}</em></div>)}</div><p className="dr-hint">{s.launch.profileHint}</p></div>
+    </section>
+    {s.rounds.map((r) => <section className="dr-card dr-review-round" key={r.roundNo}>
+      <header><span className="dr-kicker">{r.seat.toUpperCase()} · {r.when.toUpperCase()} · {Math.round(r.durationSeconds / 60)} MIN TO DECIDE</span><h2>{r.title}</h2><p className="dr-task">{r.prompt}</p></header>
+      <div className="dr-review-cols">
+        <div><h3 className="dr-review-h">Table briefing (default)</h3>{r.briefing ? <BriefingCard b={r.briefing} /> : <div className="dr-situation">{r.situation.map((l, i) => <p key={i}>{l}</p>)}</div>}
+          {r.briefing?.variants?.length ? <div className="dr-review-variants"><h3 className="dr-review-h">The briefing changes with history</h3><ul>{r.briefing.variants.map((v, i) => <li key={i}><b>If {describe(s, v.when)}:</b> {v.changed ?? v.unknown ?? `${v.evidence?.length ?? 0} different evidence cards`}</li>)}</ul></div> : null}</div>
+        <div>{r.guidance ? <GuidanceCard g={r.guidance} /> : null}{r.reveal ? <div className="dr-card"><h3 className="dr-review-h">Reveal, shown after the split</h3><RevealBlock reveal={r.reveal} /></div> : null}</div>
+      </div>
+      <h3 className="dr-review-h">The four options and what follows</h3>
+      <div className="dr-review-options">{r.options.map((o) => <article key={o.key} className={r.guidance?.preferred === o.key ? "is-preferred" : ""}>
+        <header><b className="dr-key">{o.key}</b><strong>{o.label}</strong>{r.guidance?.preferred === o.key ? <span className="dr-fchip dr-fchip--good">conditional preference</span> : null}</header>
+        {o.cost ? <p className="dr-hint">{o.cost}</p> : null}
+        <p><b>{o.consequence.you}</b> {o.consequence.body}</p>
+        <div className="dr-changes">{o.consequence.changes.map((ch) => <span className={`chg chg--${ch.d}`} key={ch.t}>{ch.t}</span>)}</div>
+        {o.variants?.length ? <details className="dr-b-more"><summary>{o.variants.length} branch{o.variants.length > 1 ? "es" : ""} on earlier choices</summary><ul>{o.variants.map((v, i) => <li key={i}><b>If {describe(s, v.when)}:</b> {v.consequence.you} {v.consequence.body}</li>)}</ul></details> : null}
+      </article>)}</div>
+    </section>)}
+    <section className="dr-review-grid">
+      {s.facts ? <div className="dr-card"><h2>Named exercise states</h2><p className="dr-hint">{s.brand.simulationNote}</p><ul className="dr-review-facts">{s.facts.map((f) => <li key={f.id}><b>{f.name}</b>{Object.entries(f.values).map(([id, v]) => <span key={id} className={`dr-fchip dr-fchip--${v.tone}`}>{v.label}{id === f.initial ? " · start" : ""}</span>)}</li>)}</ul></div> : null}
+      <div className="dr-card"><h2>Run of show · {s.runPlan.totalMinutes} min</h2><ul className="dr-review-plan">{s.runPlan.segments.map((g) => <li key={g.key}><b>{g.from}–{g.to}</b>{g.label}<small>{g.slides}</small></li>)}</ul></div>
+      <div className="dr-card"><h2>Open questions</h2><ol className="dr-review-open">{OPEN_QUESTIONS.map((q) => <li key={q}>{q}</li>)}</ol></div>
+    </section>
+  </Frame>;
+}
+
 export default function DecisionRoom() {
   const [path] = useLocation();
   const parts = path.split("/").filter(Boolean);
+  if (parts[1] === "agent-0" && parts[2] === "review") return <ReviewPack family="ironvale" />;
   if (parts[1] === "ciso-basecamp" || parts[1] === "agent-0") return <Landing key={parts[1]} edition={parts[1]} />;
   if (parts[1] === "join") return <Landing presetCode={parts[2]} />;
   if (parts[1] === "session" && parts[2]) return <Participant code={parts[2].toUpperCase()} />;
