@@ -50,6 +50,28 @@ conditional guidance (preference, conditions, alternative, the evidence that
 would change it) to the facilitator only and never scores tables against it.
 V2 replaces numeric meters with named exercise states, labelled as a model.
 
+## Reports
+
+The facilitator page links two reports, both behind the facilitator key and
+both resolved from the room's pinned revision:
+
+- **One-page report** (`/decision-room/report/:id`): the whole room on one
+  printable page: tiles, each round's split and one quote, and where each table
+  finished.
+- **Round-by-round report** (`/decision-room/report/:id/rounds`): two printable
+  pages. Page one is every round's question with each table's locked vote,
+  confidence and verbatim reason. Page two is the summary: tiles, where each
+  table finished, the room's call per round and the facilitator's notes on how
+  it went (typed on the page, kept in that browser's storage). **Download
+  PowerPoint** builds the same two pages as slides in the browser
+  (`rounds-deck.ts`, pptxgenjs, mirrored in both repos).
+
+The report API adds every locked response in table order (`responses`) and
+replays the room's action log (`voteWindows`) for how long each round's vote
+was open and the minutes from the first vote to the last reveal. A round with
+no votes says why: a vote closed within a minute is reported with its seconds.
+The in-memory room keeps no log, so it shows no timings.
+
 ## Paired update pattern
 
 Live project: `Mentis123/d3smbmxdr` (Next.js).

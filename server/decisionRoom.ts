@@ -139,6 +139,41 @@ async function bump(sessionId: string) {
   if (!db) { const s = memory.sessions.get(sessionId); if (s) s.revision++; return; }
   await db.execute(sql`UPDATE workshop_sessions SET revision=revision+1 WHERE id=${sessionId}::uuid`);
 }
+/** The room's action log, oldest first (empty without a database: the in-memory room keeps none). */
+async function getEvents(sessionId: string): Promise<{ type: string; at: string }[]> {
+  if (!db) return [];
+  return rows<any>(await db.execute(sql`SELECT event_type, created_at FROM workshop_events WHERE session_id=${sessionId}::uuid ORDER BY created_at`)).map((r) => ({ type: String(r.event_type), at: new Date(r.created_at).toISOString() }));
+}
+
+/**
+ * Replays the action log since the last reset: how many seconds each round's vote
+ * was open (start/advance open a round, close/publish/end shut it, unclose reopens it),
+ * and the minutes from the first vote opening to the last reveal. Null where unknown.
+ */
+export function voteWindows(events: { type: string; at: string }[], total: number) {
+  let from = 0;
+  events.forEach((e, i) => { if (e.type === "reset") from = i + 1; });
+  const windows: (number | null)[] = Array.from({ length: total }, () => null);
+  let round = 0; let open: number | null = null; let first: number | null = null; let lastReveal: number | null = null;
+  const shut = (t: number) => {
+    if (open !== null && round >= 1 && round <= total) windows[round - 1] = (windows[round - 1] ?? 0) + Math.max(0, t - open) / 1000;
+    open = null;
+  };
+  for (const e of events.slice(from)) {
+    const t = Date.parse(e.at);
+    if (Number.isNaN(t)) continue;
+    if (e.type === "start") { if (round === 0) round = 1; open = t; if (first === null) first = t; }
+    else if (e.type === "advance") { shut(t); round += 1; open = t; }
+    else if (e.type === "close" || e.type === "end") shut(t);
+    else if (e.type === "unclose") open = t;
+    else if (e.type === "publish") { shut(t); lastReveal = t; }
+  }
+  return {
+    windows: windows.map((w) => (w === null ? null : Math.round(w))),
+    minutes: first !== null && lastReveal !== null ? Math.round((lastReveal - first) / 60000) : null,
+  };
+}
+
 async function event(sessionId: string, eventType: string, payload: unknown = {}) {
   if (!db) return;
   await db.execute(sql`INSERT INTO workshop_events(id,session_id,event_type,payload) VALUES(${randomUUID()}::uuid,${sessionId}::uuid,${eventType},${JSON.stringify(payload)}::jsonb)`);
@@ -542,6 +577,8 @@ export function registerDecisionRoomRoutes(app: Express) {
         agreement: locked.length ? top / locked.length : null,
         confidence: { median: median(conf), low: conf[0] ?? null, high: conf.at(-1) ?? null },
         quotes: locked.filter((d) => d.rationale).map((d) => ({ table: names.get(d.teamId) ?? "", option: d.optionKey, confidence: d.confidence, rationale: d.rationale, featured: d.isFeatured })),
+        // Every locked call in table order, reason or not: the round-by-round report shows each table's answer.
+        responses: teams.flatMap((t) => locked.filter((d) => d.teamId === t.id).map((d) => ({ table: t.displayName, option: d.optionKey, confidence: d.confidence, rationale: d.rationale, featured: d.isFeatured }))),
       };
     });
     const tables = teams.filter((t) => t.tokenHash || decisions.some((d) => d.teamId === t.id)).map((t) => {
@@ -552,12 +589,13 @@ export function registerDecisionRoomRoutes(app: Express) {
       return { name: t.displayName, choices: rounds.map((r) => choices.get(r.roundNo) ?? null), ...(scenario.meters ? { meters: end.meters } : {}), ...(scenario.facts ? { facts: factStates(scenario, end.facts) } : {}), confidence: conf.length ? Math.round((conf.reduce((a, b) => a + b, 0) / conf.length) * 10) / 10 : null };
     });
     const start = replay(scenario, new Map(), 0);
+    const run = voteWindows(await getEvents(session.id), total);
     res.json({
       scenario: scenarioInfo(scenario),
       room: { joinCode: session.joinCode, name: session.name, status: session.status, launchedAt: session.launchedAt }, rounds, tables,
       ...(scenario.meters ? { meterKeys: scenario.meters, initialMeters: start.meters } : {}),
       ...(scenario.facts ? { initialFacts: factStates(scenario, start.facts) } : {}),
-      generatedAt: new Date().toISOString(),
+      run, generatedAt: new Date().toISOString(),
     });
   } catch (e) { fail(e, res, next); } });
 

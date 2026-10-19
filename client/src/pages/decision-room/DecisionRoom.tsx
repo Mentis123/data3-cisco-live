@@ -11,11 +11,12 @@
  * Richard's slide and is never sent to a device.
  */
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
 import { AlertTriangle, ArrowRight, Check, Copy, Download, Eye, FileText, Printer, LockKeyhole, Monitor, Play, Radio, RotateCcw, ShieldCheck, Square, Users, Zap } from "lucide-react";
 import "./decision-room.css";
+import { downloadRoundsDeck, type RoundsModel, type RoundsRow } from "./rounds-deck";
 import type { Briefing, Condition, Consequence, Dashboard, FactState, Guidance, Launch, MeterDef, PublicRound, Reveal, RunPlan, RunSegment, Scenario, ScenarioInfo, Tone } from "../../../../server/decisionRoomTypes";
 import VersionHub, { EditionIntro, HomeFooter, editions, type Edition } from "./VersionHub";
 
@@ -556,7 +557,7 @@ function Admin({ id }: { id: string }) {
     <section className="dr-card"><div className="dr-panel-head"><span>Run the room, in order</span><Status tone={stale(lastUpdated, now)} label={stale(lastUpdated, now)} /></div>
       <div className="dr-steps">{steps.map((s, i) => <button key={s.action} className={s.primary ? "dr-primary" : ""} disabled={busy || !s.enabled} onClick={() => act({ action: s.action })}><b>{i + 1}</b>{s.icon}{s.label}</button>)}</div>
       <div className="dr-run-foot"><p className="dr-hint">Flow per round: tables lock → <b>Close round</b> → Richard walks the option slide → <b>Show the split</b> → discuss → <b>Next</b>. The timer is advisory; nothing closes on its own.</p>
-      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><a className="dr-button" target="_blank" rel="noreferrer" href={`/decision-room/report/${id}`}><FileText />After-action report</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div></div>
+      <div className="dr-control-bar"><a className="dr-button" target="_blank" rel="noreferrer" href={consoleUrl}><Monitor />Open console (projector)</a><a className="dr-button" target="_blank" rel="noreferrer" href={`/decision-room/report/${id}`}><FileText />One-page report</a><a className="dr-button" target="_blank" rel="noreferrer" href={`/decision-room/report/${id}/rounds`}><FileText />Round-by-round report</a><button onClick={exportCsv}><Download />Export CSV</button><button onClick={() => confirm("End this room? Table devices can no longer submit.") && act({ action: "end" })} disabled={busy || session.status === "ended"}>End room</button><button className="danger" onClick={() => confirm("Reset this room and remove every response and table login?") && act({ action: "reset" })} disabled={busy}><RotateCcw />Reset</button></div></div>
       <ErrorText message={actionError} />
     </section>
 
@@ -580,13 +581,14 @@ function GuidanceCard({ g }: { g: Guidance }) {
 
 /* ---------------------------------------------------------------- report */
 
-type ReportRound = { roundNo: number; seat: string; title: string; options: { key: string; label: string }[]; locked: number; counts: Record<string, number>; roomCall: string[]; best: string | null; guidance: Guidance | null; agreement: number | null; confidence: { median: number | null; low: number | null; high: number | null }; quotes: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[] };
+type ReportRound = { roundNo: number; seat: string; title: string; options: { key: string; label: string }[]; locked: number; counts: Record<string, number>; roomCall: string[]; best: string | null; guidance: Guidance | null; agreement: number | null; confidence: { median: number | null; low: number | null; high: number | null }; quotes: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[]; responses?: { table: string; option: string; confidence: number | null; rationale: string; featured: boolean }[] };
 type ReportData = {
   scenario: ScenarioInfo;
   room: { joinCode: string; name: string; status: string; launchedAt: string | null };
   rounds: ReportRound[];
   tables: { name: string; choices: (string | null)[]; meters?: Meters; facts?: FactState[]; confidence: number | null }[];
   meterKeys?: MeterKey[]; initialMeters?: Meters; initialFacts?: FactState[]; generatedAt: string;
+  run?: { windows: (number | null)[]; minutes: number | null };
 };
 
 /** One-page after-action report for the facilitator: print or save as PDF. */
@@ -609,7 +611,7 @@ function Report({ id }: { id: string }) {
   const date = new Date(data.room.launchedAt ?? data.generatedAt);
   return <Frame wide className="dr-report" kicker={brand.kicker}>
     <section className="dr-report-head">
-      <div><span className="dr-kicker">AFTER-ACTION REPORT · ROOM {data.room.joinCode} · {date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span><h1>{brand.reportTitle}</h1><p>{data.tables.length} tables · {played.length} of {data.rounds.length} rounds decided · {conditional ? "facilitator guidance is conditional, not an answer key; tables are shown as journeys, never ranked." : "Richard’s best move is from the deck; tables are shown as journeys, never ranked."}</p></div>
+      <div><span className="dr-kicker">AFTER-ACTION REPORT · ROOM {data.room.joinCode} · {date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span><h1>{brand.reportTitle}</h1><p>{data.tables.length} tables · {played.length} of {data.rounds.length} rounds decided · {conditional ? "facilitator guidance is conditional, not an answer key; tables are shown as journeys, never ranked." : "Richard’s best move is from the deck; tables are shown as journeys, never ranked."} <a className="dr-report-switch" href={`/decision-room/report/${id}/rounds`}>Round by round, with every table’s reasons →</a></p></div>
       <button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button>
     </section>
     <section className="dr-report-tiles">
@@ -635,6 +637,132 @@ function Report({ id }: { id: string }) {
     </section>
     {conditional ? <section className="dr-report-gaps"><h2>Gap register</h2><p>What was missing? Who owns the improvement? Fill in during the debrief.</p>
       <table><thead><tr><th>Round</th><th>Gap</th><th>Impact</th><th>Owner</th><th>Next action</th><th>Date</th></tr></thead><tbody>{Array.from({ length: 6 }, (_, i) => <tr key={i}><td>{data.rounds[i] ? data.rounds[i].seat.split(" · ")[0] : ""}</td><td /><td /><td /><td /><td /></tr>)}</tbody></table></section> : null}
+  </Frame>;
+}
+
+/* -------------------------------------------------------- round by round
+ * Facilitator-only, two pages: every round's question with each table's vote,
+ * confidence and reason, then a summary with the facilitator's own notes on how
+ * it went. Prints as two A4 landscape pages and downloads as a two-slide
+ * PowerPoint built from the same model (rounds-deck.ts), so they always agree.
+ */
+
+function roundsModel(data: ReportData, notes: string): RoundsModel {
+  const brand = data.scenario.brand;
+  const conditional = brand.reportMode === "conditional";
+  const tables = data.tables.map((t) => t.name);
+  const played = data.rounds.filter((r) => r.locked > 0);
+  const windows = data.run?.windows ?? [];
+  const logged = data.run?.minutes !== null && data.run?.minutes !== undefined;
+  const rows: RoundsRow[] = data.rounds.map((r, i) => {
+    const [label, seat = ""] = r.seat.split(" · ");
+    const best = r.best ? r.options.find((o) => o.key === r.best) : undefined;
+    const guide = conditional ? (r.guidance ? `Rich’s conditional preference: ${r.guidance.preferred}` : null) : best ? `Richard: ${best.key} · ${best.label}` : null;
+    const top = r.roomCall.length ? r.counts[r.roomCall[0]] : 0;
+    const call = !r.locked ? "" : r.roomCall.length === 1 ? `Room: ${r.roomCall[0]} (${top} of ${r.locked})` : `Room split: ${r.roomCall.join(" / ")} (${top} each)`;
+    const w = windows[i];
+    const empty = r.locked ? null
+      : typeof w === "number" && w < 60 ? `No votes. The vote closed after ${w} seconds, before any table locked a call.`
+      : logged && w === null ? "This round was not opened."
+      : "No table locked a call in this round.";
+    const cells = tables.map((name) => {
+      const x = (r.responses ?? []).find((q) => q.table === name);
+      return x ? { option: x.option, confidence: x.confidence, rationale: x.rationale ?? "", best: !conditional && x.option === r.best } : null;
+    });
+    return { label, seat, question: r.title, guide, call, callMatches: !conditional && !!r.best && r.roomCall.includes(r.best), empty, cells };
+  });
+  const matched = played.filter((r) => r.best && r.roomCall.includes(r.best)).length;
+  const written = played.reduce((n, r) => n + (r.responses ?? []).filter((q) => q.rationale).length, 0);
+  const calls = played.reduce((n, r) => n + r.locked, 0);
+  const medians = played.map((r) => r.confidence.median).filter((m): m is number => m !== null);
+  const minutes = data.run?.minutes;
+  const tiles = [
+    { big: `${played.length} of ${data.rounds.length}`, small: `rounds the room locked a decision${minutes ? `, over ${minutes} minutes` : ""}` },
+    conditional ? { big: `${written} of ${calls}`, small: "locked calls with a written reason" }
+      : { big: `${matched} of ${played.length}`, small: "room calls that matched Richard’s best move" },
+    { big: medians.length ? medians.join(" → ") : "–", small: "median confidence by round, out of 5" },
+  ];
+  const meters = data.meterKeys ?? [];
+  const finish = data.tables.map((t) => {
+    const hits = conditional ? null : played.filter((r) => r.best && t.choices[r.roundNo - 1] === r.best).length;
+    let standout = ""; let standoutGood: boolean | null = null;
+    if (t.facts?.length) {
+      const f = t.facts.find((x) => x.tone === "bad") ?? t.facts.find((x) => x.tone === "warn") ?? t.facts.find((x) => x.tone === "good") ?? t.facts[0];
+      standout = `${f.name}: ${f.label}`; standoutGood = f.tone === "good" ? true : f.tone === "neutral" ? null : false;
+    } else if (t.meters && meters.length) {
+      // The reading that most sets this table apart from the room.
+      const scored = meters.map((m) => {
+        const v = t.meters?.[m.id] ?? 0;
+        const avg = data.tables.reduce((s, x) => s + (x.meters?.[m.id] ?? 0), 0) / data.tables.length;
+        return { m, v, dev: m.good ? v - avg : avg - v };
+      }).sort((a, b) => Math.abs(b.dev) - Math.abs(a.dev));
+      const s = scored[0];
+      standout = `${s.m.name} ${s.v}`; standoutGood = s.dev === 0 ? null : s.dev > 0;
+    }
+    return { name: t.name, matches: hits === null ? null : `${hits} of ${played.length} best`, choices: t.choices.map((c) => c ?? "·").join(" "), standout, standoutGood };
+  });
+  const date = new Date(data.room.launchedAt ?? data.generatedAt);
+  return {
+    kicker: `${brand.kicker} · DECISION ROOM`.toUpperCase(), title: brand.reportTitle, roomCode: data.room.joinCode,
+    dateLabel: date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }), conditional,
+    tables, rows, tiles, finish, notes,
+    footnote: `${brand.reportNote} Finishing positions illustrate the trade-offs; they are not a score.`,
+  };
+}
+
+function RoundsReport({ id }: { id: string }) {
+  const key = useMemo(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } }, []);
+  const notesKey = `decision-room-notes-${id}`;
+  const [data, setData] = useState<ReportData | null>(null); const [error, setError] = useState("");
+  const [notes, setNotes] = useState(() => { try { return localStorage.getItem(notesKey) || ""; } catch { return ""; } });
+  const [building, setBuilding] = useState(false); const [deckError, setDeckError] = useState("");
+  useEffect(() => { request<ReportData>(`${API}/sessions/${id}/report`, { headers: { "x-admin-key": key } }).then(setData).catch((e) => setError((e as Error).message)); }, [id, key]);
+  useEffect(() => { try { localStorage.setItem(notesKey, notes); } catch { /* notes stay on screen only */ } }, [notesKey, notes]);
+  if (!data) return <Frame wide><section className="dr-card"><h2>Preparing the report…</h2><ErrorText message={error || (!key ? "Open this from your facilitator page so the key is available." : "")} /></section></Frame>;
+  const model = roundsModel(data, notes);
+  const played = data.rounds.filter((r) => r.locked > 0).length;
+  async function download() {
+    setDeckError(""); setBuilding(true);
+    try { await downloadRoundsDeck(model); } catch (e) { setDeckError(`PowerPoint failed: ${(e as Error).message}`); } finally { setBuilding(false); }
+  }
+  const noteLines = notes.split(/\n+/).map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
+  return <Frame wide className="dr-report dr-rounds" kicker={data.scenario.brand.kicker}>
+    <section className="dr-report-head">
+      <div><span className="dr-kicker">ROUND-BY-ROUND REPORT · ROOM {model.roomCode} · {model.dateLabel.toUpperCase()}</span><h1>Round by round: the question, and how each table answered</h1>
+        <p>{model.tables.length} tables · {played} of {data.rounds.length} rounds decided · {model.conditional ? "preferences are conditional, not an answer key; tables are never ranked." : "Richard’s best move is from the deck; tables are never ranked."} <a className="dr-report-switch" href={`/decision-room/report/${id}`}>One-page summary →</a></p></div>
+      <div className="dr-report-actions"><button className="dr-report-print" onClick={download} disabled={building}><Download />{building ? "Building…" : "Download PowerPoint"}</button><button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button></div>
+    </section>
+    <ErrorText message={deckError} />
+    <section className="dr-rounds-grid" style={{ "--dr-cols": String(Math.max(1, model.tables.length)) } as CSSProperties}>
+      <div className="dr-rounds-colhead"><span>{model.conditional ? "Round · question · conditional preference" : "Round · question · Richard’s best move"}</span>{model.tables.map((t) => <span key={t}>{t}</span>)}</div>
+      {model.rows.map((row, i) => <article key={i} className={row.empty ? "is-empty" : ""}>
+        <header><small>{row.label}{row.seat ? ` · ${row.seat}` : ""}</small><strong>{row.question}</strong>{row.guide ? <span>{row.guide}</span> : null}{row.empty ? null : <b className={row.callMatches ? "is-hit" : ""}>{row.call}</b>}</header>
+        {row.empty ? <p className="dr-rounds-empty">{row.empty}</p> : row.cells.map((c, j) => <div key={j} className="dr-rounds-cell">
+          {c ? <><i className={c.best ? "is-best" : ""}>{c.option}</i><em>{c.confidence ? `${c.confidence}/5` : ""}</em>{c.rationale ? <q>{c.rationale}</q> : <span className="dr-rounds-none">No reason written</span>}</> : <span className="dr-rounds-none">Did not lock</span>}
+        </div>)}
+      </article>)}
+    </section>
+    {model.conditional ? null : <p className="dr-rounds-legend"><i className="is-best">A</i>matches Richard’s best move<i>A</i>another option · reasons are verbatim from each table’s device</p>}
+    <section className="dr-rounds-summary">
+      <span className="dr-kicker">SUMMARY · ROOM {model.roomCode} · {model.tables.length} TABLES</span><h2>What the decisions tell us, and how it went</h2>
+      <div className="dr-rounds-sumgrid">
+        <div>
+          <div className="dr-report-tiles dr-rounds-tiles">{model.tiles.map((t) => <div key={t.small}><strong>{t.big}</strong><span>{t.small}</span></div>)}</div>
+          <small className="dr-rounds-h">Where each table finished</small>
+          <ul className="dr-rounds-finish">{model.finish.map((f) => <li key={f.name}><b>{f.name}</b><span>{f.choices}</span>{f.matches ? <em>{f.matches}</em> : null}<i className={f.standoutGood === false ? "is-warn" : ""}>{f.standout}</i></li>)}</ul>
+        </div>
+        <div>
+          <small className="dr-rounds-h">The room’s call, round by round</small>
+          <ol className="dr-rounds-calls">{model.rows.map((row, i) => <li key={i}><b>{row.label}: {row.question}</b><span>{row.empty ?? [row.call, row.guide].filter(Boolean).join(" · ")}</span></li>)}</ol>
+        </div>
+        <div className="dr-rounds-notes">
+          <small className="dr-rounds-h">Facilitator notes · how it went</small>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={"One point per line: what stood out, how the room ran, what to change next time.\nSaved in this browser and included in the print and the PowerPoint."} />
+          <div className="dr-rounds-notes-print">{noteLines.length ? <ul>{noteLines.map((l, i) => <li key={i}>{l}</li>)}</ul> : <p>No notes added.</p>}</div>
+        </div>
+      </div>
+      <p className="dr-hint">{model.footnote}</p>
+    </section>
   </Frame>;
 }
 
@@ -719,6 +847,6 @@ export default function DecisionRoom() {
   if (parts[1] === "session" && parts[2]) return <Participant code={parts[2].toUpperCase()} />;
   if (parts[1] === "console" && parts[2]) return <Console id={parts[2]} />;
   if (parts[1] === "admin" && parts[2]) return <Admin id={parts[2]} />;
-  if (parts[1] === "report" && parts[2]) return <Report id={parts[2]} />;
+  if (parts[1] === "report" && parts[2]) return parts[3] === "rounds" ? <RoundsReport id={parts[2]} /> : <Report id={parts[2]} />;
   return <VersionHub />;
 }
