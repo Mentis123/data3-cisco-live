@@ -58,12 +58,15 @@ both resolved from the room's pinned revision:
 - **One-page report** (`/decision-room/report/:id`): the whole room on one
   printable page: tiles, each round's split and one quote, and where each table
   finished.
-- **Round-by-round report** (`/decision-room/report/:id/rounds`): two printable
-  pages. Page one is every round's question with each table's locked vote,
-  confidence and verbatim reason. Page two is the summary: tiles, where each
-  table finished, the room's call per round and the facilitator's notes on how
-  it went (typed on the page, kept in that browser's storage). **Download
-  PowerPoint** builds the same two pages as slides in the browser
+- **Round-by-round report** (`/decision-room/report/:id/rounds`): one
+  printable page. Every round's question with each table's locked vote,
+  confidence and verbatim reason, then a band of room-level rollups (rounds
+  decided, room calls matching the best move, median confidence by round,
+  reasons written) and neutral observations drawn from the votes (most aligned,
+  most divided, an option no table chose, least certain, reasons that name a
+  second option). Nothing is scored or ranked per table. Facilitators can add
+  their own observations (kept in that browser's storage). **Download
+  PowerPoint** builds the same page as one slide in the browser
   (`rounds-deck.ts`, pptxgenjs, mirrored in both repos).
 
 The report API adds every locked response in table order (`responses`) and

@@ -641,11 +641,51 @@ function Report({ id }: { id: string }) {
 }
 
 /* -------------------------------------------------------- round by round
- * Facilitator-only, two pages: every round's question with each table's vote,
- * confidence and reason, then a summary with the facilitator's own notes on how
- * it went. Prints as two A4 landscape pages and downloads as a two-slide
- * PowerPoint built from the same model (rounds-deck.ts), so they always agree.
+ * Facilitator-only, one page: every round's question with each table's vote,
+ * confidence and reason, then room-level rollups and observations. Nothing is
+ * scored or ranked per table. Prints as one A4 landscape page and downloads as a
+ * one-slide PowerPoint built from the same model (rounds-deck.ts).
  */
+
+function roundsClip(text: string, max: number) { return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text; }
+
+/** Whether a reason names an option other than the table's own vote ("C then D", "Also C"). */
+function namesAnotherOption(rationale: string, own: string) {
+  return ["A", "B", "C", "D"].filter((k) => k !== own).some((k) => (k === "A" ? /\bA\b(?!\s+[a-z])/ : new RegExp(`\\b${k}\\b`)).test(rationale));
+}
+
+/** Neutral, room-level observations drawn from the votes: never names a table as right or wrong. */
+function roundsObservations(data: ReportData, rows: RoundsRow[]): string[] {
+  const out: string[] = [];
+  const played = data.rounds.map((r, i) => ({ r, i })).filter(({ r }) => r.locked > 0);
+  const optionLabel = (r: ReportRound, k: string) => r.options.find((o) => o.key === k)?.label ?? k;
+  const byAgreement = played.filter(({ r }) => r.agreement !== null && r.locked >= 2).sort((a, b) => (b.r.agreement ?? 0) - (a.r.agreement ?? 0));
+  const aligned = byAgreement[0];
+  if (aligned && aligned.r.roomCall.length === 1) {
+    const k = aligned.r.roomCall[0];
+    out.push(`Most aligned: ${rows[aligned.i].label}, where ${aligned.r.counts[k]} of ${aligned.r.locked} tables chose ${k}, ${optionLabel(aligned.r, k).replace(/[.;].*$/, "").toLowerCase()}.`);
+  }
+  const divided = byAgreement[byAgreement.length - 1];
+  if (divided && divided !== aligned && (divided.r.agreement ?? 1) < 1) {
+    out.push(`Most divided: ${rows[divided.i].label}, split ${Object.entries(divided.r.counts).filter(([, n]) => n).map(([k, n]) => `${k} ${n}`).join(" · ")}.`);
+  }
+  const unanimousAvoid = played.filter(({ r }) => r.locked >= 3).flatMap(({ r, i }) => r.options.filter((o) => !r.counts[o.key] && o.key !== r.best).map((o) => ({ i, o })));
+  if (unanimousAvoid.length && !data.scenario.brand.reportMode?.includes("conditional")) {
+    const first = unanimousAvoid[0];
+    out.push(`No table chose ${first.o.key} at ${rows[first.i].label}: ${first.o.label.replace(/[.;].*$/, "").toLowerCase()}.`);
+  }
+  const byConfidence = played.filter(({ r }) => r.confidence.median !== null).sort((a, b) => ((a.r.confidence.median ?? 5) - (b.r.confidence.median ?? 5)) || ((a.r.confidence.low ?? 5) - (b.r.confidence.low ?? 5)));
+  if (byConfidence.length > 1) {
+    const { r, i } = byConfidence[0];
+    out.push(`Least certain: ${rows[i].label}, median confidence ${r.confidence.median} of 5${r.confidence.low !== null && r.confidence.median !== null && r.confidence.low < r.confidence.median ? `, lowest ${r.confidence.low}` : ""}.`);
+  }
+  const sequenced = played.flatMap(({ r }) => (r.responses ?? []).filter((q) => q.rationale && namesAnotherOption(q.rationale, q.option)));
+  if (sequenced.length >= 2) {
+    const ex = [...sequenced].sort((x, y) => Number(/\b(then|also)\b/i.test(y.rationale)) - Number(/\b(then|also)\b/i.test(x.rationale)) || x.rationale.length - y.rationale.length)[0];
+    out.push(`${sequenced.length} reasons name a second option, such as “${roundsClip(ex.rationale, 60)}”: tables often wanted moves in sequence, not one letter.`);
+  }
+  return out;
+}
 
 function roundsModel(data: ReportData, notes: string): RoundsModel {
   const brand = data.scenario.brand;
@@ -677,36 +717,18 @@ function roundsModel(data: ReportData, notes: string): RoundsModel {
   const medians = played.map((r) => r.confidence.median).filter((m): m is number => m !== null);
   const minutes = data.run?.minutes;
   const tiles = [
-    { big: `${played.length} of ${data.rounds.length}`, small: `rounds the room locked a decision${minutes ? `, over ${minutes} minutes` : ""}` },
-    conditional ? { big: `${written} of ${calls}`, small: "locked calls with a written reason" }
-      : { big: `${matched} of ${played.length}`, small: "room calls that matched Richard’s best move" },
-    { big: medians.length ? medians.join(" → ") : "–", small: "median confidence by round, out of 5" },
+    { big: `${played.length} of ${data.rounds.length}`, small: `rounds decided${minutes ? `, over ${minutes} minutes` : ""}` },
+    conditional ? { big: `${tables.length}`, small: "tables, never ranked" } : { big: `${matched} of ${played.length}`, small: "room calls matching Richard’s best move" },
+    { big: medians.length ? medians.join(" → ") : "–", small: "median confidence by round, of 5" },
+    { big: `${written} of ${calls}`, small: "locked calls with a written reason" },
   ];
-  const meters = data.meterKeys ?? [];
-  const finish = data.tables.map((t) => {
-    const hits = conditional ? null : played.filter((r) => r.best && t.choices[r.roundNo - 1] === r.best).length;
-    let standout = ""; let standoutGood: boolean | null = null;
-    if (t.facts?.length) {
-      const f = t.facts.find((x) => x.tone === "bad") ?? t.facts.find((x) => x.tone === "warn") ?? t.facts.find((x) => x.tone === "good") ?? t.facts[0];
-      standout = `${f.name}: ${f.label}`; standoutGood = f.tone === "good" ? true : f.tone === "neutral" ? null : false;
-    } else if (t.meters && meters.length) {
-      // The reading that most sets this table apart from the room.
-      const scored = meters.map((m) => {
-        const v = t.meters?.[m.id] ?? 0;
-        const avg = data.tables.reduce((s, x) => s + (x.meters?.[m.id] ?? 0), 0) / data.tables.length;
-        return { m, v, dev: m.good ? v - avg : avg - v };
-      }).sort((a, b) => Math.abs(b.dev) - Math.abs(a.dev));
-      const s = scored[0];
-      standout = `${s.m.name} ${s.v}`; standoutGood = s.dev === 0 ? null : s.dev > 0;
-    }
-    return { name: t.name, matches: hits === null ? null : `${hits} of ${played.length} best`, choices: t.choices.map((c) => c ?? "·").join(" "), standout, standoutGood };
-  });
+  const noteLines = notes.split(/\n+/).map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
   const date = new Date(data.room.launchedAt ?? data.generatedAt);
   return {
     kicker: `${brand.kicker} · DECISION ROOM`.toUpperCase(), title: brand.reportTitle, roomCode: data.room.joinCode,
     dateLabel: date.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }), conditional,
-    tables, rows, tiles, finish, notes,
-    footnote: `${brand.reportNote} Finishing positions illustrate the trade-offs; they are not a score.`,
+    tables, rows, tiles, observations: [...roundsObservations(data, rows), ...noteLines],
+    footnote: conditional ? "Preferences are conditional, not an answer key." : "Richard’s best move is from the deck; tables are never ranked.",
   };
 }
 
@@ -720,49 +742,36 @@ function RoundsReport({ id }: { id: string }) {
   useEffect(() => { try { localStorage.setItem(notesKey, notes); } catch { /* notes stay on screen only */ } }, [notesKey, notes]);
   if (!data) return <Frame wide><section className="dr-card"><h2>Preparing the report…</h2><ErrorText message={error || (!key ? "Open this from your facilitator page so the key is available." : "")} /></section></Frame>;
   const model = roundsModel(data, notes);
-  const played = data.rounds.filter((r) => r.locked > 0).length;
   async function download() {
     setDeckError(""); setBuilding(true);
     try { await downloadRoundsDeck(model); } catch (e) { setDeckError(`PowerPoint failed: ${(e as Error).message}`); } finally { setBuilding(false); }
   }
-  const noteLines = notes.split(/\n+/).map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
   return <Frame wide className="dr-report dr-rounds" kicker={data.scenario.brand.kicker}>
     <section className="dr-report-head">
       <div><span className="dr-kicker">ROUND-BY-ROUND REPORT · ROOM {model.roomCode} · {model.dateLabel.toUpperCase()}</span><h1>Round by round: the question, and how each table answered</h1>
-        <p>{model.tables.length} tables · {played} of {data.rounds.length} rounds decided · {model.conditional ? "preferences are conditional, not an answer key; tables are never ranked." : "Richard’s best move is from the deck; tables are never ranked."} <a className="dr-report-switch" href={`/decision-room/report/${id}`}>One-page summary →</a></p></div>
+        <p>{model.tables.length} tables · {model.footnote} <a className="dr-report-switch" href={`/decision-room/report/${id}`}>One-page summary →</a></p></div>
       <div className="dr-report-actions"><button className="dr-report-print" onClick={download} disabled={building}><Download />{building ? "Building…" : "Download PowerPoint"}</button><button className="dr-report-print" onClick={() => window.print()}><Printer />Print or save PDF</button></div>
     </section>
     <ErrorText message={deckError} />
     <section className="dr-rounds-grid" style={{ "--dr-cols": String(Math.max(1, model.tables.length)) } as CSSProperties}>
       <div className="dr-rounds-colhead"><span>{model.conditional ? "Round · question · conditional preference" : "Round · question · Richard’s best move"}</span>{model.tables.map((t) => <span key={t}>{t}</span>)}</div>
       {model.rows.map((row, i) => <article key={i} className={row.empty ? "is-empty" : ""}>
-        <header><small>{row.label}{row.seat ? ` · ${row.seat}` : ""}</small><strong>{row.question}</strong>{row.guide ? <span>{row.guide}</span> : null}{row.empty ? null : <b className={row.callMatches ? "is-hit" : ""}>{row.call}</b>}</header>
-        {row.empty ? <p className="dr-rounds-empty">{row.empty}</p> : row.cells.map((c, j) => <div key={j} className="dr-rounds-cell">
+        <header><small>{row.label}{row.seat ? ` · ${row.seat}` : ""}</small><strong>{row.question}</strong>{row.empty ? null : <>{row.guide ? <span>{row.guide}</span> : null}<b className={row.callMatches ? "is-hit" : ""}>{row.call}</b></>}</header>
+        {row.empty ? <p className="dr-rounds-empty">{row.empty}{row.guide ? ` ${row.guide}.` : ""}</p> : row.cells.map((c, j) => <div key={j} className="dr-rounds-cell">
           {c ? <><i className={c.best ? "is-best" : ""}>{c.option}</i><em>{c.confidence ? `${c.confidence}/5` : ""}</em>{c.rationale ? <q>{c.rationale}</q> : <span className="dr-rounds-none">No reason written</span>}</> : <span className="dr-rounds-none">Did not lock</span>}
         </div>)}
       </article>)}
     </section>
-    {model.conditional ? null : <p className="dr-rounds-legend"><i className="is-best">A</i>matches Richard’s best move<i>A</i>another option · reasons are verbatim from each table’s device</p>}
-    <section className="dr-rounds-summary">
-      <span className="dr-kicker">SUMMARY · ROOM {model.roomCode} · {model.tables.length} TABLES</span><h2>What the decisions tell us, and how it went</h2>
-      <div className="dr-rounds-sumgrid">
-        <div>
-          <div className="dr-report-tiles dr-rounds-tiles">{model.tiles.map((t) => <div key={t.small}><strong>{t.big}</strong><span>{t.small}</span></div>)}</div>
-          <small className="dr-rounds-h">Where each table finished</small>
-          <ul className="dr-rounds-finish">{model.finish.map((f) => <li key={f.name}><b>{f.name}</b><span>{f.choices}</span>{f.matches ? <em>{f.matches}</em> : null}<i className={f.standoutGood === false ? "is-warn" : ""}>{f.standout}</i></li>)}</ul>
-        </div>
-        <div>
-          <small className="dr-rounds-h">The room’s call, round by round</small>
-          <ol className="dr-rounds-calls">{model.rows.map((row, i) => <li key={i}><b>{row.label}: {row.question}</b><span>{row.empty ?? [row.call, row.guide].filter(Boolean).join(" · ")}</span></li>)}</ol>
-        </div>
-        <div className="dr-rounds-notes">
-          <small className="dr-rounds-h">Facilitator notes · how it went</small>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={"One point per line: what stood out, how the room ran, what to change next time.\nSaved in this browser and included in the print and the PowerPoint."} />
-          <div className="dr-rounds-notes-print">{noteLines.length ? <ul>{noteLines.map((l, i) => <li key={i}>{l}</li>)}</ul> : <p>No notes added.</p>}</div>
-        </div>
+    <section className="dr-rounds-band">
+      <div className="dr-rounds-tiles">{model.tiles.map((t) => <div key={t.small}><strong>{t.big}</strong><span>{t.small}</span></div>)}</div>
+      <div className="dr-rounds-obs">
+        <small className="dr-rounds-h">What we observed</small>
+        {model.observations.length ? <ul>{model.observations.map((o, i) => <li key={i}>{o}</li>)}</ul> : <p className="dr-hint">Not enough locked calls to draw observations yet.</p>}
+        <details className="dr-rounds-notes"><summary>Add your own observations</summary>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={"One per line. Saved in this browser and added to the list above, the print and the PowerPoint."} /></details>
       </div>
-      <p className="dr-hint">{model.footnote}</p>
     </section>
+    {model.conditional ? null : <p className="dr-rounds-legend"><i className="is-best">A</i>matches Richard’s best move<i>A</i>another option · locked vote, confidence and verbatim reason from each table’s device</p>}
   </Frame>;
 }
 
