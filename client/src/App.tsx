@@ -43,6 +43,7 @@ import IncidentChallengeArchiveV03 from "@/pages/alpha2026/IncidentChallengeArch
 import VersionArchive from "@/pages/alpha2026/VersionArchive";
 import Alpha2026Leaderboard from "@/pages/alpha2026/Alpha2026Leaderboard";
 import DecisionRoom from "@/pages/decision-room/DecisionRoom";
+import CtaCapture from "@/pages/cta/CtaCapture";
 import CAUDITBible from "@/pages/caudit/CAUDIT";
 import CAUDITPromo from "@/pages/caudit/CAUDITPromo";
 import CAUDITGrok from "@/pages/caudit/CAUDITGrok";
@@ -327,6 +328,8 @@ function NewExperienceRouter() {
       <Route path="/2026alpha/cascade" component={CascadePrototype} />
       <Route path="/2026alpha/permission-to-act" component={PermissionPrototype} />
       <Route path="/2026alpha/signal-room" component={SignalRoomPrototype} />
+      <Route path="/cta" component={CtaCapture} />
+      <Route path="/cta/admin" component={CtaCapture} />
       <Route path="/decision-room" component={DecisionRoom} />
       <Route path="/decision-room/ciso-basecamp" component={DecisionRoom} />
       <Route path="/decision-room/agent-0/review" component={DecisionRoom} />
