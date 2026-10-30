@@ -288,3 +288,21 @@ html.cta-lock .cta-unit{margin:auto 0;flex:none}
   .cta-tally-count{font-size:26px}
   .cta-unit-foot{padding-top:8px}
 }
+
+/* staff panel: password, then connect QR + scanner mode */
+.cta-qr-overlay{overflow-y:auto}
+.cta-qr-card img{width:min(70vw,320px)}
+.cta-staff-lock{width:min(100%,340px);justify-items:stretch;padding:22px 20px;border-radius:18px;border:1px solid rgba(0,255,255,.35);background:rgba(0,0,37,.85);box-shadow:0 0 40px rgba(0,174,255,.25)}
+.cta-staff-lock .cta-qr-kicker{text-align:center}
+.cta-qr-overlay .cta-field input{-webkit-user-select:text;user-select:text;font-size:16px}
+.cta-modes{display:grid;gap:8px;width:min(100%,380px)}
+.cta-modes-kicker{margin:0;text-align:center;font-size:11px;font-weight:800;letter-spacing:.24em;color:var(--brass)}
+.cta-modes-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cta-page .cta-mode{min-height:48px;padding:8px 6px;border-radius:12px;border:1px solid rgba(201,162,74,.45);background:#07142b;color:#c8d8e9;font-size:13px;font-weight:800;line-height:1.15;cursor:pointer}
+.cta-page .cta-mode.is-on{border-color:var(--aqua);background:linear-gradient(180deg,#0b3a5c,#06223d);color:#fff;box-shadow:0 0 16px rgba(0,255,255,.35),inset 0 0 0 1px rgba(0,255,255,.4)}
+.cta-modes-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(100%,380px)}
+.cta-modes-foot .cta-key{width:auto;padding:10px 26px}
+.cta-qr-overlay .cta-link{background:none;border:0;color:#9db0c5;font-size:13px;letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;cursor:pointer;padding:8px 4px}
+/* status light: a bigger invisible hit area so triple-taps land */
+.cta-unit button.cta-led{position:relative}
+.cta-unit button.cta-led::before{content:"";position:absolute;inset:-12px -1px -12px -10px}

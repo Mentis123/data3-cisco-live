@@ -22,11 +22,21 @@ Stored in the site's Neon Postgres in `cta_captures` (created on first use): the
 1. **Phosphor dial**: drag or tap the brass wheel on the right edge to change the screen colour.
 2. **AURA switch**: turns on an edge glow in the colour the camera sees.
 3. **Antenna**: pull or tap it up for signal bars, a chirp and D#3 in Morse on the light.
-4. **Status light**: tap it three times for night vision.
+4. **Status light**: tap it three times for night vision. Three more taps turn it off.
 5. **Degauss**: press and hold the Data#3 logo for about a second. Shaking the phone also works where the browser allows motion without asking (most Android phones). On a laptop, press D.
 
-A big SECRETS tally (five lights and a count) appears under the buttons once the first one is found. Find all five and the unit turns gold, and the capture gets a `GOLD-` reference. Three fingers on the screen (or a triple-click) shows the connect QR. That one is for staff and isn't counted.
+A big SECRETS tally (five lights and a count) appears under the buttons once the first one is found. Find all five and the unit turns gold, and the capture gets a `GOLD-` reference. 
 
 Triple-tap the Data#3 logo to reset the passport: secrets go back to 0/5 and the dial, AURA, antenna and night vision are switched off. Use it to hand a fresh unit to the next person.
 
 The page is pinned while the unit is on screen, so dragging the controls can't scroll it or trigger pull-to-refresh.
+
+## Staff panel
+
+Three fingers on the screen (or a triple-click on a laptop) opens the staff panel. It asks for a password the first time on each device, then remembers it until you tap **Lock**.
+
+- **Password**: the `CTA_STAFF_KEY` environment variable in Vercel. Any admin key (the facilitator key) also works. The staff password does **not** open `/cta/admin`.
+- **Connect QR**: for the other person to scan.
+- **Scanner mode**: Booth lead, Chris's session or Game feedback. The mode is remembered on the device, shown on the unit's footer plate, changes the note prompt, and is saved with every capture (the `mode` column in the admin list and the CSV).
+
+Every capture also has an optional **Additional contact details** field (email, mobile, LinkedIn, anything). It's the `additional_contact` column in the CSV.

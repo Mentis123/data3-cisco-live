@@ -5,6 +5,10 @@
  * vaporwave horizon. Power on the camera, scan the QR on your own badge in the
  * little screen, watch the dossier decode, add a note if you like, transmit.
  *
+ * Staff: three fingers on the screen (or triple-click) opens a password-locked panel with the
+ * connect QR and the scanner mode (booth lead, Chris's session, game feedback). The mode
+ * travels with every capture.
+ *
  *   /cta        the unit
  *   /cta/admin  captures list, CSV export, printable booth QR (admin key)
  */
@@ -17,6 +21,14 @@ import "./cta.css";
 
 type Parsed = { kind: string; name?: string; email?: string; phone?: string; company?: string; title?: string; fields: Record<string, string> };
 type Phase = "boot" | "scanning" | "acquired" | "transmitting" | "captured" | "manual";
+type Mode = "booth" | "presentation" | "game";
+const MODES: Record<Mode, { label: string; plate: string; noteLabel: string; prompt: string }> = {
+  booth: { label: "Booth lead", plate: "BOOTH", noteLabel: "Add a note (optional)", prompt: "What are you interested in? Who should we loop in?" },
+  presentation: { label: "Chris’s session", plate: "SESSION", noteLabel: "What should we follow up? (optional)", prompt: "What from the session do you want to dig into?" },
+  game: { label: "Game feedback", plate: "GAME", noteLabel: "Your feedback on the game", prompt: "How was it? What would you change?" },
+};
+const STAFF_KEY = "cta-staff-key";
+const loadMode = (): Mode => { try { const m = localStorage.getItem("cta-mode"); return m && m in MODES ? (m as Mode) : "booth"; } catch { return "booth"; } };
 const API = "/api/cta";
 
 /* ---------------------------------------------------------------- helpers */
@@ -141,7 +153,9 @@ function Unit() {
   const [payload, setPayload] = useState("");
   const [parsed, setParsed] = useState<Parsed | null>(null);
   const [note, setNote] = useState("");
-  const [name, setName] = useState(""); const [email, setEmail] = useState("");
+  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [contact, setContact] = useState("");
+  const [mode, setModeState] = useState<Mode>(loadMode);
+  const setMode = (m: Mode) => { setModeState(m); try { localStorage.setItem("cta-mode", m); } catch { /* ignore */ } sfx("tick"); buzz(10); };
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
   const [glitch, setGlitch] = useState(false);
@@ -186,10 +200,13 @@ function Unit() {
   };
   // 4. Night vision (three taps on the status light)
   const [night, setNight] = useState(false);
+  const nightRef = useRef(false); nightRef.current = night;
   const ledTaps = useRef<number[]>([]);
   const tapLed = () => {
-    const now = Date.now(); ledTaps.current = [...ledTaps.current.filter((t) => now - t < 900), now];
-    if (ledTaps.current.length >= 3) { ledTaps.current = []; setNight((n) => { const v = !n; sfx(v ? "night" : "tick"); if (v) discover("night", "NIGHT VISION"); return v; }); }
+    const now = Date.now(); ledTaps.current = [...ledTaps.current.filter((t) => now - t < 1200), now];
+    if (ledTaps.current.length < 3) return;
+    ledTaps.current = []; const v = !nightRef.current; nightRef.current = v; setNight(v); sfx(v ? "night" : "tick"); buzz(v ? [20, 30, 20] : 20);
+    if (v && !foundRef.current.includes("night")) discover("night", "NIGHT VISION"); else setToast(v ? "NIGHT VISION ON" : "NIGHT VISION OFF");
   };
   // 5. Degauss (press and hold the logo; shake where motion is allowed; D on a keyboard)
   const [degauss, setDegauss] = useState(false);
@@ -231,8 +248,20 @@ function Unit() {
   // Speaker grille: tap to mute
   const [muted, setMuted] = useState(soundMuted);
   const toggleMute = () => { const v = !muted; soundMuted = v; setMuted(v); try { localStorage.setItem("cta-muted", v ? "1" : "0"); } catch { /* ignore */ } if (!v) sfx("tick"); };
-  // Hidden staff gesture: three fingers on the screen shows the "connect with us" QR for the other person to scan.
+  // Hidden staff gesture: three fingers on the screen opens the staff panel (password, then connect QR + scanner mode).
   const [showQr, setShowQr] = useState(false);
+  const [staffKey, setStaffKey] = useState(() => { try { return localStorage.getItem(STAFF_KEY) || ""; } catch { return ""; } });
+  const [pw, setPw] = useState(""); const [pwError, setPwError] = useState(""); const [unlocking, setUnlocking] = useState(false);
+  async function unlock() {
+    setUnlocking(true); setPwError("");
+    try {
+      const r = await fetch(`${API}/staff`, { method: "POST", headers: { "x-admin-key": pw.trim() } });
+      if (!r.ok) { setPwError(r.status === 401 ? "Wrong password" : "Could not check the password"); buzz([60, 40, 60]); return; }
+      try { localStorage.setItem(STAFF_KEY, pw.trim()); } catch { /* ignore */ }
+      setStaffKey(pw.trim()); setPw(""); sfx("secret");
+    } catch { setPwError("Could not check the password"); } finally { setUnlocking(false); }
+  }
+  const lockStaff = () => { try { localStorage.removeItem(STAFF_KEY); } catch { /* ignore */ } setStaffKey(""); setShowQr(false); };
   // Keep the unit inside the viewport (the page is pinned, so it must never need to scroll):
   // when the content is taller than the screen, the CRT gives up the difference.
   useLayoutEffect(() => {
@@ -283,12 +312,12 @@ function Unit() {
   async function transmit(manual = false) {
     setError(""); setPhase("transmitting");
     try {
-      const body = { ...(manual ? { payload: JSON.stringify({ name: name.trim(), email: email.trim() }), note: note.trim(), manual: true } : { payload, note: note.trim(), manual: false }), gold };
+      const body = { ...(manual ? { payload: JSON.stringify({ name: name.trim(), email: email.trim() }), manual: true } : { payload, manual: false }), note: note.trim(), contact: contact.trim(), mode, gold };
       const r = await request<{ code: string; parsed: Parsed }>(`${API}/captures`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       setCode(r.code); setParsed(r.parsed); buzz(80); sfx("transmit"); setPhase("captured");
     } catch (e) { setError((e as Error).message); setPhase(manual ? "manual" : "acquired"); }
   }
-  function reset() { setPayload(""); setParsed(null); setNote(""); setCode(""); setError(""); setPhase("scanning"); }
+  function reset() { setPayload(""); setParsed(null); setNote(""); setContact(""); setCode(""); setError(""); setPhase("scanning"); }
 
   const led = phase === "boot" ? "idle" : phase === "scanning" ? "scan" : phase === "captured" ? "ok" : "lock";
   const ledClass = morseOn === null ? `cta-led--${led}` : morseOn ? "cta-led--morse-on" : "cta-led--morse-off";
@@ -324,8 +353,8 @@ function Unit() {
     <div className="cta-keys">
       {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
       {phase === "scanning" ? <><p className="cta-hint">Hold your badge QR inside the frame. It locks on by itself.</p><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>Enter by hand instead</button></> : null}
-      {phase === "acquired" || phase === "transmitting" ? <><label className="cta-field">Add a note (optional)<textarea value={note} maxLength={600} placeholder="What are you interested in? Who should we loop in?" onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={reset} disabled={phase === "transmitting"}>Rescan</button><button className="cta-key cta-key--primary" onClick={() => transmit(false)} disabled={phase === "transmitting"}>{phase === "transmitting" ? "Transmitting…" : "Transmit"}</button></div></> : null}
-      {phase === "manual" ? <><label className="cta-field">Name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label><label className="cta-field">Email<input value={email} type="email" onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" /></label><label className="cta-field">Note (optional)<textarea value={note} maxLength={600} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
+      {phase === "acquired" || phase === "transmitting" ? <><label className="cta-field">Additional contact details<input value={contact} maxLength={300} placeholder="Email, mobile, LinkedIn, whatever works" onChange={(e) => setContact(e.target.value)} /></label><label className="cta-field">{MODES[mode].noteLabel}<textarea value={note} maxLength={600} placeholder={MODES[mode].prompt} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={reset} disabled={phase === "transmitting"}>Rescan</button><button className="cta-key cta-key--primary" onClick={() => transmit(false)} disabled={phase === "transmitting"}>{phase === "transmitting" ? "Transmitting…" : "Transmit"}</button></div></> : null}
+      {phase === "manual" ? <><label className="cta-field">Name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label><label className="cta-field">Email<input value={email} type="email" onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" /></label><label className="cta-field">Additional contact details<input value={contact} maxLength={300} placeholder="Email, mobile, LinkedIn, whatever works" onChange={(e) => setContact(e.target.value)} /></label><label className="cta-field">{MODES[mode].noteLabel}<textarea value={note} maxLength={600} placeholder={MODES[mode].prompt} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
       {phase === "captured" ? <><p className="cta-hint">Pass the unit along, or scan another badge.</p><button className="cta-key cta-key--primary" onClick={reset}>Scan another</button></> : null}
     </div>
     {found.length ? <div className={`cta-tally ${found.length >= 5 ? "is-full" : ""}`} role="status" aria-label={`Secrets found: ${found.length} of 5`}>
@@ -333,9 +362,22 @@ function Unit() {
       <span className="cta-tally-pips" aria-hidden="true">{[0, 1, 2, 3, 4].map((i) => <i key={i} className={i < found.length ? "is-lit" : ""} />)}</span>
       <span className="cta-tally-count">{found.length}<small>/5</small></span>
     </div> : null}
-    <div className="cta-unit-foot"><span className="cta-model">{gold ? "GOLD UNIT · CL26" : "FIELD UNIT · CL26"}</span><button type="button" className="cta-grille" aria-label={muted ? "Sound off" : "Sound on"} aria-pressed={!muted} onClick={toggleMute} /></div>
-    {showQr ? <div className="cta-qr-overlay" role="dialog" aria-modal="true" aria-label="Scan to connect" onClick={() => setShowQr(false)}>
-      <div className="cta-qr-card"><p className="cta-qr-kicker">UPLINK · SCAN TO CONNECT</p><img src="/cta/connect-qr.png" alt="QR code to connect" /><p className="cta-qr-close">Tap anywhere to close</p></div>
+    <div className="cta-unit-foot"><span className="cta-model">{gold ? "GOLD UNIT" : "FIELD UNIT"} · {MODES[mode].plate}</span><button type="button" className="cta-grille" aria-label={muted ? "Sound off" : "Sound on"} aria-pressed={!muted} onClick={toggleMute} /></div>
+    {showQr ? <div className="cta-qr-overlay" role="dialog" aria-modal="true" aria-label="Staff panel" onClick={() => setShowQr(false)}>
+      {staffKey ? <div className="cta-qr-card" onClick={(e) => e.stopPropagation()}>
+        <p className="cta-qr-kicker">UPLINK · SCAN TO CONNECT</p>
+        <img src="/cta/connect-qr.png" alt="QR code to connect" onClick={() => setShowQr(false)} />
+        <div className="cta-modes" role="radiogroup" aria-label="Scanner mode">
+          <p className="cta-modes-kicker">SCANNER MODE</p>
+          <div className="cta-modes-row">{(Object.keys(MODES) as Mode[]).map((m) => <button key={m} type="button" role="radio" aria-checked={mode === m} className={`cta-mode ${mode === m ? "is-on" : ""}`} onClick={() => setMode(m)}>{MODES[m].label}</button>)}</div>
+        </div>
+        <div className="cta-modes-foot"><button type="button" className="cta-link" onClick={lockStaff}>Lock</button><button type="button" className="cta-key cta-key--ghost" onClick={() => setShowQr(false)}>Done</button></div>
+      </div> : <form className="cta-qr-card cta-staff-lock" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { e.preventDefault(); if (pw.trim() && !unlocking) void unlock(); }}>
+        <p className="cta-qr-kicker">STAFF ACCESS</p>
+        <label className="cta-field">Password<input type="password" value={pw} autoFocus autoComplete="current-password" onChange={(e) => setPw(e.target.value)} /></label>
+        {pwError ? <p className="cta-error">{pwError}</p> : null}
+        <div className="cta-row"><button type="button" className="cta-key cta-key--ghost" onClick={() => setShowQr(false)}>Cancel</button><button type="submit" className="cta-key cta-key--primary" disabled={!pw.trim() || unlocking}>{unlocking ? "Checking…" : "Unlock"}</button></div>
+      </form>}
     </div> : null}
   </div>;
 }
@@ -360,7 +402,7 @@ function previewParse(raw: string): Parsed {
 
 /* ------------------------------------------------------------------- admin */
 
-type Capture = { id: string; code: string; payload: string; parsed: Parsed; note: string; manual: boolean; userAgent: string; createdAt: string };
+type Capture = { id: string; code: string; mode?: string; payload: string; parsed: Parsed; note: string; contact?: string; manual: boolean; userAgent: string; createdAt: string };
 
 function CtaAdmin() {
   const [key, setKey] = useState(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } });
@@ -376,7 +418,7 @@ function CtaAdmin() {
   return <div className="cta-admin">
     <header><div><h1>Badge captures</h1><p>{rows ? `${rows.length} captured` : "Loading…"}{error ? ` · ${error}` : ""}</p></div><div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => window.print()}>Print booth QR</button><button className="cta-key cta-key--primary" onClick={exportCsv}>Export CSV</button></div></header>
     <section className="cta-booth"><div className="cta-booth-qr"><QRCodeSVG value={boothUrl} size={220} level="H" bgColor="#ffffff" fgColor="#000025" /></div><div><p className="cta-booth-kicker">SCAN TO CHECK IN</p><h2>Point your phone here</h2><p>{boothUrl}</p></div></section>
-    <table className="cta-table"><thead><tr><th>When</th><th>Ref</th><th>Name</th><th>Email</th><th>Company</th><th>Note</th><th>Kind</th><th /></tr></thead><tbody>{(rows ?? []).map((c) => <tr key={c.id}><td>{new Date(c.createdAt).toLocaleString("en-AU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</td><td><code>{c.code}</code></td><td>{c.parsed.name ?? ""}</td><td>{c.parsed.email ?? ""}</td><td>{c.parsed.company ?? ""}</td><td className="cta-note">{c.note}</td><td title={c.payload}>{c.manual ? "manual" : c.parsed.kind}</td><td><button className="cta-link" onClick={() => remove(c.id)}>delete</button></td></tr>)}</tbody></table>
+    <table className="cta-table"><thead><tr><th>When</th><th>Mode</th><th>Ref</th><th>Name</th><th>Email</th><th>Company</th><th>Other contact</th><th>Note</th><th>Kind</th><th /></tr></thead><tbody>{(rows ?? []).map((c) => <tr key={c.id}><td>{new Date(c.createdAt).toLocaleString("en-AU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</td><td>{MODES[(c.mode ?? "booth") as Mode]?.plate.toLowerCase() ?? c.mode}</td><td><code>{c.code}</code></td><td>{c.parsed.name ?? ""}</td><td>{c.parsed.email ?? ""}</td><td>{c.parsed.company ?? ""}</td><td>{c.contact ?? ""}</td><td className="cta-note">{c.note}</td><td title={c.payload}>{c.manual ? "manual" : c.parsed.kind}</td><td><button className="cta-link" onClick={() => remove(c.id)}>delete</button></td></tr>)}</tbody></table>
   </div>;
 }
 
