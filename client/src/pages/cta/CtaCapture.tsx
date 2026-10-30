@@ -268,7 +268,6 @@ function Unit() {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); raiseAntenna(); } }} />
       <span className={`cta-brand ${charging ? "is-charging" : ""}`} role="button" tabIndex={0} aria-label="Data#3: press and hold" onPointerDown={holdStart} onPointerUp={holdEnd} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()} onKeyDown={(e) => { if (e.key === "Enter") runDegauss(); }}>Data<sup>#</sup>3</span>
       {antenna ? <span className="cta-signal" aria-hidden="true"><i /><i /><i /><i /></span> : null}
-      <span className="cta-model">{gold ? "GOLD UNIT · CL26" : "FIELD UNIT · CL26"}</span>
       <button type="button" className={`cta-switch ${aura ? "is-on" : ""}`} aria-pressed={aura} onClick={() => { const v = !aura; setAura(v); sfx("tick"); buzz(8); if (v) discover("aura", "AURA"); }}><i /><span>AURA</span></button>
       <button type="button" className={`cta-led ${ledClass}`} aria-label="Status light" onClick={tapLed} />
     </div>
@@ -291,7 +290,12 @@ function Unit() {
       {phase === "manual" ? <><label className="cta-field">Name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label><label className="cta-field">Email<input value={email} type="email" onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" /></label><label className="cta-field">Note (optional)<textarea value={note} maxLength={600} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
       {phase === "captured" ? <><p className="cta-hint">Pass the unit along, or scan another badge.</p><button className="cta-key cta-key--primary" onClick={reset}>Scan another</button></> : null}
     </div>
-    <div className="cta-unit-foot"><span>DATA<sup>#</sup>3 × CISCO LIVE</span><button type="button" className="cta-grille" aria-label={muted ? "Sound off" : "Sound on"} aria-pressed={!muted} onClick={toggleMute} /><span className={found.length ? "cta-secrets" : ""}>{found.length ? `SECRETS ${found.length}/5` : "OBSERVE · GOVERN · SECURE"}</span></div>
+    {found.length ? <div className={`cta-tally ${found.length >= 5 ? "is-full" : ""}`} role="status" aria-label={`Secrets found: ${found.length} of 5`}>
+      <span className="cta-tally-label">SECRETS</span>
+      <span className="cta-tally-pips" aria-hidden="true">{[0, 1, 2, 3, 4].map((i) => <i key={i} className={i < found.length ? "is-lit" : ""} />)}</span>
+      <span className="cta-tally-count">{found.length}<small>/5</small></span>
+    </div> : null}
+    <div className="cta-unit-foot"><span className="cta-model">{gold ? "GOLD UNIT · CL26" : "FIELD UNIT · CL26"}</span><button type="button" className="cta-grille" aria-label={muted ? "Sound off" : "Sound on"} aria-pressed={!muted} onClick={toggleMute} /></div>
     {showQr ? <div className="cta-qr-overlay" role="dialog" aria-modal="true" aria-label="Scan to connect" onClick={() => setShowQr(false)}>
       <div className="cta-qr-card"><p className="cta-qr-kicker">UPLINK · SCAN TO CONNECT</p><img src="/cta/connect-qr.png" alt="QR code to connect" /><p className="cta-qr-close">Tap anywhere to close</p></div>
     </div> : null}
