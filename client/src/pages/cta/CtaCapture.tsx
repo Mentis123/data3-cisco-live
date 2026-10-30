@@ -9,7 +9,7 @@
  *   /cta/admin  captures list, CSV export, printable booth QR (admin key)
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import jsQR from "jsqr";
 import { QRCodeSVG } from "qrcode.react";
 import { Link, useLocation } from "wouter";
@@ -233,6 +233,22 @@ function Unit() {
   const toggleMute = () => { const v = !muted; soundMuted = v; setMuted(v); try { localStorage.setItem("cta-muted", v ? "1" : "0"); } catch { /* ignore */ } if (!v) sfx("tick"); };
   // Hidden staff gesture: three fingers on the screen shows the "connect with us" QR for the other person to scan.
   const [showQr, setShowQr] = useState(false);
+  // Keep the unit inside the viewport (the page is pinned, so it must never need to scroll):
+  // when the content is taller than the screen, the CRT gives up the difference.
+  useLayoutEffect(() => {
+    const unit = unitRef.current; const page = unit?.closest(".cta-page") as HTMLElement | null; if (!unit || !page) return;
+    const fit = () => {
+      const crt = unit.querySelector(".cta-crt") as HTMLElement | null; if (!crt) return;
+      unit.style.removeProperty("--crt-h");
+      const over = page.scrollHeight - page.clientHeight;
+      if (over > 0) unit.style.setProperty("--crt-h", `${Math.max(96, Math.floor(crt.getBoundingClientRect().height - over - 1))}px`);
+      // Only let the page scroll (e.g. the hand-entry form on a short screen) when it truly has to; otherwise iOS can still rubber-band it.
+      page.style.overflowY = page.scrollHeight > page.clientHeight + 1 ? "auto" : "hidden";
+    };
+    fit();
+    const vv = window.visualViewport; window.addEventListener("resize", fit); vv?.addEventListener("resize", fit);
+    return () => { window.removeEventListener("resize", fit); vv?.removeEventListener("resize", fit); };
+  });
   const screenRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = screenRef.current; if (!el) return;
