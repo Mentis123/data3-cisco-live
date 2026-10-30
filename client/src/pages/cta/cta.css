@@ -194,3 +194,15 @@ button.cta-led{padding:0;border:0;cursor:pointer}
 .cta-unit-top{gap:8px}
 .cta-unit-top .cta-switch{margin-left:4px}
 .cta-unit .cta-switch{font-size:8px;font-weight:800;letter-spacing:.16em}
+
+/* page lock on phones: the page never moves; tall states scroll inside the page only */
+html.cta-lock,html.cta-lock body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.cta-lock body{position:fixed;inset:0;width:100%}
+html.cta-lock .cta-page{position:fixed;inset:0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center}
+html.cta-lock .cta-page>.cta-sky,html.cta-lock .cta-page>.cta-scanlines{position:fixed}
+html.cta-lock .cta-unit{margin:auto 0;flex:none}
+.cta-unit{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.cta-unit .cta-field input,.cta-unit .cta-field textarea{-webkit-user-select:text;user-select:text;font-size:16px}
+.cta-brand{cursor:pointer;-webkit-touch-callout:none;transition:text-shadow .2s,transform .2s}
+.cta-brand.is-charging{animation:ctacharge 1.3s ease-in forwards}
+@keyframes ctacharge{0%{text-shadow:none}100%{text-shadow:0 0 6px var(--phos),0 0 18px var(--phos),0 0 32px var(--phos);transform:scale(1.06)}}
