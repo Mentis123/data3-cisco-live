@@ -27,4 +27,6 @@ Stored in the site's Neon Postgres in `cta_captures` (created on first use): the
 
 A big SECRETS tally (five lights and a count) appears under the buttons once the first one is found. Find all five and the unit turns gold, and the capture gets a `GOLD-` reference. Three fingers on the screen (or a triple-click) shows the connect QR. That one is for staff and isn't counted.
 
+Triple-tap the Data#3 logo to reset the passport: secrets go back to 0/5 and the dial, AURA, antenna and night vision are switched off. Use it to hand a fresh unit to the next person.
+
 The page is pinned while the unit is on screen, so dragging the controls can't scroll it or trigger pull-to-refresh.

@@ -191,13 +191,25 @@ function Unit() {
     const now = Date.now(); ledTaps.current = [...ledTaps.current.filter((t) => now - t < 900), now];
     if (ledTaps.current.length >= 3) { ledTaps.current = []; setNight((n) => { const v = !n; sfx(v ? "night" : "tick"); if (v) discover("night", "NIGHT VISION"); return v; }); }
   };
-  // 5. Degauss (shake the phone; D on a keyboard)
+  // 5. Degauss (press and hold the logo; shake where motion is allowed; D on a keyboard)
   const [degauss, setDegauss] = useState(false);
   const holdTimer = useRef<number | null>(null);
   const [charging, setCharging] = useState(false);
   const holdStart = () => { setCharging(true); holdTimer.current = window.setTimeout(() => { holdTimer.current = null; setCharging(false); runDegaussRef.current(); }, 1300); };
   const holdEnd = () => { if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; } setCharging(false); };
   const runDegaussRef = useRef<() => void>(() => undefined);
+  // Triple-tap the logo: reset the passport (secrets and toggles) so the unit is ready for the next person.
+  const logoTaps = useRef<number[]>([]);
+  const resetPassport = () => {
+    foundRef.current = []; setFound([]); try { localStorage.removeItem("cta-secrets"); } catch { /* ignore */ }
+    setPhos(0); setAura(false); setNight(false); setAntenna(false); document.querySelector(".cta-page")?.classList.remove("cta-page--boost");
+    setToast("PASSPORT RESET · 0/5"); sfx("power"); buzz([40, 30, 40]);
+  };
+  const logoUp = () => {
+    const short = holdTimer.current !== null; holdEnd(); if (!short) return;
+    const now = Date.now(); logoTaps.current = [...logoTaps.current.filter((t) => now - t < 900), now];
+    if (logoTaps.current.length >= 3) { logoTaps.current = []; resetPassport(); }
+  };
   const runDegauss = useCallback(() => { setDegauss(true); sfx("degauss"); buzz([60, 30, 60]); discover("degauss", "DEGAUSS"); window.setTimeout(() => setDegauss(false), 2400); }, [discover]);
   runDegaussRef.current = runDegauss;
   useEffect(() => {
@@ -271,7 +283,7 @@ function Unit() {
       <span className={`cta-antenna ${antenna ? "is-up" : ""}`} role="button" tabIndex={0} aria-label="Antenna" aria-pressed={antenna}
         onPointerDown={(e) => { antennaDrag.current = e.clientY; }} onPointerUp={(e) => { const y = antennaDrag.current; antennaDrag.current = null; if (y !== null && (y - e.clientY > 14 || Math.abs(y - e.clientY) < 6)) raiseAntenna(); }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); raiseAntenna(); } }} />
-      <span className={`cta-brand ${charging ? "is-charging" : ""}`} role="button" tabIndex={0} aria-label="Data#3: press and hold" onPointerDown={holdStart} onPointerUp={holdEnd} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()} onKeyDown={(e) => { if (e.key === "Enter") runDegauss(); }}>Data<sup>#</sup>3</span>
+      <span className={`cta-brand ${charging ? "is-charging" : ""}`} role="button" tabIndex={0} aria-label="Data#3: press and hold" onPointerDown={holdStart} onPointerUp={logoUp} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()} onKeyDown={(e) => { if (e.key === "Enter") runDegauss(); }}>Data<sup>#</sup>3</span>
       {antenna ? <span className="cta-signal" aria-hidden="true"><i /><i /><i /><i /></span> : null}
       <button type="button" className={`cta-switch ${aura ? "is-on" : ""}`} aria-pressed={aura} onClick={() => { const v = !aura; setAura(v); sfx("tick"); buzz(8); if (v) discover("aura", "AURA"); }}><i /><span>AURA</span></button>
       <button type="button" className={`cta-led ${ledClass}`} aria-label="Status light" onClick={tapLed} />
