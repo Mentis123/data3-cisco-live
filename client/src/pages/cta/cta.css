@@ -306,3 +306,8 @@ html.cta-lock .cta-unit{margin:auto 0;flex:none}
 /* status light: a bigger invisible hit area so triple-taps land */
 .cta-unit button.cta-led{position:relative}
 .cta-unit button.cta-led::before{content:"";position:absolute;inset:-12px -1px -12px -10px}
+.cta-staffpw{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:0 0 16px}
+.cta-staffpw .cta-field{flex:1 1 240px}
+.cta-staffpw .cta-key{width:auto}
+.cta-staffpw .cta-hint{flex-basis:100%;text-align:left}
+@media print{.cta-staffpw{display:none}}

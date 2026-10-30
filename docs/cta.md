@@ -40,3 +40,19 @@ Three fingers on the screen (or a triple-click on a laptop) opens the staff pane
 - **Scanner mode**: Booth lead, Chris's session or Game feedback. The mode is remembered on the device, shown on the unit's footer plate, changes the note prompt, and is saved with every capture (the `mode` column in the admin list and the CSV).
 
 Every capture also has an optional **Additional contact details** field (email, mobile, LinkedIn, anything). It's the `additional_contact` column in the CSV.
+
+## Staff password
+
+Set it on `/cta/admin` (Staff panel password → Set password). The server stores only a salted scrypt hash, in the `cta_settings` table in Neon. The password never appears in the code, the repo or the environment variables. Changing it takes effect on every device within about 30 seconds. Admin keys still unlock the staff panel as a fallback.
+
+## Sound
+
+The UI blips are synthesised in the browser. The ambient bed has three layers: a 50 Hz mains hum with harmonics, a looped electrical hum sample, and a random crackle every 5–14 seconds. It starts on the first touch, because browsers block sound until then. The speaker grille mutes everything, and sound pauses when the tab is hidden. On iPhone, the silent switch also silences web audio.
+
+The samples in `client/public/cta/sfx` come from [Mixkit](https://mixkit.co/free-sound-effects/electricity/) under the Mixkit Sound Effects Free License, which allows commercial use with no attribution required:
+- `hum.mp3`: "Low electricity humming", cross-faded into a seamless 17-second loop
+- `crackle.mp3`: "Static electric crackles"
+- `glitch.mp3`: "Static electric glitch"
+- `charge.mp3`: "Electric charge hum"
+
+All were converted to mono at 64 kbps and loudness-normalised.

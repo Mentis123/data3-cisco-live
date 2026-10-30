@@ -8,7 +8,9 @@
  * last year's badge is the test fixture, this year's may differ.
  *
  * Public:  POST /api/cta/captures            { payload, note?, contact?, mode?, manual? }
- * Staff:   POST /api/cta/staff               unlock the staff panel (x-admin-key: CTA_STAFF_KEY or any admin key)
+ * Staff:   POST /api/cta/staff               unlock the staff panel (x-admin-key: the staff password, CTA_STAFF_KEY or any admin key)
+ *          PUT  /api/cta/staff-password      { password } set the staff password (admin). Stored only as a salted
+ *                                            scrypt hash in cta_settings, so it lives in the database, never in code.
  * Admin:   GET  /api/cta/captures            list (x-admin-key)
  *          GET  /api/cta/captures.csv        export (x-admin-key)
  *          DELETE /api/cta/captures/:id      (x-admin-key)
@@ -16,7 +18,7 @@
  */
 
 import type { Express, Request, Response } from "express";
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "crypto";
 import { sql } from "drizzle-orm";
 import { z, ZodError } from "zod";
 import { db } from "./db.js";
@@ -39,6 +41,14 @@ function ensureAdmin(req: Request, res: Response) {
 }
 /** Staff panel (connect QR + scanner mode). Its own key, so a booth password never opens the lead list. */
 function staffKeys() { const k = (process.env.CTA_STAFF_KEY ?? "").trim(); return k ? [k, ...adminKeys()] : adminKeys(); }
+const hashPassword = (pw: string, salt = randomBytes(16).toString("hex")) => `scrypt:${salt}:${scryptSync(pw, salt, 32).toString("hex")}`;
+function checkPassword(pw: string, stored: string | null) {
+  const [, salt, hex] = (stored ?? "").split(":"); if (!pw || !salt || !hex) return false;
+  const a = Buffer.from(hashPassword(pw, salt).split(":")[2], "hex"), b = Buffer.from(hex, "hex");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+let memoryStaffHash: string | null = null;
+let staffHashCache: { value: string | null; at: number } | null = null;
 const rows = <T>(r: unknown) => (((r as { rows?: T[] })?.rows ?? r) as T[]);
 const noDb = () => Boolean(process.env.VERCEL && !db);
 
@@ -48,6 +58,7 @@ async function ensureTable() {
     await db.execute(sql`CREATE TABLE IF NOT EXISTS cta_captures (id uuid PRIMARY KEY, code varchar(12) NOT NULL, payload text NOT NULL, parsed jsonb NOT NULL DEFAULT '{}'::jsonb, note text NOT NULL DEFAULT '', manual boolean NOT NULL DEFAULT false, user_agent text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now())`);
     await db.execute(sql`ALTER TABLE cta_captures ADD COLUMN IF NOT EXISTS mode varchar(16) NOT NULL DEFAULT 'booth'`);
     await db.execute(sql`ALTER TABLE cta_captures ADD COLUMN IF NOT EXISTS contact text NOT NULL DEFAULT ''`);
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS cta_settings (key varchar(64) PRIMARY KEY, value text NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`);
   })().catch((e) => { tableReady = null; throw e; });
   return tableReady;
 }
@@ -97,10 +108,29 @@ export function registerCtaRoutes(app: Express) {
     res.status(201).json({ id: capture.id, code: capture.code, parsed: capture.parsed, createdAt: capture.createdAt });
   } catch (e) { if (e instanceof ZodError) { res.status(400).json({ message: e.issues[0]?.message ?? "Invalid request" }); return; } next(e); } });
 
-  app.post("/api/cta/staff", (req, res) => {
-    if (!matches(String(req.headers["x-admin-key"] ?? "").trim(), staffKeys())) { res.status(401).json({ message: "Wrong password" }); return; }
+  async function staffHash(): Promise<string | null> {
+    if (!db) return memoryStaffHash;
+    if (staffHashCache && Date.now() - staffHashCache.at < 30_000) return staffHashCache.value;
+    await ensureTable();
+    const value = rows<{ value: string }>(await db.execute(sql`SELECT value FROM cta_settings WHERE key='staff_password'`))[0]?.value ?? null;
+    staffHashCache = { value, at: Date.now() }; return value;
+  }
+
+  app.post("/api/cta/staff", async (req, res, next) => { try {
+    const provided = String(req.headers["x-admin-key"] ?? "").trim();
+    if (!matches(provided, staffKeys()) && !checkPassword(provided, await staffHash())) { res.status(401).json({ message: "Wrong password" }); return; }
     res.json({ ok: true });
-  });
+  } catch (e) { next(e); } });
+
+  app.put("/api/cta/staff-password", async (req, res, next) => { try {
+    if (!ensureAdmin(req, res)) return;
+    const { password } = z.object({ password: z.string().trim().min(6).max(200) }).parse(req.body ?? {});
+    const value = hashPassword(password);
+    if (db) { await ensureTable(); await db.execute(sql`INSERT INTO cta_settings(key,value,updated_at) VALUES('staff_password',${value},now()) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now()`); }
+    else memoryStaffHash = value;
+    staffHashCache = null;
+    res.json({ ok: true });
+  } catch (e) { if (e instanceof ZodError) { res.status(400).json({ message: "Password must be 6–200 characters" }); return; } next(e); } });
 
   async function list(): Promise<Capture[]> {
     if (!db) return memory;

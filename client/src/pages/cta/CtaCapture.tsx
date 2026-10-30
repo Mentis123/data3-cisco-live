@@ -57,7 +57,8 @@ const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-r
 function buzz(pattern: number | number[]) { try { navigator.vibrate?.(pattern); } catch { /* ignore */ } }
 
 /* ------------------------------------------------------------------- sound */
-// Tiny WebAudio synth. Every sound is a few oscillators, so nothing to download.
+// Tiny WebAudio synth for the UI blips, plus an ambient bed (mains hum, sampled hum loop, stray crackles).
+// Samples: Mixkit Sound Effects Free License (mixkit.co/license), trimmed and looped in public/cta/sfx.
 let audioCtx: AudioContext | null = null;
 let soundMuted = (() => { try { return localStorage.getItem("cta-muted") === "1"; } catch { return false; } })();
 function ac() {
@@ -83,6 +84,54 @@ const SFX: Record<string, (ctx: AudioContext) => void> = {
   gold: (c) => [784, 988, 1175, 1568, 1976, 2349].forEach((f, i) => tone(c, f, i * 0.08, 0.35, "triangle", 0.05)),
 };
 function sfx(name: keyof typeof SFX) { if (soundMuted) return; const c = ac(); if (!c) return; try { SFX[name](c); } catch { /* ignore */ } }
+// Ambient bed: starts on the first touch (browsers block sound until then), stops on mute or when hidden.
+const SAMPLES = { hum: "/cta/sfx/hum.mp3", crackle: "/cta/sfx/crackle.mp3", glitch: "/cta/sfx/glitch.mp3", charge: "/cta/sfx/charge.mp3" } as const;
+type Sample = keyof typeof SAMPLES;
+const buffers: Partial<Record<Sample, Promise<AudioBuffer | null>>> = {};
+function sample(c: AudioContext, name: Sample) {
+  return (buffers[name] ??= fetch(SAMPLES[name]).then((r) => r.arrayBuffer()).then((b) => new Promise<AudioBuffer>((ok, bad) => c.decodeAudioData(b, ok, bad))).catch(() => null));
+}
+async function playSample(name: Sample, vol: number, rate = 1) {
+  if (soundMuted) return; const c = ac(); if (!c) return; const buf = await sample(c, name); if (!buf || soundMuted) return;
+  const src = c.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate; const g = c.createGain(); g.gain.value = vol;
+  src.connect(g).connect(c.destination); src.start();
+}
+let bed: { master: GainNode; stop: () => void } | null = null;
+let bedStarting = false;
+async function startAmbient() {
+  if (soundMuted || bed || bedStarting) return; const c = ac(); if (!c) return;
+  bedStarting = true;
+  try {
+    const master = c.createGain(); master.gain.value = 0.0001; master.connect(c.destination);
+    const nodes: AudioScheduledSourceNode[] = [];
+    // 50 Hz mains (Australia) with harmonics so phone speakers, which can't reproduce 50 Hz, still carry it.
+    ([[50, 0.05, "sine"], [100, 0.03, "sine"], [150, 0.012, "triangle"], [250, 0.004, "sawtooth"]] as const).forEach(([f, v, type]) => {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = f; const g = c.createGain(); g.gain.value = v; o.connect(g).connect(master); o.start(); nodes.push(o);
+    });
+    // Slow wobble on the whole bed so it breathes rather than drones.
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.13; const depth = c.createGain(); depth.gain.value = 0.025; lfo.connect(depth).connect(master.gain); lfo.start(); nodes.push(lfo);
+    const hum = await sample(c, "hum");
+    if (hum) {
+      const src = c.createBufferSource(); src.buffer = hum; src.loop = true; src.loopStart = 0.06; src.loopEnd = hum.duration - 0.06;
+      const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 3200; const g = c.createGain(); g.gain.value = 0.55;
+      src.connect(lp).connect(g).connect(master); src.start(0, 0.06); nodes.push(src);
+    }
+    if (soundMuted) { nodes.forEach((n) => n.stop()); master.disconnect(); return; }
+    master.gain.setTargetAtTime(0.16, c.currentTime, 1.2);
+    let timer = 0;
+    const crackle = () => {
+      timer = window.setTimeout(() => {
+        if (!document.hidden) { const pick: Sample[] = ["crackle", "crackle", "glitch", "charge"]; void playSample(pick[Math.floor(Math.random() * pick.length)], 0.05 + Math.random() * 0.08, 0.85 + Math.random() * 0.3); }
+        crackle();
+      }, 4500 + Math.random() * 9000);
+    };
+    crackle();
+    bed = { master, stop: () => { window.clearTimeout(timer); master.gain.setTargetAtTime(0.0001, c.currentTime, 0.15); window.setTimeout(() => { nodes.forEach((n) => { try { n.stop(); } catch { /* ignore */ } }); master.disconnect(); }, 800); } };
+  } finally { bedStarting = false; }
+}
+function stopAmbient() { bed?.stop(); bed = null; }
+/** A louder burst of electricity for big moments (degauss, power on). */
+function zap(strong = false) { void playSample("crackle", strong ? 0.45 : 0.25, 0.9 + Math.random() * 0.2); if (strong) window.setTimeout(() => void playSample("charge", 0.3, 0.8), 120); }
 const MORSE_D3 = "-.. ...--"; // D, 3 (there is no Morse for #)
 
 /* ------------------------------------------------------------------ camera */
@@ -233,7 +282,7 @@ function Unit() {
     if (logoTaps.current.length >= 3) { logoTaps.current = []; resetPassport(); }
   };
   const runDegauss = useCallback(() => {
-    setDegauss(true); sfx("degauss"); buzz([60, 30, 60, 30, 120]); discover("degauss", "DEGAUSS");
+    setDegauss(true); sfx("degauss"); zap(true); buzz([60, 30, 60, 30, 120]); discover("degauss", "DEGAUSS");
     const page = document.querySelector(".cta-page"); page?.classList.add("cta-page--degauss");
     window.setTimeout(() => { setDegauss(false); page?.classList.remove("cta-page--degauss"); }, 2400);
   }, [discover]);
@@ -252,7 +301,14 @@ function Unit() {
   }, [runDegauss]);
   // Speaker grille: tap to mute
   const [muted, setMuted] = useState(soundMuted);
-  const toggleMute = () => { const v = !muted; soundMuted = v; setMuted(v); try { localStorage.setItem("cta-muted", v ? "1" : "0"); } catch { /* ignore */ } if (!v) sfx("tick"); };
+  const toggleMute = () => { const v = !muted; soundMuted = v; setMuted(v); try { localStorage.setItem("cta-muted", v ? "1" : "0"); } catch { /* ignore */ } if (v) stopAmbient(); else { sfx("tick"); void startAmbient(); } };
+  // Ambient hum: first touch anywhere starts it; leaving the tab pauses all sound.
+  useEffect(() => {
+    const kick = () => { void startAmbient(); };
+    const vis = () => { if (!audioCtx) return; if (document.hidden) void audioCtx.suspend(); else void audioCtx.resume(); };
+    window.addEventListener("pointerdown", kick); window.addEventListener("keydown", kick); document.addEventListener("visibilitychange", vis);
+    return () => { window.removeEventListener("pointerdown", kick); window.removeEventListener("keydown", kick); document.removeEventListener("visibilitychange", vis); stopAmbient(); };
+  }, []);
   // Hidden staff gesture: three fingers on the screen opens the staff panel (password, then connect QR + scanner mode).
   const [showQr, setShowQr] = useState(false);
   const [staffKey, setStaffKey] = useState(() => { try { return localStorage.getItem(STAFF_KEY) || ""; } catch { return ""; } });
@@ -356,7 +412,7 @@ function Unit() {
       <div className="cta-screen-status"><span>{phase === "boot" ? "STANDBY" : phase === "scanning" ? (scanner.ready ? "SCANNING · ALIGN BADGE QR" : "CAMERA") : phase === "acquired" ? "LOCKED" : phase === "transmitting" ? "TRANSMITTING…" : phase === "captured" ? "SENT" : "KEYPAD"}</span><span className="cta-blink">●</span></div>
     </div>
     <div className="cta-keys">
-      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
+      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); zap(); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
       {phase === "scanning" ? <><p className="cta-hint">Hold your badge QR inside the frame. It locks on by itself.</p><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>Enter by hand instead</button></> : null}
       {phase === "acquired" || phase === "transmitting" ? <><label className="cta-field">{`Additional con${ZW}tact details`}<input {...NOFILL} name="cta-f3" autoCapitalize="none" value={contact} maxLength={300} placeholder="Email, mobile, LinkedIn, whatever works" onChange={(e) => setContact(e.target.value)} /></label><label className="cta-field">{MODES[mode].noteLabel}<textarea {...NOFILL} name="cta-f4" value={note} maxLength={600} placeholder={MODES[mode].prompt} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={reset} disabled={phase === "transmitting"}>Rescan</button><button className="cta-key cta-key--primary" onClick={() => transmit(false)} disabled={phase === "transmitting"}>{phase === "transmitting" ? "Transmitting…" : "Transmit"}</button></div></> : null}
       {phase === "manual" ? <><label className="cta-field">{`Na${ZW}me`}<input {...NOFILL} name="cta-f1" autoCapitalize="words" value={name} onChange={(e) => setName(e.target.value)} /></label><label className="cta-field">{`E${ZW}mail`}<input {...NOFILL} name="cta-f2" type="text" inputMode="email" autoCapitalize="none" value={email} onChange={(e) => setEmail(e.target.value)} /></label><label className="cta-field">{`Additional con${ZW}tact details`}<input {...NOFILL} name="cta-f3" autoCapitalize="none" value={contact} maxLength={300} placeholder="Email, mobile, LinkedIn, whatever works" onChange={(e) => setContact(e.target.value)} /></label><label className="cta-field">{MODES[mode].noteLabel}<textarea {...NOFILL} name="cta-f4" value={note} maxLength={600} placeholder={MODES[mode].prompt} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
@@ -409,6 +465,17 @@ function previewParse(raw: string): Parsed {
 
 type Capture = { id: string; code: string; mode?: string; payload: string; parsed: Parsed; note: string; contact?: string; manual: boolean; userAgent: string; createdAt: string };
 
+/** Set the password for the three-finger staff panel. The server keeps only a salted hash, in the database. */
+function StaffPassword({ headers }: { headers: Record<string, string> }) {
+  const [pw, setPw] = useState(""); const [msg, setMsg] = useState("");
+  async function save() {
+    setMsg("Saving…");
+    try { await request(`${API}/staff-password`, { method: "PUT", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify({ password: pw.trim() }) }); setPw(""); setMsg("Saved. Staff panels on every device use it from now."); }
+    catch (e) { setMsg((e as Error).message); }
+  }
+  return <section className="cta-staffpw"><label className="cta-field">Staff panel password<input {...NOFILL} name="cta-f6" type="password" value={pw} onChange={(e) => setPw(e.target.value)} /></label><button className="cta-key cta-key--ghost" disabled={pw.trim().length < 6} onClick={() => void save()}>Set password</button>{msg ? <p className="cta-hint">{msg}</p> : null}</section>;
+}
+
 function CtaAdmin() {
   const [key, setKey] = useState(() => { try { return localStorage.getItem("decision-room-admin-key") || ""; } catch { return ""; } });
   const [draft, setDraft] = useState("");
@@ -422,6 +489,7 @@ function CtaAdmin() {
   if (!key) return <div className="cta-admin"><h1>Capture admin</h1><label className="cta-field">Admin key<input type="password" value={draft} onChange={(e) => setDraft(e.target.value)} /></label><button className="cta-key cta-key--primary" disabled={!draft.trim()} onClick={() => { try { localStorage.setItem("decision-room-admin-key", draft.trim()); } catch { /* ignore */ } setKey(draft.trim()); }}>Open</button></div>;
   return <div className="cta-admin">
     <header><div><h1>Badge captures</h1><p>{rows ? `${rows.length} captured` : "Loading…"}{error ? ` · ${error}` : ""}</p></div><div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => window.print()}>Print booth QR</button><button className="cta-key cta-key--primary" onClick={exportCsv}>Export CSV</button></div></header>
+    <StaffPassword headers={headers} />
     <section className="cta-booth"><div className="cta-booth-qr"><QRCodeSVG value={boothUrl} size={220} level="H" bgColor="#ffffff" fgColor="#000025" /></div><div><p className="cta-booth-kicker">SCAN TO CHECK IN</p><h2>Point your phone here</h2><p>{boothUrl}</p></div></section>
     <table className="cta-table"><thead><tr><th>When</th><th>Mode</th><th>Ref</th><th>Name</th><th>Email</th><th>Company</th><th>Other contact</th><th>Note</th><th>Kind</th><th /></tr></thead><tbody>{(rows ?? []).map((c) => <tr key={c.id}><td>{new Date(c.createdAt).toLocaleString("en-AU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</td><td>{MODES[(c.mode ?? "booth") as Mode]?.plate.toLowerCase() ?? c.mode}</td><td><code>{c.code}</code></td><td>{c.parsed.name ?? ""}</td><td>{c.parsed.email ?? ""}</td><td>{c.parsed.company ?? ""}</td><td>{c.contact ?? ""}</td><td className="cta-note">{c.note}</td><td title={c.payload}>{c.manual ? "manual" : c.parsed.kind}</td><td><button className="cta-link" onClick={() => remove(c.id)}>delete</button></td></tr>)}</tbody></table>
   </div>;
