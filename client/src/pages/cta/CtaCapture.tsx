@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import jsQR from "jsqr";
 import { QRCodeSVG } from "qrcode.react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import "./cta.css";
 
 type Parsed = { kind: string; name?: string; email?: string; phone?: string; company?: string; title?: string; fields: Record<string, string> };
@@ -116,6 +116,16 @@ function Unit() {
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
   const [glitch, setGlitch] = useState(false);
+  // Hidden staff gesture: three fingers on the screen shows the "connect with us" QR for the other person to scan.
+  const [showQr, setShowQr] = useState(false);
+  const screenRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = screenRef.current; if (!el) return;
+    const onTouch = (e: TouchEvent) => { if (e.touches.length >= 3) { e.preventDefault(); buzz(30); setShowQr(true); } };
+    el.addEventListener("touchstart", onTouch, { passive: false });
+    return () => el.removeEventListener("touchstart", onTouch);
+  }, []);
+  useEffect(() => { if (!showQr) return; const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setShowQr(false); }; window.addEventListener("keydown", esc); return () => window.removeEventListener("keydown", esc); }, [showQr]);
   const onHit = useCallback((text: string) => {
     setPayload(text); setGlitch(true); buzz([40, 60, 40]);
     window.setTimeout(() => { setGlitch(false); setPhase("acquired"); }, reduced() ? 0 : 650);
@@ -139,7 +149,7 @@ function Unit() {
   const led = phase === "boot" ? "idle" : phase === "scanning" ? "scan" : phase === "captured" ? "ok" : "lock";
   return <div className={`cta-unit ${glitch ? "is-glitch" : ""} cta-unit--${phase}`}>
     <div className="cta-unit-top"><span className="cta-antenna" /><span className="cta-brand">Data<sup>#</sup>3</span><span className="cta-model">FIELD UNIT · CL26</span><span className={`cta-led cta-led--${led}`} /></div>
-    <div className="cta-screen">
+    <div className="cta-screen" ref={screenRef} onClick={(e) => { if (e.detail === 3) setShowQr(true); }}>
       <div className="cta-crt">
         {phase === "scanning" || glitch ? <><video ref={scanner.video} playsInline muted autoPlay /><div className="cta-reticle"><i /><i /><i /><i /></div><div className="cta-scanline" />{!scanner.ready && !scanner.error ? <p className="cta-screen-msg">WAKING CAMERA…</p> : null}{scanner.error ? <p className="cta-screen-msg cta-screen-msg--err">{scanner.error}</p> : null}</> : null}
         {phase === "boot" ? <pre className="cta-boot">{boot.shown}{boot.done ? "" : "▌"}</pre> : null}
@@ -158,6 +168,9 @@ function Unit() {
       {phase === "captured" ? <><p className="cta-hint">Pass the unit along, or scan another badge.</p><button className="cta-key cta-key--primary" onClick={reset}>Scan another</button></> : null}
     </div>
     <div className="cta-unit-foot"><span>DATA<sup>#</sup>3 × CISCO LIVE</span><span>OBSERVE · GOVERN · SECURE</span></div>
+    {showQr ? <div className="cta-qr-overlay" role="dialog" aria-modal="true" aria-label="Scan to connect" onClick={() => setShowQr(false)}>
+      <div className="cta-qr-card"><p className="cta-qr-kicker">UPLINK · SCAN TO CONNECT</p><img src="/cta/connect-qr.png" alt="QR code to connect" /><p className="cta-qr-close">Tap anywhere to close</p></div>
+    </div> : null}
   </div>;
 }
 
@@ -209,6 +222,7 @@ export default function CtaCapture() {
   return <main className={`cta-page ${admin ? "cta-page--admin" : ""}`}>
     <div className="cta-sky" aria-hidden="true"><div className="cta-sun" /><div className="cta-grid" /></div>
     <div className="cta-scanlines" aria-hidden="true" />
+    <Link href="/" className="cta-origin" aria-label="Back to the Data#3 Cisco Live home page"><span className="cta-origin-glyph" aria-hidden="true">◂</span><span className="cta-origin-label">ORIGIN</span><span className="cta-origin-pulse" aria-hidden="true" /></Link>
     {admin ? <CtaAdmin /> : <Unit />}
   </main>;
 }
