@@ -206,3 +206,42 @@ html.cta-lock .cta-unit{margin:auto 0;flex:none}
 .cta-brand{cursor:pointer;-webkit-touch-callout:none;transition:text-shadow .2s,transform .2s}
 .cta-brand.is-charging{animation:ctacharge 1.3s ease-in forwards}
 @keyframes ctacharge{0%{text-shadow:none}100%{text-shadow:0 0 6px var(--phos),0 0 18px var(--phos),0 0 32px var(--phos);transform:scale(1.06)}}
+
+/* bigger hardware: every control is thumb-sized */
+.cta-unit-top{gap:12px;padding:4px 8px 14px}
+.cta-unit .cta-brand{font-size:28px}
+.cta-antenna{width:14px;height:36px;margin-top:-34px;border-radius:7px 7px 3px 3px}
+.cta-antenna.is-up{height:86px;margin-top:-84px}
+.cta-antenna.is-up::after{top:-9px;width:14px;height:14px;margin-left:-7px}
+.cta-signal{gap:3px;height:20px;margin-left:2px}
+.cta-signal i{width:5px}
+.cta-signal i:nth-child(1){height:5px}.cta-signal i:nth-child(2){height:10px}.cta-signal i:nth-child(3){height:15px}.cta-signal i:nth-child(4){height:20px}
+.cta-unit-top .cta-switch{margin-left:auto}
+.cta-unit .cta-switch{gap:8px;font-size:12px;letter-spacing:.14em}
+.cta-unit .cta-switch i{width:44px;height:24px;border-radius:13px;border-width:2px}
+.cta-unit .cta-switch i::after{top:2px;left:2px;width:16px;height:16px}
+.cta-unit .cta-switch.is-on i::after{transform:translateX(20px)}
+.cta-unit button.cta-led{width:20px;height:20px;margin-right:2px}
+.cta-unit .cta-dial{right:-17px;width:32px;height:72px;border-radius:9px}
+.cta-dial i{left:-11px;width:9px;height:9px;margin-top:-4.5px}
+.cta-unit .cta-grille{width:72px;height:18px;border-radius:9px;background:repeating-linear-gradient(90deg,#03070f 0 4px,#2a4170 4px 7px)}
+.cta-grille[aria-pressed="false"]::after{top:8px;height:3px}
+.cta-screen-status{font-size:12px;padding-top:9px}
+.cta-unit-foot{align-items:center;gap:10px;padding:14px 6px 0;font-size:10px;letter-spacing:.16em}
+.cta-unit-foot .cta-model{margin:0;font-size:10px;color:var(--brass)}
+.cta-toast{top:-22px;padding:9px 18px;font-size:14px;letter-spacing:.14em}
+
+/* secrets tally */
+.cta-tally{display:flex;align-items:center;gap:14px;margin:14px 2px 0;padding:12px 16px;border-radius:14px;border:1px solid rgba(201,162,74,.55);background:linear-gradient(180deg,rgba(26,18,4,.65),rgba(5,10,24,.8));box-shadow:inset 0 0 18px rgba(201,162,74,.12),0 0 18px rgba(201,162,74,.15);animation:ctastamp .4s both}
+.cta-tally-label{font-size:14px;font-weight:900;letter-spacing:.24em;color:var(--brass);text-shadow:0 0 8px rgba(201,162,74,.6)}
+.cta-tally-pips{display:flex;gap:9px;flex:1;justify-content:center}
+.cta-tally-pips i{width:18px;height:18px;border-radius:50%;background:#141c2e;box-shadow:inset 0 0 0 2px #3a3220}
+.cta-tally-pips i.is-lit{background:var(--phos);box-shadow:0 0 12px var(--phos),inset 0 0 0 2px rgba(255,255,255,.35);animation:ctastamp .4s both}
+.cta-tally-count{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:900;line-height:1;color:#fff;text-shadow:0 0 12px var(--phos)}
+.cta-tally-count small{font-size:16px;color:var(--brass);margin-left:2px}
+.cta-tally.is-full{border-color:#ffd75e;box-shadow:0 0 26px rgba(255,215,94,.4),inset 0 0 18px rgba(255,215,94,.2)}
+.cta-tally.is-full .cta-tally-pips i.is-lit{background:#ffd75e;box-shadow:0 0 14px #ffd75e}
+@media (max-width:360px){.cta-tally{gap:10px;padding:10px 12px}.cta-tally-label{font-size:12px;letter-spacing:.16em}.cta-tally-pips{gap:6px}.cta-tally-pips i{width:14px;height:14px}.cta-tally-count{font-size:24px}}
+/* antenna lives in the top-right corner, clear of ORIGIN; toasts sit on the screen bezel */
+.cta-unit-top .cta-antenna{order:9;margin-left:2px}
+.cta-toast{top:58px;z-index:7}

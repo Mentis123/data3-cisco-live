@@ -25,6 +25,6 @@ Stored in the site's Neon Postgres in `cta_captures` (created on first use): the
 4. **Status light**: tap it three times for night vision.
 5. **Degauss**: press and hold the Data#3 logo for about a second. Shaking the phone also works where the browser allows motion without asking (most Android phones). On a laptop, press D.
 
-Find all five and the unit turns gold, and the capture gets a `GOLD-` reference. Three fingers on the screen (or a triple-click) shows the connect QR. That one is for staff and isn't counted.
+A big SECRETS tally (five lights and a count) appears under the buttons once the first one is found. Find all five and the unit turns gold, and the capture gets a `GOLD-` reference. Three fingers on the screen (or a triple-click) shows the connect QR. That one is for staff and isn't counted.
 
 The page is pinned while the unit is on screen, so dragging the controls can't scroll it or trigger pull-to-refresh.
