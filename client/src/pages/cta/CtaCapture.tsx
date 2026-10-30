@@ -39,6 +39,35 @@ function useTypewriter(text: string, speed = 18, enabled = true) {
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 function buzz(pattern: number | number[]) { try { navigator.vibrate?.(pattern); } catch { /* ignore */ } }
 
+/* ------------------------------------------------------------------- sound */
+// Tiny WebAudio synth. Every sound is a few oscillators, so nothing to download.
+let audioCtx: AudioContext | null = null;
+let soundMuted = (() => { try { return localStorage.getItem("cta-muted") === "1"; } catch { return false; } })();
+function ac() {
+  if (!audioCtx) { const C = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext; if (!C) return null; audioCtx = new C(); }
+  if (audioCtx.state === "suspended") void audioCtx.resume();
+  return audioCtx;
+}
+function tone(ctx: AudioContext, freq: number, at: number, dur: number, type: OscillatorType = "square", gain = 0.05, slideTo?: number) {
+  const t = ctx.currentTime + at; const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+const SFX: Record<string, (ctx: AudioContext) => void> = {
+  power: (c) => { tone(c, 90, 0, 0.45, "sawtooth", 0.05, 720); tone(c, 1760, 0.42, 0.05, "square", 0.025); },
+  tick: (c) => tone(c, 2400, 0, 0.022, "square", 0.035),
+  lock: (c) => { tone(c, 880, 0, 0.08, "square", 0.05); tone(c, 1320, 0.08, 0.16, "square", 0.05); },
+  transmit: (c) => { tone(c, 220, 0, 0.55, "sawtooth", 0.035, 1760); tone(c, 2637, 0.55, 0.12, "sine", 0.04); },
+  chirp: (c) => [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(c, f, i * 0.065, 0.1, "triangle", 0.05)),
+  secret: (c) => [1568, 2093, 2637, 3136].forEach((f, i) => tone(c, f, i * 0.055, 0.2, "sine", 0.04)),
+  night: (c) => { tone(c, 2600, 0, 0.35, "sine", 0.035, 700); tone(c, 60, 0, 0.3, "sine", 0.06); },
+  degauss: (c) => { tone(c, 70, 0, 0.5, "sine", 0.2, 32); tone(c, 9000, 0.05, 1.1, "sawtooth", 0.008, 1800); },
+  gold: (c) => [784, 988, 1175, 1568, 1976, 2349].forEach((f, i) => tone(c, f, i * 0.08, 0.35, "triangle", 0.05)),
+};
+function sfx(name: keyof typeof SFX) { if (soundMuted) return; const c = ac(); if (!c) return; try { SFX[name](c); } catch { /* ignore */ } }
+const MORSE_D3 = "-.. ...--"; // D, 3 (there is no Morse for #)
+
 /* ------------------------------------------------------------------ camera */
 
 /** Runs the rear camera into a <video>, decodes QR frames, hands back the first hit. */
@@ -116,6 +145,65 @@ function Unit() {
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
   const [glitch, setGlitch] = useState(false);
+  // Five hidden things to find. Found ones persist on this device; all five turn the unit gold.
+  const [found, setFound] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("cta-secrets") || "[]"); } catch { return []; } });
+  const foundRef = useRef(found); foundRef.current = found;
+  const [toast, setToast] = useState("");
+  const discover = useCallback((key: string, label: string) => {
+    if (foundRef.current.includes(key)) return;
+    const next = [...foundRef.current, key]; foundRef.current = next; setFound(next);
+    try { localStorage.setItem("cta-secrets", JSON.stringify(next)); } catch { /* ignore */ }
+    if (next.length >= 5) { setToast("ALL FIVE FOUND · GOLD UNIT UNLOCKED"); window.setTimeout(() => sfx("gold"), 200); buzz([30, 40, 30, 40, 120]); }
+    else { setToast(`SECRET FOUND · ${label} · ${next.length}/5`); sfx("secret"); buzz([20, 40, 20]); }
+  }, []);
+  useEffect(() => { if (!toast) return; const id = window.setTimeout(() => setToast(""), 2800); return () => window.clearTimeout(id); }, [toast]);
+  const gold = found.length >= 5;
+  // 1. Phosphor dial
+  const PHOS = ["aqua", "amber", "green", "magenta"] as const;
+  const [phos, setPhos] = useState(0);
+  const dialDrag = useRef<{ y: number; at: number; moved: boolean } | null>(null);
+  const setDial = (i: number) => { const v = ((i % 4) + 4) % 4; if (v === phos) return; setPhos(v); sfx("tick"); buzz(8); if (v !== 0) discover("dial", "PHOSPHOR DIAL"); };
+  // 2. AURA edge glow
+  const [aura, setAura] = useState(false);
+  const unitRef = useRef<HTMLDivElement | null>(null);
+  // 3. Antenna
+  const [antenna, setAntenna] = useState(false);
+  const antennaDrag = useRef<number | null>(null);
+  const [morseOn, setMorseOn] = useState<boolean | null>(null);
+  const raiseAntenna = () => {
+    const up = !antenna; setAntenna(up); document.querySelector(".cta-page")?.classList.toggle("cta-page--boost", up);
+    if (!up) return;
+    sfx("chirp"); buzz(15); discover("antenna", "ANTENNA");
+    // Blink D#3 in Morse on the status light.
+    const steps: [boolean, number][] = [];
+    for (const ch of MORSE_D3) { if (ch === " ") { steps.push([false, 420]); continue; } steps.push([true, ch === "-" ? 420 : 140], [false, 140]); }
+    let t = 300; steps.forEach(([on, ms]) => { window.setTimeout(() => setMorseOn(on), t); t += ms; }); window.setTimeout(() => setMorseOn(null), t + 200);
+  };
+  // 4. Night vision (three taps on the status light)
+  const [night, setNight] = useState(false);
+  const ledTaps = useRef<number[]>([]);
+  const tapLed = () => {
+    const now = Date.now(); ledTaps.current = [...ledTaps.current.filter((t) => now - t < 900), now];
+    if (ledTaps.current.length >= 3) { ledTaps.current = []; setNight((n) => { const v = !n; sfx(v ? "night" : "tick"); if (v) discover("night", "NIGHT VISION"); return v; }); }
+  };
+  // 5. Degauss (shake the phone; D on a keyboard)
+  const [degauss, setDegauss] = useState(false);
+  const runDegauss = useCallback(() => { setDegauss(true); sfx("degauss"); buzz([60, 30, 60]); discover("degauss", "DEGAUSS"); window.setTimeout(() => setDegauss(false), 2400); }, [discover]);
+  useEffect(() => {
+    let last = 0;
+    const onMotion = (e: DeviceMotionEvent) => {
+      const a = e.acceleration; let m = 0;
+      if (a && a.x != null) m = Math.hypot(a.x ?? 0, a.y ?? 0, a.z ?? 0);
+      else { const g = e.accelerationIncludingGravity; if (!g || g.x == null) return; m = Math.abs(Math.hypot(g.x ?? 0, g.y ?? 0, g.z ?? 0) - 9.81); }
+      if (m > 17 && Date.now() - last > 2600) { last = Date.now(); runDegauss(); }
+    };
+    const onKey = (e: KeyboardEvent) => { const el = e.target as HTMLElement | null; if ((e.key === "d" || e.key === "D") && !(el && /INPUT|TEXTAREA/.test(el.tagName))) runDegauss(); };
+    window.addEventListener("devicemotion", onMotion); window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("devicemotion", onMotion); window.removeEventListener("keydown", onKey); };
+  }, [runDegauss]);
+  // Speaker grille: tap to mute
+  const [muted, setMuted] = useState(soundMuted);
+  const toggleMute = () => { const v = !muted; soundMuted = v; setMuted(v); try { localStorage.setItem("cta-muted", v ? "1" : "0"); } catch { /* ignore */ } if (!v) sfx("tick"); };
   // Hidden staff gesture: three fingers on the screen shows the "connect with us" QR for the other person to scan.
   const [showQr, setShowQr] = useState(false);
   const screenRef = useRef<HTMLDivElement | null>(null);
@@ -127,10 +215,23 @@ function Unit() {
   }, []);
   useEffect(() => { if (!showQr) return; const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setShowQr(false); }; window.addEventListener("keydown", esc); return () => window.removeEventListener("keydown", esc); }, [showQr]);
   const onHit = useCallback((text: string) => {
-    setPayload(text); setGlitch(true); buzz([40, 60, 40]);
+    setPayload(text); setGlitch(true); buzz([40, 60, 40]); sfx("lock");
     window.setTimeout(() => { setGlitch(false); setPhase("acquired"); }, reduced() ? 0 : 650);
   }, []);
   const scanner = useScanner(phase === "scanning", onHit);
+  useEffect(() => {
+    const unit = unitRef.current; if (!aura || !unit) return;
+    const canvas = document.createElement("canvas"); canvas.width = 8; canvas.height = 6; const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const id = window.setInterval(() => {
+      const v = scanner.video.current;
+      if (!v || v.readyState < 2 || !ctx) { unit.style.removeProperty("--aura"); return; }
+      ctx.drawImage(v, 0, 0, 8, 6); const d = ctx.getImageData(0, 0, 8, 6).data; let r = 0, g = 0, b = 0;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+      const n = d.length / 4, max = Math.max(r, g, b, 1) / n, k = 255 / max;
+      unit.style.setProperty("--aura", `rgb(${Math.round((r / n) * k)},${Math.round((g / n) * k)},${Math.round((b / n) * k)})`);
+    }, 280);
+    return () => { window.clearInterval(id); unit.style.removeProperty("--aura"); };
+  }, [aura, scanner.video]);
   const boot = useTypewriter("D#3 FIELD UNIT · CISCO LIVE 2026\nSYSTEMS NOMINAL. CAMERA OFFLINE.\nPOINT THE UNIT AT YOUR BADGE QR.", 22, phase === "boot" && !reduced());
 
   // Local preview of what the badge says; the server does the same parse and is the record.
@@ -139,35 +240,52 @@ function Unit() {
   async function transmit(manual = false) {
     setError(""); setPhase("transmitting");
     try {
-      const body = manual ? { payload: JSON.stringify({ name: name.trim(), email: email.trim() }), note: note.trim(), manual: true } : { payload, note: note.trim(), manual: false };
+      const body = { ...(manual ? { payload: JSON.stringify({ name: name.trim(), email: email.trim() }), note: note.trim(), manual: true } : { payload, note: note.trim(), manual: false }), gold };
       const r = await request<{ code: string; parsed: Parsed }>(`${API}/captures`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      setCode(r.code); setParsed(r.parsed); buzz(80); setPhase("captured");
+      setCode(r.code); setParsed(r.parsed); buzz(80); sfx("transmit"); setPhase("captured");
     } catch (e) { setError((e as Error).message); setPhase(manual ? "manual" : "acquired"); }
   }
   function reset() { setPayload(""); setParsed(null); setNote(""); setCode(""); setError(""); setPhase("scanning"); }
 
   const led = phase === "boot" ? "idle" : phase === "scanning" ? "scan" : phase === "captured" ? "ok" : "lock";
-  return <div className={`cta-unit ${glitch ? "is-glitch" : ""} cta-unit--${phase}`}>
-    <div className="cta-unit-top"><span className="cta-antenna" /><span className="cta-brand">Data<sup>#</sup>3</span><span className="cta-model">FIELD UNIT · CL26</span><span className={`cta-led cta-led--${led}`} /></div>
+  const ledClass = morseOn === null ? `cta-led--${led}` : morseOn ? "cta-led--morse-on" : "cta-led--morse-off";
+  return <div ref={unitRef} data-phos={PHOS[phos]} className={`cta-unit ${glitch ? "is-glitch" : ""} cta-unit--${phase} ${aura ? "is-aura" : ""} ${night ? "is-night" : ""} ${degauss ? "is-degauss" : ""} ${gold ? "is-gold" : ""}`}>
+    {toast ? <div className="cta-toast" role="status">{toast}</div> : null}
+    <button type="button" className="cta-dial" aria-label={`Phosphor dial: ${PHOS[phos]}`} style={{ backgroundPositionY: `${phos * 9}px` }}
+      onPointerDown={(e) => { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); dialDrag.current = { y: e.clientY, at: phos, moved: false }; }}
+      onPointerMove={(e) => { const d = dialDrag.current; if (!d) return; const steps = Math.round((d.y - e.clientY) / 22); if (steps) { d.moved = true; setDial(d.at + steps); } }}
+      onPointerUp={() => { const d = dialDrag.current; dialDrag.current = null; if (d && !d.moved) setDial(phos + 1); }}
+      onPointerCancel={() => { dialDrag.current = null; }}><i /></button>
+    <div className="cta-unit-top">
+      <span className={`cta-antenna ${antenna ? "is-up" : ""}`} role="button" tabIndex={0} aria-label="Antenna" aria-pressed={antenna}
+        onPointerDown={(e) => { antennaDrag.current = e.clientY; }} onPointerUp={(e) => { const y = antennaDrag.current; antennaDrag.current = null; if (y !== null && (y - e.clientY > 14 || Math.abs(y - e.clientY) < 6)) raiseAntenna(); }}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); raiseAntenna(); } }} />
+      <span className="cta-brand">Data<sup>#</sup>3</span>
+      {antenna ? <span className="cta-signal" aria-hidden="true"><i /><i /><i /><i /></span> : null}
+      <span className="cta-model">{gold ? "GOLD UNIT · CL26" : "FIELD UNIT · CL26"}</span>
+      <button type="button" className={`cta-switch ${aura ? "is-on" : ""}`} aria-pressed={aura} onClick={() => { const v = !aura; setAura(v); sfx("tick"); buzz(8); if (v) discover("aura", "AURA"); }}><i /><span>AURA</span></button>
+      <button type="button" className={`cta-led ${ledClass}`} aria-label="Status light" onClick={tapLed} />
+    </div>
     <div className="cta-screen" ref={screenRef} onClick={(e) => { if (e.detail === 3) setShowQr(true); }}>
       <div className="cta-crt">
         {phase === "scanning" || glitch ? <><video ref={scanner.video} playsInline muted autoPlay /><div className="cta-reticle"><i /><i /><i /><i /></div><div className="cta-scanline" />{!scanner.ready && !scanner.error ? <p className="cta-screen-msg">WAKING CAMERA…</p> : null}{scanner.error ? <p className="cta-screen-msg cta-screen-msg--err">{scanner.error}</p> : null}</> : null}
         {phase === "boot" ? <pre className="cta-boot">{boot.shown}{boot.done ? "" : "▌"}</pre> : null}
         {phase === "acquired" || phase === "transmitting" ? <div className="cta-acquired"><p className="cta-stamp">IDENTITY ACQUIRED</p>{parsed ? <Dossier parsed={parsed} payload={payload} /> : null}</div> : null}
-        {phase === "captured" ? <div className="cta-acquired cta-acquired--done"><p className="cta-stamp cta-stamp--ok">INFORMATION CAPTURED</p><p className="cta-code">REF {code}</p>{parsed?.name ? <p className="cta-thanks">Thanks, {parsed.name.split(" ")[0]}. We’ll be in touch.</p> : <p className="cta-thanks">Thanks. We’ll be in touch.</p>}</div> : null}
+        {phase === "captured" ? <div className="cta-acquired cta-acquired--done"><p className="cta-stamp cta-stamp--ok">INFORMATION CAPTURED</p><p className="cta-code">REF {code}</p>{code.startsWith("GOLD") ? <p className="cta-gold-line">Gold unit. Show this screen at the Data#3 stand for your prize.</p> : null}{parsed?.name ? <p className="cta-thanks">Thanks, {parsed.name.split(" ")[0]}. We’ll be in touch.</p> : <p className="cta-thanks">Thanks. We’ll be in touch.</p>}</div> : null}
         {phase === "manual" ? <div className="cta-acquired"><p className="cta-stamp">MANUAL ENTRY</p><p className="cta-screen-note">No camera, no problem.</p></div> : null}
+        <div className="cta-burn" aria-hidden="true">OBSERVE · GOVERN · SECURE</div>
         <div className="cta-crt-glass" />
       </div>
       <div className="cta-screen-status"><span>{phase === "boot" ? "STANDBY" : phase === "scanning" ? (scanner.ready ? "SCANNING · ALIGN BADGE QR" : "CAMERA") : phase === "acquired" ? "LOCKED" : phase === "transmitting" ? "TRANSMITTING…" : phase === "captured" ? "SENT" : "KEYPAD"}</span><span className="cta-blink">●</span></div>
     </div>
     <div className="cta-keys">
-      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => setPhase("scanning")}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
+      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); const DM = (window as unknown as { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent; DM?.requestPermission?.().catch(() => undefined); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
       {phase === "scanning" ? <><p className="cta-hint">Hold your badge QR inside the frame. It locks on by itself.</p><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>Enter by hand instead</button></> : null}
       {phase === "acquired" || phase === "transmitting" ? <><label className="cta-field">Add a note (optional)<textarea value={note} maxLength={600} placeholder="What are you interested in? Who should we loop in?" onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={reset} disabled={phase === "transmitting"}>Rescan</button><button className="cta-key cta-key--primary" onClick={() => transmit(false)} disabled={phase === "transmitting"}>{phase === "transmitting" ? "Transmitting…" : "Transmit"}</button></div></> : null}
       {phase === "manual" ? <><label className="cta-field">Name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label><label className="cta-field">Email<input value={email} type="email" onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" /></label><label className="cta-field">Note (optional)<textarea value={note} maxLength={600} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
       {phase === "captured" ? <><p className="cta-hint">Pass the unit along, or scan another badge.</p><button className="cta-key cta-key--primary" onClick={reset}>Scan another</button></> : null}
     </div>
-    <div className="cta-unit-foot"><span>DATA<sup>#</sup>3 × CISCO LIVE</span><span>OBSERVE · GOVERN · SECURE</span></div>
+    <div className="cta-unit-foot"><span>DATA<sup>#</sup>3 × CISCO LIVE</span><button type="button" className="cta-grille" aria-label={muted ? "Sound off" : "Sound on"} aria-pressed={!muted} onClick={toggleMute} /><span className={found.length ? "cta-secrets" : ""}>{found.length ? `SECRETS ${found.length}/5` : "OBSERVE · GOVERN · SECURE"}</span></div>
     {showQr ? <div className="cta-qr-overlay" role="dialog" aria-modal="true" aria-label="Scan to connect" onClick={() => setShowQr(false)}>
       <div className="cta-qr-card"><p className="cta-qr-kicker">UPLINK · SCAN TO CONNECT</p><img src="/cta/connect-qr.png" alt="QR code to connect" /><p className="cta-qr-close">Tap anywhere to close</p></div>
     </div> : null}
