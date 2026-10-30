@@ -210,7 +210,11 @@ function Unit() {
     const now = Date.now(); logoTaps.current = [...logoTaps.current.filter((t) => now - t < 900), now];
     if (logoTaps.current.length >= 3) { logoTaps.current = []; resetPassport(); }
   };
-  const runDegauss = useCallback(() => { setDegauss(true); sfx("degauss"); buzz([60, 30, 60]); discover("degauss", "DEGAUSS"); window.setTimeout(() => setDegauss(false), 2400); }, [discover]);
+  const runDegauss = useCallback(() => {
+    setDegauss(true); sfx("degauss"); buzz([60, 30, 60, 30, 120]); discover("degauss", "DEGAUSS");
+    const page = document.querySelector(".cta-page"); page?.classList.add("cta-page--degauss");
+    window.setTimeout(() => { setDegauss(false); page?.classList.remove("cta-page--degauss"); }, 2400);
+  }, [discover]);
   runDegaussRef.current = runDegauss;
   useEffect(() => {
     let last = 0;
@@ -296,6 +300,7 @@ function Unit() {
         {phase === "captured" ? <div className="cta-acquired cta-acquired--done"><p className="cta-stamp cta-stamp--ok">INFORMATION CAPTURED</p><p className="cta-code">REF {code}</p>{code.startsWith("GOLD") ? <p className="cta-gold-line">Gold unit. Show this screen at the Data#3 stand for your prize.</p> : null}{parsed?.name ? <p className="cta-thanks">Thanks, {parsed.name.split(" ")[0]}. We’ll be in touch.</p> : <p className="cta-thanks">Thanks. We’ll be in touch.</p>}</div> : null}
         {phase === "manual" ? <div className="cta-acquired"><p className="cta-stamp">MANUAL ENTRY</p><p className="cta-screen-note">No camera, no problem.</p></div> : null}
         <div className="cta-burn" aria-hidden="true">OBSERVE · GOVERN · SECURE</div>
+        {degauss ? <div className="cta-degauss-fx" aria-hidden="true"><b /><i /></div> : null}
         <div className="cta-crt-glass" />
       </div>
       <div className="cta-screen-status"><span>{phase === "boot" ? "STANDBY" : phase === "scanning" ? (scanner.ready ? "SCANNING · ALIGN BADGE QR" : "CAMERA") : phase === "acquired" ? "LOCKED" : phase === "transmitting" ? "TRANSMITTING…" : phase === "captured" ? "SENT" : "KEYPAD"}</span><span className="cta-blink">●</span></div>
