@@ -25,6 +25,7 @@ import archiver from "archiver";
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { registerAlpha2026LeaderboardRoutes } from "./alpha2026Leaderboard.js";
 import { registerDecisionRoomRoutes } from "./decisionRoom.js";
+import { registerCtaRoutes } from "./cta.js";
 
 /**
  * Get the current date in Melbourne timezone (Australia/Melbourne) as YYYY-MM-DD string.
@@ -249,6 +250,7 @@ export async function registerRoutes(
 
   registerAlpha2026LeaderboardRoutes(app);
   registerDecisionRoomRoutes(app);
+  registerCtaRoutes(app);
 
   log(`[Routes] Registering routes - enableWebSocket: ${enableWebSocket}, httpServer: ${!!httpServer}`);
 
