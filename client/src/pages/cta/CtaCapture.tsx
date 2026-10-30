@@ -188,7 +188,13 @@ function Unit() {
   };
   // 5. Degauss (shake the phone; D on a keyboard)
   const [degauss, setDegauss] = useState(false);
+  const holdTimer = useRef<number | null>(null);
+  const [charging, setCharging] = useState(false);
+  const holdStart = () => { setCharging(true); holdTimer.current = window.setTimeout(() => { holdTimer.current = null; setCharging(false); runDegaussRef.current(); }, 1300); };
+  const holdEnd = () => { if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; } setCharging(false); };
+  const runDegaussRef = useRef<() => void>(() => undefined);
   const runDegauss = useCallback(() => { setDegauss(true); sfx("degauss"); buzz([60, 30, 60]); discover("degauss", "DEGAUSS"); window.setTimeout(() => setDegauss(false), 2400); }, [discover]);
+  runDegaussRef.current = runDegauss;
   useEffect(() => {
     let last = 0;
     const onMotion = (e: DeviceMotionEvent) => {
@@ -260,7 +266,7 @@ function Unit() {
       <span className={`cta-antenna ${antenna ? "is-up" : ""}`} role="button" tabIndex={0} aria-label="Antenna" aria-pressed={antenna}
         onPointerDown={(e) => { antennaDrag.current = e.clientY; }} onPointerUp={(e) => { const y = antennaDrag.current; antennaDrag.current = null; if (y !== null && (y - e.clientY > 14 || Math.abs(y - e.clientY) < 6)) raiseAntenna(); }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); raiseAntenna(); } }} />
-      <span className="cta-brand">Data<sup>#</sup>3</span>
+      <span className={`cta-brand ${charging ? "is-charging" : ""}`} role="button" tabIndex={0} aria-label="Data#3: press and hold" onPointerDown={holdStart} onPointerUp={holdEnd} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()} onKeyDown={(e) => { if (e.key === "Enter") runDegauss(); }}>Data<sup>#</sup>3</span>
       {antenna ? <span className="cta-signal" aria-hidden="true"><i /><i /><i /><i /></span> : null}
       <span className="cta-model">{gold ? "GOLD UNIT · CL26" : "FIELD UNIT · CL26"}</span>
       <button type="button" className={`cta-switch ${aura ? "is-on" : ""}`} aria-pressed={aura} onClick={() => { const v = !aura; setAura(v); sfx("tick"); buzz(8); if (v) discover("aura", "AURA"); }}><i /><span>AURA</span></button>
@@ -279,7 +285,7 @@ function Unit() {
       <div className="cta-screen-status"><span>{phase === "boot" ? "STANDBY" : phase === "scanning" ? (scanner.ready ? "SCANNING · ALIGN BADGE QR" : "CAMERA") : phase === "acquired" ? "LOCKED" : phase === "transmitting" ? "TRANSMITTING…" : phase === "captured" ? "SENT" : "KEYPAD"}</span><span className="cta-blink">●</span></div>
     </div>
     <div className="cta-keys">
-      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); const DM = (window as unknown as { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent; DM?.requestPermission?.().catch(() => undefined); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
+      {phase === "boot" ? <><button className="cta-key cta-key--primary" onClick={() => { sfx("power"); setPhase("scanning"); }}>Power on camera</button><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>No camera? Enter by hand</button></> : null}
       {phase === "scanning" ? <><p className="cta-hint">Hold your badge QR inside the frame. It locks on by itself.</p><button className="cta-key cta-key--ghost" onClick={() => setPhase("manual")}>Enter by hand instead</button></> : null}
       {phase === "acquired" || phase === "transmitting" ? <><label className="cta-field">Add a note (optional)<textarea value={note} maxLength={600} placeholder="What are you interested in? Who should we loop in?" onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={reset} disabled={phase === "transmitting"}>Rescan</button><button className="cta-key cta-key--primary" onClick={() => transmit(false)} disabled={phase === "transmitting"}>{phase === "transmitting" ? "Transmitting…" : "Transmit"}</button></div></> : null}
       {phase === "manual" ? <><label className="cta-field">Name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label><label className="cta-field">Email<input value={email} type="email" onChange={(e) => setEmail(e.target.value)} autoComplete="email" inputMode="email" /></label><label className="cta-field">Note (optional)<textarea value={note} maxLength={600} onChange={(e) => setNote(e.target.value)} /></label>{error ? <p className="cta-error">{error}</p> : null}<div className="cta-row"><button className="cta-key cta-key--ghost" onClick={() => setPhase("scanning")}>Try the camera</button><button className="cta-key cta-key--primary" disabled={!name.trim() || !email.trim()} onClick={() => transmit(true)}>Transmit</button></div></> : null}
@@ -337,6 +343,12 @@ function CtaAdmin() {
 export default function CtaCapture() {
   const [path] = useLocation();
   const admin = path.replace(/\/+$/, "").endsWith("/admin");
+  // Pin the page so dragging on the dials and buttons can't pull the page or trigger pull-to-refresh.
+  useEffect(() => {
+    if (admin) return;
+    const root = document.documentElement; root.classList.add("cta-lock");
+    return () => root.classList.remove("cta-lock");
+  }, [admin]);
   return <main className={`cta-page ${admin ? "cta-page--admin" : ""}`}>
     <div className="cta-sky" aria-hidden="true"><div className="cta-sun" /><div className="cta-grid" /></div>
     <div className="cta-scanlines" aria-hidden="true" />
