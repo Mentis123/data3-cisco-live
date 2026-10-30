@@ -79,14 +79,14 @@ export function parsePayload(raw: string): Parsed {
   return { kind: "text", email, name, company, fields };
 }
 
-const captureSchema = z.object({ payload: z.string().trim().min(1).max(4000), note: z.string().trim().max(600).default(""), manual: z.boolean().default(false) });
+const captureSchema = z.object({ payload: z.string().trim().min(1).max(4000), note: z.string().trim().max(600).default(""), manual: z.boolean().default(false), gold: z.boolean().default(false) });
 const code = () => randomBytes(3).toString("hex").toUpperCase();
 
 export function registerCtaRoutes(app: Express) {
   app.post("/api/cta/captures", async (req, res, next) => { try {
     if (noDb()) { res.status(503).json({ message: "Capture needs the production database" }); return; }
     const input = captureSchema.parse(req.body ?? {});
-    const capture: Capture = { id: randomUUID(), code: code(), payload: input.payload, parsed: parsePayload(input.payload), note: input.note, manual: input.manual, userAgent: String(req.headers["user-agent"] ?? "").slice(0, 300), createdAt: new Date().toISOString() };
+    const capture: Capture = { id: randomUUID(), code: input.gold ? `GOLD-${code()}` : code(), payload: input.payload, parsed: parsePayload(input.payload), note: input.note, manual: input.manual, userAgent: String(req.headers["user-agent"] ?? "").slice(0, 300), createdAt: new Date().toISOString() };
     if (db) { await ensureTable(); await db.execute(sql`INSERT INTO cta_captures(id,code,payload,parsed,note,manual,user_agent) VALUES(${capture.id}::uuid,${capture.code},${capture.payload},${JSON.stringify(capture.parsed)}::jsonb,${capture.note},${capture.manual},${capture.userAgent})`); }
     else memory.unshift(capture);
     res.status(201).json({ id: capture.id, code: capture.code, parsed: capture.parsed, createdAt: capture.createdAt });
