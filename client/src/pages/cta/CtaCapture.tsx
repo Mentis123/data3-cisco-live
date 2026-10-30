@@ -158,6 +158,11 @@ function Unit() {
   }, []);
   useEffect(() => { if (!toast) return; const id = window.setTimeout(() => setToast(""), 2800); return () => window.clearTimeout(id); }, [toast]);
   const gold = found.length >= 5;
+  // Gold unlocked: the whole vaporwave sky turns gold too.
+  useEffect(() => {
+    const page = document.querySelector(".cta-page"); page?.classList.toggle("cta-page--gold", gold);
+    return () => page?.classList.remove("cta-page--gold");
+  }, [gold]);
   // 1. Phosphor dial
   const PHOS = ["aqua", "amber", "green", "magenta"] as const;
   const [phos, setPhos] = useState(0);

@@ -245,3 +245,16 @@ html.cta-lock .cta-unit{margin:auto 0;flex:none}
 /* antenna lives in the top-right corner, clear of ORIGIN; toasts sit on the screen bezel */
 .cta-unit-top .cta-antenna{order:9;margin-left:2px}
 .cta-toast{top:58px;z-index:7}
+
+/* gold unlocked: golden-hour vaporwave sky */
+.cta-sky::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s;background:radial-gradient(ellipse at 50% 30%,rgba(255,215,94,.35),transparent 60%),linear-gradient(180deg,rgba(60,22,0,.0),rgba(255,140,40,.12) 55%,rgba(40,10,0,.3))}
+.cta-sky,.cta-sun,.cta-grid{transition:background 1.2s,opacity 1.2s,filter 1.2s}
+.cta-page--gold{background:#140800}
+.cta-page--gold .cta-sky{background:radial-gradient(ellipse at 50% 34%,rgba(255,200,80,.42),transparent 58%),linear-gradient(180deg,#1a0a00 0%,#5a2400 34%,#b8560a 52%,#c2185b 60%,#3a0f1a 74%,#0d0500 100%)}
+.cta-page--gold .cta-sky::after{opacity:1;animation:ctagoldshimmer 5s ease-in-out infinite}
+.cta-page--gold .cta-sun{background:linear-gradient(180deg,#ffe27a 0%,#ffc23a 35%,#ff7a1a 68%,#ff2e88 100%);opacity:.9;filter:blur(1px) drop-shadow(0 0 40px rgba(255,190,60,.7))}
+.cta-page--gold .cta-grid{background-image:linear-gradient(rgba(255,215,94,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,40,.5) 1px,transparent 1px);opacity:.95;filter:drop-shadow(0 0 4px rgba(255,200,80,.6))}
+.cta-page--gold .cta-scanlines{opacity:.5}
+.cta-page--gold .cta-unit{box-shadow:0 0 0 2px #3a2a08,0 0 0 5px var(--brass-dark),0 0 0 6px var(--brass),0 0 60px rgba(255,200,80,.45),0 30px 80px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.1)}
+.cta-page--gold .cta-origin{border-color:#ffd75e;box-shadow:0 0 0 1px rgba(255,215,94,.3),0 0 22px rgba(255,190,60,.35)}
+@keyframes ctagoldshimmer{0%,100%{opacity:.8}50%{opacity:1}}
