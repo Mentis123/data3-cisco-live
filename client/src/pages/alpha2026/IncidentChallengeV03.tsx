@@ -213,6 +213,14 @@ export default function IncidentChallengeV03({
 
   const incident = incidentSet.find((candidate) => candidate.id === selectedIncidentId) ?? incidentSet[0];
   const stage = incident.stages[stageIndex];
+  // Answer order is shuffled per play so the best answer is never "always A". Seeded by the run, so it is stable within a play.
+  const shuffledOptions = useMemo(() => {
+    let seed = Array.from(`${startedAt ?? 0}:${incident.id}:${stage.id}`).reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+    const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const list = [...stage.options];
+    for (let i = list.length - 1; i > 0; i -= 1) { const j = Math.floor(rand() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+    return list;
+  }, [stage, startedAt, incident.id]);
   const attemptedCount = incidentSet.filter((candidate) => playHistory[candidate.id]).length;
   const hasUnplayedIncident = incidentSet.some((candidate) => !playHistory[candidate.id]);
   const otherUnplayedCount = incidentSet.filter((candidate) => candidate.id !== incident.id && !playHistory[candidate.id]).length;
@@ -765,7 +773,7 @@ export default function IncidentChallengeV03({
               )}
               <h2>{stage.question}</h2>
               <div className="incident-options" aria-label="Choose one response">
-                {stage.options.map((option, index) => (
+                {shuffledOptions.map((option, index) => (
                   <button type="button" key={option.id} onClick={() => choose(option)}>
                     <span>{String.fromCharCode(65 + index)}</span>
                     <strong>{option.action}</strong>
@@ -779,7 +787,7 @@ export default function IncidentChallengeV03({
           {phase === "consequence" && selectedOption && (
             <section className="incident-consequence" aria-labelledby="incident-consequence-title">
               <div className="incident-consequence__update" role="status" aria-live="polite" aria-atomic="true">
-                <p className="incident-kicker">Consequence · {selectedOption.id}</p>
+                <p className="incident-kicker">Consequence · {String.fromCharCode(65 + Math.max(0, shuffledOptions.findIndex((option) => option.id === selectedOption.id)))}</p>
                 <h1 id="incident-consequence-title" ref={headingRef} tabIndex={-1}>
                   {archiveMode ? "The system responds." : "Good call. Here’s the trade-off."}
                 </h1>
